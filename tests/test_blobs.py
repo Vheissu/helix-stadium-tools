@@ -1,4 +1,6 @@
+import builtins
 import unittest
+from unittest import mock
 
 from helix.blobs import (
     build_property_blob,
@@ -16,6 +18,7 @@ class TestBlobs(unittest.TestCase):
         self.assertEqual(fourcc_str(value), "test")
         self.assertIsNone(fourcc_str("test"))
         self.assertIsNone(fourcc_str(0))
+        self.assertIsNone(fourcc_str(1 << 40))
         with self.assertRaises(ValueError):
             fourcc_int("abc")
 
@@ -35,6 +38,15 @@ class TestBlobs(unittest.TestCase):
         except Exception:
             self.skipTest("msgpack not installed")
         self.assertIsNone(decode_msgpack_blob(b"not msgpack"))
+
+    def test_decode_msgpack_blob_missing_dependency(self):
+        def fake_import(name, *args, **kwargs):
+            if name == "msgpack":
+                raise ImportError("no msgpack")
+            return builtins.__import__(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=fake_import):
+            self.assertIsNone(decode_msgpack_blob(b"anything"))
 
     def test_normalize_fourcc_map_nested(self):
         data = {fourcc_int("test"): {fourcc_int("key_"): [1, {fourcc_int("val_"): "ok"}]}}
@@ -56,6 +68,20 @@ class TestBlobs(unittest.TestCase):
         self.assertEqual(decoded.get("key_"), key)
         self.assertEqual(decoded.get("type"), "s")
         self.assertEqual(decoded.get("val_"), label)
+
+    def test_decode_property_blob_none(self):
+        with mock.patch("helix.blobs.decode_msgpack_blob", return_value=None):
+            self.assertIsNone(decode_property_blob(b"nope"))
+
+    def test_build_property_blob_missing_dependency(self):
+        def fake_import(name, *args, **kwargs):
+            if name == "msgpack":
+                raise ImportError("no msgpack")
+            return builtins.__import__(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=fake_import):
+            with self.assertRaises(SystemExit):
+                build_property_blob("k", "v", "s")
 
 
 if __name__ == "__main__":

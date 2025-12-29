@@ -37,6 +37,11 @@ class NoReadyStream:
         return None, None
 
 
+class ReadyStream(NoReadyStream):
+    def recv_frame(self):
+        return 0x00, b"READY"
+
+
 class TestZmtp(unittest.TestCase):
     def test_short_frame(self):
         sock = FakeSocket()
@@ -64,6 +69,10 @@ class TestZmtp(unittest.TestCase):
         self.assertIn(b"Identity", payload)
         self.assertIn(b"client-1", payload)
 
+    def test_ready_payload_without_identity(self):
+        payload = zmtp_ready_payload("SUB", identity=None)
+        self.assertNotIn(b"Identity", payload)
+
     def test_recv_frame_short(self):
         data = b"\x00\x03abc"
         sock = FakeRecvSocket([data[:1], data[1:]])
@@ -81,9 +90,38 @@ class TestZmtp(unittest.TestCase):
         self.assertEqual(flags, 0x02)
         self.assertEqual(received, payload)
 
+    def test_recv_frame_long_header_split(self):
+        payload = b"a" * 300
+        frame = bytes([0x02]) + len(payload).to_bytes(8, "big") + payload
+        sock = FakeRecvSocket([frame[:3], frame[3:15], frame[15:]])
+        stream = ZMTPStream(sock)
+        flags, received = stream.recv_frame()
+        self.assertEqual(flags, 0x02)
+        self.assertEqual(received, payload)
+
+    def test_recv_frame_short_payload_split(self):
+        frame = b"\x00\x05hello"
+        sock = FakeRecvSocket([frame[:3], frame[3:]])
+        stream = ZMTPStream(sock)
+        flags, payload = stream.recv_frame()
+        self.assertEqual(flags, 0x00)
+        self.assertEqual(payload, b"hello")
+
+    def test_recv_frame_empty_socket_returns_none(self):
+        sock = FakeRecvSocket([])
+        stream = ZMTPStream(sock)
+        flags, payload = stream.recv_frame()
+        self.assertIsNone(flags)
+        self.assertIsNone(payload)
+
     def test_recv_exact_reads_all_bytes(self):
         sock = FakeRecvSocket([b"ab", b"cd", b"ef"])
         self.assertEqual(recv_exact(sock, 6), b"abcdef")
+
+    def test_recv_exact_raises_on_close(self):
+        sock = FakeRecvSocket([b""])
+        with self.assertRaises(ConnectionError):
+            recv_exact(sock, 1)
 
     def test_handshake_requires_ready(self):
         greeting = b"x" * 64
@@ -91,6 +129,12 @@ class TestZmtp(unittest.TestCase):
         stream = NoReadyStream(sock)
         with self.assertRaises(ConnectionError):
             zmtp_handshake(stream, "DEALER", identity=b"")
+
+    def test_handshake_succeeds_with_ready(self):
+        greeting = b"x" * 64
+        sock = FakeRecvSocket([greeting])
+        stream = ReadyStream(sock)
+        zmtp_handshake(stream, "DEALER", identity=b"")
 
 
 if __name__ == "__main__":

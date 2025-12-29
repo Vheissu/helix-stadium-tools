@@ -1,0 +1,4057 @@
+[
+  {
+    "name": "Agua 51",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Aguilar DB51",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, applies a 5 dB boost at 5-7 kHz.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 7.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Deep",
+        "description": "When on, applies a 5 dB boost at 30 Hz.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 3.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Agua 51",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Aguilar DB51",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, applies a 5 dB boost at 5-7 kHz.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 7.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Deep",
+        "description": "When on, applies a 5 dB boost at 30 Hz.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 3.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Agua 751",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": "Aguilar DB751",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, applies a 5 dB boost at 5-7 kHz.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Deep",
+        "description": "When on, applies a 5 dB boost at 30 Hz.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -10,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 3.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Agua Sledge",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Aguilar Tone Hammer",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency (40 Hz) EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Adds saturation, a tighter low end, and a more controlled high end, depending on how high the Gain knob is set. When Gain is set to 0.0, Drive does nothing.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Gain",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 3.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Adjusts the Mid band EQ frequency between 180 Hz (0.0) and 1 kHz (10.0).",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency (4 kHz) EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Agua Sledge",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Aguilar Tone Hammer",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency (40 Hz) EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Adds saturation, a tighter low end, and a more controlled high end, depending on how high the Gain knob is set. When Gain is set to 0.0, Drive does nothing.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Gain",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 3.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Adjusts the Mid band EQ frequency between 180 Hz (0.0) and 1 kHz (10.0).",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency (4 kHz) EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg B-15NF",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Ampeg B-15NF Portaflex",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 6.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Low Mid",
+        "description": "Controls the low midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg B-15NF",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Ampeg B-15NF Portaflex",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Low Mid",
+        "description": "Controls the low midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg B15NF 66",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": "Ampeg B-15NF Portaflex",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -10,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT 50th",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": "Ampeg Heritage\u00e2\u0084\u00a2 50th Anniversary SVT (Ch 1 Normal, Ch1 Bright, Ch2 Normal, Ch2 Bright & Jumped channels)",
+    "params": [
+      {
+        "name": "1 Bass",
+        "description": "Controls the low frequency EQ (40 Hz) of the tonestack for Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 4.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "1 Drive",
+        "description": "Controls the amount of Channel 1 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "1 Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack for Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 6.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "1 Mid Freq",
+        "description": "Sets the frequency controlled by the 1 Mid parameter--200 Hz, 800 Hz, or 3 kHz.",
+        "default": "3 kHz",
+        "options": [
+          "200 Hz",
+          "800 Hz",
+          "3 kHz"
+        ]
+      },
+      {
+        "name": "1 Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack for Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 8.1,
+        "unit": "unitless"
+      },
+      {
+        "name": "1 Ultra Hi",
+        "description": "When On, boosts the high frequency of Channel 1.",
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "1 Ultra Lo",
+        "description": "When on, boosts the low frequency of Channel 1. When set to \"Cut,\" decreases the low frequency of Channel 1.",
+        "default": "On",
+        "options": [
+          "Cut",
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "2 Bass",
+        "description": "Controls the low frequency EQ (40 Hz) of the tonestack for Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "2 Drive",
+        "description": "Controls the amount of Channel 2 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "2 Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack for Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "2 Ultra Hi",
+        "description": "When on, boosts the high frequency of Channel 2.",
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "2 Ultra Lo",
+        "description": "When on, boosts the low frequency of Channel 2.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Channel",
+        "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the XXXXX and XXXXX channels.",
+        "default": "Ch1 Normal",
+        "options": [
+          "Ch1 Normal",
+          "Ch1 Bright",
+          "Ch2 Normal",
+          "Ch2 Bright",
+          "Jumped"
+        ]
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -13,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT Brt",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Ampeg SVT (bright channel)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (40 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.1,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 7.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 3.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency controlled by the Mid parameter--220 Hz, 800 Hz, or 3 kHz.",
+        "default": "3000 Hz",
+        "options": [
+          "220 Hz",
+          "800 Hz",
+          "3000 Hz"
+        ]
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT Brt",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Ampeg SVT (bright channel)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (40 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.1,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 3.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency controlled by the Mid parameter--220 Hz, 800 Hz, or 3 kHz.",
+        "default": "3000 Hz",
+        "options": [
+          "220 Hz",
+          "800 Hz",
+          "3000 Hz"
+        ]
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT Nrm",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Ampeg SVT (Normal channel)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (40 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 3.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency controlled by the Mid parameter--220 Hz, 800 Hz, or 3 kHz.",
+        "default": "800 Hz",
+        "options": [
+          "220 Hz",
+          "800 Hz",
+          "3000 Hz"
+        ]
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.8,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT Nrm",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Ampeg SVT (Normal channel)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (40 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 3.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency controlled by the Mid parameter--220 Hz, 800 Hz, or 3 kHz.",
+        "default": "800 Hz",
+        "options": [
+          "220 Hz",
+          "800 Hz",
+          "3000 Hz"
+        ]
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.8,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT-4 PRO",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Ampeg SVT-4 PRO",
+    "params": [
+      {
+        "name": "150 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "2 kHz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "300 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "33 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "5 kHz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "600 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "80 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "8 kHz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "900 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (50 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, boosts the high end response (2 kHz) of the input signal by 6 dB.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "EQ",
+        "description": "When on, enables the 9-band graphic EQ.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "EQ Level",
+        "description": "Controls the output level of the 9-band graphic EQ. If the EQ\u2019d signal is too soft, turn EQ Level up; if it\u2019s too loud, turn EQ Level down.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency controlled by the Mid parameter--1 (220 Hz), 2 (450 Hz), 3 (800 Hz), 4 (1.6 kHz), or 5 (3 kHz).",
+        "default": "2",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (5 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ultra Hi",
+        "description": "When on, boosts the high end (5 kHz) output by 6 dB.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ultra Lo",
+        "description": "When on, boosts the low end (40 Hz) output by 2 dB and simultaneously cuts the midrange (500 Hz) by 10dB.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Ampeg SVT-4 PRO",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Ampeg SVT-4 PRO",
+    "params": [
+      {
+        "name": "150 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "2 kHz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "300 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "33 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "5 kHz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "600 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "80 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "8 kHz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "900 Hz",
+        "description": "Boost or cut up to 12 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (50 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, boosts the high end response (2 kHz) of the input signal by 6 dB.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "EQ",
+        "description": "When on, enables the 9-band graphic EQ.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "EQ Level",
+        "description": "Controls the output level of the 9-band graphic EQ. If the EQ\u2019d signal is too soft, turn EQ Level up; if it\u2019s too loud, turn EQ Level down.",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency controlled by the Mid parameter--1 (220 Hz), 2 (450 Hz), 3 (800 Hz), 4 (1.6 kHz), or 5 (3 kHz).",
+        "default": "2",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (5 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ultra Hi",
+        "description": "When on, boosts the high end (5 kHz) output by 6 dB.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ultra Lo",
+        "description": "When on, boosts the low end (40 Hz) output by 2 dB and simultaneously cuts the midrange (500 Hz) by 10dB.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Brit MegaBass",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": "Marshall Super Bass 1992 (Normal, Bright & Jumped channels)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright Drive",
+        "description": "Controls the amount of Bright channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Channel",
+        "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the Normal and Bright channels.",
+        "default": "Normal",
+        "options": [
+          "Normal",
+          "Bright",
+          "Jumped"
+        ]
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -10,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Normal Drive",
+        "description": "Controls the amount of Normal channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions.",
+        "min": 0,
+        "max": 10,
+        "default": 3.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Presence",
+        "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Busy One Ch1",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Pearce BC-1 preamp (Channel 1)",
+    "params": [
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Boost",
+        "description": "When on, supplies an additional boost for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": -15,
+        "max": 15,
+        "default": 15,
+        "unit": "dB"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter.",
+        "min": 100,
+        "max": 3000,
+        "default": 220,
+        "unit": "Hz"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 1.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Input Pad",
+        "description": "Boosts or cuts the input signal into the preamp by 10 dB.",
+        "default": "0dB",
+        "options": [
+          "-10dB",
+          "0dB",
+          "10dB"
+        ]
+      },
+      {
+        "name": "Limiter",
+        "description": "When on, enables the built-in limiter.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Threshold",
+        "description": "Sets the level above which limiting is applied. Lower values limit more of the signal; higher values limit only louder parts of the signal.",
+        "min": -22,
+        "max": 3,
+        "default": -6,
+        "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Busy One Ch1",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Pearce BC-1 preamp (Channel 1)",
+    "params": [
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Boost",
+        "description": "When on, supplies an additional boost for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": -15,
+        "max": 15,
+        "default": 15,
+        "unit": "dB"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter.",
+        "min": 100,
+        "max": 3000,
+        "default": 220,
+        "unit": "Hz"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 1.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Input Pad",
+        "description": "Boosts or cuts the input signal into the preamp by 10 dB.",
+        "default": "0dB",
+        "options": [
+          "-10dB",
+          "0dB",
+          "10dB"
+        ]
+      },
+      {
+        "name": "Limiter",
+        "description": "When on, enables the built-in limiter.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Threshold",
+        "description": "Sets the level above which limiting is applied. Lower values limit more of the signal; higher values limit only louder parts of the signal.",
+        "min": -22,
+        "max": 3,
+        "default": -6,
+        "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Busy One Ch2",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Pearce BC-1 preamp (Channel 2)",
+    "params": [
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 2.14,
+        "unit": "unitless"
+      },
+      {
+        "name": "Boost",
+        "description": "When on, supplies an additional boost for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 8.22,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter.",
+        "min": 90,
+        "max": 3000,
+        "default": 435.98,
+        "unit": "Hz"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.16,
+        "unit": "unitless"
+      },
+      {
+        "name": "Input Pad",
+        "description": "Boosts or cuts the input signal into the preamp by 10 dB.",
+        "default": "0dB",
+        "options": [
+          "-10dB",
+          "0dB",
+          "10dB"
+        ]
+      },
+      {
+        "name": "Limiter",
+        "description": "When on, enables the built-in limiter.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Threshold",
+        "description": "Sets the level above which limiting is applied. Lower values limit more of the signal; higher values limit only louder parts of the signal.",
+        "min": -22,
+        "max": 3,
+        "default": -6,
+        "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Busy One Ch2",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Pearce BC-1 preamp (Channel 2)",
+    "params": [
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block.",
+        "min": 0,
+        "max": 10,
+        "default": 8.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 2.14,
+        "unit": "unitless"
+      },
+      {
+        "name": "Boost",
+        "description": "When on, supplies an additional boost for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 8.22,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter.",
+        "min": 90,
+        "max": 3000,
+        "default": 435.98,
+        "unit": "Hz"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.16,
+        "unit": "unitless"
+      },
+      {
+        "name": "Input Pad",
+        "description": "Boosts or cuts the input signal into the preamp by 10 dB.",
+        "default": "0dB",
+        "options": [
+          "-10dB",
+          "0dB",
+          "10dB"
+        ]
+      },
+      {
+        "name": "Limiter",
+        "description": "When on, enables the built-in limiter.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Threshold",
+        "description": "Sets the level above which limiting is applied. Lower values limit more of the signal; higher values limit only louder parts of the signal.",
+        "min": -22,
+        "max": 3,
+        "default": -6,
+        "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Busy One Jump",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Pearce BC-1 preamp (Jumped channels)",
+    "params": [
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Bass",
+        "description": "Controls the low frequency EQ of the tonestack on Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Boost",
+        "description": "When on, supplies an additional boost to Channel 1 for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Drive",
+        "description": "Controls the amount of Channel 1 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Master",
+        "description": "Controls the Master Volume of Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack on Channel 1.",
+        "min": -15,
+        "max": 15,
+        "default": 15,
+        "unit": "dB"
+      },
+      {
+        "name": "Ch 1 Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter on Channel 1.",
+        "min": 100,
+        "max": 3000,
+        "default": 150,
+        "unit": "Hz"
+      },
+      {
+        "name": "Ch 1 Treble",
+        "description": "Controls the high frequency EQ of the tonestack on Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 1.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Bass",
+        "description": "Controls the low frequency EQ of the tonestack on Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Boost",
+        "description": "When on, supplies an additional boost to Channel 2 for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Drive",
+        "description": "Controls the amount of Channel 2 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Master",
+        "description": "Controls the Master Volume of Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack on Channel 2.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Ch 2 Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter on Channel 2.",
+        "min": 90,
+        "max": 3000,
+        "default": 500,
+        "unit": "Hz"
+      },
+      {
+        "name": "Ch 2 Treble",
+        "description": "Controls the high frequency EQ of the tonestack on Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 4.38,
+        "unit": "unitless"
+      },
+      {
+        "name": "Input Pad",
+        "description": "Boosts or cuts the input signal into the preamp by 10 dB.",
+        "default": "0dB",
+        "options": [
+          "-10dB",
+          "0dB",
+          "10dB"
+        ]
+      },
+      {
+        "name": "Limiter",
+        "description": "When on, enables the built-in limiter.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Threshold",
+        "description": "Sets the level above which limiting is applied. Lower values limit more of the signal; higher values limit only louder parts of the signal.",
+        "min": -22,
+        "max": 3,
+        "default": -6,
+        "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Busy One Jump",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Pearce BC-1 preamp (Jumped channels)",
+    "params": [
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Bass",
+        "description": "Controls the low frequency EQ of the tonestack on Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Boost",
+        "description": "When on, supplies an additional boost to Channel 1 for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Drive",
+        "description": "Controls the amount of Channel 1 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Master",
+        "description": "Controls the Master Volume of Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 1 Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack on Channel 1.",
+        "min": -15,
+        "max": 15,
+        "default": 15,
+        "unit": "dB"
+      },
+      {
+        "name": "Ch 1 Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter on Channel 1.",
+        "min": 100,
+        "max": 3000,
+        "default": 150,
+        "unit": "Hz"
+      },
+      {
+        "name": "Ch 1 Treble",
+        "description": "Controls the high frequency EQ of the tonestack on Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 1.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Bass",
+        "description": "Controls the low frequency EQ of the tonestack on Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Boost",
+        "description": "When on, supplies an additional boost to Channel 2 for noticeably more gain and distortion.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Drive",
+        "description": "Controls the amount of Channel 2 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Master",
+        "description": "Controls the Master Volume of Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch 2 Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack on Channel 2.",
+        "min": -15,
+        "max": 15,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Ch 2 Mid Freq",
+        "description": "Sets the frequency boosted or cut by the Mid parameter on Channel 2.",
+        "min": 90,
+        "max": 3000,
+        "default": 500,
+        "unit": "Hz"
+      },
+      {
+        "name": "Ch 2 Treble",
+        "description": "Controls the high frequency EQ of the tonestack on Channel 2.",
+        "min": 0,
+        "max": 10,
+        "default": 4.38,
+        "unit": "unitless"
+      },
+      {
+        "name": "Input Pad",
+        "description": "Boosts or cuts the input signal into the preamp by 10 dB.",
+        "default": "0dB",
+        "options": [
+          "-10dB",
+          "0dB",
+          "10dB"
+        ]
+      },
+      {
+        "name": "Limiter",
+        "description": "When on, enables the built-in limiter.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Threshold",
+        "description": "Sets the level above which limiting is applied. Lower values limit more of the signal; higher values limit only louder parts of the signal.",
+        "min": -22,
+        "max": 3,
+        "default": -6,
+        "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Cali 400 Ch1",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "MESA/Boogie Bass 400+ (channel 1)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 7.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 6.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.4,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Cali 400 Ch1",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "MESA/Boogie Bass 400+ (channel 1)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 7.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 6.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.4,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Cali 400 Ch2",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "MESA/Boogie Bass 400+ (channel 2)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 7.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 8.7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Cali 400 Ch2",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "MESA/Boogie Bass 400+ (channel 2)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 7.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 8.7,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Cali Bass",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "MESA/Boogie M9 Carbine",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.9,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 8.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Voice",
+        "description": "This 5-position parameter changes the overall tonal character of the amp: Voices 1 and 2 are variations of a \"scooped\" sound, Voices 4 and 5 are variations of a \"mid-forward\" sound, and Voice 3 is flat.",
+        "default": "Voice 4",
+        "options": [
+          "Voice 1",
+          "Voice 2",
+          "Voice 3",
+          "Voice 4",
+          "Voice 5"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Cali Bass",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "MESA/Boogie M9 Carbine",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.9,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 8.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Voice",
+        "description": "This 5-position parameter changes the overall tonal character of the preamp: Voices 1 and 2 are variations of a \"scooped\" sound, Voices 4 and 5 are variations of a \"mid-forward\" sound, and Voice 3 is flat.",
+        "default": "Voice 4",
+        "options": [
+          "Voice 1",
+          "Voice 2",
+          "Voice 3",
+          "Voice 4",
+          "Voice 5"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Del Sol 300",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Sunn Coliseum 300",
+    "params": [
+      {
+        "name": "125 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 2.5,
+        "unit": "dB"
+      },
+      {
+        "name": "1 kHz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 4.5,
+        "unit": "dB"
+      },
+      {
+        "name": "250 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": -3.2,
+        "unit": "dB"
+      },
+      {
+        "name": "2 kHz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 1.5,
+        "unit": "dB"
+      },
+      {
+        "name": "4 kHz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 5.7,
+        "unit": "dB"
+      },
+      {
+        "name": "500 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": -2,
+        "unit": "dB"
+      },
+      {
+        "name": "62.5 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 9,
+        "unit": "dB"
+      },
+      {
+        "name": "Bright",
+        "description": "Selects the Input jack configuration--Normal (Off) or Bright (On).",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Contour",
+        "description": "When on, acts as a \"mid-scoop\", reducing the midrange frequencies while boosting the low and high frequencies.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Gain",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 8.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Del Sol 300",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Sunn Coliseum 300",
+    "params": [
+      {
+        "name": "125 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 2.5,
+        "unit": "dB"
+      },
+      {
+        "name": "1 kHz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 4.5,
+        "unit": "dB"
+      },
+      {
+        "name": "250 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": -3.2,
+        "unit": "dB"
+      },
+      {
+        "name": "2 kHz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 1.5,
+        "unit": "dB"
+      },
+      {
+        "name": "4 kHz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 5.7,
+        "unit": "dB"
+      },
+      {
+        "name": "500 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": -2,
+        "unit": "dB"
+      },
+      {
+        "name": "62.5 Hz",
+        "description": "Boost or cut up to 15.0 dB.",
+        "min": -15,
+        "max": 15,
+        "default": 9,
+        "unit": "dB"
+      },
+      {
+        "name": "Bright",
+        "description": "Selects the Input jack configuration--Normal (Off) or Bright (On).",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Contour",
+        "description": "When on, acts as a \"mid-scoop\", reducing the midrange frequencies while boosting the low and high frequencies.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Gain",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 8.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "G Cougar 800",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Gallien-Krueger GK 800RB",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (60 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Boost",
+        "description": "Adds gain to the post-tonestack signal. At higher settings, a bit of overdrive/distortion can be heard.",
+        "min": 0,
+        "max": 10,
+        "default": 4.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8.8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Contour",
+        "description": "When on, adds a notch filter around 500 Hz to provide a smoother, rounder sound.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ (1 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Low Mid",
+        "description": "Controls the low midrange frequency EQ (250 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "G Cougar 800",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Gallien-Krueger GK 800RB",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ (60 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Boost",
+        "description": "Adds gain to the post-tonestack signal. At higher settings, a bit of overdrive/distortion can be heard.",
+        "min": 0,
+        "max": 10,
+        "default": 4.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8.8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Contour",
+        "description": "When on, adds a notch filter around 500 Hz to provide a smoother, rounder sound.",
+        "min": false,
+        "max": true,
+        "default": true,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Mid",
+        "description": "Controls the high midrange frequency EQ (1 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Low Mid",
+        "description": "Controls the low midrange frequency EQ (250 Hz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ (4 kHz) of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Mandarin Bass 200",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Orange AD200 MkIII",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Gain",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 7.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Middle",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.58,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Mandarin Bass 200",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Orange AD200 MkIII",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Gain",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Middle",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Mandarin Plus 200",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": "Orange AD200 MkIII (Passive & Active inputs)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Jack",
+        "description": "Selects the input jack on the amp--Passive or Active.",
+        "default": "Passive",
+        "options": [
+          "Passive",
+          "Active"
+        ]
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": 1.5,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the master volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "US Drip Bass",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": "Fender Bassman Silverface (Bass, Normal, & Jumped channels)",
+    "params": [
+      {
+        "name": "Bass Bass",
+        "description": "Controls the low frequency EQ of the Bass channel's tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass Deep",
+        "description": "When on, applies a low frequency boost.",
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "Bass Drive",
+        "description": "Controls the amount of Bass channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions.",
+        "min": 0,
+        "max": 10,
+        "default": 3.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass Treble",
+        "description": "Controls the high frequency EQ of the Bass channel's tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 7.8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Channel",
+        "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the Bass and Normal channels.",
+        "default": "Normal",
+        "options": [
+          "Bass",
+          "Normal",
+          "Jumped"
+        ]
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -10,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Normal Bass",
+        "description": "Controls the low frequency EQ of the Normal channel's tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Normal Bright",
+        "description": "When on, applies a high frequency boost to the Normal channel.",
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "Normal Drive",
+        "description": "Controls the amount of Normal channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions.",
+        "min": 0,
+        "max": 10,
+        "default": 2.3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Normal Treble",
+        "description": "Controls the high frequency EQ of the Normal channel's tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.4,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      }
+    ]
+  },
+  {
+    "name": "US Dripman Norm",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Marshall JCM-800 (2203)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias",
+        "description": "Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bias X",
+        "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, boosts high frequencies. Is more obvious when Drive is set low.",
+        "default": "On",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "US Dripman Norm",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Marshall JCM-800 (2203)",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, boosts high frequencies. Is more obvious when Drive is set low.",
+        "default": "On",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": 0,
+        "max": 10,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Woody Blue",
+    "type": "Amp",
+    "is_agoura": false,
+    "based_on": "Acoustic 360",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, boosts high frequencies. Is more obvious when Drive is set low.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Level controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone. Level is a great way to level your presets as you can quickly jump to each Amp block by pressing the Amp button.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Effect",
+        "description": "Controls the mid EQ of the tonestack, the frequency of which is controlled by the Variamp parameter.",
+        "min": 0,
+        "max": 10,
+        "default": 2.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 2.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "TF Coarse",
+        "description": "Controls the coarse tuning of the Tuning Fork's reference tone.",
+        "min": 0,
+        "max": 10,
+        "default": 4.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "TF Fine",
+        "description": "Controls the fine tuning of the Tuning Fork's reference tone.",
+        "min": 0,
+        "max": 10,
+        "default": 3.1,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Tuning Fork",
+        "description": "Controls the volume of the Tuning Fork's reference tone. Included only in the interest of hyper-accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Variamp",
+        "description": "This 5-position switch acts selects the mid frequency to be boosted or cut with the Effect parameter.",
+        "default": "4",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Woody Blue",
+    "type": "Preamp",
+    "is_agoura": false,
+    "based_on": "Acoustic 360",
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright",
+        "description": "When on, boosts high frequencies. Is more obvious when Drive is set low.",
+        "min": false,
+        "max": true,
+        "default": false,
+        "unit": "unitless"
+      },
+      {
+        "name": "Level",
+        "description": "Level controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone. Level is a great way to level your presets as you can quickly jump to each Amp block by pressing the Amp button.",
+        "min": 0,
+        "max": 10,
+        "default": 8,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Effect",
+        "description": "Controls the mid EQ of the tonestack, the frequency of which is controlled by the Variamp parameter.",
+        "min": 0,
+        "max": 10,
+        "default": 2.2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hum",
+        "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.",
+        "min": 0,
+        "max": 10,
+        "default": 2.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "TF Coarse",
+        "description": "Controls the coarse tuning of the Tuning Fork's reference tone.",
+        "min": 0,
+        "max": 10,
+        "default": 4.7,
+        "unit": "unitless"
+      },
+      {
+        "name": "TF Fine",
+        "description": "Controls the fine tuning of the Tuning Fork's reference tone.",
+        "min": 0,
+        "max": 10,
+        "default": 3.1,
+        "unit": "unitless"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Tuning Fork",
+        "description": "Controls the volume of the Tuning Fork's reference tone. Included only in the interest of hyper-accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Variamp",
+        "description": "This 5-position switch acts selects the mid frequency to be boosted or cut with the Effect parameter.",
+        "default": "4",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "0/2": {"model": "HD2_PitchDualPitchMono", "offset": 1},
+  "0/5": {"model": "HD2_DistCompulsiveDriveMono", "offset": 1},
+  "1/6": {"model": "Agoura_AmpUSTweedman", "offset": 1},
+  "1/20": {"model": "Agoura_AmpBritPlexi", "offset": 1}
+}

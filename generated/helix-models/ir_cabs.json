@@ -1,0 +1,67 @@
+[
+  {
+    "name": "IR",
+    "type": "IR",
+    "is_agoura": false,
+    "based_on": null,
+    "params": [
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to time-align with the other side of the Cab block (helping to avoid phase issues). It can also be used to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here.",
+        "min": 0,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the IR.",
+        "min": -60,
+        "max": 6,
+        "default": -18,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mix",
+        "description": "Controls the blend between the modulation effect and the dry signal.",
+        "min": 0,
+        "max": 100,
+        "default": 100,
+        "unit": "%"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the IR between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Polarity",
+        "description": "Inverts the polarity of the signal.",
+        "default": "Normal",
+        "options": [
+          "Normal",
+          "Inverted"
+        ]
+      }
+    ]
+  }
+]

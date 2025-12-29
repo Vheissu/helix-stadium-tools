@@ -1,0 +1,220 @@
+# Helix Stadium XL Editor Protocol — Technical Details
+
+This document captures the observed on‑wire behaviour of the Helix Stadium XL editor protocol. It is intended to guide future implementations and tooling. Everything here is reverse‑engineered from local captures and may change with firmware or editor updates.
+
+## Overview
+
+The editor communicates over TCP and uses OSC payloads wrapped inside ZeroMQ ZMTP 3.0 frames. Two ports are used:
+
+- **2001**: Device → editor updates and heartbeats (ZMTP `ROUTER` → client `SUB`).
+- **2002**: Editor → device control messages (ZMTP `ROUTER` ← client `DEALER`).
+
+Without the ZMTP handshake the device will reset the TCP connection. Once the ZMTP handshake is complete, OSC payloads are exchanged inside ZMTP data frames.
+
+## Discovery
+
+The device advertises `_stadiumserver._tcp` via Bonjour. Example on macOS:
+
+```bash
+/usr/bin/dns-sd -B _stadiumserver._tcp
+/usr/bin/dns-sd -L p35x1 _stadiumserver._tcp
+```
+
+This yields the hostname (e.g. `p35x1.local`) and the TCP ports.
+
+## ZMTP 3.0 handshake
+
+Both ports require the standard ZMTP 3.0 handshake:
+
+1) **Client greeting** (64 bytes, `NULL` mechanism).
+2) **Server greeting** (64 bytes).
+3) **READY command** frame describing socket type.
+4) **READY command** reply from server.
+
+Observed socket types:
+
+- Port **2002**: client `DEALER`, server `ROUTER`
+- Port **2001**: client `SUB`, server `ROUTER`
+
+### SUBSCRIBE on port 2001
+
+After the READY exchange on port 2001, the client sends a SUBSCRIBE frame. The editor subscribes to all topics by sending an empty subscription. On the wire this appears as a short data frame with a single byte payload `0x01`.
+
+### ZMTP framing
+
+Each ZMTP frame is:
+
+- **Short frame**: `flags (1 byte)` + `length (1 byte)` + payload
+- **Long frame**: `flags (1 byte)` with bit `0x02` set + `length (8 bytes, big‑endian)` + payload
+
+The `flags` byte also uses:
+
+- `0x04` — command frame (READY)
+- `0x01` — more frames (multipart / topic)
+
+### Command vs data frames
+
+After the handshake, the editor and device exchange **data frames** that contain OSC payloads. Command frames are only used during the handshake.
+
+## OSC payloads
+
+OSC payloads follow the standard OSC layout: address string, type tag string, then typed arguments.
+
+### Port 2002 (editor → device)
+
+ZMTP data frames contain **raw OSC packets**. Example:
+
+```
+/ParamValueSet ,iiiiifi [cmdId, path, block, 0, paramId, value, -1]
+```
+
+### Port 2001 (device → editor)
+
+OSC payloads are wrapped in a 12‑byte header before the OSC message body:
+
+- u16 version (observed `0x0108`)
+- 6 bytes reserved (zero)
+- u16 sequence
+- u16 OSC message length
+
+Example decoded payload:
+
+```
+/setParamValue ,iiiiiif [sessionId, cmdId, path, block, 0, paramId, value]
+```
+
+### Common OSC addresses
+
+- `/ParamValueSet` (editor → device)
+- `/setParamValue` (device → editor)
+- `/BlockEnableSet` (editor → device)
+- `/setBlockEnable` (device → editor)
+- `/ModelSet` and `/setModelWithMID` (model change / model ID mapping)
+- `/SetSnapshotName` and `/setSnapshotName` (snapshot naming)
+- `/PropertyValueSet` and `/setPropertyValue` (property updates, including scribble strips)
+- `/heartbeat` (device → editor)
+- `/status` (device → editor, on port 2002)
+
+## Auto-cab insertion
+
+The editor toggles auto-cab insertion via a global property:
+
+```
+/PropertyValueSet ,iib [cmdId, 0, <blob for key=global.modelselect.addcabblock, type=i, val_=0|1>]
+```
+
+When `global.modelselect.addcabblock` is **1**, inserting an amp into an *empty* block via `/ModelSet` causes the device to auto-insert a matching cab immediately after the amp. When the setting is **0**, `/ModelSet` inserts only the amp.
+
+## Snapshot naming
+
+Editor command:
+
+```
+/SetSnapshotName ,iis [cmdId, snapshotIndex, "Name"]
+```
+
+Device response on port 2001:
+
+```
+/setSnapshotName ,iiis [sessionId, cmdId, snapshotIndex, "Name"]
+```
+
+Acknowledgement on port 2002:
+
+```
+/status ,iii [cmdId, 0, 0]
+```
+
+## Agenda commands (batch actions)
+
+Some editor actions are sent via `/doAgenda` with a msgpack blob containing a list of small command objects. Observed example when using **Clear all blocks**:
+
+```
+/doAgenda ,ib [cmdId, <blob>]
+```
+
+Decoded msgpack (example):
+
+```
+[
+  {"bloc": 1, "cmnd": "clrb", "flow": 0},
+  {"bloc": 2, "cmnd": "clrb", "flow": 0}
+]
+```
+
+Notes:
+
+- `cmnd: "clrb"` appears to mean **clear block**.
+- `bloc` is a block index in the path (see edit buffer state).
+- `flow` appears to be the path/flow identifier (0 in the example).
+
+This suggests that batched operations (clear, insert, etc.) may be expressed via `/doAgenda` entries. We need more captures to fully enumerate `cmnd` values.
+
+## Scribble strip labels
+
+Scribble labels are sent via `/PropertyValueSet` with a msgpack blob. The blob format:
+
+```
+payload = b"lavppgsm" + msgpack({ key_, type, val_ })
+```
+
+Where:
+
+- `key_` is a FourCC int (`"key_"`) mapping to a string like:
+  - `preset.floorboard.stomp.a.7.label`
+- `type` is a FourCC int (`"type"`) with value `"s"` for strings.
+- `val_` is a FourCC int (`"val_"`) with the label string.
+
+The editor also updates related properties like `preset.floorboard.stomp.a.7.topidx`.
+
+## Model ID mapping
+
+Model IDs in `/ModelSet` and `/setModelWithMID` do **not** match `ModelMetadataStore.sqlite3`. They match the `id` field in the modeldefs msgpack file:
+
+```
+/Applications/Line6/Helix Stadium.app/Contents/Resources/modeldefs/p35md-*.bin
+```
+
+Each model entry provides:
+
+- `id` (used on the wire)
+- `params` (param name → param info)
+
+Parameter IDs can be mapped to names using the `params` map for the model in use.
+
+## Remote access
+
+The device exposes a Remote Access setting (Allow / Deny / Require PIN). If PIN is required, additional authorisation steps are expected. This flow is not yet reverse engineered.
+
+## Practical implementation notes
+
+- Always perform the ZMTP handshake before sending OSC.
+- Handle long ZMTP frames (8‑byte length) or large responses will be corrupted.
+- Port 2001 requires a SUBSCRIBE frame (empty topic) to receive updates.
+- Keep a single session open when issuing multiple commands; the device responds with `/status` per command.
+- Expect `/heartbeat` messages at a steady cadence on port 2001.
+
+## Reference tooling in this repo
+
+- `scripts/osc_session.py` — ZMTP handshake + simple command send.
+- `scripts/helix_control.py` — programmatic control tool (CLI + batch JSON).
+- `scripts/osc_pcap_dump.py` — decode pcaps, including ZMTP frame parsing and topics.
+
+## Safety
+
+This is reverse‑engineered behaviour. Use a spare preset when experimenting, and respect Line 6’s licensing and support policies.
+
+## Live decode workflow
+
+If you want to discover new commands, you can stream a capture directly into the decoder:
+
+```bash
+sudo tcpdump -i en0 -s 0 -U -w - tcp port 2001 or tcp port 2002 | \
+  python3 scripts/osc_pcap_dump.py --reassemble -
+```
+
+## Capture gotchas
+
+- Edits made on the **device itself** do not traverse the network and will not show up in a capture.
+- Use the **macOS editor app** for any actions you want to observe.
+- If your `.pcap` file is ~24 bytes, no packets were captured; re‑run the capture and ensure the editor is connected.

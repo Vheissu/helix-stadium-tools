@@ -1,0 +1,3049 @@
+[
+  {
+    "name": "1x10 US Princess",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "8x10\" Ampeg SVT 810AV Heritage",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 11,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 6.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Blue Bell",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1x12\" Vox AC-15 Blue Alnico",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 10400,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 80,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 11,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.6,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Cali EXT",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "Custom 1x12\" open-back cab EVM12L",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 12000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.6,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Cali IV",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1x8\" Fender Tweed Champ",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 11500,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 9,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Fullerton",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Hiwatt Fane",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 16000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.9,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Grammatico",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Marshall 1960A T75",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 11,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.9,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Open Cast",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1x12\" Fender Tweed Deluxe",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 Open Cream",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Marshall \"Basketweave\" Fill This In",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.8,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x12 US Deluxe",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1x10\" Fender Princeton Reverb",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.9,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "1x8 Small Tweed",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Soldano Eminence",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 10000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Blue Bell",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" MESA/Boogie 4FB V30",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 15000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 90,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Double C12N",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x12\" Roland JC-120",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 8000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 80,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.6,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Interstate",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1 6x9\" Supro S6616",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 11000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.9,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Jazz Rivet",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x12\" Vox AC-30 Silver Alnico",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Mail C12Q",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Marshall \"Basketweave\" G12M-20",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Mandarin 30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1x12\" Vox AC-15 Blue Alnico",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 12000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 11,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.6,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Match G25",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x15\" Fender Silverface Bassman",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 9000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 60,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 5.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Match H30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "6x10\" MESA/Boogie",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 9000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 60,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 5.6,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "2x12 Silver Bell",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "Custom 1x12\" open-back cab G12M-65",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1.25,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 5000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 90,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 11,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x10 Tweed P10R",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "1x12\" MESA/Boogie Extension Cab",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x10 US Super",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x10\" Fender Super Reverb",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 1960A T75",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x10\" Fender Bassman P10R",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.2,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Blackback H30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Sunn G75T",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.2,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Brit V30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x12\" Fender Twin",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 12000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1.5,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Cali V30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Marshall \"Basketweave\" G12M-25",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Cartog C90",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Cartographer Mesa C90 Black Shadow",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Cartog Guv",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Cartographer Eminence Governor",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Greenback 20",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x12\" Matchless DC-30 custom G12H-30",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 7,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.5,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Greenback 25",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x12\" Orange PPC212 V30",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.4,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Greenback 30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Marshall \"Basketweave\" Fill This In",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 11000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 MOO)))N T75",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x10\" Eden D410XLT",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 12000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 40,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 3,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.9,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Mandarin EM",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Bogner Uberkab T75",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 45,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 3.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.3,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 SoloLead EM",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Soldano Eminence",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Uber T75",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "2x12\" Silvertone 1481",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 3.9,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 Uber V30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x10\" Ampeg PR-410HLF",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 12000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.7,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 WhoWatt 100",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Cartographer Eminence Governor",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 10500,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 1,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "4x12 XXL V30",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Orange Eminence",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 12000,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 40,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.7,
+        "unit": "Center"
+      }
+    ]
+  },
+  {
+    "name": "No Cab",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": null,
+    "params": []
+  },
+  {
+    "name": "Soup Pro Ellipse",
+    "type": "Cab",
+    "is_agoura": false,
+    "based_on": "4x12\" Cartographer Mesa C90 Black Shadow",
+    "params": [
+      {
+        "name": "Angle",
+        "description": "Sets the angle of the mic relative to the front of the speaker cabinet. 0 degrees is pointing directly at the speaker, 45 degrees is pointing off-axis.",
+        "min": 0,
+        "max": 45,
+        "default": 0,
+        "unit": "degrees"
+      },
+      {
+        "name": "Delay",
+        "description": "Delays the signal slightly to purposely impart a bit of phase incoherence or at higher values, increase the Cab block's apparent stereo width. A little goes a long way here. When set to \"Auto\" (all the way left, before 0.0 ms), it approximates the delay through the air when changing the mic Distance parameter.",
+        "min": -0.02,
+        "max": 50,
+        "default": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "Distance",
+        "description": "Sets the distance of the mic from the speaker cone. Choose from 1.00\" to 12.00\" in 1/4\" increments.",
+        "min": 1,
+        "max": 12,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "High Cut",
+        "description": "Applies a high cut (low pass) filter, letting you remove all audio above a certain frequency. May be useful in removing high end harshness.",
+        "min": 500,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Level",
+        "description": "Sets the overall level of the Cab. Use to adjust level against the other side of the Cab block.",
+        "min": -60,
+        "max": 6,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "Applies a low cut (high pass) filter, letting you remove all audio below a certain frequency. May be useful in removing undesirable low end rumble.",
+        "min": 19.9,
+        "max": 500,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mic",
+        "description": "Selects the mic pointed at the cabinet. (Guitar and Bass cabs have different sets of mics available.) Mic selection can have as big an impact on your tone as tweaking the Amp's tonestack or even applying an EQ block, so experimentation is key here.",
+        "min": 0,
+        "max": 11,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Pan",
+        "description": "Controls the panning of the Cab between the left and right channels. For stereo setups, the Cab block can sound much wider if the two sides are panned opposite of one another (\"L 100\" and \"R 100\")",
+        "min": -100,
+        "max": 100,
+        "default": 0.5,
+        "unit": "Left"
+      },
+      {
+        "name": "Position",
+        "description": "Sets the lateral location of the mic in relation to the speaker cone, from center of the speaker to the edge. The \"Cap Edge\" value may appear in a different location depending on the selected cab.",
+        "min": 0,
+        "max": 10,
+        "default": 2.8,
+        "unit": "Center"
+      }
+    ]
+  }
+]

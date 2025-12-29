@@ -53,8 +53,7 @@ There is no build system. Use Python scripts directly.
 
 ## Commit & Pull Request Guidelines
 
-- This repository does not include git history, so no existing commit style can be inferred.
-- If you introduce commits, use short, descriptive messages (e.g., `docs: add protocol details`).
+- Use short, descriptive commit messages (e.g., `docs: add protocol details`).
 - PRs should include a brief summary, affected files, and any commands run for verification.
 
 ## Security & Configuration Tips

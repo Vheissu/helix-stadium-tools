@@ -40,7 +40,57 @@ class StatusRetryStream(FakeStream):
         return None, None
 
 
+class FrameQueueStream:
+    def __init__(self, frames):
+        self._frames = list(frames)
+        self.sent = []
+
+    def send_frame(self, payload, flags=0x00):
+        self.sent.append((flags, payload))
+
+    def recv_frame(self):
+        if self._frames:
+            return self._frames.pop(0)
+        return None, None
+
+
 class TestSession(unittest.TestCase):
+    def test_next_cmd_id_increments(self):
+        session = HelixSession("dummy")
+        first = session.next_cmd_id
+        second = session.next_cmd_id
+        self.assertEqual(second, first + 1)
+
+    def test_send_requires_connection(self):
+        session = HelixSession("dummy")
+        with self.assertRaises(RuntimeError):
+            session.send("/Foo", "i", [1])
+
+    def test_recv_data_frame_skips_control_and_multipart(self):
+        session = HelixSession("dummy")
+        stream = FrameQueueStream([(0x04, b"cmd"), (0x01, b"topic"), (0x00, b"data")])
+        payload, pending = session._recv_data_frame(stream, time.time() + 1.0)
+        self.assertEqual(payload, b"data")
+        self.assertEqual(pending, b"topic")
+
+    def test_recv_osc_filters_bad_payloads(self):
+        session = HelixSession("dummy")
+        stream = FrameQueueStream([
+            (0x00, b"not-osc"),
+            (0x00, b"/invalid"),
+            (0x00, build_osc("/ok", "i", [1])),
+        ])
+        decoded = session._recv_osc(stream, time.time() + 1.0)
+        self.assertIsNotNone(decoded)
+        addr, _tt, vals = decoded
+        self.assertEqual(addr, "/ok")
+        self.assertEqual(vals[0], 1)
+
+    def test_request_timeout_returns_none(self):
+        session = HelixSession("dummy", timeout=0.0, retries=1, retry_delay=0.0)
+        session._stream_2002 = FrameQueueStream([])
+        result = session.request(1, "/Foo", "i", [1], "/Bar", timeout=0.0)
+        self.assertIsNone(result)
     def test_send_and_wait_status_retries(self):
         cmd_id = 42
         status_msg = build_osc("/status", "iii", [cmd_id, 0, 0])
@@ -161,6 +211,34 @@ class TestSession(unittest.TestCase):
             {"bloc": 1, "cmnd": fourcc_int("clrb"), "flow": 1},
         ]
         self.assertEqual(agenda, expected)
+
+    def test_clear_all_blocks_with_missing_state(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: None
+        self.assertIsNone(session.clear_all_blocks())
+
+    def test_clear_all_blocks_path_out_of_range(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: {"sfg_": {"flow": [{"blks": [0]}]}}
+        self.assertIsNone(session.clear_all_blocks(path=3))
+
+    def test_insert_block_calls_helpers_in_order(self):
+        session = HelixSession("dummy")
+        calls = []
+        session.clear_blocks = lambda path, blocks, wait_status=True: calls.append(
+            ("clear_blocks", path, blocks, wait_status)
+        )
+        session.set_auto_cab = lambda enabled, wait_status=True: calls.append(
+            ("set_auto_cab", enabled, wait_status)
+        )
+        session.set_model = lambda path, block, model_id, slot=0, wait_status=True: calls.append(
+            ("set_model", path, block, model_id, slot, wait_status)
+        )
+
+        session.insert_block(1, 2, 123, slot=1, auto_cab=True, clear=True, wait_status=False)
+        self.assertEqual(calls[0], ("clear_blocks", 1, [2], False))
+        self.assertEqual(calls[1], ("set_auto_cab", True, False))
+        self.assertEqual(calls[2], ("set_model", 1, 2, 123, 1, False))
 
 
 if __name__ == "__main__":

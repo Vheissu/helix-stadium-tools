@@ -1,5 +1,7 @@
 # Helix Stadium XL Editor Protocol + Model Extractor
 
+[![codecov](https://codecov.io/gh/Vheissu/helix-stadium-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/Vheissu/helix-stadium-tools)
+
 This repo contains tools and data extraction scripts for understanding the Helix Stadium XL editor protocol and generating structured model metadata suitable for AI-driven preset builders.
 
 All paths assume the macOS editor app is installed at:
@@ -39,6 +41,12 @@ Install msgpack:
 python3 -m pip install msgpack
 ```
 
+Install dev dependencies:
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+```
+
 ## Quick library example
 
 ```python
@@ -56,6 +64,14 @@ Run unit tests:
 
 ```bash
 python3 -m unittest discover -s tests
+```
+
+Run tests with coverage:
+
+```bash
+python3 -m coverage run -m unittest discover -s tests
+python3 -m coverage report -m
+python3 -m coverage xml
 ```
 
 ## Protocol overview (observed)

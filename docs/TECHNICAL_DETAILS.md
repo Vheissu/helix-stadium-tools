@@ -167,6 +167,18 @@ Where:
 
 The editor also updates related properties like `preset.floorboard.stomp.a.7.topidx`.
 
+## Preset notes
+
+Notes text updates are sent via `/PropertyValueSet` with:
+
+- `key_`: `preset.meta.info`
+- `type`: `s`
+- `val_`: full notes text (including newlines)
+
+The notes panel open/close events appear as `volatile.presetinfo.open` and
+`volatile.presetinfo.close` (type `i`, value `1`). These look like UI
+commands rather than persistent preset state.
+
 ## Model ID mapping
 
 Model IDs in `/ModelSet` and `/setModelWithMID` do **not** match `ModelMetadataStore.sqlite3`. They match the `id` field in the modeldefs msgpack file:

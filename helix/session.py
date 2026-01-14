@@ -194,6 +194,15 @@ class HelixSession:
         """Toggle the global auto-cab insertion setting."""
         return self.set_property("global.modelselect.addcabblock", int(bool(enabled)), "i", wait_status=wait_status)
 
+    def set_preset_notes(self, text: str, wait_status: bool = True):
+        """Set the preset notes text (preset.meta.info)."""
+        return self.set_property("preset.meta.info", text, "s", wait_status=wait_status)
+
+    def set_preset_notes_visible(self, visible: bool | int, wait_status: bool = True):
+        """Show or hide the preset notes panel (volatile.presetinfo.open/close)."""
+        key = "volatile.presetinfo.open" if bool(visible) else "volatile.presetinfo.close"
+        return self.set_property(key, 1, "i", wait_status=wait_status)
+
     def do_agenda(self, commands, wait_status: bool = True):
         """Send a /doAgenda batch command (msgpack list of command dicts)."""
         try:

@@ -276,6 +276,8 @@ Supported action ops:
 - `rename_snapshot` / `rename-snapshot` (alias of `snapshot_name`)
 - `scribble_label` (`stomp` or `key`, `label`)
 - `property_set` (`key`, `value`, `value_type`, `property_id`)
+- `preset_notes` / `notes` (`text`)
+- `preset_notes_visible` / `notes_visible` (`visible` or `show`)
 - `set_autocab` / `set-autocab` (`enabled`)
 - `clear_blocks` / `clear-blocks` (`path`, `blocks`)
 - `clear_all_blocks` / `clear-all-blocks` (`path`)

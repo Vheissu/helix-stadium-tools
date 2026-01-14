@@ -48,6 +48,15 @@ def parse_bool(value: str):
     raise ValueError(f"invalid boolean value: {value!r}")
 
 
+def parse_visibility(value: str):
+    val = value.strip().lower()
+    if val in ("1", "true", "yes", "on", "enable", "enabled", "show", "open", "visible"):
+        return True
+    if val in ("0", "false", "no", "off", "disable", "disabled", "hide", "close", "hidden"):
+        return False
+    raise ValueError(f"invalid visibility value: {value!r}")
+
+
 def parse_blocks(value: str):
     parts = [p.strip() for p in value.split(",") if p.strip()]
     return [int(p) for p in parts]
@@ -201,6 +210,17 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             wait_status=True,
         )
         return cmd_id + 1
+    if op in ("preset_notes", "preset-notes", "notes_text", "notes-text", "notes"):
+        session.set_preset_notes(str(action["text"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("preset_notes_visible", "preset-notes-visible", "notes_visible", "notes-visible"):
+        visible = action.get("visible")
+        if visible is None and "show" in action:
+            visible = action["show"]
+        if isinstance(visible, str):
+            visible = parse_visibility(visible)
+        session.set_preset_notes_visible(bool(visible), wait_status=True)
+        return cmd_id + 1
     if op in ("set_autocab", "set-autocab"):
         enabled = action.get("enabled", True)
         if isinstance(enabled, str):
@@ -309,6 +329,12 @@ def main():
     scribble.add_argument("--key", help="Direct property key override")
     scribble.add_argument("--label", required=True)
 
+    notes = sub.add_parser("preset-notes")
+    notes.add_argument("--text", required=True)
+
+    notes_vis = sub.add_parser("preset-notes-visible")
+    notes_vis.add_argument("--visible", required=True, help="show/hide/on/off/true/false")
+
     get_prop = sub.add_parser("get-property")
     get_prop.add_argument("--key", required=True)
 
@@ -362,6 +388,10 @@ def main():
             bank, idx = parse_stomp(args.stomp)
             key = f"preset.floorboard.stomp.{bank}.{idx}.label"
         session.set_property(key, args.label, "s", wait_status=True)
+    elif args.cmd == "preset-notes":
+        session.set_preset_notes(args.text, wait_status=True)
+    elif args.cmd == "preset-notes-visible":
+        session.set_preset_notes_visible(parse_visibility(args.visible), wait_status=True)
     elif args.cmd == "get-property":
         value = session.get_property(args.key)
         print(json.dumps(json_safe(value), indent=2, sort_keys=True))

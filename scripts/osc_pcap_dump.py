@@ -12,6 +12,10 @@ import struct
 import sys
 from datetime import datetime
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from helix.blobs import decode_property_blob  # noqa: E402
+
 DEFAULT_PCAP = "/tmp/helix-stadium.pcap"
 DEFAULT_PORTS = "2001,2002"
 DEFAULT_MODEL_UIDEFS = "/Applications/Line6/Helix Stadium.app/Contents/Resources/P35ModelUIDefs.json"
@@ -337,7 +341,7 @@ def decode_osc(msg):
             if idx + blen > len(msg):
                 vals.append(f"<blob:{blen}?>")
                 break
-            vals.append(f"<blob:{blen}>")
+            vals.append(msg[idx:idx+blen])
             idx += blen
             idx += (4 - (idx % 4)) % 4
         else:
@@ -511,6 +515,142 @@ def load_modeldefs_map(path):
     return mid_map
 
 
+def format_vals(vals):
+    out = []
+    for val in vals:
+        if isinstance(val, (bytes, bytearray)):
+            out.append(f"<blob:{len(val)}>")
+        else:
+            out.append(val)
+    return out
+
+
+def render_row(
+    ts,
+    src,
+    dst,
+    sport,
+    dport,
+    proto,
+    version,
+    seq,
+    msg_len,
+    addr,
+    typetags,
+    vals,
+    topic,
+    args,
+    params,
+    block_map,
+    block_models,
+    mid_map,
+):
+    ts_s = datetime.fromtimestamp(ts).strftime("%H:%M:%S.%f")[:-3]
+    dir_s = f"{src}:{sport} -> {dst}:{dport}"
+    suffix = ""
+    prop_detail = ""
+    if args.decode_properties and addr in ("/PropertyValueSet", "/setPropertyValue") and vals:
+        blob = vals[-1]
+        if isinstance(blob, (bytes, bytearray)):
+            decoded = decode_property_blob(blob)
+            if decoded is not None:
+                prop_detail = f" prop={decoded}"
+    # Update dynamic block model map from /ModelSet or /setModelWithMID
+    if addr in ("/ModelSet", "/setModelWithMID") and vals:
+        try:
+            if addr == "/ModelSet":
+                path = int(vals[1])
+                block = int(vals[2])
+                mid = int(vals[4])
+            else:
+                path = int(vals[2])
+                block = int(vals[3])
+                mid = int(vals[5])
+            key = f"{path}/{block}"
+            if mid in mid_map:
+                block_models[key] = mid_map[mid]
+        except Exception:
+            pass
+    if addr in ("/ModelSet", "/setModelWithMID") and vals:
+        try:
+            if addr == "/ModelSet":
+                path = int(vals[1])
+                block = int(vals[2])
+                mid = int(vals[4])
+            else:
+                path = int(vals[2])
+                block = int(vals[3])
+                mid = int(vals[5])
+            key = f"{path}/{block}"
+            model_key = mid_map.get(mid, {}).get("key")
+            if model_key:
+                suffix = f" block={key} model={model_key} mid={mid}"
+            else:
+                suffix = f" block={key} mid={mid}"
+        except Exception:
+            pass
+    if addr in ("/setParamValue", "/ParamValueSet") and vals:
+        try:
+            if addr == "/setParamValue":
+                path = int(vals[2])
+                block = int(vals[3])
+                pidx = int(vals[5])
+            else:
+                path = int(vals[1])
+                block = int(vals[2])
+                pidx = int(vals[4])
+            key = f"{path}/{block}"
+            if key in block_map:
+                info = block_map[key]
+                ui_idx = pidx - info["offset"]
+                pname = param_name(info["params"], ui_idx)
+                if pname:
+                    suffix = f" block={key} model={info['model']} param[{ui_idx}]={pname}"
+                else:
+                    suffix = f" block={key} model={info['model']} param_idx={pidx}"
+            elif key in block_models:
+                info = block_models[key]
+                pname = info.get("params_by_id", {}).get(pidx)
+                if pname:
+                    suffix = f" block={key} model={info['key']} param_id={pidx} param={pname}"
+                else:
+                    suffix = f" block={key} model={info['key']} param_id={pidx}"
+            elif params:
+                pname = param_name(params, pidx)
+                if pname:
+                    suffix = f" param[{pidx}]={pname}"
+        except Exception:
+            pass
+    elif addr in ("/setBlockEnable", "/BlockEnableSet") and vals:
+        try:
+            if addr == "/setBlockEnable":
+                path = int(vals[2])
+                block = int(vals[3])
+            else:
+                path = int(vals[1])
+                block = int(vals[2])
+            key = f"{path}/{block}"
+            if key in block_map:
+                info = block_map[key]
+                suffix = f" block={key} model={info['model']}"
+            elif key in block_models:
+                info = block_models[key]
+                suffix = f" block={key} model={info['key']}"
+        except Exception:
+            pass
+    topic_s = ""
+    if args.show_topics and topic is not None:
+        topic_s = f" topic={format_topic(topic)}"
+    vals_out = format_vals(vals)
+    if proto == "osc2001":
+        if version is None:
+            print(f"{ts_s} {proto} len={msg_len:3d} {dir_s}{topic_s} {addr} {typetags} {vals_out}{suffix}{prop_detail}")
+        else:
+            print(f"{ts_s} {proto} v{version:#x} seq={seq} len={msg_len:3d} {dir_s}{topic_s} {addr} {typetags} {vals_out}{suffix}{prop_detail}")
+    else:
+        print(f"{ts_s} {proto} len={msg_len:3d} {dir_s} {addr} {typetags} {vals_out}{suffix}{prop_detail}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("pcap", nargs="?", default=DEFAULT_PCAP)
@@ -521,6 +661,7 @@ def main():
     ap.add_argument("--block-map", default=DEFAULT_BLOCK_MAP, help="JSON map of path/block -> {model, offset}")
     ap.add_argument("--reassemble", action="store_true", help="Reassemble TCP streams before decoding")
     ap.add_argument("--show-topics", action="store_true", help="Show ZMTP topic frames (port 2001)")
+    ap.add_argument("--decode-properties", action="store_true", help="Decode PropertyValueSet blobs when possible")
     args = ap.parse_args()
 
     pcap = args.pcap
@@ -530,172 +671,132 @@ def main():
     mid_map = load_modeldefs_map(args.modeldefs)
     block_models = {}
     rows = []
-    if args.reassemble:
-        flows = {}
-        for ts, pkt, linktype in parse_pcap(pcap):
-            parsed = parse_eth_ip_tcp(pkt, linktype)
-            if not parsed:
-                continue
-            src, dst, sport, dport, seq, payload = parsed
-            if sport not in ports and dport not in ports:
-                continue
-            key = (src, dst, sport, dport)
-            flows.setdefault(key, []).append((seq, payload, ts))
-        for (src, dst, sport, dport), segments in flows.items():
-            port = sport if sport in ports else dport
-            for ts, payload in reassemble_stream(segments):
-                if not payload:
-                    continue
-                pending_topic = None
-                for flags, frame in parse_zmtp_frames(payload, resync=True):
-                    if flags & 0x04:
-                        # ZMTP command frame (READY/HELLO/etc.)
+    streaming = args.pcap == "-"
+    if streaming and args.reassemble:
+        print("note: --reassemble with stdin prints only after Ctrl-C", file=sys.stderr)
+    try:
+        if args.reassemble:
+            flows = {}
+            try:
+                for ts, pkt, linktype in parse_pcap(pcap):
+                    parsed = parse_eth_ip_tcp(pkt, linktype)
+                    if not parsed:
                         continue
-                    if flags & 0x01:
-                        # Multipart/topic frame; capture and apply to next data frame.
-                        pending_topic = frame
+                    src, dst, sport, dport, seq, payload = parsed
+                    if sport not in ports and dport not in ports:
                         continue
-                    if port == 2001:
-                        for version, seq, msg_len, msg in parse_frames(frame, resync=True):
-                            decoded = decode_osc(msg)
+                    key = (src, dst, sport, dport)
+                    flows.setdefault(key, []).append((seq, payload, ts))
+            except KeyboardInterrupt:
+                pass
+            for (src, dst, sport, dport), segments in flows.items():
+                port = sport if sport in ports else dport
+                for ts, payload in reassemble_stream(segments):
+                    if not payload:
+                        continue
+                    pending_topic = None
+                    for flags, frame in parse_zmtp_frames(payload, resync=True):
+                        if flags & 0x04:
+                            # ZMTP command frame (READY/HELLO/etc.)
+                            continue
+                        if flags & 0x01:
+                            # Multipart/topic frame; capture and apply to next data frame.
+                            pending_topic = frame
+                            continue
+                        if port == 2001:
+                            parsed = False
+                            for version, seq, msg_len, msg in parse_frames(frame, resync=True):
+                                decoded = decode_osc(msg)
+                                if not decoded:
+                                    continue
+                                addr, typetags, vals = decoded
+                                row = (ts, src, dst, sport, dport, "osc2001", version, seq, msg_len, addr, typetags, vals, pending_topic)
+                                if streaming:
+                                    render_row(*row, args, params, block_map, block_models, mid_map)
+                                else:
+                                    rows.append(row)
+                                parsed = True
+                            if not parsed:
+                                # Some device frames arrive as raw OSC without the 12-byte header.
+                                decoded = decode_osc(frame)
+                                if decoded:
+                                    addr, typetags, vals = decoded
+                                    row = (ts, src, dst, sport, dport, "osc2001", None, None, len(frame), addr, typetags, vals, pending_topic)
+                                    if streaming:
+                                        render_row(*row, args, params, block_map, block_models, mid_map)
+                                    else:
+                                        rows.append(row)
+                        elif port == 2002:
+                            decoded = decode_osc(frame)
                             if not decoded:
                                 continue
                             addr, typetags, vals = decoded
-                            rows.append((ts, src, dst, sport, dport, "osc2001", version, seq, msg_len, addr, typetags, vals, pending_topic))
-                    elif port == 2002:
-                        decoded = decode_osc(frame)
-                        if not decoded:
-                            continue
-                        addr, typetags, vals = decoded
-                        rows.append((ts, src, dst, sport, dport, "osc2002", None, None, len(frame), addr, typetags, vals, None))
-                    pending_topic = None
-    else:
-        for ts, pkt, linktype in parse_pcap(pcap):
-            parsed = parse_eth_ip_tcp(pkt, linktype)
-            if not parsed:
-                continue
-            src, dst, sport, dport, _seq, payload = parsed
-            if sport not in ports and dport not in ports:
-                continue
-            if not payload:
-                continue
-            port = sport if sport in ports else dport
-            pending_topic = None
-            for flags, frame in parse_zmtp_frames(payload):
-                if flags & 0x04:
-                    continue
-                if flags & 0x01:
-                    pending_topic = frame
-                    continue
-                if port == 2001:
-                    for version, seq, msg_len, msg in parse_frames(frame):
-                        decoded = decode_osc(msg)
-                        if not decoded:
-                            continue
-                        addr, typetags, vals = decoded
-                        rows.append((ts, src, dst, sport, dport, "osc2001", version, seq, msg_len, addr, typetags, vals, pending_topic))
-                elif port == 2002:
-                    decoded = decode_osc(frame)
-                    if not decoded:
-                        continue
-                    addr, typetags, vals = decoded
-                    rows.append((ts, src, dst, sport, dport, "osc2002", None, None, len(frame), addr, typetags, vals, None))
-                pending_topic = None
-
-    for ts, src, dst, sport, dport, proto, version, seq, msg_len, addr, typetags, vals, topic in rows:
-        ts_s = datetime.fromtimestamp(ts).strftime("%H:%M:%S.%f")[:-3]
-        dir_s = f"{src}:{sport} -> {dst}:{dport}"
-        suffix = ""
-        # Update dynamic block model map from /ModelSet or /setModelWithMID
-        if addr in ("/ModelSet", "/setModelWithMID") and vals:
-            try:
-                if addr == "/ModelSet":
-                    path = int(vals[1])
-                    block = int(vals[2])
-                    mid = int(vals[4])
-                else:
-                    path = int(vals[2])
-                    block = int(vals[3])
-                    mid = int(vals[5])
-                key = f"{path}/{block}"
-                if mid in mid_map:
-                    block_models[key] = mid_map[mid]
-            except Exception:
-                pass
-        if addr in ("/ModelSet", "/setModelWithMID") and vals:
-            try:
-                if addr == "/ModelSet":
-                    path = int(vals[1])
-                    block = int(vals[2])
-                    mid = int(vals[4])
-                else:
-                    path = int(vals[2])
-                    block = int(vals[3])
-                    mid = int(vals[5])
-                key = f"{path}/{block}"
-                model_key = mid_map.get(mid, {}).get("key")
-                if model_key:
-                    suffix = f" block={key} model={model_key} mid={mid}"
-                else:
-                    suffix = f" block={key} mid={mid}"
-            except Exception:
-                pass
-        if addr in ("/setParamValue", "/ParamValueSet") and vals:
-            try:
-                if addr == "/setParamValue":
-                    path = int(vals[2])
-                    block = int(vals[3])
-                    pidx = int(vals[5])
-                else:
-                    path = int(vals[1])
-                    block = int(vals[2])
-                    pidx = int(vals[4])
-                key = f"{path}/{block}"
-                if key in block_map:
-                    info = block_map[key]
-                    ui_idx = pidx - info["offset"]
-                    pname = param_name(info["params"], ui_idx)
-                    if pname:
-                        suffix = f" block={key} model={info['model']} param[{ui_idx}]={pname}"
-                    else:
-                        suffix = f" block={key} model={info['model']} param_idx={pidx}"
-                elif key in block_models:
-                    info = block_models[key]
-                    pname = info.get("params_by_id", {}).get(pidx)
-                    if pname:
-                        suffix = f" block={key} model={info['key']} param_id={pidx} param={pname}"
-                    else:
-                        suffix = f" block={key} model={info['key']} param_id={pidx}"
-                elif params:
-                    pname = param_name(params, pidx)
-                    if pname:
-                        suffix = f" param[{pidx}]={pname}"
-            except Exception:
-                pass
-        elif addr in ("/setBlockEnable", "/BlockEnableSet") and vals:
-            try:
-                if addr == "/setBlockEnable":
-                    path = int(vals[2])
-                    block = int(vals[3])
-                else:
-                    path = int(vals[1])
-                    block = int(vals[2])
-                key = f"{path}/{block}"
-                if key in block_map:
-                    info = block_map[key]
-                    suffix = f" block={key} model={info['model']}"
-                elif key in block_models:
-                    info = block_models[key]
-                    suffix = f" block={key} model={info['key']}"
-            except Exception:
-                pass
-        topic_s = ""
-        if args.show_topics and topic is not None:
-            topic_s = f" topic={format_topic(topic)}"
-        if proto == "osc2001":
-            print(f"{ts_s} {proto} v{version:#x} seq={seq} len={msg_len:3d} {dir_s}{topic_s} {addr} {typetags} {vals}{suffix}")
+                            row = (ts, src, dst, sport, dport, "osc2002", None, None, len(frame), addr, typetags, vals, None)
+                            if streaming:
+                                render_row(*row, args, params, block_map, block_models, mid_map)
+                            else:
+                                rows.append(row)
+                        pending_topic = None
         else:
-            print(f"{ts_s} {proto} len={msg_len:3d} {dir_s} {addr} {typetags} {vals}{suffix}")
+            try:
+                for ts, pkt, linktype in parse_pcap(pcap):
+                    parsed = parse_eth_ip_tcp(pkt, linktype)
+                    if not parsed:
+                        continue
+                    src, dst, sport, dport, _seq, payload = parsed
+                    if sport not in ports and dport not in ports:
+                        continue
+                    if not payload:
+                        continue
+                    port = sport if sport in ports else dport
+                    pending_topic = None
+                    for flags, frame in parse_zmtp_frames(payload):
+                        if flags & 0x04:
+                            continue
+                        if flags & 0x01:
+                            pending_topic = frame
+                            continue
+                        if port == 2001:
+                            parsed = False
+                            for version, seq, msg_len, msg in parse_frames(frame):
+                                decoded = decode_osc(msg)
+                                if not decoded:
+                                    continue
+                                addr, typetags, vals = decoded
+                                row = (ts, src, dst, sport, dport, "osc2001", version, seq, msg_len, addr, typetags, vals, pending_topic)
+                                if streaming:
+                                    render_row(*row, args, params, block_map, block_models, mid_map)
+                                else:
+                                    rows.append(row)
+                                parsed = True
+                            if not parsed:
+                                # Some device frames arrive as raw OSC without the 12-byte header.
+                                decoded = decode_osc(frame)
+                                if decoded:
+                                    addr, typetags, vals = decoded
+                                    row = (ts, src, dst, sport, dport, "osc2001", None, None, len(frame), addr, typetags, vals, pending_topic)
+                                    if streaming:
+                                        render_row(*row, args, params, block_map, block_models, mid_map)
+                                    else:
+                                        rows.append(row)
+                        elif port == 2002:
+                            decoded = decode_osc(frame)
+                            if not decoded:
+                                continue
+                            addr, typetags, vals = decoded
+                            row = (ts, src, dst, sport, dport, "osc2002", None, None, len(frame), addr, typetags, vals, None)
+                            if streaming:
+                                render_row(*row, args, params, block_map, block_models, mid_map)
+                            else:
+                                rows.append(row)
+                        pending_topic = None
+            except KeyboardInterrupt:
+                pass
+    except KeyboardInterrupt:
+        pass
+
+    for row in rows:
+        render_row(*row, args, params, block_map, block_models, mid_map)
 
 
 if __name__ == "__main__":

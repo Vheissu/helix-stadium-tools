@@ -52,14 +52,12 @@ def build_param_list(model_key, modeldef, uidef, controls):
     for item in uiparams:
         if not isinstance(item, dict):
             continue
-        if item.get("faux"):
-            # Faux params are sourced elsewhere (global properties), skip for now.
-            continue
         key = item.get("id")
         if not key:
             continue
         info = params_map.get(key)
-        if not isinstance(info, dict):
+        faux = bool(item.get("faux"))
+        if not faux and not isinstance(info, dict):
             continue
         display_tag = item.get("display_tag")
         options = None
@@ -69,19 +67,38 @@ def build_param_list(model_key, modeldef, uidef, controls):
             ctrl = controls.get(display_tag)
             if isinstance(ctrl, dict) and ctrl.get("isDiscrete") and isinstance(ctrl.get("format"), list):
                 options = ctrl.get("format")
-        params.append(
-            {
-                "id": info.get("id"),
-                "key": key,
-                "name": item.get("name") or key,
-                "type": info.get("type"),
-                "min": info.get("min"),
-                "max": info.get("max"),
-                "def": info.get("def"),
-                "display_tag": display_tag,
-                "options": options,
-            }
-        )
+        if faux:
+            params.append(
+                {
+                    "id": None,
+                    "key": key,
+                    "name": item.get("name") or key,
+                    "type": "i",
+                    "min": item.get("min"),
+                    "max": item.get("max"),
+                    "def": item.get("def"),
+                    "display_tag": display_tag,
+                    "options": options,
+                    "faux": True,
+                    "property_key": key,
+                }
+            )
+        else:
+            params.append(
+                {
+                    "id": info.get("id"),
+                    "key": key,
+                    "name": item.get("name") or key,
+                    "type": info.get("type"),
+                    "min": info.get("min"),
+                    "max": info.get("max"),
+                    "def": info.get("def"),
+                    "display_tag": display_tag,
+                    "options": options,
+                    "faux": False,
+                    "property_key": None,
+                }
+            )
     return params
 
 

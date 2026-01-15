@@ -194,6 +194,15 @@ Each model entry provides:
 
 Parameter IDs can be mapped to names using the `params` map for the model in use.
 
+## Input/Output blocks in EditBufferState
+
+Input/Output blocks live inside each `sfg_.flow` entry, alongside standard blocks. The `blks` list is usually encoded as alternating `[pos, block]` pairs:
+
+- Row A positions: `0` (Input), `1–12` (blocks), `13` (Output)
+- Row B positions: `14` (Input), `15–26` (blocks), `27` (Output)
+
+`bmap` provides a position → block index mapping that can be used to resolve the block index required by `/ModelSet` and `/ParamValueSet` calls even when a slot is empty.
+
 ## Remote access
 
 The device exposes a Remote Access setting (Allow / Deny / Require PIN). If PIN is required, additional authorisation steps are expected. This flow is not yet reverse engineered.

@@ -45,7 +45,7 @@ export interface IOBlockState {
   blockId: number | null;
   modelId: number | null;
   name: string;
-  params: Record<number, number | boolean>;
+  params: Record<string, number | boolean>;
 }
 
 export interface RowIOState {

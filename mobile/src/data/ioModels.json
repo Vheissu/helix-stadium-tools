@@ -14,6 +14,41 @@
         "name": "Instrument 1+2",
         "params": [
           {
+            "id": null,
+            "key": "preset.inst1.z",
+            "name": "Inst 1 Z",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 1,
+            "display_tag": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "options": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "faux": true,
+            "property_key": "preset.inst1.z"
+          },
+          {
             "id": 2,
             "key": "Pad.1",
             "name": "Inst 1 Pad",
@@ -25,7 +60,9 @@
             "options": [
               "Off/Inst",
               "On/Line"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -36,7 +73,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -53,7 +92,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -64,7 +105,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 6,
@@ -75,7 +118,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 10,
@@ -92,7 +137,44 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": null,
+            "key": "preset.inst2.z",
+            "name": "Inst 2 Z",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 1,
+            "display_tag": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "options": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "faux": true,
+            "property_key": "preset.inst2.z"
           },
           {
             "id": 22,
@@ -106,7 +188,9 @@
             "options": [
               "Off/Inst",
               "On/Line"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 23,
@@ -117,7 +201,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 24,
@@ -134,7 +220,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 25,
@@ -145,7 +233,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 26,
@@ -156,7 +246,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -166,6 +258,41 @@
         "name": "Instrument 1",
         "params": [
           {
+            "id": null,
+            "key": "preset.inst1.z",
+            "name": "Inst 1 Z",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 1,
+            "display_tag": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "options": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "faux": true,
+            "property_key": "preset.inst1.z"
+          },
+          {
             "id": 2,
             "key": "Pad",
             "name": "Pad",
@@ -177,7 +304,9 @@
             "options": [
               "Off/Inst",
               "On/Line"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -188,7 +317,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -205,7 +336,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -216,7 +349,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 6,
@@ -227,7 +362,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -237,6 +374,41 @@
         "name": "Instrument 2",
         "params": [
           {
+            "id": null,
+            "key": "preset.inst2.z",
+            "name": "Inst 2 Z",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 1,
+            "display_tag": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "options": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "faux": true,
+            "property_key": "preset.inst2.z"
+          },
+          {
             "id": 2,
             "key": "Pad",
             "name": "Pad",
@@ -248,7 +420,9 @@
             "options": [
               "Off/Inst",
               "On/Line"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -259,7 +433,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -276,7 +452,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -287,7 +465,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 6,
@@ -298,7 +478,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -316,7 +498,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -327,7 +511,9 @@
             "max": 400,
             "def": 19.9,
             "display_tag": "eq_low_cut",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -344,7 +530,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -355,7 +543,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -366,7 +556,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -384,7 +576,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -401,7 +595,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -412,7 +608,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -423,7 +621,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -441,7 +641,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -458,7 +660,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -469,7 +673,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -480,7 +686,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -498,7 +706,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -515,7 +725,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -526,7 +738,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -537,7 +751,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -555,7 +771,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -572,7 +790,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -583,7 +803,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -594,7 +816,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -612,7 +836,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -629,7 +855,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -640,7 +868,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -651,7 +881,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -669,7 +901,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -686,7 +920,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -697,7 +933,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -708,7 +946,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -726,7 +966,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -743,7 +985,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -754,7 +998,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -765,7 +1011,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -783,7 +1031,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -800,7 +1050,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -811,7 +1063,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -822,7 +1076,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -840,7 +1096,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -857,7 +1115,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -868,7 +1128,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -879,7 +1141,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -897,7 +1161,9 @@
             "max": 6,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 3,
@@ -914,7 +1180,9 @@
             "options": [
               "Off",
               "On"
-            ]
+            ],
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 4,
@@ -925,7 +1193,9 @@
             "max": 0,
             "def": -48,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 5,
@@ -936,7 +1206,9 @@
             "max": 1,
             "def": 0.1,
             "display_tag": "time_ms",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       }
@@ -959,7 +1231,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -970,7 +1244,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -988,7 +1264,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -999,7 +1277,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1017,7 +1297,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1028,7 +1310,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1046,7 +1330,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1057,7 +1343,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1075,7 +1363,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1086,7 +1376,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1104,7 +1396,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1115,7 +1409,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1133,7 +1429,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1144,7 +1442,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1162,7 +1462,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1173,7 +1475,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1191,7 +1495,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1202,7 +1508,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1220,7 +1528,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1231,7 +1541,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1249,7 +1561,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1260,7 +1574,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1278,7 +1594,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1289,7 +1607,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       },
@@ -1307,7 +1627,9 @@
             "max": 1,
             "def": 0.5,
             "display_tag": "pan",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           },
           {
             "id": 2,
@@ -1318,7 +1640,9 @@
             "max": 20,
             "def": 0,
             "display_tag": "volume",
-            "options": null
+            "options": null,
+            "faux": false,
+            "property_key": null
           }
         ]
       }

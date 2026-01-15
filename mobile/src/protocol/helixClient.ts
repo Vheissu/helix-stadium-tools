@@ -174,10 +174,22 @@ export class HelixClient {
     this.sendOsc('/ModelSet', 'iiiii', [cmdId, path, block, slot, modelId]);
   }
 
-  setParamValue(path: number, block: number, paramId: number, value: number | boolean, slot = 0, flags = -1) {
+  setParamValue(
+    path: number,
+    block: number,
+    paramId: number,
+    value: number | boolean,
+    slot = 0,
+    flags = -1,
+    valueType: 'i' | 'f' | 'b' = 'f'
+  ) {
     const cmdId = this.nextCmdId();
-    const floatVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
-    this.sendOsc('/ParamValueSet', 'iiiiifi', [cmdId, path, block, slot, paramId, floatVal, flags]);
+    const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
+    if (valueType === 'i') {
+      this.sendOsc('/ParamValueSet', 'iiiiiii', [cmdId, path, block, slot, paramId, Math.round(numericVal), flags]);
+      return;
+    }
+    this.sendOsc('/ParamValueSet', 'iiiiifi', [cmdId, path, block, slot, paramId, numericVal, flags]);
   }
 
   doAgenda(commands: Array<any>) {
@@ -190,6 +202,14 @@ export class HelixClient {
     if (!blocks.length) return;
     const commands = blocks.map((block) => ({ bloc: block, cmnd: fourcc('clrb'), flow }));
     this.doAgenda(commands);
+  }
+
+  async getProperty(key: string) {
+    const vals = await this.request('/PropertyValueGet', 's', [key], '/getPropertyValue', 2000);
+    if (!vals || vals.length < 3) return null;
+    const blob = vals[2];
+    if (!Buffer.isBuffer(blob)) return null;
+    return decodePropertyBlob(blob);
   }
 
   async getEditBufferState() {
@@ -304,4 +324,13 @@ const decodeMsgpackBlob = (blob: Buffer) => {
     }
   }
   return null;
+};
+
+const decodePropertyBlob = (blob: Buffer) => {
+  const decoded = decodeMsgpackBlob(blob) as any;
+  if (!decoded) return null;
+  const key = decoded.key_ ?? decoded.key;
+  const type = decoded.type;
+  const value = decoded.val_ ?? decoded.val;
+  return { key, type, value };
 };

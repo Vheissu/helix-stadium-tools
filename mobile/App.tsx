@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -36,7 +36,7 @@ const FONT_DISPLAY = Platform.select({ ios: 'Georgia', android: 'serif' });
 const DSP_CAP = 70;
 
 type IOModelParam = {
-  id: number;
+  id: number | null;
   key: string;
   name: string;
   type: 'i' | 'f' | 'b';
@@ -44,6 +44,8 @@ type IOModelParam = {
   max: number;
   def: number;
   options?: string[] | null;
+  faux?: boolean;
+  property_key?: string | null;
 };
 
 type IOModel = {
@@ -135,6 +137,12 @@ export default function App() {
 
   const rowLabels = ['1A', '1B', '2A', '2B']; // Used in picker modal
   const rowToFlow = (row: PathIndex) => (row < 2 ? 0 : 1);
+  const ioBlockIndex = (row: PathIndex, ioType: IOType) => {
+    if (ioType === 'input') {
+      return row % 2 === 0 ? 0 : 14;
+    }
+    return row % 2 === 0 ? 13 : 27;
+  };
   const blockTypeOrder: Array<keyof typeof blockTypes> = [
     'amp',
     'preamp',
@@ -186,6 +194,7 @@ export default function App() {
       clientRef.current = client;
       setConnected(true);
       setStatus('Connected');
+      handleSync();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Connection failed: ${message}`);
@@ -314,18 +323,14 @@ export default function App() {
     const client = requireClient();
     if (!client) return;
     const row = ioPickerRow;
-    const ioEntry = ioGrid[row]?.[ioPickerType];
-    const blockId = ioEntry?.blockId ?? null;
-    if (blockId === null) {
-      setStatus('Sync required to resolve IO block id');
-      return;
-    }
+    const blockId = ioBlockIndex(row, ioPickerType);
     const flow = rowToFlow(row);
     client.setModel(flow, blockId, model.id, 0);
-    const nextParams: Record<number, number | boolean> = {};
+    const nextParams: Record<string, number | boolean> = {};
     model.params.forEach((param) => {
       if (typeof param.def === 'number' || typeof param.def === 'boolean') {
-        nextParams[param.id] = param.def;
+        const key = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+        nextParams[key] = param.def;
       }
     });
     setIoGrid((prev) => {
@@ -346,36 +351,91 @@ export default function App() {
     setStatus(`Set ${rowLabels[row]} ${ioPickerType} to ${model.name}`);
   };
 
-  const updateIOParam = (paramId: number, value: number | boolean) => {
+  const updateIOParam = (param: IOModelParam, value: number | boolean) => {
     const client = requireClient();
     if (!client) return;
     const row = ioPickerRow;
-    const entry = ioGrid[row]?.[ioPickerType];
-    if (!entry || entry.blockId === null) {
-      setStatus('Sync required to resolve IO block id');
-      return;
-    }
     const flow = rowToFlow(row);
-    client.setParamValue(flow, entry.blockId, paramId, value, 0, -1);
+    const blockId = ioBlockIndex(row, ioPickerType);
+    if (param.faux && param.property_key) {
+      client.setProperty(param.property_key, value, param.type);
+    } else if (param.id !== null) {
+      client.setParamValue(flow, blockId, param.id, value, 0, -1, param.type);
+    }
+    const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
     setIoGrid((prev) => {
       const next = prev.map((item) => ({
         input: item.input ? { ...item.input } : null,
         output: item.output ? { ...item.output } : null,
       }));
       const rowEntry = next[row];
-      if (rowEntry && rowEntry[ioPickerType]) {
+      const existing = rowEntry?.[ioPickerType] ?? null;
+      if (rowEntry) {
         rowEntry[ioPickerType] = {
-          ...rowEntry[ioPickerType],
+          blockId,
+          modelId: existing?.modelId ?? null,
+          name: existing?.name ?? '—',
           params: {
-            ...rowEntry[ioPickerType]!.params,
-            [paramId]: value,
+            ...(existing?.params ?? {}),
+            [paramKey]: value,
           },
         };
       }
       return next;
     });
-    setStatus(`Updated ${rowLabels[row]} ${ioPickerType} param ${paramId}`);
+    setStatus(`Updated ${rowLabels[row]} ${ioPickerType} ${param.name}`);
   };
+
+  const hydrateFauxParams = async (row: PathIndex, ioType: IOType) => {
+    const client = clientRef.current;
+    if (!client) return;
+    const entry = ioGrid[row]?.[ioType];
+    if (!entry || entry.modelId === null) return;
+    const meta = ioModelLookup.get(entry.modelId);
+    if (!meta) return;
+    const fauxParams = meta.params.filter((param) => param.faux && param.property_key);
+    if (!fauxParams.length) return;
+    const updates: Record<string, number | boolean> = {};
+    for (const param of fauxParams) {
+      const res = await client.getProperty(param.property_key!);
+      if (!res) continue;
+      let value = res.value;
+      if (typeof value === 'boolean') {
+        value = value ? 1 : 0;
+      } else if (typeof value === 'string') {
+        const parsed = Number(value);
+        value = Number.isFinite(parsed) ? parsed : value;
+      }
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        const key = param.property_key ?? param.key;
+        updates[key] = value as number | boolean;
+      }
+    }
+    if (!Object.keys(updates).length) return;
+    setIoGrid((prev) => {
+      const next = prev.map((item) => ({
+        input: item.input ? { ...item.input } : null,
+        output: item.output ? { ...item.output } : null,
+      }));
+      const rowEntry = next[row];
+      if (rowEntry && rowEntry[ioType]) {
+        rowEntry[ioType] = {
+          ...rowEntry[ioType]!,
+          params: {
+            ...rowEntry[ioType]!.params,
+            ...updates,
+          },
+        };
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (!ioPickerOpen) return;
+    hydrateFauxParams(ioPickerRow, ioPickerType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ioPickerOpen, ioPickerRow, ioPickerType]);
 
   const handleSync = async () => {
     const client = requireClient();
@@ -416,10 +476,11 @@ export default function App() {
       }
     };
 
-    const assignIO = (rowIndex: number, ioType: IOType, blockId: number | null, modelId: number | null, params: Record<number, number | boolean>) => {
+    const assignIO = (rowIndex: number, ioType: IOType, modelId: number | null, params: Record<string, number | boolean>) => {
       if (!nextIO[rowIndex]) return;
       const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
       const name = meta?.name ?? `ID ${modelId ?? '—'}`;
+      const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
       nextIO[rowIndex][ioType] = {
         blockId,
         modelId,
@@ -446,30 +507,29 @@ export default function App() {
         if (!blk || typeof blk !== 'object') return;
         const model = Array.isArray(blk.mdls) ? blk.mdls[0] : null;
         const mid = model?.id__ ?? blk.mid ?? blk.mdid ?? blk.midx ?? blk.model ?? blk.mid_;
-        const blockId = typeof blk.id__ === 'number' ? blk.id__ : null;
-        const params: Record<number, number | boolean> = {};
+        const params: Record<string, number | boolean> = {};
         if (model && Array.isArray(model.parm)) {
           model.parm.forEach((param: any) => {
             const pid = param?.pid_;
             if (typeof pid !== 'number') return;
-            params[pid] = param?.valu ?? 0;
+            params[String(pid)] = param?.valu ?? 0;
           });
         }
 
         if (pos === 0) {
-          assignIO(rowA, 'input', blockId, typeof mid === 'number' ? mid : null, params);
+          assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
           return;
         }
         if (pos === 13) {
-          assignIO(rowA, 'output', blockId, typeof mid === 'number' ? mid : null, params);
+          assignIO(rowA, 'output', typeof mid === 'number' ? mid : null, params);
           return;
         }
         if (pos === 14) {
-          assignIO(rowB, 'input', blockId, typeof mid === 'number' ? mid : null, params);
+          assignIO(rowB, 'input', typeof mid === 'number' ? mid : null, params);
           return;
         }
         if (pos === 27) {
-          assignIO(rowB, 'output', blockId, typeof mid === 'number' ? mid : null, params);
+          assignIO(rowB, 'output', typeof mid === 'number' ? mid : null, params);
           return;
         }
 
@@ -655,7 +715,8 @@ export default function App() {
               <ScrollView style={styles.paramList}>
                 {activeIOModelMeta ? (
                   activeIOModelMeta.params.map((param) => {
-                    const current = activeIOModel?.params?.[param.id] ?? param.def ?? 0;
+                    const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+                    const current = activeIOModel?.params?.[paramKey] ?? param.def ?? 0;
                     const options = param.options ?? null;
                     if (options && options.length) {
                       const min = typeof param.min === 'number' ? param.min : 0;
@@ -676,7 +737,7 @@ export default function App() {
                                 <Pressable
                                   key={`${param.id}-${value}`}
                                   style={[styles.paramOption, isActive && styles.paramOptionActive]}
-                                  onPress={() => updateIOParam(param.id, value)}
+                                  onPress={() => updateIOParam(param, value)}
                                 >
                                   <Text style={styles.paramOptionText}>{label}</Text>
                                 </Pressable>
@@ -696,7 +757,7 @@ export default function App() {
                           onEndEditing={(evt) => {
                             const nextVal = Number(evt.nativeEvent.text);
                             if (Number.isFinite(nextVal)) {
-                              updateIOParam(param.id, nextVal);
+                              updateIOParam(param, nextVal);
                             }
                           }}
                         />

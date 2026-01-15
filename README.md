@@ -8,6 +8,8 @@ All paths assume the macOS editor app is installed at:
 
 - `/Applications/Line6/Helix Stadium.app`
 
+Note: The mobile prototype (see `mobile/`) uses per-model DSP `usage` values from the modeldefs bundle and applies a conservative **70 usage** cap per path for meters/grey-out.
+
 ## Repo layout
 
 - `scripts/`

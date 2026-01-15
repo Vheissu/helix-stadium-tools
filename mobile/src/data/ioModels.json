@@ -1,0 +1,1327 @@
+{
+  "inputs": {
+    "label": "Input",
+    "models": [
+      {
+        "id": 771,
+        "key": "P35_InputNone",
+        "name": "None",
+        "params": []
+      },
+      {
+        "id": 769,
+        "key": "P35_InputInst1_2",
+        "name": "Instrument 1+2",
+        "params": [
+          {
+            "id": 2,
+            "key": "Pad.1",
+            "name": "Inst 1 Pad",
+            "type": "i",
+            "min": 1,
+            "max": 2,
+            "def": 1,
+            "display_tag": "inst_pad",
+            "options": [
+              "Off/Inst",
+              "On/Line"
+            ]
+          },
+          {
+            "id": 3,
+            "key": "Trim.1",
+            "name": "Inst 1 Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 4,
+            "key": "noiseGate.1",
+            "name": "Inst 1 Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 5,
+            "key": "threshold.1",
+            "name": "Inst 1 Thresh",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 6,
+            "key": "decay.1",
+            "name": "Inst 1 Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          },
+          {
+            "id": 10,
+            "key": "StereoLink",
+            "name": "StereoLink",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 22,
+            "key": "Pad.2",
+            "name": "Inst 2 Pad",
+            "type": "i",
+            "min": 1,
+            "max": 2,
+            "def": 1,
+            "display_tag": "inst_pad",
+            "options": [
+              "Off/Inst",
+              "On/Line"
+            ]
+          },
+          {
+            "id": 23,
+            "key": "Trim.2",
+            "name": "Inst 2 Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 24,
+            "key": "noiseGate.2",
+            "name": "Inst 2 Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 25,
+            "key": "threshold.2",
+            "name": "Inst 2 Thresh",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 26,
+            "key": "decay.2",
+            "name": "Inst 2 Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 770,
+        "key": "P35_InputInst1",
+        "name": "Instrument 1",
+        "params": [
+          {
+            "id": 2,
+            "key": "Pad",
+            "name": "Pad",
+            "type": "i",
+            "min": 1,
+            "max": 2,
+            "def": 1,
+            "display_tag": "inst_pad",
+            "options": [
+              "Off/Inst",
+              "On/Line"
+            ]
+          },
+          {
+            "id": 3,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 4,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 5,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 6,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 774,
+        "key": "P35_InputInst2",
+        "name": "Instrument 2",
+        "params": [
+          {
+            "id": 2,
+            "key": "Pad",
+            "name": "Pad",
+            "type": "i",
+            "min": 1,
+            "max": 2,
+            "def": 1,
+            "display_tag": "inst_pad",
+            "options": [
+              "Off/Inst",
+              "On/Line"
+            ]
+          },
+          {
+            "id": 3,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 4,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 5,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 6,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 766,
+        "key": "P35_InputMic",
+        "name": "Mic",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "LowCut",
+            "name": "Low Cut",
+            "type": "f",
+            "min": 19.9,
+            "max": 400,
+            "def": 19.9,
+            "display_tag": "eq_low_cut",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 772,
+        "key": "P35_InputSPDIF",
+        "name": "S/PDIF",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 773,
+        "key": "P35_InputReturn1",
+        "name": "Return 1",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 763,
+        "key": "P35_InputReturn2",
+        "name": "Return 2",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 765,
+        "key": "P35_InputReturn3",
+        "name": "Return 3",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 761,
+        "key": "P35_InputReturn4",
+        "name": "Return 4",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 764,
+        "key": "P35_InputReturn1_2",
+        "name": "Return 1/2",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 768,
+        "key": "P35_InputReturn3_4",
+        "name": "Return 3/4",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 762,
+        "key": "P35_InputUSB3_4",
+        "name": "USB 3/4",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 775,
+        "key": "P35_InputUSB5_6",
+        "name": "USB 5/6",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 767,
+        "key": "P35_InputUSB7_8",
+        "name": "USB 7/8",
+        "params": [
+          {
+            "id": 1,
+            "key": "Trim",
+            "name": "Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 3,
+            "key": "noiseGate",
+            "name": "Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ]
+          },
+          {
+            "id": 4,
+            "key": "threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null
+          },
+          {
+            "id": 5,
+            "key": "decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null
+          }
+        ]
+      }
+    ]
+  },
+  "outputs": {
+    "label": "Output",
+    "models": [
+      {
+        "id": 783,
+        "key": "P35_OutputMatrix",
+        "name": "Matrix 1/4\", XLR, Phones",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 790,
+        "key": "P35_OutputQtrInch",
+        "name": "1/4\" Direct",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 792,
+        "key": "P35_OutputXLR",
+        "name": "XLR Direct",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 791,
+        "key": "P35_OutputPhones",
+        "name": "Phones Direct",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 779,
+        "key": "P35_OutputPath2A",
+        "name": "Path 2A",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 784,
+        "key": "P35_OutputPath2B",
+        "name": "Path 2B",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 788,
+        "key": "P35_OutputPath2A_B",
+        "name": "Path 2A+B",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 780,
+        "key": "P35_OutputSPDIF",
+        "name": "S/PDIF",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 787,
+        "key": "P35_OutputSend1_2",
+        "name": "Send 1/2",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 786,
+        "key": "P35_OutputSend3_4",
+        "name": "Send 3/4",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 781,
+        "key": "P35_OutputUSB1_2",
+        "name": "USB 1/2",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 785,
+        "key": "P35_OutputUSB3_4",
+        "name": "USB 3/4",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      },
+      {
+        "id": 782,
+        "key": "P35_OutputUSB5_6",
+        "name": "USB 5/6",
+        "params": [
+          {
+            "id": 1,
+            "key": "pan",
+            "name": "Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_tag": "pan",
+            "options": null
+          },
+          {
+            "id": 2,
+            "key": "gain",
+            "name": "Level",
+            "type": "f",
+            "min": -120,
+            "max": 20,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null
+          }
+        ]
+      }
+    ]
+  }
+}

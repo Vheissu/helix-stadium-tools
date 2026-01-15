@@ -1,0 +1,4237 @@
+{
+  "amp": {
+    "label": "Amp",
+    "models": [
+      {
+        "id": 628,
+        "name": "2204 Mod",
+        "key": "HD2_AmpLine62204Mod",
+        "category": "amp",
+        "usage": 11.2
+      },
+      {
+        "id": 612,
+        "name": "A30 Fawn Brt",
+        "key": "HD2_AmpA30FawnBrt",
+        "category": "amp",
+        "usage": 10.1
+      },
+      {
+        "id": 613,
+        "name": "A30 Fawn Nrm",
+        "key": "HD2_AmpA30FawnNrm",
+        "category": "amp",
+        "usage": 10.1
+      },
+      {
+        "id": 610,
+        "name": "ANGL Meteor",
+        "key": "HD2_AmpANGLMeteor",
+        "category": "amp",
+        "usage": 13.5
+      },
+      {
+        "id": 663,
+        "name": "Agua 51",
+        "key": "HD2_AmpAgua51",
+        "category": "amp",
+        "usage": 9.6
+      },
+      {
+        "id": 809,
+        "name": "Agua 751",
+        "key": "Agoura_AmpAgua751",
+        "category": "amp",
+        "usage": 11.5
+      },
+      {
+        "id": 726,
+        "name": "Agua Sledge",
+        "key": "HD2_AmpAguaSledge",
+        "category": "amp",
+        "usage": 4.8
+      },
+      {
+        "id": 542,
+        "name": "Ampeg B-15NF",
+        "key": "HD2_AmpTucknGo",
+        "category": "amp",
+        "usage": 11.2
+      },
+      {
+        "id": 759,
+        "name": "Ampeg B15NF 66",
+        "key": "Agoura_AmpAmpegB15NF66",
+        "category": "amp",
+        "usage": 13.6
+      },
+      {
+        "id": 805,
+        "name": "Ampeg SVT 50th",
+        "key": "Agoura_AmpAmpegSVT",
+        "category": "amp",
+        "usage": 25.7
+      },
+      {
+        "id": 554,
+        "name": "Ampeg SVT Brt",
+        "key": "HD2_AmpSVBeastBrt",
+        "category": "amp",
+        "usage": 14.0
+      },
+      {
+        "id": 555,
+        "name": "Ampeg SVT Nrm",
+        "key": "HD2_AmpSVBeastNrm",
+        "category": "amp",
+        "usage": 14.0
+      },
+      {
+        "id": 673,
+        "name": "Ampeg SVT-4 PRO",
+        "key": "HD2_AmpSVT4Pro",
+        "category": "amp",
+        "usage": 8.5
+      },
+      {
+        "id": 637,
+        "name": "Archetype Clean",
+        "key": "HD2_AmpArchetypeClean",
+        "category": "amp",
+        "usage": 12.5
+      },
+      {
+        "id": 635,
+        "name": "Archetype Lead",
+        "key": "HD2_AmpArchetypeLead",
+        "category": "amp",
+        "usage": 13.7
+      },
+      {
+        "id": 713,
+        "name": "Aristocrat",
+        "key": "HD2_AmpLine6Aristocrat",
+        "category": "amp",
+        "usage": 11.9
+      },
+      {
+        "id": 643,
+        "name": "Badonk",
+        "key": "HD2_AmpLine6Badonk",
+        "category": "amp",
+        "usage": 8.9
+      },
+      {
+        "id": 735,
+        "name": "Brit 2203",
+        "key": "HD2_AmpBrit2203",
+        "category": "amp",
+        "usage": 13.9
+      },
+      {
+        "id": 758,
+        "name": "Brit 2203MV",
+        "key": "Agoura_AmpBrit2203MV",
+        "category": "amp",
+        "usage": 21.0
+      },
+      {
+        "id": 608,
+        "name": "Brit 2204",
+        "key": "HD2_AmpBrit2204",
+        "category": "amp",
+        "usage": 14.2
+      },
+      {
+        "id": 604,
+        "name": "Brit J45 Brt",
+        "key": "HD2_AmpBritJ45Brt",
+        "category": "amp",
+        "usage": 12.6
+      },
+      {
+        "id": 605,
+        "name": "Brit J45 Nrm",
+        "key": "HD2_AmpBritJ45Nrm",
+        "category": "amp",
+        "usage": 12.6
+      },
+      {
+        "id": 834,
+        "name": "Brit Jujube",
+        "key": "Agoura_AmpBritJujube",
+        "category": "amp",
+        "usage": 24.0
+      },
+      {
+        "id": 757,
+        "name": "Brit MegaBass",
+        "key": "Agoura_AmpBritMegaBass",
+        "category": "amp",
+        "usage": 14.5
+      },
+      {
+        "id": 600,
+        "name": "Brit P75 Brt",
+        "key": "HD2_AmpBritP75Brt",
+        "category": "amp",
+        "usage": 12.7
+      },
+      {
+        "id": 601,
+        "name": "Brit P75 Nrm",
+        "key": "HD2_AmpBritP75Nrm",
+        "category": "amp",
+        "usage": 12.7
+      },
+      {
+        "id": 756,
+        "name": "Brit Plexi",
+        "key": "Agoura_AmpBritPlexi",
+        "category": "amp",
+        "usage": 23.0
+      },
+      {
+        "id": 594,
+        "name": "Brit Plexi Brt",
+        "key": "HD2_AmpBritPlexiBrt",
+        "category": "amp",
+        "usage": 14.5
+      },
+      {
+        "id": 595,
+        "name": "Brit Plexi Jump",
+        "key": "HD2_AmpBritPlexiJump",
+        "category": "amp",
+        "usage": 16.3
+      },
+      {
+        "id": 596,
+        "name": "Brit Plexi Nrm",
+        "key": "HD2_AmpBritPlexiNrm",
+        "category": "amp",
+        "usage": 14.3
+      },
+      {
+        "id": 657,
+        "name": "Brit Trem Brt",
+        "key": "HD2_AmpBritTremBrt",
+        "category": "amp",
+        "usage": 13.9
+      },
+      {
+        "id": 658,
+        "name": "Brit Trem Jump",
+        "key": "HD2_AmpBritTremJump",
+        "category": "amp",
+        "usage": 15.2
+      },
+      {
+        "id": 659,
+        "name": "Brit Trem Nrm",
+        "key": "HD2_AmpBritTremNrm",
+        "category": "amp",
+        "usage": 13.9
+      },
+      {
+        "id": 649,
+        "name": "Busy One Ch1",
+        "key": "HD2_AmpBusyOneCh1",
+        "category": "amp",
+        "usage": 4.3
+      },
+      {
+        "id": 647,
+        "name": "Busy One Ch2",
+        "key": "HD2_AmpBusyOneCh2",
+        "category": "amp",
+        "usage": 4.3
+      },
+      {
+        "id": 645,
+        "name": "Busy One Jump",
+        "key": "HD2_AmpBusyOneJump",
+        "category": "amp",
+        "usage": 6.5
+      },
+      {
+        "id": 832,
+        "name": "Cali 2C+",
+        "key": "Agoura_AmpCali2CPlus",
+        "category": "amp",
+        "usage": 29.7
+      },
+      {
+        "id": 590,
+        "name": "Cali 400 Ch1",
+        "key": "HD2_AmpCali400Ch1",
+        "category": "amp",
+        "usage": 11.1
+      },
+      {
+        "id": 591,
+        "name": "Cali 400 Ch2",
+        "key": "HD2_AmpCali400Ch2",
+        "category": "amp",
+        "usage": 11.1
+      },
+      {
+        "id": 588,
+        "name": "Cali Bass",
+        "key": "HD2_AmpCaliBass",
+        "category": "amp",
+        "usage": 6.5
+      },
+      {
+        "id": 626,
+        "name": "Cali IV Lead",
+        "key": "HD2_AmpCaliIVLead",
+        "category": "amp",
+        "usage": 14.5
+      },
+      {
+        "id": 622,
+        "name": "Cali IV Rhythm 1",
+        "key": "HD2_AmpCaliIVR1",
+        "category": "amp",
+        "usage": 13.1
+      },
+      {
+        "id": 623,
+        "name": "Cali IV Rhythm 2",
+        "key": "HD2_AmpCaliIVR2",
+        "category": "amp",
+        "usage": 13.1
+      },
+      {
+        "id": 586,
+        "name": "Cali Rectifire",
+        "key": "HD2_AmpCaliRectifire",
+        "category": "amp",
+        "usage": 14.3
+      },
+      {
+        "id": 671,
+        "name": "Cali Texas Ch1",
+        "key": "HD2_AmpCaliTexasCh1",
+        "category": "amp",
+        "usage": 12.5
+      },
+      {
+        "id": 667,
+        "name": "Cali Texas Ch2",
+        "key": "HD2_AmpCaliTexasCh2",
+        "category": "amp",
+        "usage": 13.9
+      },
+      {
+        "id": 712,
+        "name": "Carillon",
+        "key": "HD2_AmpLine6Carillon",
+        "category": "amp",
+        "usage": 11.1
+      },
+      {
+        "id": 655,
+        "name": "Cartographer",
+        "key": "HD2_AmpCartographer",
+        "category": "amp",
+        "usage": 13.4
+      },
+      {
+        "id": 710,
+        "name": "Clarity",
+        "key": "HD2_AmpLine6Clarity",
+        "category": "amp",
+        "usage": 8.6
+      },
+      {
+        "id": 693,
+        "name": "Das Benzin Lead",
+        "key": "HD2_AmpDasBenzinLead",
+        "category": "amp",
+        "usage": 13.8
+      },
+      {
+        "id": 695,
+        "name": "Das Benzin Mega",
+        "key": "HD2_AmpDasBenzinMega",
+        "category": "amp",
+        "usage": 12.6
+      },
+      {
+        "id": 639,
+        "name": "Del Sol 300",
+        "key": "HD2_AmpDelSol300",
+        "category": "amp",
+        "usage": 4.3
+      },
+      {
+        "id": 651,
+        "name": "Derailed Ingrid",
+        "key": "HD2_AmpDerailedIngrid",
+        "category": "amp",
+        "usage": 13.0
+      },
+      {
+        "id": 584,
+        "name": "Divided Duo",
+        "key": "HD2_AmpDividedDuo",
+        "category": "amp",
+        "usage": 11.7
+      },
+      {
+        "id": 568,
+        "name": "Doom",
+        "key": "HD2_AmpLine6Doom",
+        "category": "amp",
+        "usage": 12.2
+      },
+      {
+        "id": 811,
+        "name": "EV Panama Blue",
+        "key": "Agoura_AmpEVPanamaBlue",
+        "category": "amp",
+        "usage": 26.8
+      },
+      {
+        "id": 746,
+        "name": "EV Panama Blue",
+        "key": "HD2_AmpEVPanamaBlue",
+        "category": "amp",
+        "usage": 15.0
+      },
+      {
+        "id": 823,
+        "name": "EV Panama Red",
+        "key": "Agoura_AmpEVPanamaRed",
+        "category": "amp",
+        "usage": 27.0
+      },
+      {
+        "id": 745,
+        "name": "EV Panama Red",
+        "key": "HD2_AmpEVPanamaRed",
+        "category": "amp",
+        "usage": 18.4
+      },
+      {
+        "id": 566,
+        "name": "Elektrik",
+        "key": "HD2_AmpLine6Elektrik",
+        "category": "amp",
+        "usage": 9.9
+      },
+      {
+        "id": 725,
+        "name": "Elmsley",
+        "key": "HD2_AmpLine6Elmsley",
+        "category": "amp",
+        "usage": 15.6
+      },
+      {
+        "id": 564,
+        "name": "Epic",
+        "key": "HD2_AmpLine6Epic",
+        "category": "amp",
+        "usage": 11.2
+      },
+      {
+        "id": 582,
+        "name": "Essex A15",
+        "key": "HD2_AmpEssexA15",
+        "category": "amp",
+        "usage": 11.2
+      },
+      {
+        "id": 580,
+        "name": "Essex A30",
+        "key": "HD2_AmpEssexA30",
+        "category": "amp",
+        "usage": 12.2
+      },
+      {
+        "id": 810,
+        "name": "Essex TB30CC",
+        "key": "Agoura_AmpEssexTB30CC",
+        "category": "amp",
+        "usage": 22.5
+      },
+      {
+        "id": 630,
+        "name": "Fatality",
+        "key": "HD2_AmpLine6Fatality",
+        "category": "amp",
+        "usage": 11.3
+      },
+      {
+        "id": 682,
+        "name": "Fullerton Brt",
+        "key": "HD2_AmpFullertonBrt",
+        "category": "amp",
+        "usage": 11.0
+      },
+      {
+        "id": 683,
+        "name": "Fullerton Jump",
+        "key": "HD2_AmpFullertonJump",
+        "category": "amp",
+        "usage": 13.0
+      },
+      {
+        "id": 684,
+        "name": "Fullerton Nrm",
+        "key": "HD2_AmpFullertonNrm",
+        "category": "amp",
+        "usage": 11.0
+      },
+      {
+        "id": 578,
+        "name": "G Cougar 800",
+        "key": "HD2_AmpGCougar800",
+        "category": "amp",
+        "usage": 8.7
+      },
+      {
+        "id": 576,
+        "name": "German Mahadeva",
+        "key": "HD2_AmpGermanMahadeva",
+        "category": "amp",
+        "usage": 14.8
+      },
+      {
+        "id": 574,
+        "name": "German Ubersonic",
+        "key": "HD2_AmpGermanUbersonic",
+        "category": "amp",
+        "usage": 14.0
+      },
+      {
+        "id": 818,
+        "name": "German Xtra Blue",
+        "key": "Agoura_AmpGermanXtraBlue",
+        "category": "amp",
+        "usage": 22.2
+      },
+      {
+        "id": 741,
+        "name": "German Xtra Blue",
+        "key": "HD2_AmpGermanXtraBlue",
+        "category": "amp",
+        "usage": 13.3
+      },
+      {
+        "id": 819,
+        "name": "German Xtra Red",
+        "key": "Agoura_AmpGermanXtraRed",
+        "category": "amp",
+        "usage": 23.7
+      },
+      {
+        "id": 742,
+        "name": "German Xtra Red",
+        "key": "HD2_AmpGermanXtraRed",
+        "category": "amp",
+        "usage": 14.7
+      },
+      {
+        "id": 731,
+        "name": "Grammatico GSG",
+        "key": "HD2_AmpGSG100",
+        "category": "amp",
+        "usage": 15.8
+      },
+      {
+        "id": 676,
+        "name": "GrammaticoLG Brt",
+        "key": "HD2_AmpGrammaticoBrt",
+        "category": "amp",
+        "usage": 11.5
+      },
+      {
+        "id": 677,
+        "name": "GrammaticoLG Jmp",
+        "key": "HD2_AmpGrammaticoJump",
+        "category": "amp",
+        "usage": 13.7
+      },
+      {
+        "id": 678,
+        "name": "GrammaticoLG Nrm",
+        "key": "HD2_AmpGrammaticoNrm",
+        "category": "amp",
+        "usage": 11.5
+      },
+      {
+        "id": 572,
+        "name": "Interstate Zed",
+        "key": "HD2_AmpInterstateZed",
+        "category": "amp",
+        "usage": 10.3
+      },
+      {
+        "id": 570,
+        "name": "Jazz Rivet 120",
+        "key": "HD2_AmpJazzRivet120",
+        "category": "amp",
+        "usage": 6.9
+      },
+      {
+        "id": 711,
+        "name": "Kinetic",
+        "key": "HD2_AmpLine6Kinetic",
+        "category": "amp",
+        "usage": 11.2
+      },
+      {
+        "id": 633,
+        "name": "Litigator",
+        "key": "HD2_AmpLine6Litigator",
+        "category": "amp",
+        "usage": 9.0
+      },
+      {
+        "id": 562,
+        "name": "Mail Order Twin",
+        "key": "HD2_AmpMailOrderTwin",
+        "category": "amp",
+        "usage": 13.3
+      },
+      {
+        "id": 560,
+        "name": "Mandarin 80",
+        "key": "HD2_AmpMandarin80",
+        "category": "amp",
+        "usage": 13.9
+      },
+      {
+        "id": 733,
+        "name": "Mandarin Bass 200",
+        "key": "HD2_AmpMandarinBass200",
+        "category": "amp",
+        "usage": 10.8
+      },
+      {
+        "id": 754,
+        "name": "Mandarin Plus 200",
+        "key": "Agoura_AmpMandarinPlus200",
+        "category": "amp",
+        "usage": 16.3
+      },
+      {
+        "id": 697,
+        "name": "Mandarin Rocker",
+        "key": "HD2_AmpMandarinRocker",
+        "category": "amp",
+        "usage": 14.0
+      },
+      {
+        "id": 616,
+        "name": "Matchstick Ch1",
+        "key": "HD2_AmpMatchstickCh1",
+        "category": "amp",
+        "usage": 11.3
+      },
+      {
+        "id": 617,
+        "name": "Matchstick Ch2",
+        "key": "HD2_AmpMatchstickCh2",
+        "category": "amp",
+        "usage": 11.3
+      },
+      {
+        "id": 618,
+        "name": "Matchstick Jump",
+        "key": "HD2_AmpMatchstickJump",
+        "category": "amp",
+        "usage": 14.4
+      },
+      {
+        "id": 703,
+        "name": "Moo)))n Brt",
+        "key": "HD2_AmpMoonBrt",
+        "category": "amp",
+        "usage": 13.0
+      },
+      {
+        "id": 702,
+        "name": "Moo)))n Jump",
+        "key": "HD2_AmpMoonJump",
+        "category": "amp",
+        "usage": 14.3
+      },
+      {
+        "id": 701,
+        "name": "Moo)))n Nrm",
+        "key": "HD2_AmpMoonNrm",
+        "category": "amp",
+        "usage": 13.0
+      },
+      {
+        "id": 714,
+        "name": "Oblivion",
+        "key": "HD2_AmpLine6Oblivion",
+        "category": "amp",
+        "usage": 13.8
+      },
+      {
+        "id": 558,
+        "name": "PV Panama",
+        "key": "HD2_AmpPVPanama",
+        "category": "amp",
+        "usage": 13.6
+      },
+      {
+        "id": 723,
+        "name": "PV Vitriol Clean",
+        "key": "HD2_AmpPVVitriolClean",
+        "category": "amp",
+        "usage": 14.6
+      },
+      {
+        "id": 708,
+        "name": "PV Vitriol Crunch",
+        "key": "HD2_AmpPVVitriolCrunch",
+        "category": "amp",
+        "usage": 18.4
+      },
+      {
+        "id": 707,
+        "name": "PV Vitriol Lead",
+        "key": "HD2_AmpPVVitriolLead",
+        "category": "amp",
+        "usage": 18.4
+      },
+      {
+        "id": 669,
+        "name": "Placater Clean",
+        "key": "HD2_AmpPlacaterClean",
+        "category": "amp",
+        "usage": 10.5
+      },
+      {
+        "id": 665,
+        "name": "Placater Dirty",
+        "key": "HD2_AmpPlacaterDirty",
+        "category": "amp",
+        "usage": 12.6
+      },
+      {
+        "id": 817,
+        "name": "Revv 120 Purple",
+        "key": "Agoura_AmpRevvCh3Purple",
+        "category": "amp",
+        "usage": 28.5
+      },
+      {
+        "id": 806,
+        "name": "Revv 120 Red",
+        "key": "Agoura_AmpRevvCh4Red",
+        "category": "amp",
+        "usage": 28.5
+      },
+      {
+        "id": 689,
+        "name": "Revv Gen Purple",
+        "key": "HD2_AmpRevvGenPurple",
+        "category": "amp",
+        "usage": 14.0
+      },
+      {
+        "id": 675,
+        "name": "Revv Gen Red",
+        "key": "HD2_AmpRevvGenRed",
+        "category": "amp",
+        "usage": 14.0
+      },
+      {
+        "id": 753,
+        "name": "Solid 100",
+        "key": "Agoura_AmpSolid100",
+        "category": "amp",
+        "usage": 22.5
+      },
+      {
+        "id": 550,
+        "name": "Solo Lead Clean",
+        "key": "HD2_AmpSoloLeadClean",
+        "category": "amp",
+        "usage": 13.1
+      },
+      {
+        "id": 551,
+        "name": "Solo Lead Crunch",
+        "key": "HD2_AmpSoloLeadCrunch",
+        "category": "amp",
+        "usage": 13.2
+      },
+      {
+        "id": 548,
+        "name": "Solo Lead OD",
+        "key": "HD2_AmpSoloLeadOD",
+        "category": "amp",
+        "usage": 14.8
+      },
+      {
+        "id": 546,
+        "name": "Soup Pro",
+        "key": "HD2_AmpSoupPro",
+        "category": "amp",
+        "usage": 8.0
+      },
+      {
+        "id": 544,
+        "name": "Stone Age 185",
+        "key": "HD2_AmpStoneAge185",
+        "category": "amp",
+        "usage": 13.2
+      },
+      {
+        "id": 538,
+        "name": "Tweed Blues Brt",
+        "key": "HD2_AmpTweedBluesBrt",
+        "category": "amp",
+        "usage": 12.1
+      },
+      {
+        "id": 539,
+        "name": "Tweed Blues Nrm",
+        "key": "HD2_AmpTweedBluesNrm",
+        "category": "amp",
+        "usage": 12.1
+      },
+      {
+        "id": 752,
+        "name": "US 5W Tweed",
+        "key": "Agoura_AmpUS5WTweed",
+        "category": "amp",
+        "usage": 20.5
+      },
+      {
+        "id": 536,
+        "name": "US Deluxe Nrm",
+        "key": "HD2_AmpUSDeluxeNrm",
+        "category": "amp",
+        "usage": 11.7
+      },
+      {
+        "id": 534,
+        "name": "US Deluxe Vib",
+        "key": "HD2_AmpUSDeluxeVib",
+        "category": "amp",
+        "usage": 13.0
+      },
+      {
+        "id": 807,
+        "name": "US Double Black",
+        "key": "Agoura_AmpUSDoubleBlack",
+        "category": "amp",
+        "usage": 19.5
+      },
+      {
+        "id": 532,
+        "name": "US Double Nrm",
+        "key": "HD2_AmpUSDoubleNrm",
+        "category": "amp",
+        "usage": 12.1
+      },
+      {
+        "id": 530,
+        "name": "US Double Vib",
+        "key": "HD2_AmpUSDoubleVib",
+        "category": "amp",
+        "usage": 13.0
+      },
+      {
+        "id": 812,
+        "name": "US Drip Bass",
+        "key": "Agoura_AmpUSDripBass",
+        "category": "amp",
+        "usage": 25.1
+      },
+      {
+        "id": 729,
+        "name": "US Dripman Norm",
+        "key": "HD2_AmpUSDripmanNorm",
+        "category": "amp",
+        "usage": 12.3
+      },
+      {
+        "id": 751,
+        "name": "US Luxe Black",
+        "key": "Agoura_AmpUSLuxeBlack",
+        "category": "amp",
+        "usage": 22.1
+      },
+      {
+        "id": 691,
+        "name": "US Princess",
+        "key": "HD2_AmpUSPrincess",
+        "category": "amp",
+        "usage": 12.7
+      },
+      {
+        "id": 750,
+        "name": "US Princess 76",
+        "key": "Agoura_AmpUSPrincess76",
+        "category": "amp",
+        "usage": 17.5
+      },
+      {
+        "id": 528,
+        "name": "US Small Tweed",
+        "key": "HD2_AmpUSSmallTweed",
+        "category": "amp",
+        "usage": 6.6
+      },
+      {
+        "id": 833,
+        "name": "US Super Black",
+        "key": "Agoura_AmpUSSuperBlack",
+        "category": "amp",
+        "usage": 20.4
+      },
+      {
+        "id": 737,
+        "name": "US Super Norm",
+        "key": "HD2_AmpUSSuperNorm",
+        "category": "amp",
+        "usage": 10.8
+      },
+      {
+        "id": 739,
+        "name": "US Super Vib",
+        "key": "HD2_AmpUSSuperVib",
+        "category": "amp",
+        "usage": 12.5
+      },
+      {
+        "id": 749,
+        "name": "US Tweedman",
+        "key": "Agoura_AmpUSTweedman",
+        "category": "amp",
+        "usage": 24.5
+      },
+      {
+        "id": 700,
+        "name": "Ventoux",
+        "key": "HD2_AmpLine6Ventoux",
+        "category": "amp",
+        "usage": 8.9
+      },
+      {
+        "id": 709,
+        "name": "Voltage",
+        "key": "HD2_AmpLine6Voltage",
+        "category": "amp",
+        "usage": 12.5
+      },
+      {
+        "id": 653,
+        "name": "Voltage Queen",
+        "key": "HD2_AmpVoltageQueen",
+        "category": "amp",
+        "usage": 13.2
+      },
+      {
+        "id": 526,
+        "name": "WhoWatt 100",
+        "key": "HD2_AmpWhoWatt100",
+        "category": "amp",
+        "usage": 13.5
+      },
+      {
+        "id": 808,
+        "name": "WhoWatt 103",
+        "key": "Agoura_AmpWhoWatt103",
+        "category": "amp",
+        "usage": 26.5
+      },
+      {
+        "id": 641,
+        "name": "Woody Blue",
+        "key": "HD2_AmpWoodyBlue",
+        "category": "amp",
+        "usage": 6.1
+      }
+    ]
+  },
+  "preamp": {
+    "label": "Preamp",
+    "models": [
+      {
+        "id": 632,
+        "name": "2204 Mod",
+        "key": "HD2_PreampLine62204ModV2",
+        "category": "preamp",
+        "usage": 10.2
+      },
+      {
+        "id": 614,
+        "name": "A30 Fawn Brt",
+        "key": "HD2_PreampA30FawnBrt",
+        "category": "preamp",
+        "usage": 5.7
+      },
+      {
+        "id": 615,
+        "name": "A30 Fawn Nrm",
+        "key": "HD2_PreampA30FawnNrm",
+        "category": "preamp",
+        "usage": 6.0
+      },
+      {
+        "id": 611,
+        "name": "ANGL Meteor",
+        "key": "HD2_PreampANGLMeteor",
+        "category": "preamp",
+        "usage": 9.6
+      },
+      {
+        "id": 664,
+        "name": "Agua 51",
+        "key": "HD2_PreampAgua51",
+        "category": "preamp",
+        "usage": 9.4
+      },
+      {
+        "id": 727,
+        "name": "Agua Sledge",
+        "key": "HD2_PreampAguaSledge",
+        "category": "preamp",
+        "usage": 5.2
+      },
+      {
+        "id": 543,
+        "name": "Ampeg B-15NF",
+        "key": "HD2_PreampTucknGo",
+        "category": "preamp",
+        "usage": 6.9
+      },
+      {
+        "id": 556,
+        "name": "Ampeg SVT Brt",
+        "key": "HD2_PreampSVBeastBrt",
+        "category": "preamp",
+        "usage": 11.0
+      },
+      {
+        "id": 557,
+        "name": "Ampeg SVT Nrm",
+        "key": "HD2_PreampSVBeastNrm",
+        "category": "preamp",
+        "usage": 11.0
+      },
+      {
+        "id": 674,
+        "name": "Ampeg SVT-4 PRO",
+        "key": "HD2_PreampSVT4Pro",
+        "category": "preamp",
+        "usage": 7.6
+      },
+      {
+        "id": 638,
+        "name": "Archetype Clean",
+        "key": "HD2_PreampArchetypeClean",
+        "category": "preamp",
+        "usage": 7.9
+      },
+      {
+        "id": 636,
+        "name": "Archetype Lead",
+        "key": "HD2_PreampArchetypeLead",
+        "category": "preamp",
+        "usage": 9.1
+      },
+      {
+        "id": 717,
+        "name": "Aristocrat",
+        "key": "HD2_PreampLine6Aristocrat",
+        "category": "preamp",
+        "usage": 12.1
+      },
+      {
+        "id": 644,
+        "name": "Badonk",
+        "key": "HD2_PreampLine6Badonk",
+        "category": "preamp",
+        "usage": 8.3
+      },
+      {
+        "id": 736,
+        "name": "Brit 2203",
+        "key": "HD2_PreampBrit2203",
+        "category": "preamp",
+        "usage": 14.5
+      },
+      {
+        "id": 609,
+        "name": "Brit 2204",
+        "key": "HD2_PreampBrit2204",
+        "category": "preamp",
+        "usage": 10.1
+      },
+      {
+        "id": 606,
+        "name": "Brit J45 Brt",
+        "key": "HD2_PreampBritJ45Brt",
+        "category": "preamp",
+        "usage": 7.6
+      },
+      {
+        "id": 607,
+        "name": "Brit J45 Nrm",
+        "key": "HD2_PreampBritJ45Nrm",
+        "category": "preamp",
+        "usage": 7.6
+      },
+      {
+        "id": 602,
+        "name": "Brit P75 Brt",
+        "key": "HD2_PreampBritP75Brt",
+        "category": "preamp",
+        "usage": 7.4
+      },
+      {
+        "id": 603,
+        "name": "Brit P75 Nrm",
+        "key": "HD2_PreampBritP75Nrm",
+        "category": "preamp",
+        "usage": 7.4
+      },
+      {
+        "id": 597,
+        "name": "Brit Plexi Brt",
+        "key": "HD2_PreampBritPlexiBrt",
+        "category": "preamp",
+        "usage": 9.7
+      },
+      {
+        "id": 598,
+        "name": "Brit Plexi Jump",
+        "key": "HD2_PreampBritPlexiJump",
+        "category": "preamp",
+        "usage": 11.2
+      },
+      {
+        "id": 599,
+        "name": "Brit Plexi Nrm",
+        "key": "HD2_PreampBritPlexiNrm",
+        "category": "preamp",
+        "usage": 9.5
+      },
+      {
+        "id": 660,
+        "name": "Brit Trem Brt",
+        "key": "HD2_PreampBritTremBrt",
+        "category": "preamp",
+        "usage": 8.9
+      },
+      {
+        "id": 661,
+        "name": "Brit Trem Jump",
+        "key": "HD2_PreampBritTremJump",
+        "category": "preamp",
+        "usage": 10.6
+      },
+      {
+        "id": 662,
+        "name": "Brit Trem Nrm",
+        "key": "HD2_PreampBritTremNrm",
+        "category": "preamp",
+        "usage": 8.9
+      },
+      {
+        "id": 650,
+        "name": "Busy One Ch1",
+        "key": "HD2_PreampBusyOneCh1",
+        "category": "preamp",
+        "usage": 4.0
+      },
+      {
+        "id": 648,
+        "name": "Busy One Ch2",
+        "key": "HD2_PreampBusyOneCh2",
+        "category": "preamp",
+        "usage": 4.0
+      },
+      {
+        "id": 646,
+        "name": "Busy One Jump",
+        "key": "HD2_PreampBusyOneJump",
+        "category": "preamp",
+        "usage": 6.6
+      },
+      {
+        "id": 592,
+        "name": "Cali 400 Ch1",
+        "key": "HD2_PreampCali400Ch1",
+        "category": "preamp",
+        "usage": 7.0
+      },
+      {
+        "id": 593,
+        "name": "Cali 400 Ch2",
+        "key": "HD2_PreampCali400Ch2",
+        "category": "preamp",
+        "usage": 7.0
+      },
+      {
+        "id": 589,
+        "name": "Cali Bass",
+        "key": "HD2_PreampCaliBass",
+        "category": "preamp",
+        "usage": 6.8
+      },
+      {
+        "id": 627,
+        "name": "Cali IV Lead",
+        "key": "HD2_PreampCaliIVLead",
+        "category": "preamp",
+        "usage": 9.5
+      },
+      {
+        "id": 624,
+        "name": "Cali IV Rhythm 1",
+        "key": "HD2_PreampCaliIVR1",
+        "category": "preamp",
+        "usage": 8.2
+      },
+      {
+        "id": 625,
+        "name": "Cali IV Rhythm 2",
+        "key": "HD2_PreampCaliIVR2",
+        "category": "preamp",
+        "usage": 8.2
+      },
+      {
+        "id": 587,
+        "name": "Cali Rectifire",
+        "key": "HD2_PreampCaliRectifire",
+        "category": "preamp",
+        "usage": 9.8
+      },
+      {
+        "id": 672,
+        "name": "Cali Texas Ch1",
+        "key": "HD2_PreampCaliTexasCh1",
+        "category": "preamp",
+        "usage": 7.9
+      },
+      {
+        "id": 668,
+        "name": "Cali Texas Ch2",
+        "key": "HD2_PreampCaliTexasCh2",
+        "category": "preamp",
+        "usage": 9.3
+      },
+      {
+        "id": 718,
+        "name": "Carillon",
+        "key": "HD2_PreampLine6Carillon",
+        "category": "preamp",
+        "usage": 11.3
+      },
+      {
+        "id": 656,
+        "name": "Cartographer",
+        "key": "HD2_PreampCartographer",
+        "category": "preamp",
+        "usage": 9.3
+      },
+      {
+        "id": 719,
+        "name": "Clarity",
+        "key": "HD2_PreampLine6Clarity",
+        "category": "preamp",
+        "usage": 8.8
+      },
+      {
+        "id": 694,
+        "name": "Das Benzin Lead",
+        "key": "HD2_PreampDasBenzinLead",
+        "category": "preamp",
+        "usage": 9.8
+      },
+      {
+        "id": 696,
+        "name": "Das Benzin Mega",
+        "key": "HD2_PreampDasBenzinMega",
+        "category": "preamp",
+        "usage": 8.5
+      },
+      {
+        "id": 640,
+        "name": "Del Sol 300",
+        "key": "HD2_PreampDelSol300",
+        "category": "preamp",
+        "usage": 2.8
+      },
+      {
+        "id": 652,
+        "name": "Derailed Ingrid",
+        "key": "HD2_PreampDerailedIngrid",
+        "category": "preamp",
+        "usage": 7.9
+      },
+      {
+        "id": 585,
+        "name": "Divided Duo",
+        "key": "HD2_PreampDividedDuo",
+        "category": "preamp",
+        "usage": 6.6
+      },
+      {
+        "id": 569,
+        "name": "Doom",
+        "key": "HD2_PreampLine6Doom",
+        "category": "preamp",
+        "usage": 8.3
+      },
+      {
+        "id": 747,
+        "name": "EV Panama Blue",
+        "key": "HD2_PreampEVPanamaBlue",
+        "category": "preamp",
+        "usage": 11.9
+      },
+      {
+        "id": 748,
+        "name": "EV Panama Red",
+        "key": "HD2_PreampEVPanamaRed",
+        "category": "preamp",
+        "usage": 15.1
+      },
+      {
+        "id": 567,
+        "name": "Elektrik",
+        "key": "HD2_PreampLine6Elektrik",
+        "category": "preamp",
+        "usage": 8.0
+      },
+      {
+        "id": 724,
+        "name": "Elmsley",
+        "key": "HD2_PreampLine6Elmsley",
+        "category": "preamp",
+        "usage": 9.6
+      },
+      {
+        "id": 565,
+        "name": "Epic",
+        "key": "HD2_PreampLine6Epic",
+        "category": "preamp",
+        "usage": 9.7
+      },
+      {
+        "id": 583,
+        "name": "Essex A15",
+        "key": "HD2_PreampEssexA15",
+        "category": "preamp",
+        "usage": 6.5
+      },
+      {
+        "id": 581,
+        "name": "Essex A30",
+        "key": "HD2_PreampEssexA30",
+        "category": "preamp",
+        "usage": 7.4
+      },
+      {
+        "id": 631,
+        "name": "Fatality",
+        "key": "HD2_PreampLine6Fatality",
+        "category": "preamp",
+        "usage": 9.8
+      },
+      {
+        "id": 685,
+        "name": "Fullerton Brt",
+        "key": "HD2_PreampFullertonBrt",
+        "category": "preamp",
+        "usage": 6.2
+      },
+      {
+        "id": 686,
+        "name": "Fullerton Jump",
+        "key": "HD2_PreampFullertonJump",
+        "category": "preamp",
+        "usage": 8.3
+      },
+      {
+        "id": 687,
+        "name": "Fullerton Nrm",
+        "key": "HD2_PreampFullertonNrm",
+        "category": "preamp",
+        "usage": 6.2
+      },
+      {
+        "id": 579,
+        "name": "G Cougar 800",
+        "key": "HD2_PreampGCougar800",
+        "category": "preamp",
+        "usage": 6.6
+      },
+      {
+        "id": 577,
+        "name": "German Mahadeva",
+        "key": "HD2_PreampGermanMahadeva",
+        "category": "preamp",
+        "usage": 9.8
+      },
+      {
+        "id": 575,
+        "name": "German Ubersonic",
+        "key": "HD2_PreampGermanUbersonic",
+        "category": "preamp",
+        "usage": 9.1
+      },
+      {
+        "id": 744,
+        "name": "German Xtra Blue",
+        "key": "HD2_PreampGermanXtraBlue",
+        "category": "preamp",
+        "usage": 9.1
+      },
+      {
+        "id": 743,
+        "name": "German Xtra Red",
+        "key": "HD2_PreampGermanXtraRed",
+        "category": "preamp",
+        "usage": 10.8
+      },
+      {
+        "id": 732,
+        "name": "Grammatico GSG",
+        "key": "HD2_PreampGSG100",
+        "category": "preamp",
+        "usage": 11.5
+      },
+      {
+        "id": 679,
+        "name": "GrammaticoLG Brt",
+        "key": "HD2_PreampGrammaticoBrt",
+        "category": "preamp",
+        "usage": 7.4
+      },
+      {
+        "id": 680,
+        "name": "GrammaticoLG Jmp",
+        "key": "HD2_PreampGrammaticoJump",
+        "category": "preamp",
+        "usage": 9.4
+      },
+      {
+        "id": 681,
+        "name": "GrammaticoLG Nrm",
+        "key": "HD2_PreampGrammaticoNrm",
+        "category": "preamp",
+        "usage": 7.4
+      },
+      {
+        "id": 573,
+        "name": "Interstate Zed",
+        "key": "HD2_PreampInterstateZed",
+        "category": "preamp",
+        "usage": 5.9
+      },
+      {
+        "id": 571,
+        "name": "Jazz Rivet 120",
+        "key": "HD2_PreampJazzRivet120",
+        "category": "preamp",
+        "usage": 4.5
+      },
+      {
+        "id": 716,
+        "name": "Kinetic",
+        "key": "HD2_PreampLine6Kinetic",
+        "category": "preamp",
+        "usage": 11.4
+      },
+      {
+        "id": 634,
+        "name": "Litigator",
+        "key": "HD2_PreampLine6Litigator",
+        "category": "preamp",
+        "usage": 9.3
+      },
+      {
+        "id": 563,
+        "name": "Mail Order Twin",
+        "key": "HD2_PreampMailOrderTwin",
+        "category": "preamp",
+        "usage": 9.3
+      },
+      {
+        "id": 561,
+        "name": "Mandarin 80",
+        "key": "HD2_PreampMandarin80",
+        "category": "preamp",
+        "usage": 7.6
+      },
+      {
+        "id": 734,
+        "name": "Mandarin Bass 200",
+        "key": "HD2_PreampMandarinBass200",
+        "category": "preamp",
+        "usage": 7.4
+      },
+      {
+        "id": 698,
+        "name": "Mandarin Rocker",
+        "key": "HD2_PreampMandarinRocker",
+        "category": "preamp",
+        "usage": 9.9
+      },
+      {
+        "id": 619,
+        "name": "Matchstick Ch1",
+        "key": "HD2_PreampMatchstickCh1",
+        "category": "preamp",
+        "usage": 6.8
+      },
+      {
+        "id": 620,
+        "name": "Matchstick Ch2",
+        "key": "HD2_PreampMatchstickCh2",
+        "category": "preamp",
+        "usage": 6.6
+      },
+      {
+        "id": 621,
+        "name": "Matchstick Jump",
+        "key": "HD2_PreampMatchstickJump",
+        "category": "preamp",
+        "usage": 9.7
+      },
+      {
+        "id": 706,
+        "name": "Moo)))n Brt",
+        "key": "HD2_PreampMoonBrt",
+        "category": "preamp",
+        "usage": 8.5
+      },
+      {
+        "id": 705,
+        "name": "Moo)))n Jump",
+        "key": "HD2_PreampMoonJump",
+        "category": "preamp",
+        "usage": 9.8
+      },
+      {
+        "id": 704,
+        "name": "Moo)))n Nrm",
+        "key": "HD2_PreampMoonNrm",
+        "category": "preamp",
+        "usage": 8.6
+      },
+      {
+        "id": 715,
+        "name": "Oblivion",
+        "key": "HD2_PreampLine6Oblivion",
+        "category": "preamp",
+        "usage": 13.8
+      },
+      {
+        "id": 559,
+        "name": "PV Panama",
+        "key": "HD2_PreampPVPanama",
+        "category": "preamp",
+        "usage": 8.5
+      },
+      {
+        "id": 728,
+        "name": "PV Vitriol Clean",
+        "key": "HD2_PreampPVVitriolClean",
+        "category": "preamp",
+        "usage": 10.6
+      },
+      {
+        "id": 722,
+        "name": "PV Vitriol Crunch",
+        "key": "HD2_PreampPVVitriolCrunch",
+        "category": "preamp",
+        "usage": 13.8
+      },
+      {
+        "id": 721,
+        "name": "PV Vitriol Lead",
+        "key": "HD2_PreampPVVitriolLead",
+        "category": "preamp",
+        "usage": 14.0
+      },
+      {
+        "id": 670,
+        "name": "Placater Clean",
+        "key": "HD2_PreampPlacaterClean",
+        "category": "preamp",
+        "usage": 6.7
+      },
+      {
+        "id": 666,
+        "name": "Placater Dirty",
+        "key": "HD2_PreampPlacaterDirty",
+        "category": "preamp",
+        "usage": 10.7
+      },
+      {
+        "id": 690,
+        "name": "Revv Gen Purple",
+        "key": "HD2_PreampRevvGenPurple",
+        "category": "preamp",
+        "usage": 10.2
+      },
+      {
+        "id": 688,
+        "name": "Revv Gen Red",
+        "key": "HD2_PreampRevvGenRed",
+        "category": "preamp",
+        "usage": 10.4
+      },
+      {
+        "id": 552,
+        "name": "Solo Lead Clean",
+        "key": "HD2_PreampSoloLeadClean",
+        "category": "preamp",
+        "usage": 8.9
+      },
+      {
+        "id": 553,
+        "name": "Solo Lead Crunch",
+        "key": "HD2_PreampSoloLeadCrunch",
+        "category": "preamp",
+        "usage": 8.6
+      },
+      {
+        "id": 549,
+        "name": "Solo Lead OD",
+        "key": "HD2_PreampSoloLeadOD",
+        "category": "preamp",
+        "usage": 10.5
+      },
+      {
+        "id": 547,
+        "name": "Soup Pro",
+        "key": "HD2_PreampSoupPro",
+        "category": "preamp",
+        "usage": 7.7
+      },
+      {
+        "id": 545,
+        "name": "Stone Age 185",
+        "key": "HD2_PreampStoneAge185",
+        "category": "preamp",
+        "usage": 8.1
+      },
+      {
+        "id": 525,
+        "name": "Studio Tube Pre",
+        "key": "HD2_PreampVintagePre",
+        "category": "preamp",
+        "usage": 5.5
+      },
+      {
+        "id": 540,
+        "name": "Tweed Blues Brt",
+        "key": "HD2_PreampTweedBluesBrt",
+        "category": "preamp",
+        "usage": 6.7
+      },
+      {
+        "id": 541,
+        "name": "Tweed Blues Nrm",
+        "key": "HD2_PreampTweedBluesNrm",
+        "category": "preamp",
+        "usage": 6.7
+      },
+      {
+        "id": 537,
+        "name": "US Deluxe Nrm",
+        "key": "HD2_PreampUSDeluxeNrm",
+        "category": "preamp",
+        "usage": 6.6
+      },
+      {
+        "id": 535,
+        "name": "US Deluxe Vib",
+        "key": "HD2_PreampUSDeluxeVib",
+        "category": "preamp",
+        "usage": 8.1
+      },
+      {
+        "id": 533,
+        "name": "US Double Nrm",
+        "key": "HD2_PreampUSDoubleNrm",
+        "category": "preamp",
+        "usage": 6.7
+      },
+      {
+        "id": 531,
+        "name": "US Double Vib",
+        "key": "HD2_PreampUSDoubleVib",
+        "category": "preamp",
+        "usage": 7.9
+      },
+      {
+        "id": 730,
+        "name": "US Dripman Norm",
+        "key": "HD2_PreampUSDripmanNorm",
+        "category": "preamp",
+        "usage": 9.2
+      },
+      {
+        "id": 692,
+        "name": "US Princess",
+        "key": "HD2_PreampUSPrincess",
+        "category": "preamp",
+        "usage": 8.3
+      },
+      {
+        "id": 529,
+        "name": "US Small Tweed",
+        "key": "HD2_PreampUSSmallTweed",
+        "category": "preamp",
+        "usage": 7.1
+      },
+      {
+        "id": 738,
+        "name": "US Super Norm",
+        "key": "HD2_PreampUSSuperNorm",
+        "category": "preamp",
+        "usage": 6.8
+      },
+      {
+        "id": 740,
+        "name": "US Super Vib",
+        "key": "HD2_PreampUSSuperVib",
+        "category": "preamp",
+        "usage": 8.1
+      },
+      {
+        "id": 699,
+        "name": "Ventoux",
+        "key": "HD2_PreampLine6Ventoux",
+        "category": "preamp",
+        "usage": 9.0
+      },
+      {
+        "id": 720,
+        "name": "Voltage",
+        "key": "HD2_PreampLine6Voltage",
+        "category": "preamp",
+        "usage": 12.9
+      },
+      {
+        "id": 654,
+        "name": "Voltage Queen",
+        "key": "HD2_PreampVoltageQueen",
+        "category": "preamp",
+        "usage": 9.2
+      },
+      {
+        "id": 527,
+        "name": "WhoWatt 100",
+        "key": "HD2_PreampWhoWatt100",
+        "category": "preamp",
+        "usage": 8.5
+      },
+      {
+        "id": 642,
+        "name": "Woody Blue",
+        "key": "HD2_PreampWoodyBlue",
+        "category": "preamp",
+        "usage": 5.0
+      }
+    ]
+  },
+  "cab": {
+    "label": "Cab",
+    "models": [
+      {
+        "id": 434,
+        "name": "1x10 US Princess",
+        "key": "HD2_CabMicIr_1x10USPrincessWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 453,
+        "name": "1x12 Blue Bell",
+        "key": "HD2_CabMicIr_1x12BlueBellWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 448,
+        "name": "1x12 Cali EXT",
+        "key": "HD2_CabMicIr_1x12CaliEXTWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 458,
+        "name": "1x12 Cali IV",
+        "key": "HD2_CabMicIr_1x12CaliIVWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 450,
+        "name": "1x12 Epicenter",
+        "key": "HD2_CabMicIr_1x12EpicenterWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 460,
+        "name": "1x12 Fullerton",
+        "key": "HD2_CabMicIr_1x12FullertonWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 430,
+        "name": "1x12 Grammatico",
+        "key": "HD2_CabMicIr_1x12GrammaticoWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 454,
+        "name": "1x12 Open Cast",
+        "key": "HD2_CabMicIr_1x12OpenCastWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 455,
+        "name": "1x12 Open Cream",
+        "key": "HD2_CabMicIr_1x12OpenCreamWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 428,
+        "name": "1x12 US Deluxe",
+        "key": "HD2_CabMicIr_1x12USDeluxeWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 426,
+        "name": "1x15 Ampeg B-15",
+        "key": "HD2_CabMicIr_1x15AmpegB15WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 464,
+        "name": "1x8 Small Tweed",
+        "key": "HD2_CabMicIr_1x8SmallTweedWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 429,
+        "name": "2x12 Blue Bell",
+        "key": "HD2_CabMicIr_2x12BlueBellWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 437,
+        "name": "2x12 Double C12N",
+        "key": "HD2_CabMicIr_2x12DoubleC12NWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 459,
+        "name": "2x12 Interstate",
+        "key": "HD2_CabMicIr_2x12InterstateWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 443,
+        "name": "2x12 Jazz Rivet",
+        "key": "HD2_CabMicIr_2x12JazzRivetWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 445,
+        "name": "2x12 Mail C12Q",
+        "key": "HD2_CabMicIr_2x12MailC12QWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 447,
+        "name": "2x12 Mandarin 30",
+        "key": "HD2_CabMicIr_2x12MandarinWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 456,
+        "name": "2x12 Match G25",
+        "key": "HD2_CabMicIr_2x12MatchG25WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 457,
+        "name": "2x12 Match H30",
+        "key": "HD2_CabMicIr_2x12MatchH30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 449,
+        "name": "2x12 Silver Bell",
+        "key": "HD2_CabMicIr_2x12SilverBellWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 425,
+        "name": "2x15 Brute",
+        "key": "HD2_CabMicIr_2x15BruteWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 462,
+        "name": "2x15 US Dripman",
+        "key": "HD2_CabMicIr_2x15USDripmanWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 452,
+        "name": "4x10 Ampeg Pro",
+        "key": "HD2_CabMicIr_4x10AmpegProWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 444,
+        "name": "4x10 Garden",
+        "key": "HD2_CabMicIr_4x10GardenWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 442,
+        "name": "4x10 Tweed P10R",
+        "key": "HD2_CabMicIr_4x10TweedP10RWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 469,
+        "name": "4x10 US Super",
+        "key": "HD2_CabMicIr_4x10USSuperWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 436,
+        "name": "4x12 1960A T75",
+        "key": "HD2_CabMicIr_4x121960AT75WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 432,
+        "name": "4x12 Blackback H30",
+        "key": "HD2_CabMicIr_4x12BlackbackH30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 431,
+        "name": "4x12 Brit V30",
+        "key": "HD2_CabMicIr_4x12BritV30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 435,
+        "name": "4x12 Cali V30",
+        "key": "HD2_CabMicIr_4x12CaliV30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 471,
+        "name": "4x12 Cartog C90",
+        "key": "HD2_CabMicIr_4x12CartogC90WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 472,
+        "name": "4x12 Cartog Guv",
+        "key": "HD2_CabMicIr_4x12CartogGuvWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 451,
+        "name": "4x12 Greenback 20",
+        "key": "HD2_CabMicIr_4x12Greenback20WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 441,
+        "name": "4x12 Greenback 25",
+        "key": "HD2_CabMicIr_4x12Greenback25WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 461,
+        "name": "4x12 Greenback 30",
+        "key": "HD2_CabMicIr_4x12Greenback30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 438,
+        "name": "4x12 MOO)))N T75",
+        "key": "HD2_CabMicIr_4x12MOONT75WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 433,
+        "name": "4x12 Mandarin EM",
+        "key": "HD2_CabMicIr_4x12MandarinWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 470,
+        "name": "4x12 SoloLead EM",
+        "key": "HD2_CabMicIr_4x12SoloLeadEMWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 439,
+        "name": "4x12 Uber T75",
+        "key": "HD2_CabMicIr_4x12UberT75WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 446,
+        "name": "4x12 Uber V30",
+        "key": "HD2_CabMicIr_4x12UberV30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 466,
+        "name": "4x12 WhoWatt 100",
+        "key": "HD2_CabMicIr_4x12WhoWatt100WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 427,
+        "name": "4x12 XXL V30",
+        "key": "HD2_CabMicIr_4x12XXLV30WithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 463,
+        "name": "6x10 Cali Power",
+        "key": "HD2_CabMicIr_6x10CaliPowerWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 440,
+        "name": "8x10 SVT AV",
+        "key": "HD2_CabMicIr_8x10SVTAVWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 468,
+        "name": "IR",
+        "key": "HX2_ImpulseResponseWithPan",
+        "category": "ir",
+        "usage": 0.0
+      },
+      {
+        "id": 467,
+        "name": "No Cab",
+        "key": "HD2_CabMicIr_NoCab",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      },
+      {
+        "id": 465,
+        "name": "Soup Pro Ellipse",
+        "key": "HD2_CabMicIr_SoupProEllipseWithPan",
+        "category": "cab_ir_interp",
+        "usage": 1.5
+      }
+    ]
+  },
+  "distortion": {
+    "label": "Distortion",
+    "models": [
+      {
+        "id": 380,
+        "name": "Alpaca Rouge",
+        "key": "HD2_DistAlpacaRougeMono",
+        "category": "distortion",
+        "usage": 3.6
+      },
+      {
+        "id": 372,
+        "name": "Ampeg Scrambler",
+        "key": "HD2_DistAmpegScramblerODMono",
+        "category": "distortion",
+        "usage": 6.7
+      },
+      {
+        "id": 308,
+        "name": "Arbitrator Fuzz",
+        "key": "HD2_DistArbitratorFuzzMono",
+        "category": "distortion",
+        "usage": 2.5
+      },
+      {
+        "id": 387,
+        "name": "Ballistic Fuzz",
+        "key": "HD2_DistBallisticFuzzMono",
+        "category": "distortion",
+        "usage": 6.2
+      },
+      {
+        "id": 383,
+        "name": "Bighorn Fuzz",
+        "key": "HD2_DistRamsHeadMono",
+        "category": "distortion",
+        "usage": 4.0
+      },
+      {
+        "id": 321,
+        "name": "Bitcrusher",
+        "key": "HD2_DistBitcrusherMono",
+        "category": "distortion",
+        "usage": 2.6
+      },
+      {
+        "id": 392,
+        "name": "Bronze Master",
+        "key": "Line6BronzeMaster",
+        "category": "distortion",
+        "usage": 2.4
+      },
+      {
+        "id": 355,
+        "name": "Buzz Saw",
+        "key": "HD2_DM4BuzzSaw",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 356,
+        "name": "Classic Dist",
+        "key": "HD2_DM4ClassicDistortion",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 334,
+        "name": "Clawthorn Drive",
+        "key": "HD2_DistClawthornDriveMono",
+        "category": "distortion",
+        "usage": 5.5
+      },
+      {
+        "id": 357,
+        "name": "Colordrive",
+        "key": "HD2_DM4ColorDrive",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 305,
+        "name": "Compulsive Drive",
+        "key": "HD2_DistCompulsiveDriveMono",
+        "category": "distortion",
+        "usage": 2.1
+      },
+      {
+        "id": 410,
+        "name": "Dark Dove Fuzz",
+        "key": "HD2_DistDarkDoveFuzzMono",
+        "category": "distortion",
+        "usage": 4.9
+      },
+      {
+        "id": 370,
+        "name": "Deez One Mod",
+        "key": "HD2_DistDeezOneModMono",
+        "category": "distortion",
+        "usage": 4.0
+      },
+      {
+        "id": 369,
+        "name": "Deez One Vintage",
+        "key": "HD2_DistDeezOneVintageMono",
+        "category": "distortion",
+        "usage": 4.3
+      },
+      {
+        "id": 368,
+        "name": "Deranged Master",
+        "key": "HD2_DistDerangedMasterMono",
+        "category": "distortion",
+        "usage": 2.7
+      },
+      {
+        "id": 371,
+        "name": "Dyhana Drive",
+        "key": "HD2_DistDhyanaDriveMono",
+        "category": "distortion",
+        "usage": 3.2
+      },
+      {
+        "id": 358,
+        "name": "Facial Fuzz",
+        "key": "HD2_DM4FacialFuzz",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 359,
+        "name": "Fuzz Pi",
+        "key": "HD2_DM4FuzzPi",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 360,
+        "name": "Heavy Dist",
+        "key": "HD2_DM4HeavyDistortion",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 287,
+        "name": "Hedgehog D9",
+        "key": "HD2_DistHedgehogD9Mono",
+        "category": "distortion",
+        "usage": 2.6
+      },
+      {
+        "id": 378,
+        "name": "Heir Apparent",
+        "key": "HD2_DistHeirApparentMono",
+        "category": "distortion",
+        "usage": 3.5
+      },
+      {
+        "id": 386,
+        "name": "Horizon Drive",
+        "key": "HD2_DistHorizonDriveMono",
+        "category": "distortion",
+        "usage": 6.1
+      },
+      {
+        "id": 288,
+        "name": "Industrial Fuzz",
+        "key": "HD2_DistIndustrialFuzzMono",
+        "category": "distortion",
+        "usage": 5.8
+      },
+      {
+        "id": 352,
+        "name": "Jet Fuzz",
+        "key": "HD2_DM4JetFuzz",
+        "category": "distortion",
+        "usage": 3.8
+      },
+      {
+        "id": 361,
+        "name": "Jumbo Fuzz",
+        "key": "HD2_DM4JumboFuzz",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 323,
+        "name": "KWB",
+        "key": "HD2_DistKWBMono",
+        "category": "distortion",
+        "usage": 3.5
+      },
+      {
+        "id": 391,
+        "name": "Killer Z",
+        "key": "KillerZ",
+        "category": "distortion",
+        "usage": 2.3
+      },
+      {
+        "id": 339,
+        "name": "Kinky Boost",
+        "key": "HD2_DistKinkyBoostMono",
+        "category": "distortion",
+        "usage": 3.2
+      },
+      {
+        "id": 362,
+        "name": "L6 Distortion",
+        "key": "HD2_DM4Line6Distortion",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 363,
+        "name": "L6 Drive",
+        "key": "HD2_DM4Line6Drive",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 382,
+        "name": "Legendary Drive",
+        "key": "HD2_DistLegendaryDriveMono",
+        "category": "distortion",
+        "usage": 7.4
+      },
+      {
+        "id": 266,
+        "name": "Megaphone",
+        "key": "HD2_DistMegaphoneMono",
+        "category": "distortion",
+        "usage": 1.6
+      },
+      {
+        "id": 304,
+        "name": "Minotaur",
+        "key": "HD2_DistMinotaurMono",
+        "category": "distortion",
+        "usage": 4.8
+      },
+      {
+        "id": 333,
+        "name": "Obsidian 7000",
+        "key": "HD2_DistObsidian7000Mono",
+        "category": "distortion",
+        "usage": 4.8
+      },
+      {
+        "id": 353,
+        "name": "Octave Fuzz",
+        "key": "HD2_DM4OctaveFuzz",
+        "category": "distortion",
+        "usage": 4.2
+      },
+      {
+        "id": 364,
+        "name": "Overdrive",
+        "key": "HD2_DM4Overdrive",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 406,
+        "name": "Pillars",
+        "key": "HD2_DistPillarsMono",
+        "category": "distortion",
+        "usage": 3.8
+      },
+      {
+        "id": 388,
+        "name": "Pocket Fuzz",
+        "key": "HD2_DistPocketFuzzMono",
+        "category": "distortion",
+        "usage": 2.5
+      },
+      {
+        "id": 411,
+        "name": "Prize Drive",
+        "key": "HD2_DistPrizeDriveMono",
+        "category": "distortion",
+        "usage": 7.2
+      },
+      {
+        "id": 390,
+        "name": "Ratatouille Dist",
+        "key": "HD2_DistRatatouilleDistMono",
+        "category": "distortion",
+        "usage": 4.3
+      },
+      {
+        "id": 412,
+        "name": "Regal Bass DI",
+        "key": "HD2_DistRegalBassDIMono",
+        "category": "distortion",
+        "usage": 3.7
+      },
+      {
+        "id": 310,
+        "name": "Scream 808",
+        "key": "HD2_DistScream808Mono",
+        "category": "distortion",
+        "usage": 3.3
+      },
+      {
+        "id": 354,
+        "name": "Screamer",
+        "key": "HD2_DM4Screamer",
+        "category": "distortion",
+        "usage": 3.6
+      },
+      {
+        "id": 332,
+        "name": "Stupor OD",
+        "key": "HD2_DistStuporODMono",
+        "category": "distortion",
+        "usage": 3.1
+      },
+      {
+        "id": 350,
+        "name": "Sub Oct Fuzz",
+        "key": "HD2_DM4SubOctFuzz",
+        "category": "distortion",
+        "usage": 3.6
+      },
+      {
+        "id": 385,
+        "name": "Swedish Chainsaw",
+        "key": "HD2_DistSwedishChainsawMono",
+        "category": "distortion",
+        "usage": 2.9
+      },
+      {
+        "id": 327,
+        "name": "Teemah!",
+        "key": "HD2_DistTeemahMono",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 338,
+        "name": "Thrifter Fuzz",
+        "key": "HD2_DistThrifterFuzzMono",
+        "category": "distortion",
+        "usage": 5.1
+      },
+      {
+        "id": 377,
+        "name": "Tone Sovereign",
+        "key": "HD2_DistToneSovereignMono",
+        "category": "distortion",
+        "usage": 5.4
+      },
+      {
+        "id": 306,
+        "name": "Top Secret OD",
+        "key": "HD2_DistTopSecretODMono",
+        "category": "distortion",
+        "usage": 2.4
+      },
+      {
+        "id": 300,
+        "name": "Triangle Fuzz",
+        "key": "HD2_DistTriangleFuzzMono",
+        "category": "distortion",
+        "usage": 3.5
+      },
+      {
+        "id": 365,
+        "name": "Tube Drive",
+        "key": "HD2_DM4TubeDrive",
+        "category": "distortion",
+        "usage": 3.0
+      },
+      {
+        "id": 309,
+        "name": "Tycoctavia Fuzz",
+        "key": "HD2_DistTycoctaviaFuzzMono",
+        "category": "distortion",
+        "usage": 2.9
+      },
+      {
+        "id": 286,
+        "name": "Valve Driver",
+        "key": "HD2_DistValveDriverMono",
+        "category": "distortion",
+        "usage": 5.3
+      },
+      {
+        "id": 307,
+        "name": "Vermin Dist",
+        "key": "HD2_DistVerminDistMono",
+        "category": "distortion",
+        "usage": 2.5
+      },
+      {
+        "id": 405,
+        "name": "Vital Boost",
+        "key": "HD2_DistVitalBoostMono",
+        "category": "distortion",
+        "usage": 2.9
+      },
+      {
+        "id": 404,
+        "name": "Vital Dist",
+        "key": "HD2_DistVitalDistMono",
+        "category": "distortion",
+        "usage": 7.8
+      },
+      {
+        "id": 330,
+        "name": "Wringer Fuzz",
+        "key": "HD2_DistWringerFuzzMono",
+        "category": "distortion",
+        "usage": 4.5
+      },
+      {
+        "id": 379,
+        "name": "Xenomorph Fuzz",
+        "key": "HD2_DistXenomorphFuzzMono",
+        "category": "distortion",
+        "usage": 4.6
+      },
+      {
+        "id": 376,
+        "name": "ZeroAmp Bass DI",
+        "key": "HD2_DistZeroAmpBassDIMono",
+        "category": "distortion",
+        "usage": 3.5
+      }
+    ]
+  },
+  "delay": {
+    "label": "Delay",
+    "models": [
+      {
+        "id": 131,
+        "name": "ADT",
+        "key": "HD2_DelayADTMono",
+        "category": "delay",
+        "usage": 6.5
+      },
+      {
+        "id": 130,
+        "name": "Adriatic Delay",
+        "key": "HD2_DelayAdriaticDelayMono",
+        "category": "delay",
+        "usage": 3.8
+      },
+      {
+        "id": 118,
+        "name": "Adriatic Swell",
+        "key": "HD2_DelaySwellAdriaticMono",
+        "category": "delay",
+        "usage": 4.0
+      },
+      {
+        "id": 58,
+        "name": "Analog Echo",
+        "key": "HD2_DL4AnalogDelayStereo",
+        "category": "delay",
+        "usage": 5.0
+      },
+      {
+        "id": 57,
+        "name": "Analog w/Mod",
+        "key": "HD2_DL4AnalogDelayStereoMod",
+        "category": "delay",
+        "usage": 5.2
+      },
+      {
+        "id": 56,
+        "name": "Auto-Volume Echo",
+        "key": "HD2_DL4AutoVolStereo",
+        "category": "delay",
+        "usage": 3.9
+      },
+      {
+        "id": 111,
+        "name": "Bubble Echo",
+        "key": "L6BubbleEcho",
+        "category": "delay",
+        "usage": 3.3
+      },
+      {
+        "id": 128,
+        "name": "Bucket Brigade",
+        "key": "HD2_DelayBucketBrigadeMono",
+        "category": "delay",
+        "usage": 3.5
+      },
+      {
+        "id": 127,
+        "name": "Cosmos Echo",
+        "key": "HD2_DelayCosmosEchoMono",
+        "category": "delay",
+        "usage": 6.3
+      },
+      {
+        "id": 126,
+        "name": "Crisscross",
+        "key": "HD2_DelayCrissCrossMono",
+        "category": "delay",
+        "usage": 4.7
+      },
+      {
+        "id": 53,
+        "name": "Dig w/Mod",
+        "key": "HD2_DL4DigDelayWithMod",
+        "category": "delay",
+        "usage": 3.1
+      },
+      {
+        "id": 54,
+        "name": "Digital",
+        "key": "HD2_DL4DigDelay",
+        "category": "delay",
+        "usage": 3.0
+      },
+      {
+        "id": 89,
+        "name": "Dual Delay",
+        "key": "HD2_DelayDualDelayStereo",
+        "category": "delay",
+        "usage": 3.7
+      },
+      {
+        "id": 123,
+        "name": "Ducked Delay",
+        "key": "HD2_DelayDuckedDelayMono",
+        "category": "delay",
+        "usage": 2.0
+      },
+      {
+        "id": 52,
+        "name": "Dynamic",
+        "key": "HD2_DL4DynamicDelayStereo",
+        "category": "delay",
+        "usage": 2.6
+      },
+      {
+        "id": 51,
+        "name": "Echo Platter",
+        "key": "HD2_DL4EchoPlatterStereo",
+        "category": "delay",
+        "usage": 6.7
+      },
+      {
+        "id": 129,
+        "name": "Elephant Man",
+        "key": "HD2_DelayElephantManMono",
+        "category": "delay",
+        "usage": 3.7
+      },
+      {
+        "id": 105,
+        "name": "Euclidean Delay",
+        "key": "EuclideanDelayMono_Victoria",
+        "category": "delay",
+        "usage": 3.7
+      },
+      {
+        "id": 108,
+        "name": "Glitch Delay",
+        "key": "VIC_DelayGlitchMono",
+        "category": "delay",
+        "usage": 2.5
+      },
+      {
+        "id": 491,
+        "name": "Harmony Delay",
+        "key": "HD2_DelayHarmonyDelayStereo",
+        "category": "delay",
+        "usage": 9.3
+      },
+      {
+        "id": 503,
+        "name": "Heliosphere",
+        "key": "HD2_DelayHeliosphereMono",
+        "category": "delay",
+        "usage": 4.9
+      },
+      {
+        "id": 50,
+        "name": "Lo Res",
+        "key": "HD2_DL4LowResDelay",
+        "category": "delay",
+        "usage": 3.0
+      },
+      {
+        "id": 124,
+        "name": "Mod/Chorus Echo",
+        "key": "HD2_DelayModChorusEchoMono",
+        "category": "delay",
+        "usage": 2.4
+      },
+      {
+        "id": 122,
+        "name": "Multi Pass",
+        "key": "HD2_DelayMultiPassMono",
+        "category": "delay",
+        "usage": 2.9
+      },
+      {
+        "id": 49,
+        "name": "Multi-Head",
+        "key": "HD2_DL4MultiheadStereo",
+        "category": "delay",
+        "usage": 7.6
+      },
+      {
+        "id": 85,
+        "name": "Multitap 4",
+        "key": "HD2_DelayMultitap4Stereo",
+        "category": "delay",
+        "usage": 5.3
+      },
+      {
+        "id": 81,
+        "name": "Multitap 6",
+        "key": "HD2_DelayMultitap6Stereo",
+        "category": "delay",
+        "usage": 3.0
+      },
+      {
+        "id": 110,
+        "name": "Phaze Eko",
+        "key": "L6PhazeEko",
+        "category": "delay",
+        "usage": 3.0
+      },
+      {
+        "id": 48,
+        "name": "Ping Pong",
+        "key": "HD2_DL4PingPong",
+        "category": "delay",
+        "usage": 2.5
+      },
+      {
+        "id": 83,
+        "name": "Ping Pong",
+        "key": "HD2_DelayPingPongStereo",
+        "category": "delay",
+        "usage": 2.3
+      },
+      {
+        "id": 502,
+        "name": "Pitch Echo",
+        "key": "HD2_DelayPitchMono",
+        "category": "delay",
+        "usage": 4.2
+      },
+      {
+        "id": 481,
+        "name": "Poly Sustain",
+        "key": "VIC_DelayPolySustain",
+        "category": "delay",
+        "usage": 16.4
+      },
+      {
+        "id": 107,
+        "name": "Ratchet",
+        "key": "VIC_DelayRatchetMono",
+        "category": "delay",
+        "usage": 2.2
+      },
+      {
+        "id": 109,
+        "name": "Reverse",
+        "key": "HD2_DL4Reverse",
+        "category": "delay",
+        "usage": 2.6
+      },
+      {
+        "id": 121,
+        "name": "Reverse Delay",
+        "key": "HD2_DelayReverseDelayMono",
+        "category": "delay",
+        "usage": 2.5
+      },
+      {
+        "id": 125,
+        "name": "Simple Delay",
+        "key": "HD2_DelaySimpleDelayMono",
+        "category": "delay",
+        "usage": 1.6
+      },
+      {
+        "id": 55,
+        "name": "Stereo",
+        "key": "HD2_DL4StereoDelay",
+        "category": "delay",
+        "usage": 3.3
+      },
+      {
+        "id": 47,
+        "name": "Sweep Echo",
+        "key": "HD2_DL4SweepEchoStereo",
+        "category": "delay",
+        "usage": 6.3
+      },
+      {
+        "id": 119,
+        "name": "Sweep Echo",
+        "key": "HD2_DelaySweepEchoMono",
+        "category": "delay",
+        "usage": 3.5
+      },
+      {
+        "id": 46,
+        "name": "Tape Echo",
+        "key": "HD2_DL4TapeEchoStereo",
+        "category": "delay",
+        "usage": 7.0
+      },
+      {
+        "id": 106,
+        "name": "Tesselator",
+        "key": "VIC_DelayStutterEditMono",
+        "category": "delay",
+        "usage": 2.2
+      },
+      {
+        "id": 116,
+        "name": "Transistor Tape",
+        "key": "HD2_DelayTransistorTapeMono",
+        "category": "delay",
+        "usage": 3.5
+      },
+      {
+        "id": 45,
+        "name": "Tube Echo",
+        "key": "HD2_DL4TubeEchoStereo",
+        "category": "delay",
+        "usage": 7.0
+      },
+      {
+        "id": 115,
+        "name": "Vintage Digital",
+        "key": "HD2_DelayVintageDigitalMonoV2",
+        "category": "delay",
+        "usage": 2.7
+      },
+      {
+        "id": 117,
+        "name": "Vintage Swell",
+        "key": "HD2_DelaySwellVintageDigitalMono",
+        "category": "delay",
+        "usage": 2.8
+      }
+    ]
+  },
+  "reverb": {
+    "label": "Reverb",
+    "models": [
+      {
+        "id": 488,
+        "name": "'63 Spring",
+        "key": "HD2_Reverb63SpringStereo",
+        "category": "reverb",
+        "usage": 9.7
+      },
+      {
+        "id": 64,
+        "name": "Cave",
+        "key": "HD2_ReverbCaveStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 62,
+        "name": "Chamber",
+        "key": "HD2_ReverbChamberStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 102,
+        "name": "Double Tank",
+        "key": "HD2_ReverbDoubleTankMono",
+        "category": "reverb",
+        "usage": 7.5
+      },
+      {
+        "id": 69,
+        "name": "Ducking",
+        "key": "HD2_ReverbDuckingStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 104,
+        "name": "Dynamic Ambience",
+        "key": "VIC_ReverbDynAmbienceMono",
+        "category": "reverb",
+        "usage": 5.9
+      },
+      {
+        "id": 500,
+        "name": "Dynamic Bloom",
+        "key": "VIC_ReverbDynBloomMono",
+        "category": "reverb",
+        "usage": 14.2
+      },
+      {
+        "id": 499,
+        "name": "Dynamic Hall",
+        "key": "VIC_ReverbRotatingMono",
+        "category": "reverb",
+        "usage": 8.2
+      },
+      {
+        "id": 501,
+        "name": "Dynamic Plate",
+        "key": "VIC_DynPlateMono",
+        "category": "reverb",
+        "usage": 11.1
+      },
+      {
+        "id": 103,
+        "name": "Dynamic Room",
+        "key": "VIC_ReverbDynRoomMono",
+        "category": "reverb",
+        "usage": 9.3
+      },
+      {
+        "id": 67,
+        "name": "Echo",
+        "key": "HD2_ReverbEchoStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 101,
+        "name": "Ganymede",
+        "key": "HD2_ReverbGanymedeMono",
+        "category": "reverb",
+        "usage": 3.7
+      },
+      {
+        "id": 100,
+        "name": "Glitz",
+        "key": "HD2_ReverbGlitzMono",
+        "category": "reverb",
+        "usage": 5.3
+      },
+      {
+        "id": 68,
+        "name": "Hall",
+        "key": "HD2_ReverbHallStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 497,
+        "name": "Hot Springs",
+        "key": "HD2_ReverbHxSpringMono",
+        "category": "reverb",
+        "usage": 7.6
+      },
+      {
+        "id": 496,
+        "name": "Nonlinear",
+        "key": "HD2_ReverbNonLinearMono",
+        "category": "reverb",
+        "usage": 9.1
+      },
+      {
+        "id": 72,
+        "name": "Octo",
+        "key": "HD2_ReverbOctoStereo",
+        "category": "reverb",
+        "usage": 4.5
+      },
+      {
+        "id": 71,
+        "name": "Particle Verb",
+        "key": "HD2_ReverbParticleStereo",
+        "category": "reverb",
+        "usage": 5.4
+      },
+      {
+        "id": 63,
+        "name": "Plate",
+        "key": "HD2_ReverbPlateStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 99,
+        "name": "Plateaux",
+        "key": "HD2_ReverbPlateauxMono",
+        "category": "reverb",
+        "usage": 5.4
+      },
+      {
+        "id": 65,
+        "name": "Room",
+        "key": "HD2_ReverbRoomStereo",
+        "category": "reverb",
+        "usage": 4.3
+      },
+      {
+        "id": 98,
+        "name": "Searchlights",
+        "key": "HD2_ReverbSearchlightsMono",
+        "category": "reverb",
+        "usage": 6.7
+      },
+      {
+        "id": 498,
+        "name": "Shimmer",
+        "key": "VIC_ReverbShimmerMono",
+        "category": "reverb",
+        "usage": 10.2
+      },
+      {
+        "id": 487,
+        "name": "Spring",
+        "key": "HD2_ReverbSpringStereo",
+        "category": "reverb",
+        "usage": 9.7
+      },
+      {
+        "id": 66,
+        "name": "Tile",
+        "key": "HD2_ReverbTileStereo",
+        "category": "reverb",
+        "usage": 4.3
+      }
+    ]
+  },
+  "modulation": {
+    "label": "Modulation",
+    "models": [
+      {
+        "id": 157,
+        "name": "122 Rotary",
+        "key": "HD2_Rotary122RotaryStereo",
+        "category": "modulation",
+        "usage": 5.5
+      },
+      {
+        "id": 158,
+        "name": "145 Rotary",
+        "key": "HD2_Rotary145RotaryStereo",
+        "category": "modulation",
+        "usage": 5.5
+      },
+      {
+        "id": 408,
+        "name": "4-Voice Chorus",
+        "key": "HD2_Chorus4VoiceMono",
+        "category": "modulation",
+        "usage": 2.5
+      },
+      {
+        "id": 284,
+        "name": "60s Bias Trem",
+        "key": "HD2_Tremolo60sBiasTremMono",
+        "category": "modulation",
+        "usage": 1.8
+      },
+      {
+        "id": 298,
+        "name": "70s Chorus",
+        "key": "HD2_Chorus70sChorusMono",
+        "category": "modulation",
+        "usage": 3.0
+      },
+      {
+        "id": 230,
+        "name": "80A Flanger",
+        "key": "HD2_M1380AFlanger",
+        "category": "modulation",
+        "usage": 5.2
+      },
+      {
+        "id": 231,
+        "name": "AC Flanger",
+        "key": "HD2_M13ACFlanger",
+        "category": "modulation",
+        "usage": 5.0
+      },
+      {
+        "id": 293,
+        "name": "AM Ring Mod",
+        "key": "HD2_RingModulatorAMRingModMono",
+        "category": "modulation",
+        "usage": 2.1
+      },
+      {
+        "id": 403,
+        "name": "Ampeg Liquifier",
+        "key": "HD2_ChorusAmpegLiquifierMono",
+        "category": "modulation",
+        "usage": 5.1
+      },
+      {
+        "id": 233,
+        "name": "Analog Chorus",
+        "key": "HD2_MM4AnalogChorus",
+        "category": "modulation",
+        "usage": 1.8
+      },
+      {
+        "id": 224,
+        "name": "Analog Flanger",
+        "key": "HD2_MM4AnalogFlanger",
+        "category": "modulation",
+        "usage": 1.9
+      },
+      {
+        "id": 210,
+        "name": "Barberpole",
+        "key": "HD2_MM4BarberpolePhaser",
+        "category": "modulation",
+        "usage": 3.7
+      },
+      {
+        "id": 221,
+        "name": "Bias Tremolo",
+        "key": "HD2_MM4BiasTremolo",
+        "category": "modulation",
+        "usage": 3.0
+      },
+      {
+        "id": 341,
+        "name": "Bleat Chop Trem",
+        "key": "HD2_TremoloPatternMono",
+        "category": "modulation",
+        "usage": 1.7
+      },
+      {
+        "id": 299,
+        "name": "Bubble Vibrato",
+        "key": "HD2_VibratoBubbleVibratoMono",
+        "category": "modulation",
+        "usage": 3.0
+      },
+      {
+        "id": 267,
+        "name": "Chorus",
+        "key": "HD2_ChorusMono",
+        "category": "modulation",
+        "usage": 2.2
+      },
+      {
+        "id": 295,
+        "name": "Courtesan Flange",
+        "key": "HD2_FlangerCourtesanFlangeMono",
+        "category": "modulation",
+        "usage": 4.0
+      },
+      {
+        "id": 326,
+        "name": "Deluxe Phaser",
+        "key": "HD2_PhaserDeluxePhaserMono",
+        "category": "modulation",
+        "usage": 2.2
+      },
+      {
+        "id": 229,
+        "name": "Dimension",
+        "key": "HD2_MM4Dimension",
+        "category": "modulation",
+        "usage": 2.2
+      },
+      {
+        "id": 340,
+        "name": "Double Take",
+        "key": "HD2_DelayDoubleDoubleMono",
+        "category": "modulation",
+        "usage": 8.1
+      },
+      {
+        "id": 225,
+        "name": "Dual Phaser",
+        "key": "HD2_MM4DualPhaser",
+        "category": "modulation",
+        "usage": 2.5
+      },
+      {
+        "id": 325,
+        "name": "Dynamix Flanger",
+        "key": "HD2_FlangerDynamixFlangerMono",
+        "category": "modulation",
+        "usage": 2.9
+      },
+      {
+        "id": 407,
+        "name": "FlexoVibe",
+        "key": "VIC_FlexoVibeMono",
+        "category": "modulation",
+        "usage": 1.7
+      },
+      {
+        "id": 211,
+        "name": "Frequency Shift",
+        "key": "HD2_MM4FrequencyShifter",
+        "category": "modulation",
+        "usage": 3.6
+      },
+      {
+        "id": 296,
+        "name": "Gray Flanger",
+        "key": "HD2_FlangerGrayFlangerMono",
+        "category": "modulation",
+        "usage": 4.0
+      },
+      {
+        "id": 297,
+        "name": "Harmonic Flanger",
+        "key": "HD2_FlangerHarmonicFlangerMono",
+        "category": "modulation",
+        "usage": 3.9
+      },
+      {
+        "id": 329,
+        "name": "Harmonic Tremolo",
+        "key": "HD2_TremoloHarmonicMono",
+        "category": "modulation",
+        "usage": 2.1
+      },
+      {
+        "id": 232,
+        "name": "Jet Flanger",
+        "key": "HD2_MM4JetFlanger",
+        "category": "modulation",
+        "usage": 2.6
+      },
+      {
+        "id": 311,
+        "name": "Optical Trem",
+        "key": "HD2_TremoloOpticalTremMono",
+        "category": "modulation",
+        "usage": 1.5
+      },
+      {
+        "id": 208,
+        "name": "Opto Tremolo",
+        "key": "HD2_MM4OptoTremolo",
+        "category": "modulation",
+        "usage": 2.5
+      },
+      {
+        "id": 228,
+        "name": "Panned Phaser",
+        "key": "HD2_MM4PannedPhaser",
+        "category": "modulation",
+        "usage": 2.1
+      },
+      {
+        "id": 207,
+        "name": "Panner",
+        "key": "HD2_MM4Panner",
+        "category": "modulation",
+        "usage": 1.8
+      },
+      {
+        "id": 209,
+        "name": "Pattern Tremolo",
+        "key": "HD2_MM4PatternTrem",
+        "category": "modulation",
+        "usage": 1.5
+      },
+      {
+        "id": 381,
+        "name": "Pebble Phaser",
+        "key": "HD2_PhaserPebblePhaserMono",
+        "category": "modulation",
+        "usage": 3.1
+      },
+      {
+        "id": 223,
+        "name": "Phaser",
+        "key": "HD2_MM4Phaser",
+        "category": "modulation",
+        "usage": 3.1
+      },
+      {
+        "id": 160,
+        "name": "Pitch Ring Mod",
+        "key": "HD2_RingModulatorPitchRingModStereo",
+        "category": "modulation",
+        "usage": 3.5
+      },
+      {
+        "id": 367,
+        "name": "Pitch Vibrato",
+        "key": "HD2_MM4PitchVibrato",
+        "category": "modulation",
+        "usage": 1.7
+      },
+      {
+        "id": 335,
+        "name": "PlastiChorus",
+        "key": "HD2_ChorusPlastiChorusMono",
+        "category": "modulation",
+        "usage": 3.7
+      },
+      {
+        "id": 521,
+        "name": "Poly Detune",
+        "key": "L6SPB_PolyChorus",
+        "category": "modulation",
+        "usage": 16.2
+      },
+      {
+        "id": 113,
+        "name": "Random S/H",
+        "key": "SampleAndHold",
+        "category": "modulation",
+        "usage": 3.0
+      },
+      {
+        "id": 389,
+        "name": "Retro Reel",
+        "key": "HD2_RetroReelMono",
+        "category": "modulation",
+        "usage": 3.7
+      },
+      {
+        "id": 206,
+        "name": "Ring Modulator",
+        "key": "HD2_MM4RingModulator",
+        "category": "modulation",
+        "usage": 2.0
+      },
+      {
+        "id": 226,
+        "name": "Rotary Drum",
+        "key": "HD2_MM4RotaryDrum",
+        "category": "modulation",
+        "usage": 6.9
+      },
+      {
+        "id": 227,
+        "name": "Rotary Drum/Horn",
+        "key": "HD2_MM4RotaryDrumHorn",
+        "category": "modulation",
+        "usage": 6.9
+      },
+      {
+        "id": 294,
+        "name": "Script Mod Phase",
+        "key": "HD2_PhaserScriptModPhaseMono",
+        "category": "modulation",
+        "usage": 2.0
+      },
+      {
+        "id": 205,
+        "name": "Script Phase",
+        "key": "HD2_MM4ScriptPhase",
+        "category": "modulation",
+        "usage": 1.8
+      },
+      {
+        "id": 253,
+        "name": "Sweeper",
+        "key": "Sweeper",
+        "category": "modulation",
+        "usage": 1.6
+      },
+      {
+        "id": 112,
+        "name": "Tape Eater",
+        "key": "TapeEater",
+        "category": "modulation",
+        "usage": 3.3
+      },
+      {
+        "id": 322,
+        "name": "Tremolo",
+        "key": "HD2_TremoloTremoloMono",
+        "category": "modulation",
+        "usage": 1.5
+      },
+      {
+        "id": 186,
+        "name": "Tremolo/Autopan",
+        "key": "HD2_TremoloTremoloStereo",
+        "category": "modulation",
+        "usage": 1.8
+      },
+      {
+        "id": 222,
+        "name": "Tri Chorus",
+        "key": "HD2_MM4TriChorus",
+        "category": "modulation",
+        "usage": 3.1
+      },
+      {
+        "id": 166,
+        "name": "Trinity Chorus",
+        "key": "HD2_ChorusTrinityChorusStereo",
+        "category": "modulation",
+        "usage": 4.7
+      },
+      {
+        "id": 260,
+        "name": "Triple Rotary",
+        "key": "HD2_Rotary3RotorStereo",
+        "category": "modulation",
+        "usage": 7.2
+      },
+      {
+        "id": 366,
+        "name": "U-Vibe",
+        "key": "HD2_MM4UVibe",
+        "category": "modulation",
+        "usage": 2.3
+      },
+      {
+        "id": 285,
+        "name": "Ubiquitous Vibe",
+        "key": "HD2_PhaserUbiquitousVibeMono",
+        "category": "modulation",
+        "usage": 2.4
+      },
+      {
+        "id": 159,
+        "name": "Vibe Rotary",
+        "key": "HD2_RotaryVibeRotaryStereo",
+        "category": "modulation",
+        "usage": 5.5
+      },
+      {
+        "id": 114,
+        "name": "Warble Matic",
+        "key": "Warble_Matic",
+        "category": "modulation",
+        "usage": 2.8
+      }
+    ]
+  },
+  "dynamics": {
+    "label": "Dynamics",
+    "models": [
+      {
+        "id": 38,
+        "name": "3-Band Comp",
+        "key": "HX2_Compressor3BandCompMono",
+        "category": "dynamics",
+        "usage": 3.2
+      },
+      {
+        "id": 32,
+        "name": "Ampeg Opto Comp",
+        "key": "HX2_CompressorOptoCompMono",
+        "category": "dynamics",
+        "usage": 4.0
+      },
+      {
+        "id": 37,
+        "name": "Auto Swell",
+        "key": "HX2_CompressorAutoSwellMono",
+        "category": "dynamics",
+        "usage": 2.0
+      },
+      {
+        "id": 24,
+        "name": "Blue Comp",
+        "key": "HX2_DM4BlueComp",
+        "category": "dynamics",
+        "usage": 2.8
+      },
+      {
+        "id": 27,
+        "name": "Blue Comp Treb",
+        "key": "HX2_DM4BlueCompTreb",
+        "category": "dynamics",
+        "usage": 2.8
+      },
+      {
+        "id": 30,
+        "name": "Boost Comp",
+        "key": "HX2_DM4BoostComp",
+        "category": "dynamics",
+        "usage": 3.5
+      },
+      {
+        "id": 33,
+        "name": "Deluxe Comp",
+        "key": "HX2_CompressorDeluxeCompMono",
+        "category": "dynamics",
+        "usage": 2.1
+      },
+      {
+        "id": 482,
+        "name": "Feedbacker",
+        "key": "VIC_FeedbackSim",
+        "category": "dynamics",
+        "usage": 9.9
+      },
+      {
+        "id": 23,
+        "name": "Hard Gate",
+        "key": "HX2_GateHardGateMono",
+        "category": "dynamics",
+        "usage": 1.2
+      },
+      {
+        "id": 22,
+        "name": "Horizon Gate",
+        "key": "HX2_GateHorizonGateMono",
+        "category": "dynamics",
+        "usage": 1.7
+      },
+      {
+        "id": 34,
+        "name": "Kinky Comp",
+        "key": "HX2_CompressorKinkyCompMono",
+        "category": "dynamics",
+        "usage": 4.2
+      },
+      {
+        "id": 35,
+        "name": "LA Studio Comp",
+        "key": "HX2_CompressorLAStudioCompMono",
+        "category": "dynamics",
+        "usage": 3.9
+      },
+      {
+        "id": 21,
+        "name": "Noise Gate",
+        "key": "HX2_GateNoiseGateMono",
+        "category": "dynamics",
+        "usage": 1.1
+      },
+      {
+        "id": 26,
+        "name": "Red Comp",
+        "key": "HX2_DM4RedComp",
+        "category": "dynamics",
+        "usage": 2.8
+      },
+      {
+        "id": 36,
+        "name": "Red Squeeze",
+        "key": "HX2_CompressorRedSqueezeMono",
+        "category": "dynamics",
+        "usage": 5.0
+      },
+      {
+        "id": 31,
+        "name": "Rochester Comp",
+        "key": "HX2_CompressorRochesterCompMono",
+        "category": "dynamics",
+        "usage": 2.5
+      },
+      {
+        "id": 25,
+        "name": "Tube Comp",
+        "key": "HX2_DM4TubeComp",
+        "category": "dynamics",
+        "usage": 2.7
+      },
+      {
+        "id": 29,
+        "name": "Vetta Comp",
+        "key": "HX2_DM4VettaComp",
+        "category": "dynamics",
+        "usage": 2.7
+      },
+      {
+        "id": 28,
+        "name": "Vetta Juice",
+        "key": "HX2_DM4VettaJuice",
+        "category": "dynamics",
+        "usage": 2.7
+      }
+    ]
+  },
+  "eq": {
+    "label": "EQ",
+    "models": [
+      {
+        "id": 265,
+        "name": "10 Band Graphic",
+        "key": "HD2_EQGraphic10BandMono",
+        "category": "eq",
+        "usage": 1.7
+      },
+      {
+        "id": 384,
+        "name": "Acoustic Sim",
+        "key": "L6SPB_AcousGtrSimMono",
+        "category": "eq",
+        "usage": 2.7
+      },
+      {
+        "id": 331,
+        "name": "Cali Q Graphic",
+        "key": "HD2_CaliQMono",
+        "category": "eq",
+        "usage": 1.9
+      },
+      {
+        "id": 413,
+        "name": "Parametric",
+        "key": "HX2_EQParametricMono",
+        "category": "eq",
+        "usage": 1.9
+      },
+      {
+        "id": 373,
+        "name": "Tilt",
+        "key": "HD2_EQSimpleTiltMono",
+        "category": "eq",
+        "usage": 1.5
+      }
+    ]
+  },
+  "pitch_synth": {
+    "label": "Pitch / Synth",
+    "models": [
+      {
+        "id": 520,
+        "name": "12-String",
+        "key": "VIC_PitchTwelveStringMono",
+        "category": "pitch",
+        "usage": 17.2
+      },
+      {
+        "id": 336,
+        "name": "3 Note Generator",
+        "key": "HD2_Synth3NoteGeneratorMono",
+        "category": "synth",
+        "usage": 3.6
+      },
+      {
+        "id": 505,
+        "name": "3 OSC Synth",
+        "key": "HD2_SynthSubtractiveStereo",
+        "category": "synth",
+        "usage": 8.5
+      },
+      {
+        "id": 337,
+        "name": "4 OSC Generator",
+        "key": "HD2_Synth4OSCGeneratorMono",
+        "category": "synth",
+        "usage": 3.8
+      },
+      {
+        "id": 396,
+        "name": "Analog Synth",
+        "key": "SynthAnalog",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 349,
+        "name": "Attack Synth",
+        "key": "HD2_FM4AttackSynth",
+        "category": "synth",
+        "usage": 2.8
+      },
+      {
+        "id": 351,
+        "name": "Bass Octaver",
+        "key": "HD2_DM4BassOctaver",
+        "category": "pitch",
+        "usage": 2.9
+      },
+      {
+        "id": 409,
+        "name": "Boctaver",
+        "key": "VIC_PitchBoctaverMono",
+        "category": "pitch",
+        "usage": 2.5
+      },
+      {
+        "id": 402,
+        "name": "Buzz Wave",
+        "key": "BuzzWave",
+        "category": "synth",
+        "usage": 3.9
+      },
+      {
+        "id": 399,
+        "name": "Double Bass",
+        "key": "DoubleBass",
+        "category": "synth",
+        "usage": 4.1
+      },
+      {
+        "id": 324,
+        "name": "Dual Pitch",
+        "key": "HD2_PitchDualPitchMono",
+        "category": "pitch",
+        "usage": 4.1
+      },
+      {
+        "id": 348,
+        "name": "Growler",
+        "key": "HD2_FM4Growler",
+        "category": "synth",
+        "usage": 3.4
+      },
+      {
+        "id": 347,
+        "name": "Octi Synth",
+        "key": "HD2_FM4OctiSynth",
+        "category": "synth",
+        "usage": 2.0
+      },
+      {
+        "id": 292,
+        "name": "Pitch Wham",
+        "key": "HD2_PitchPitchWhamMono",
+        "category": "pitch",
+        "usage": 3.5
+      },
+      {
+        "id": 523,
+        "name": "Poly Capo",
+        "key": "L6SPB_PolyDowntune",
+        "category": "pitch",
+        "usage": 16.2
+      },
+      {
+        "id": 480,
+        "name": "Poly Pitch",
+        "key": "L6SPB_PolyPitch",
+        "category": "pitch",
+        "usage": 17.5
+      },
+      {
+        "id": 522,
+        "name": "Poly Wham",
+        "key": "L6SPB_PolyWham",
+        "category": "pitch",
+        "usage": 17.5
+      },
+      {
+        "id": 401,
+        "name": "Rez Synth",
+        "key": "RezSynth",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 398,
+        "name": "Saturn 5 RingMod",
+        "key": "Saturn5RingMod",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 397,
+        "name": "Seismik Synth",
+        "key": "SeismicSynth",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 328,
+        "name": "Simple Pitch",
+        "key": "HD2_PitchSimplePitchMono",
+        "category": "pitch",
+        "usage": 3.5
+      },
+      {
+        "id": 342,
+        "name": "Smart Harmony",
+        "key": "HD2_M13TwoVoiceHarmony",
+        "category": "pitch",
+        "usage": 4.1
+      },
+      {
+        "id": 394,
+        "name": "String Theory",
+        "key": "SynthString",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 393,
+        "name": "Synth FX",
+        "key": "SynthFX",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 400,
+        "name": "Synth Harmony",
+        "key": "SynthHarmony",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 395,
+        "name": "Synth Lead",
+        "key": "SynthLead",
+        "category": "synth",
+        "usage": 3.7
+      },
+      {
+        "id": 346,
+        "name": "Synth O Matic",
+        "key": "HD2_FM4SynthOMatic",
+        "category": "synth",
+        "usage": 2.8
+      },
+      {
+        "id": 345,
+        "name": "Synth String",
+        "key": "HD2_FM4SynthString",
+        "category": "synth",
+        "usage": 3.0
+      },
+      {
+        "id": 291,
+        "name": "Twin Harmony",
+        "key": "HD2_PitchTwinHarmonyMono",
+        "category": "pitch",
+        "usage": 4.0
+      }
+    ]
+  },
+  "wah_filter": {
+    "label": "Wah / Filter",
+    "models": [
+      {
+        "id": 375,
+        "name": "Asheville Pattrn",
+        "key": "HD2_FilterAshevillePattrnMono",
+        "category": "filter",
+        "usage": 5.7
+      },
+      {
+        "id": 18,
+        "name": "Auto Filter",
+        "key": "HX2_FilterAutoFilterMono",
+        "category": "filter",
+        "usage": 1.6
+      },
+      {
+        "id": 314,
+        "name": "Chrome",
+        "key": "HD2_WahChromeMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 313,
+        "name": "Chrome Custom",
+        "key": "HD2_WahChromeCustomMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 315,
+        "name": "Colorful",
+        "key": "HD2_WahColorfulMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 220,
+        "name": "Comet Trails",
+        "key": "HD2_FM4CometTrails",
+        "category": "filter",
+        "usage": 4.0
+      },
+      {
+        "id": 316,
+        "name": "Conductor",
+        "key": "HD2_WahConductorMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 317,
+        "name": "Fassel",
+        "key": "HD2_WahFasselMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 19,
+        "name": "Mutant Filter",
+        "key": "HX2_FilterMutantFilterMono",
+        "category": "filter",
+        "usage": 1.5
+      },
+      {
+        "id": 20,
+        "name": "Mystery Filter",
+        "key": "HX2_FilterMysterFilterMono",
+        "category": "filter",
+        "usage": 1.6
+      },
+      {
+        "id": 219,
+        "name": "Obi Wah",
+        "key": "HD2_FM4ObiWah",
+        "category": "filter",
+        "usage": 3.3
+      },
+      {
+        "id": 218,
+        "name": "Q Filter",
+        "key": "HD2_FM4QFilter",
+        "category": "filter",
+        "usage": 2.8
+      },
+      {
+        "id": 217,
+        "name": "Seeker",
+        "key": "HD2_FM4Seeker",
+        "category": "filter",
+        "usage": 2.9
+      },
+      {
+        "id": 216,
+        "name": "Slow Filter",
+        "key": "HD2_FM4SlowFilter",
+        "category": "filter",
+        "usage": 3.0
+      },
+      {
+        "id": 215,
+        "name": "Spin Cycle",
+        "key": "HD2_FM4SpinCycle",
+        "category": "filter",
+        "usage": 3.1
+      },
+      {
+        "id": 289,
+        "name": "Teardrop 310",
+        "key": "HD2_WahTeardrop310Mono",
+        "category": "wah",
+        "usage": 2.3
+      },
+      {
+        "id": 415,
+        "name": "Teardrop Bass Q",
+        "key": "HD2_WahTeardropBassQMono",
+        "category": "wah",
+        "usage": 1.5
+      },
+      {
+        "id": 318,
+        "name": "Throaty",
+        "key": "HD2_WahThroatyMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 214,
+        "name": "Throbber",
+        "key": "HD2_FM4Throbber",
+        "category": "filter",
+        "usage": 3.1
+      },
+      {
+        "id": 213,
+        "name": "Tron Down",
+        "key": "HD2_FM4TronDown",
+        "category": "filter",
+        "usage": 3.0
+      },
+      {
+        "id": 212,
+        "name": "Tron Up",
+        "key": "HD2_FM4TronUp",
+        "category": "filter",
+        "usage": 3.0
+      },
+      {
+        "id": 290,
+        "name": "UK Wah 846",
+        "key": "HD2_WahUKWah846Mono",
+        "category": "wah",
+        "usage": 2.3
+      },
+      {
+        "id": 343,
+        "name": "V Tron",
+        "key": "HD2_FM4VTron",
+        "category": "filter",
+        "usage": 1.8
+      },
+      {
+        "id": 319,
+        "name": "Vetta Wah",
+        "key": "HD2_WahVettaWahMono",
+        "category": "wah",
+        "usage": 1.3
+      },
+      {
+        "id": 344,
+        "name": "Voice Box",
+        "key": "HD2_FM4VoiceBox",
+        "category": "filter",
+        "usage": 1.8
+      },
+      {
+        "id": 320,
+        "name": "Weeper",
+        "key": "HD2_WahWeeperMono",
+        "category": "wah",
+        "usage": 1.3
+      }
+    ]
+  },
+  "volume_pan": {
+    "label": "Volume / Pan",
+    "models": [
+      {
+        "id": 282,
+        "name": "Gain",
+        "key": "HD2_VolPanGainMono",
+        "category": "volume",
+        "usage": 0.8
+      },
+      {
+        "id": 135,
+        "name": "Pan",
+        "key": "HD2_VolPanPanStereo",
+        "category": "volume",
+        "usage": 0.9
+      },
+      {
+        "id": 247,
+        "name": "Stereo Imager",
+        "key": "HD2_VolPanStereoImagerStereo",
+        "category": "volume",
+        "usage": 1.8
+      },
+      {
+        "id": 201,
+        "name": "Stereo Width",
+        "key": "HD2_VolPanStereoWidthStereo",
+        "category": "volume",
+        "usage": 1.1
+      },
+      {
+        "id": 268,
+        "name": "Volume Pedal",
+        "key": "HD2_VolPanVolMono",
+        "category": "volume",
+        "usage": 0.8
+      }
+    ]
+  },
+  "fx_loop": {
+    "label": "FX Loop",
+    "models": [
+      {
+        "id": 277,
+        "name": "FX Loop 1",
+        "key": "HD2_FXLoopMono1",
+        "category": "fxloop",
+        "usage": 1.3
+      },
+      {
+        "id": 143,
+        "name": "FX Loop 1/2",
+        "key": "HD2_FXLoopStereo1_2",
+        "category": "fxloop",
+        "usage": 1.5
+      },
+      {
+        "id": 278,
+        "name": "FX Loop 2",
+        "key": "HD2_FXLoopMono2",
+        "category": "fxloop",
+        "usage": 1.3
+      },
+      {
+        "id": 279,
+        "name": "FX Loop 3",
+        "key": "HD2_FXLoopMono3",
+        "category": "fxloop",
+        "usage": 1.3
+      },
+      {
+        "id": 144,
+        "name": "FX Loop 3/4",
+        "key": "HD2_FXLoopStereo3_4",
+        "category": "fxloop",
+        "usage": 1.5
+      },
+      {
+        "id": 280,
+        "name": "FX Loop 4",
+        "key": "HD2_FXLoopMono4",
+        "category": "fxloop",
+        "usage": 1.3
+      },
+      {
+        "id": 416,
+        "name": "Plugin 1",
+        "key": "HD2_PluginMono1",
+        "category": "fxloop",
+        "usage": 0.0
+      },
+      {
+        "id": 262,
+        "name": "Plugin 1/2",
+        "key": "HD2_PluginStereo1_2",
+        "category": "fxloop",
+        "usage": 0.0
+      },
+      {
+        "id": 419,
+        "name": "Plugin 2",
+        "key": "HD2_PluginMono2",
+        "category": "fxloop",
+        "usage": 0.0
+      },
+      {
+        "id": 417,
+        "name": "Plugin 3",
+        "key": "HD2_PluginMono3",
+        "category": "fxloop",
+        "usage": 0.0
+      },
+      {
+        "id": 263,
+        "name": "Plugin 3/4",
+        "key": "HD2_PluginStereo3_4",
+        "category": "fxloop",
+        "usage": 0.0
+      },
+      {
+        "id": 418,
+        "name": "Plugin 4",
+        "key": "HD2_PluginMono4",
+        "category": "fxloop",
+        "usage": 0.0
+      },
+      {
+        "id": 273,
+        "name": "Return 1",
+        "key": "HD2_ReturnMono1",
+        "category": "return",
+        "usage": 1.3
+      },
+      {
+        "id": 141,
+        "name": "Return 1/2",
+        "key": "HD2_ReturnStereo1_2",
+        "category": "return",
+        "usage": 1.5
+      },
+      {
+        "id": 274,
+        "name": "Return 2",
+        "key": "HD2_ReturnMono2",
+        "category": "return",
+        "usage": 1.3
+      },
+      {
+        "id": 275,
+        "name": "Return 3",
+        "key": "HD2_ReturnMono3",
+        "category": "return",
+        "usage": 1.3
+      },
+      {
+        "id": 142,
+        "name": "Return 3/4",
+        "key": "HD2_ReturnStereo3_4",
+        "category": "return",
+        "usage": 1.5
+      },
+      {
+        "id": 276,
+        "name": "Return 4",
+        "key": "HD2_ReturnMono4",
+        "category": "return",
+        "usage": 1.3
+      },
+      {
+        "id": 269,
+        "name": "Send 1",
+        "key": "HD2_SendMono1",
+        "category": "send",
+        "usage": 1.3
+      },
+      {
+        "id": 139,
+        "name": "Send 1/2",
+        "key": "HD2_SendStereo1_2",
+        "category": "send",
+        "usage": 1.5
+      },
+      {
+        "id": 270,
+        "name": "Send 2",
+        "key": "HD2_SendMono2",
+        "category": "send",
+        "usage": 1.3
+      },
+      {
+        "id": 271,
+        "name": "Send 3",
+        "key": "HD2_SendMono3",
+        "category": "send",
+        "usage": 1.3
+      },
+      {
+        "id": 140,
+        "name": "Send 3/4",
+        "key": "HD2_SendStereo3_4",
+        "category": "send",
+        "usage": 1.5
+      },
+      {
+        "id": 272,
+        "name": "Send 4",
+        "key": "HD2_SendMono4",
+        "category": "send",
+        "usage": 1.3
+      }
+    ]
+  },
+  "looper": {
+    "label": "Looper",
+    "models": [
+      {
+        "id": 825,
+        "name": "1 Switch Looper",
+        "key": "P35_LooperHelixOneSwitchMono",
+        "category": "looper",
+        "usage": 2.3
+      },
+      {
+        "id": 824,
+        "name": "Deluxe Looper",
+        "key": "P35_LooperHelixMono",
+        "category": "looper",
+        "usage": 2.7
+      },
+      {
+        "id": 814,
+        "name": "Shuffling Looper",
+        "key": "VIC_LooperShufflingMono",
+        "category": "looper",
+        "usage": 2.3
+      }
+    ]
+  }
+}

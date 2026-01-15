@@ -14,6 +14,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from helix import HelixSession  # noqa: E402
+from helix.blobs import normalize_fourcc_map  # noqa: E402
 
 
 DEFAULT_APP_RES = "/Applications/Line6/Helix Stadium.app/Contents/Resources"
@@ -55,6 +56,13 @@ def parse_visibility(value: str):
     if val in ("0", "false", "no", "off", "disable", "disabled", "hide", "close", "hidden"):
         return False
     raise ValueError(f"invalid visibility value: {value!r}")
+
+
+def parse_param_value(value: str):
+    try:
+        return float(value)
+    except ValueError:
+        return 1.0 if parse_bool(value) else 0.0
 
 
 def parse_blocks(value: str):
@@ -100,6 +108,117 @@ def load_uidefs(path: str):
         return None
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def coerce_numeric_keys(obj):
+    if isinstance(obj, dict):
+        out = {}
+        for key, val in obj.items():
+            new_key = key
+            if isinstance(key, str) and key.isdigit():
+                try:
+                    new_key = int(key)
+                except Exception:
+                    new_key = key
+            out[new_key] = coerce_numeric_keys(val)
+        return out
+    if isinstance(obj, list):
+        return [coerce_numeric_keys(v) for v in obj]
+    return obj
+
+
+def load_edit_buffer(session: HelixSession):
+    raw = session.get_edit_buffer_state()
+    if raw is None:
+        return None
+    return normalize_fourcc_map(coerce_numeric_keys(raw))
+
+
+def parse_row(value: str) -> int:
+    text = value.strip().upper()
+    if text in ("1A", "A1"):
+        return 0
+    if text in ("1B", "B1"):
+        return 1
+    if text in ("2A", "A2"):
+        return 2
+    if text in ("2B", "B2"):
+        return 3
+    if text.isdigit():
+        idx = int(text)
+        if idx in (0, 1, 2, 3):
+            return idx
+    raise ValueError(f"invalid row: {value!r} (expected 1A, 1B, 2A, 2B, or 0-3)")
+
+
+def resolve_io_model_id(query: str, modeldefs_path: str, uidefs_path: str):
+    if query is None:
+        return None
+    if str(query).isdigit():
+        return int(query)
+    modeldefs = load_modeldefs(modeldefs_path)
+    if not modeldefs:
+        raise SystemExit("modeldefs not found; install the Helix app or pass --modeldefs")
+    uidefs = load_uidefs(uidefs_path)
+    needle = normalize_query(query)
+    for key, info in modeldefs.items():
+        if not isinstance(info, dict):
+            continue
+        if info.get("category") not in ("input", "output"):
+            continue
+        if normalize_query(key) == needle:
+            return info.get("id")
+        if isinstance(uidefs, dict):
+            name = uidefs.get(key, {}).get("name")
+            if name and normalize_query(name) == needle:
+                return info.get("id")
+    return None
+
+
+def find_io_block(state, row: int, io_type: str):
+    if state is None:
+        return None
+    flows = state.get("sfg_", {}).get("flow", [])
+    if not isinstance(flows, list):
+        return None
+    flow_idx = row // 2
+    if flow_idx < 0 or flow_idx >= len(flows):
+        return None
+    flow = flows[flow_idx]
+    if not isinstance(flow, dict):
+        return None
+    local_row = row % 2
+    if io_type == "input":
+        pos = 0 if local_row == 0 else 14
+    else:
+        pos = 13 if local_row == 0 else 27
+    blks = flow.get("blks", [])
+    if isinstance(blks, list) and len(blks) > 1 and isinstance(blks[0], int) and isinstance(blks[1], dict):
+        for i in range(1, len(blks), 2):
+            blk_pos = blks[i - 1]
+            blk = blks[i]
+            if blk_pos == pos and isinstance(blk, dict):
+                return blk.get("id__"), blk
+    bmap = flow.get("bmap")
+    if isinstance(bmap, list) and len(bmap) > pos:
+        return bmap[pos], None
+    return None
+
+
+def resolve_param_id(modeldefs, model_id: int, param_key: str):
+    needle = normalize_query(param_key)
+    for info in modeldefs.values():
+        if not isinstance(info, dict):
+            continue
+        if info.get("id") != model_id:
+            continue
+        params = info.get("params", {})
+        if not isinstance(params, dict):
+            continue
+        for key, entry in params.items():
+            if normalize_query(key) == needle and isinstance(entry, dict):
+                return entry.get("id")
+    return None
 
 
 def resolve_model_id(query: str, model_map_path: str, modeldefs_path: str, uidefs_path: str):
@@ -272,6 +391,63 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             wait_status=True,
         )
         return cmd_id + 1
+    if op in ("io_set", "io-set"):
+        row = parse_row(str(action.get("row")))
+        io_type = str(action.get("type", "input")).lower()
+        model_id = action.get("model_id")
+        model = action.get("model")
+        if model_id is None and model:
+            model_id = resolve_io_model_id(
+                str(model),
+                action.get("modeldefs", DEFAULT_MODELDEFS),
+                action.get("uidefs", DEFAULT_UIDEFS),
+            )
+        if model_id is None:
+            raise SystemExit("io_set requires model_id or model")
+        state = load_edit_buffer(session)
+        block_id, _blk = find_io_block(state, row, io_type)
+        if block_id is None:
+            raise SystemExit("unable to resolve IO block id; sync or check row/type")
+        session.set_model(row // 2, int(block_id), int(model_id), int(action.get("slot", 0)), wait_status=True)
+        return cmd_id + 1
+    if op in ("io_param", "io-param"):
+        row = parse_row(str(action.get("row")))
+        io_type = str(action.get("type", "input")).lower()
+        state = load_edit_buffer(session)
+        block_id, blk = find_io_block(state, row, io_type)
+        if block_id is None:
+            raise SystemExit("unable to resolve IO block id; sync or check row/type")
+        param_id = action.get("param_id")
+        if param_id is None:
+            param_key = action.get("param")
+            if not param_key:
+                raise SystemExit("io_param requires param_id or param")
+            model_id = None
+            if isinstance(blk, dict):
+                models = blk.get("mdls", [])
+                if isinstance(models, list) and models and isinstance(models[0], dict):
+                    model_id = models[0].get("id__")
+            if model_id is None:
+                raise SystemExit("unable to resolve IO model id for param lookup")
+            modeldefs = load_modeldefs(action.get("modeldefs", DEFAULT_MODELDEFS))
+            if not modeldefs:
+                raise SystemExit("modeldefs not found; install the Helix app or pass --modeldefs")
+            param_id = resolve_param_id(modeldefs, int(model_id), str(param_key))
+        if param_id is None:
+            raise SystemExit("unable to resolve param id")
+        value = action.get("value")
+        if isinstance(value, str):
+            value = parse_param_value(value)
+        session.set_param_value(
+            row // 2,
+            int(block_id),
+            int(param_id),
+            value,
+            int(action.get("slot", 0)),
+            int(action.get("flags", -1)),
+            wait_status=True,
+        )
+        return cmd_id + 1
     if op == "param_value":
         session.set_param_value(
             int(action["path"]),
@@ -356,6 +532,23 @@ def main():
     insert_block.add_argument("--clear", action="store_true", help="Clear block and next slot before inserting")
     insert_block.add_argument("--clear-blocks", help="Comma-separated block indices to clear before inserting")
 
+    io_set = sub.add_parser("io-set")
+    io_set.add_argument("--row", required=True, help="Row label (1A, 1B, 2A, 2B) or index 0-3")
+    io_set.add_argument("--type", choices=("input", "output"), required=True)
+    io_set.add_argument("--model-id", type=int)
+    io_set.add_argument("--model", help="Model key or display name (resolved via app resources)")
+    io_set.add_argument("--modeldefs", default=DEFAULT_MODELDEFS, help="Path to modeldefs .bin")
+    io_set.add_argument("--uidefs", default=DEFAULT_UIDEFS, help="Path to P35ModelUIDefs.json")
+
+    io_param = sub.add_parser("io-param")
+    io_param.add_argument("--row", required=True, help="Row label (1A, 1B, 2A, 2B) or index 0-3")
+    io_param.add_argument("--type", choices=("input", "output"), required=True)
+    io_param.add_argument("--param-id", type=int)
+    io_param.add_argument("--param", help="Parameter key (e.g., Pad, Trim, gain, pan)")
+    io_param.add_argument("--value", required=True, help="Value to set (number or boolean)")
+    io_param.add_argument("--modeldefs", default=DEFAULT_MODELDEFS, help="Path to modeldefs .bin")
+    io_param.add_argument("--uidefs", default=DEFAULT_UIDEFS, help="Path to P35ModelUIDefs.json")
+
     clear_all = sub.add_parser("clear-all-blocks")
     clear_all.add_argument("--path", type=int, help="Optional path/flow index to clear (default: all)")
     clear_all_short = sub.add_parser("clear-all")
@@ -434,6 +627,43 @@ def main():
             clear_blocks=clear_blocks,
             wait_status=True,
         )
+    elif args.cmd == "io-set":
+        row = parse_row(args.row)
+        model_id = args.model_id
+        if model_id is None and args.model:
+            model_id = resolve_io_model_id(args.model, args.modeldefs, args.uidefs)
+        if model_id is None:
+            raise SystemExit("io-set requires --model-id or --model")
+        state = load_edit_buffer(session)
+        block_id, _blk = find_io_block(state, row, args.type)
+        if block_id is None:
+            raise SystemExit("unable to resolve IO block id; run get-edit-buffer first")
+        session.set_model(row // 2, int(block_id), int(model_id), 0, wait_status=True)
+    elif args.cmd == "io-param":
+        row = parse_row(args.row)
+        state = load_edit_buffer(session)
+        block_id, blk = find_io_block(state, row, args.type)
+        if block_id is None:
+            raise SystemExit("unable to resolve IO block id; run get-edit-buffer first")
+        param_id = args.param_id
+        if param_id is None:
+            if not args.param:
+                raise SystemExit("io-param requires --param-id or --param")
+            model_id = None
+            if isinstance(blk, dict):
+                models = blk.get("mdls", [])
+                if isinstance(models, list) and models and isinstance(models[0], dict):
+                    model_id = models[0].get("id__")
+            if model_id is None:
+                raise SystemExit("unable to resolve IO model id for param lookup")
+            modeldefs = load_modeldefs(args.modeldefs)
+            if not modeldefs:
+                raise SystemExit("modeldefs not found; install the Helix app or pass --modeldefs")
+            param_id = resolve_param_id(modeldefs, int(model_id), str(args.param))
+        if param_id is None:
+            raise SystemExit("unable to resolve param id")
+        value = parse_param_value(args.value)
+        session.set_param_value(row // 2, int(block_id), int(param_id), value, 0, -1, wait_status=True)
     elif args.cmd == "clear-all-blocks":
         session.clear_all_blocks(args.path, wait_status=True)
     elif args.cmd == "clear-all":

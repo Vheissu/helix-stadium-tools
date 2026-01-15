@@ -1,0 +1,1478 @@
+{
+  "amps": [
+    {
+      "id": 628,
+      "name": "2204 Mod",
+      "key": "HD2_AmpLine62204Mod",
+      "category": "amp"
+    },
+    {
+      "id": 612,
+      "name": "A30 Fawn Brt",
+      "key": "HD2_AmpA30FawnBrt",
+      "category": "amp"
+    },
+    {
+      "id": 613,
+      "name": "A30 Fawn Nrm",
+      "key": "HD2_AmpA30FawnNrm",
+      "category": "amp"
+    },
+    {
+      "id": 610,
+      "name": "ANGL Meteor",
+      "key": "HD2_AmpANGLMeteor",
+      "category": "amp"
+    },
+    {
+      "id": 637,
+      "name": "Archetype Clean",
+      "key": "HD2_AmpArchetypeClean",
+      "category": "amp"
+    },
+    {
+      "id": 635,
+      "name": "Archetype Lead",
+      "key": "HD2_AmpArchetypeLead",
+      "category": "amp"
+    },
+    {
+      "id": 713,
+      "name": "Aristocrat",
+      "key": "HD2_AmpLine6Aristocrat",
+      "category": "amp"
+    },
+    {
+      "id": 643,
+      "name": "Badonk",
+      "key": "HD2_AmpLine6Badonk",
+      "category": "amp"
+    },
+    {
+      "id": 735,
+      "name": "Brit 2203",
+      "key": "HD2_AmpBrit2203",
+      "category": "amp"
+    },
+    {
+      "id": 758,
+      "name": "Brit 2203MV",
+      "key": "Agoura_AmpBrit2203MV",
+      "category": "amp"
+    },
+    {
+      "id": 608,
+      "name": "Brit 2204",
+      "key": "HD2_AmpBrit2204",
+      "category": "amp"
+    },
+    {
+      "id": 604,
+      "name": "Brit J45 Brt",
+      "key": "HD2_AmpBritJ45Brt",
+      "category": "amp"
+    },
+    {
+      "id": 605,
+      "name": "Brit J45 Nrm",
+      "key": "HD2_AmpBritJ45Nrm",
+      "category": "amp"
+    },
+    {
+      "id": 834,
+      "name": "Brit Jujube",
+      "key": "Agoura_AmpBritJujube",
+      "category": "amp"
+    },
+    {
+      "id": 600,
+      "name": "Brit P75 Brt",
+      "key": "HD2_AmpBritP75Brt",
+      "category": "amp"
+    },
+    {
+      "id": 601,
+      "name": "Brit P75 Nrm",
+      "key": "HD2_AmpBritP75Nrm",
+      "category": "amp"
+    },
+    {
+      "id": 756,
+      "name": "Brit Plexi",
+      "key": "Agoura_AmpBritPlexi",
+      "category": "amp"
+    },
+    {
+      "id": 594,
+      "name": "Brit Plexi Brt",
+      "key": "HD2_AmpBritPlexiBrt",
+      "category": "amp"
+    },
+    {
+      "id": 595,
+      "name": "Brit Plexi Jump",
+      "key": "HD2_AmpBritPlexiJump",
+      "category": "amp"
+    },
+    {
+      "id": 596,
+      "name": "Brit Plexi Nrm",
+      "key": "HD2_AmpBritPlexiNrm",
+      "category": "amp"
+    },
+    {
+      "id": 657,
+      "name": "Brit Trem Brt",
+      "key": "HD2_AmpBritTremBrt",
+      "category": "amp"
+    },
+    {
+      "id": 658,
+      "name": "Brit Trem Jump",
+      "key": "HD2_AmpBritTremJump",
+      "category": "amp"
+    },
+    {
+      "id": 659,
+      "name": "Brit Trem Nrm",
+      "key": "HD2_AmpBritTremNrm",
+      "category": "amp"
+    },
+    {
+      "id": 832,
+      "name": "Cali 2C+",
+      "key": "Agoura_AmpCali2CPlus",
+      "category": "amp"
+    },
+    {
+      "id": 626,
+      "name": "Cali IV Lead",
+      "key": "HD2_AmpCaliIVLead",
+      "category": "amp"
+    },
+    {
+      "id": 622,
+      "name": "Cali IV Rhythm 1",
+      "key": "HD2_AmpCaliIVR1",
+      "category": "amp"
+    },
+    {
+      "id": 623,
+      "name": "Cali IV Rhythm 2",
+      "key": "HD2_AmpCaliIVR2",
+      "category": "amp"
+    },
+    {
+      "id": 586,
+      "name": "Cali Rectifire",
+      "key": "HD2_AmpCaliRectifire",
+      "category": "amp"
+    },
+    {
+      "id": 671,
+      "name": "Cali Texas Ch1",
+      "key": "HD2_AmpCaliTexasCh1",
+      "category": "amp"
+    },
+    {
+      "id": 667,
+      "name": "Cali Texas Ch2",
+      "key": "HD2_AmpCaliTexasCh2",
+      "category": "amp"
+    },
+    {
+      "id": 712,
+      "name": "Carillon",
+      "key": "HD2_AmpLine6Carillon",
+      "category": "amp"
+    },
+    {
+      "id": 655,
+      "name": "Cartographer",
+      "key": "HD2_AmpCartographer",
+      "category": "amp"
+    },
+    {
+      "id": 710,
+      "name": "Clarity",
+      "key": "HD2_AmpLine6Clarity",
+      "category": "amp"
+    },
+    {
+      "id": 693,
+      "name": "Das Benzin Lead",
+      "key": "HD2_AmpDasBenzinLead",
+      "category": "amp"
+    },
+    {
+      "id": 695,
+      "name": "Das Benzin Mega",
+      "key": "HD2_AmpDasBenzinMega",
+      "category": "amp"
+    },
+    {
+      "id": 651,
+      "name": "Derailed Ingrid",
+      "key": "HD2_AmpDerailedIngrid",
+      "category": "amp"
+    },
+    {
+      "id": 584,
+      "name": "Divided Duo",
+      "key": "HD2_AmpDividedDuo",
+      "category": "amp"
+    },
+    {
+      "id": 568,
+      "name": "Doom",
+      "key": "HD2_AmpLine6Doom",
+      "category": "amp"
+    },
+    {
+      "id": 811,
+      "name": "EV Panama Blue",
+      "key": "Agoura_AmpEVPanamaBlue",
+      "category": "amp"
+    },
+    {
+      "id": 746,
+      "name": "EV Panama Blue",
+      "key": "HD2_AmpEVPanamaBlue",
+      "category": "amp"
+    },
+    {
+      "id": 823,
+      "name": "EV Panama Red",
+      "key": "Agoura_AmpEVPanamaRed",
+      "category": "amp"
+    },
+    {
+      "id": 745,
+      "name": "EV Panama Red",
+      "key": "HD2_AmpEVPanamaRed",
+      "category": "amp"
+    },
+    {
+      "id": 566,
+      "name": "Elektrik",
+      "key": "HD2_AmpLine6Elektrik",
+      "category": "amp"
+    },
+    {
+      "id": 725,
+      "name": "Elmsley",
+      "key": "HD2_AmpLine6Elmsley",
+      "category": "amp"
+    },
+    {
+      "id": 564,
+      "name": "Epic",
+      "key": "HD2_AmpLine6Epic",
+      "category": "amp"
+    },
+    {
+      "id": 582,
+      "name": "Essex A15",
+      "key": "HD2_AmpEssexA15",
+      "category": "amp"
+    },
+    {
+      "id": 580,
+      "name": "Essex A30",
+      "key": "HD2_AmpEssexA30",
+      "category": "amp"
+    },
+    {
+      "id": 810,
+      "name": "Essex TB30CC",
+      "key": "Agoura_AmpEssexTB30CC",
+      "category": "amp"
+    },
+    {
+      "id": 630,
+      "name": "Fatality",
+      "key": "HD2_AmpLine6Fatality",
+      "category": "amp"
+    },
+    {
+      "id": 682,
+      "name": "Fullerton Brt",
+      "key": "HD2_AmpFullertonBrt",
+      "category": "amp"
+    },
+    {
+      "id": 683,
+      "name": "Fullerton Jump",
+      "key": "HD2_AmpFullertonJump",
+      "category": "amp"
+    },
+    {
+      "id": 684,
+      "name": "Fullerton Nrm",
+      "key": "HD2_AmpFullertonNrm",
+      "category": "amp"
+    },
+    {
+      "id": 576,
+      "name": "German Mahadeva",
+      "key": "HD2_AmpGermanMahadeva",
+      "category": "amp"
+    },
+    {
+      "id": 574,
+      "name": "German Ubersonic",
+      "key": "HD2_AmpGermanUbersonic",
+      "category": "amp"
+    },
+    {
+      "id": 818,
+      "name": "German Xtra Blue",
+      "key": "Agoura_AmpGermanXtraBlue",
+      "category": "amp"
+    },
+    {
+      "id": 741,
+      "name": "German Xtra Blue",
+      "key": "HD2_AmpGermanXtraBlue",
+      "category": "amp"
+    },
+    {
+      "id": 819,
+      "name": "German Xtra Red",
+      "key": "Agoura_AmpGermanXtraRed",
+      "category": "amp"
+    },
+    {
+      "id": 742,
+      "name": "German Xtra Red",
+      "key": "HD2_AmpGermanXtraRed",
+      "category": "amp"
+    },
+    {
+      "id": 731,
+      "name": "Grammatico GSG",
+      "key": "HD2_AmpGSG100",
+      "category": "amp"
+    },
+    {
+      "id": 676,
+      "name": "GrammaticoLG Brt",
+      "key": "HD2_AmpGrammaticoBrt",
+      "category": "amp"
+    },
+    {
+      "id": 677,
+      "name": "GrammaticoLG Jmp",
+      "key": "HD2_AmpGrammaticoJump",
+      "category": "amp"
+    },
+    {
+      "id": 678,
+      "name": "GrammaticoLG Nrm",
+      "key": "HD2_AmpGrammaticoNrm",
+      "category": "amp"
+    },
+    {
+      "id": 572,
+      "name": "Interstate Zed",
+      "key": "HD2_AmpInterstateZed",
+      "category": "amp"
+    },
+    {
+      "id": 570,
+      "name": "Jazz Rivet 120",
+      "key": "HD2_AmpJazzRivet120",
+      "category": "amp"
+    },
+    {
+      "id": 711,
+      "name": "Kinetic",
+      "key": "HD2_AmpLine6Kinetic",
+      "category": "amp"
+    },
+    {
+      "id": 633,
+      "name": "Litigator",
+      "key": "HD2_AmpLine6Litigator",
+      "category": "amp"
+    },
+    {
+      "id": 562,
+      "name": "Mail Order Twin",
+      "key": "HD2_AmpMailOrderTwin",
+      "category": "amp"
+    },
+    {
+      "id": 560,
+      "name": "Mandarin 80",
+      "key": "HD2_AmpMandarin80",
+      "category": "amp"
+    },
+    {
+      "id": 697,
+      "name": "Mandarin Rocker",
+      "key": "HD2_AmpMandarinRocker",
+      "category": "amp"
+    },
+    {
+      "id": 616,
+      "name": "Matchstick Ch1",
+      "key": "HD2_AmpMatchstickCh1",
+      "category": "amp"
+    },
+    {
+      "id": 617,
+      "name": "Matchstick Ch2",
+      "key": "HD2_AmpMatchstickCh2",
+      "category": "amp"
+    },
+    {
+      "id": 618,
+      "name": "Matchstick Jump",
+      "key": "HD2_AmpMatchstickJump",
+      "category": "amp"
+    },
+    {
+      "id": 703,
+      "name": "Moo)))n Brt",
+      "key": "HD2_AmpMoonBrt",
+      "category": "amp"
+    },
+    {
+      "id": 702,
+      "name": "Moo)))n Jump",
+      "key": "HD2_AmpMoonJump",
+      "category": "amp"
+    },
+    {
+      "id": 701,
+      "name": "Moo)))n Nrm",
+      "key": "HD2_AmpMoonNrm",
+      "category": "amp"
+    },
+    {
+      "id": 714,
+      "name": "Oblivion",
+      "key": "HD2_AmpLine6Oblivion",
+      "category": "amp"
+    },
+    {
+      "id": 558,
+      "name": "PV Panama",
+      "key": "HD2_AmpPVPanama",
+      "category": "amp"
+    },
+    {
+      "id": 723,
+      "name": "PV Vitriol Clean",
+      "key": "HD2_AmpPVVitriolClean",
+      "category": "amp"
+    },
+    {
+      "id": 708,
+      "name": "PV Vitriol Crunch",
+      "key": "HD2_AmpPVVitriolCrunch",
+      "category": "amp"
+    },
+    {
+      "id": 707,
+      "name": "PV Vitriol Lead",
+      "key": "HD2_AmpPVVitriolLead",
+      "category": "amp"
+    },
+    {
+      "id": 669,
+      "name": "Placater Clean",
+      "key": "HD2_AmpPlacaterClean",
+      "category": "amp"
+    },
+    {
+      "id": 665,
+      "name": "Placater Dirty",
+      "key": "HD2_AmpPlacaterDirty",
+      "category": "amp"
+    },
+    {
+      "id": 817,
+      "name": "Revv 120 Purple",
+      "key": "Agoura_AmpRevvCh3Purple",
+      "category": "amp"
+    },
+    {
+      "id": 806,
+      "name": "Revv 120 Red",
+      "key": "Agoura_AmpRevvCh4Red",
+      "category": "amp"
+    },
+    {
+      "id": 689,
+      "name": "Revv Gen Purple",
+      "key": "HD2_AmpRevvGenPurple",
+      "category": "amp"
+    },
+    {
+      "id": 675,
+      "name": "Revv Gen Red",
+      "key": "HD2_AmpRevvGenRed",
+      "category": "amp"
+    },
+    {
+      "id": 753,
+      "name": "Solid 100",
+      "key": "Agoura_AmpSolid100",
+      "category": "amp"
+    },
+    {
+      "id": 550,
+      "name": "Solo Lead Clean",
+      "key": "HD2_AmpSoloLeadClean",
+      "category": "amp"
+    },
+    {
+      "id": 551,
+      "name": "Solo Lead Crunch",
+      "key": "HD2_AmpSoloLeadCrunch",
+      "category": "amp"
+    },
+    {
+      "id": 548,
+      "name": "Solo Lead OD",
+      "key": "HD2_AmpSoloLeadOD",
+      "category": "amp"
+    },
+    {
+      "id": 546,
+      "name": "Soup Pro",
+      "key": "HD2_AmpSoupPro",
+      "category": "amp"
+    },
+    {
+      "id": 544,
+      "name": "Stone Age 185",
+      "key": "HD2_AmpStoneAge185",
+      "category": "amp"
+    },
+    {
+      "id": 538,
+      "name": "Tweed Blues Brt",
+      "key": "HD2_AmpTweedBluesBrt",
+      "category": "amp"
+    },
+    {
+      "id": 539,
+      "name": "Tweed Blues Nrm",
+      "key": "HD2_AmpTweedBluesNrm",
+      "category": "amp"
+    },
+    {
+      "id": 752,
+      "name": "US 5W Tweed",
+      "key": "Agoura_AmpUS5WTweed",
+      "category": "amp"
+    },
+    {
+      "id": 536,
+      "name": "US Deluxe Nrm",
+      "key": "HD2_AmpUSDeluxeNrm",
+      "category": "amp"
+    },
+    {
+      "id": 534,
+      "name": "US Deluxe Vib",
+      "key": "HD2_AmpUSDeluxeVib",
+      "category": "amp"
+    },
+    {
+      "id": 807,
+      "name": "US Double Black",
+      "key": "Agoura_AmpUSDoubleBlack",
+      "category": "amp"
+    },
+    {
+      "id": 532,
+      "name": "US Double Nrm",
+      "key": "HD2_AmpUSDoubleNrm",
+      "category": "amp"
+    },
+    {
+      "id": 530,
+      "name": "US Double Vib",
+      "key": "HD2_AmpUSDoubleVib",
+      "category": "amp"
+    },
+    {
+      "id": 751,
+      "name": "US Luxe Black",
+      "key": "Agoura_AmpUSLuxeBlack",
+      "category": "amp"
+    },
+    {
+      "id": 691,
+      "name": "US Princess",
+      "key": "HD2_AmpUSPrincess",
+      "category": "amp"
+    },
+    {
+      "id": 750,
+      "name": "US Princess 76",
+      "key": "Agoura_AmpUSPrincess76",
+      "category": "amp"
+    },
+    {
+      "id": 528,
+      "name": "US Small Tweed",
+      "key": "HD2_AmpUSSmallTweed",
+      "category": "amp"
+    },
+    {
+      "id": 833,
+      "name": "US Super Black",
+      "key": "Agoura_AmpUSSuperBlack",
+      "category": "amp"
+    },
+    {
+      "id": 737,
+      "name": "US Super Norm",
+      "key": "HD2_AmpUSSuperNorm",
+      "category": "amp"
+    },
+    {
+      "id": 739,
+      "name": "US Super Vib",
+      "key": "HD2_AmpUSSuperVib",
+      "category": "amp"
+    },
+    {
+      "id": 749,
+      "name": "US Tweedman",
+      "key": "Agoura_AmpUSTweedman",
+      "category": "amp"
+    },
+    {
+      "id": 700,
+      "name": "Ventoux",
+      "key": "HD2_AmpLine6Ventoux",
+      "category": "amp"
+    },
+    {
+      "id": 709,
+      "name": "Voltage",
+      "key": "HD2_AmpLine6Voltage",
+      "category": "amp"
+    },
+    {
+      "id": 653,
+      "name": "Voltage Queen",
+      "key": "HD2_AmpVoltageQueen",
+      "category": "amp"
+    },
+    {
+      "id": 526,
+      "name": "WhoWatt 100",
+      "key": "HD2_AmpWhoWatt100",
+      "category": "amp"
+    },
+    {
+      "id": 808,
+      "name": "WhoWatt 103",
+      "key": "Agoura_AmpWhoWatt103",
+      "category": "amp"
+    }
+  ],
+  "preamps": [
+    {
+      "id": 632,
+      "name": "2204 Mod",
+      "key": "HD2_PreampLine62204ModV2",
+      "category": "preamp"
+    },
+    {
+      "id": 614,
+      "name": "A30 Fawn Brt",
+      "key": "HD2_PreampA30FawnBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 615,
+      "name": "A30 Fawn Nrm",
+      "key": "HD2_PreampA30FawnNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 611,
+      "name": "ANGL Meteor",
+      "key": "HD2_PreampANGLMeteor",
+      "category": "preamp"
+    },
+    {
+      "id": 638,
+      "name": "Archetype Clean",
+      "key": "HD2_PreampArchetypeClean",
+      "category": "preamp"
+    },
+    {
+      "id": 636,
+      "name": "Archetype Lead",
+      "key": "HD2_PreampArchetypeLead",
+      "category": "preamp"
+    },
+    {
+      "id": 717,
+      "name": "Aristocrat",
+      "key": "HD2_PreampLine6Aristocrat",
+      "category": "preamp"
+    },
+    {
+      "id": 644,
+      "name": "Badonk",
+      "key": "HD2_PreampLine6Badonk",
+      "category": "preamp"
+    },
+    {
+      "id": 736,
+      "name": "Brit 2203",
+      "key": "HD2_PreampBrit2203",
+      "category": "preamp"
+    },
+    {
+      "id": 609,
+      "name": "Brit 2204",
+      "key": "HD2_PreampBrit2204",
+      "category": "preamp"
+    },
+    {
+      "id": 606,
+      "name": "Brit J45 Brt",
+      "key": "HD2_PreampBritJ45Brt",
+      "category": "preamp"
+    },
+    {
+      "id": 607,
+      "name": "Brit J45 Nrm",
+      "key": "HD2_PreampBritJ45Nrm",
+      "category": "preamp"
+    },
+    {
+      "id": 602,
+      "name": "Brit P75 Brt",
+      "key": "HD2_PreampBritP75Brt",
+      "category": "preamp"
+    },
+    {
+      "id": 603,
+      "name": "Brit P75 Nrm",
+      "key": "HD2_PreampBritP75Nrm",
+      "category": "preamp"
+    },
+    {
+      "id": 597,
+      "name": "Brit Plexi Brt",
+      "key": "HD2_PreampBritPlexiBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 598,
+      "name": "Brit Plexi Jump",
+      "key": "HD2_PreampBritPlexiJump",
+      "category": "preamp"
+    },
+    {
+      "id": 599,
+      "name": "Brit Plexi Nrm",
+      "key": "HD2_PreampBritPlexiNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 660,
+      "name": "Brit Trem Brt",
+      "key": "HD2_PreampBritTremBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 661,
+      "name": "Brit Trem Jump",
+      "key": "HD2_PreampBritTremJump",
+      "category": "preamp"
+    },
+    {
+      "id": 662,
+      "name": "Brit Trem Nrm",
+      "key": "HD2_PreampBritTremNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 627,
+      "name": "Cali IV Lead",
+      "key": "HD2_PreampCaliIVLead",
+      "category": "preamp"
+    },
+    {
+      "id": 624,
+      "name": "Cali IV Rhythm 1",
+      "key": "HD2_PreampCaliIVR1",
+      "category": "preamp"
+    },
+    {
+      "id": 625,
+      "name": "Cali IV Rhythm 2",
+      "key": "HD2_PreampCaliIVR2",
+      "category": "preamp"
+    },
+    {
+      "id": 587,
+      "name": "Cali Rectifire",
+      "key": "HD2_PreampCaliRectifire",
+      "category": "preamp"
+    },
+    {
+      "id": 672,
+      "name": "Cali Texas Ch1",
+      "key": "HD2_PreampCaliTexasCh1",
+      "category": "preamp"
+    },
+    {
+      "id": 668,
+      "name": "Cali Texas Ch2",
+      "key": "HD2_PreampCaliTexasCh2",
+      "category": "preamp"
+    },
+    {
+      "id": 718,
+      "name": "Carillon",
+      "key": "HD2_PreampLine6Carillon",
+      "category": "preamp"
+    },
+    {
+      "id": 656,
+      "name": "Cartographer",
+      "key": "HD2_PreampCartographer",
+      "category": "preamp"
+    },
+    {
+      "id": 719,
+      "name": "Clarity",
+      "key": "HD2_PreampLine6Clarity",
+      "category": "preamp"
+    },
+    {
+      "id": 694,
+      "name": "Das Benzin Lead",
+      "key": "HD2_PreampDasBenzinLead",
+      "category": "preamp"
+    },
+    {
+      "id": 696,
+      "name": "Das Benzin Mega",
+      "key": "HD2_PreampDasBenzinMega",
+      "category": "preamp"
+    },
+    {
+      "id": 652,
+      "name": "Derailed Ingrid",
+      "key": "HD2_PreampDerailedIngrid",
+      "category": "preamp"
+    },
+    {
+      "id": 585,
+      "name": "Divided Duo",
+      "key": "HD2_PreampDividedDuo",
+      "category": "preamp"
+    },
+    {
+      "id": 569,
+      "name": "Doom",
+      "key": "HD2_PreampLine6Doom",
+      "category": "preamp"
+    },
+    {
+      "id": 747,
+      "name": "EV Panama Blue",
+      "key": "HD2_PreampEVPanamaBlue",
+      "category": "preamp"
+    },
+    {
+      "id": 748,
+      "name": "EV Panama Red",
+      "key": "HD2_PreampEVPanamaRed",
+      "category": "preamp"
+    },
+    {
+      "id": 567,
+      "name": "Elektrik",
+      "key": "HD2_PreampLine6Elektrik",
+      "category": "preamp"
+    },
+    {
+      "id": 724,
+      "name": "Elmsley",
+      "key": "HD2_PreampLine6Elmsley",
+      "category": "preamp"
+    },
+    {
+      "id": 565,
+      "name": "Epic",
+      "key": "HD2_PreampLine6Epic",
+      "category": "preamp"
+    },
+    {
+      "id": 583,
+      "name": "Essex A15",
+      "key": "HD2_PreampEssexA15",
+      "category": "preamp"
+    },
+    {
+      "id": 581,
+      "name": "Essex A30",
+      "key": "HD2_PreampEssexA30",
+      "category": "preamp"
+    },
+    {
+      "id": 631,
+      "name": "Fatality",
+      "key": "HD2_PreampLine6Fatality",
+      "category": "preamp"
+    },
+    {
+      "id": 685,
+      "name": "Fullerton Brt",
+      "key": "HD2_PreampFullertonBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 686,
+      "name": "Fullerton Jump",
+      "key": "HD2_PreampFullertonJump",
+      "category": "preamp"
+    },
+    {
+      "id": 687,
+      "name": "Fullerton Nrm",
+      "key": "HD2_PreampFullertonNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 577,
+      "name": "German Mahadeva",
+      "key": "HD2_PreampGermanMahadeva",
+      "category": "preamp"
+    },
+    {
+      "id": 575,
+      "name": "German Ubersonic",
+      "key": "HD2_PreampGermanUbersonic",
+      "category": "preamp"
+    },
+    {
+      "id": 744,
+      "name": "German Xtra Blue",
+      "key": "HD2_PreampGermanXtraBlue",
+      "category": "preamp"
+    },
+    {
+      "id": 743,
+      "name": "German Xtra Red",
+      "key": "HD2_PreampGermanXtraRed",
+      "category": "preamp"
+    },
+    {
+      "id": 732,
+      "name": "Grammatico GSG",
+      "key": "HD2_PreampGSG100",
+      "category": "preamp"
+    },
+    {
+      "id": 679,
+      "name": "GrammaticoLG Brt",
+      "key": "HD2_PreampGrammaticoBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 680,
+      "name": "GrammaticoLG Jmp",
+      "key": "HD2_PreampGrammaticoJump",
+      "category": "preamp"
+    },
+    {
+      "id": 681,
+      "name": "GrammaticoLG Nrm",
+      "key": "HD2_PreampGrammaticoNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 573,
+      "name": "Interstate Zed",
+      "key": "HD2_PreampInterstateZed",
+      "category": "preamp"
+    },
+    {
+      "id": 571,
+      "name": "Jazz Rivet 120",
+      "key": "HD2_PreampJazzRivet120",
+      "category": "preamp"
+    },
+    {
+      "id": 716,
+      "name": "Kinetic",
+      "key": "HD2_PreampLine6Kinetic",
+      "category": "preamp"
+    },
+    {
+      "id": 634,
+      "name": "Litigator",
+      "key": "HD2_PreampLine6Litigator",
+      "category": "preamp"
+    },
+    {
+      "id": 563,
+      "name": "Mail Order Twin",
+      "key": "HD2_PreampMailOrderTwin",
+      "category": "preamp"
+    },
+    {
+      "id": 561,
+      "name": "Mandarin 80",
+      "key": "HD2_PreampMandarin80",
+      "category": "preamp"
+    },
+    {
+      "id": 698,
+      "name": "Mandarin Rocker",
+      "key": "HD2_PreampMandarinRocker",
+      "category": "preamp"
+    },
+    {
+      "id": 619,
+      "name": "Matchstick Ch1",
+      "key": "HD2_PreampMatchstickCh1",
+      "category": "preamp"
+    },
+    {
+      "id": 620,
+      "name": "Matchstick Ch2",
+      "key": "HD2_PreampMatchstickCh2",
+      "category": "preamp"
+    },
+    {
+      "id": 621,
+      "name": "Matchstick Jump",
+      "key": "HD2_PreampMatchstickJump",
+      "category": "preamp"
+    },
+    {
+      "id": 706,
+      "name": "Moo)))n Brt",
+      "key": "HD2_PreampMoonBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 705,
+      "name": "Moo)))n Jump",
+      "key": "HD2_PreampMoonJump",
+      "category": "preamp"
+    },
+    {
+      "id": 704,
+      "name": "Moo)))n Nrm",
+      "key": "HD2_PreampMoonNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 715,
+      "name": "Oblivion",
+      "key": "HD2_PreampLine6Oblivion",
+      "category": "preamp"
+    },
+    {
+      "id": 559,
+      "name": "PV Panama",
+      "key": "HD2_PreampPVPanama",
+      "category": "preamp"
+    },
+    {
+      "id": 728,
+      "name": "PV Vitriol Clean",
+      "key": "HD2_PreampPVVitriolClean",
+      "category": "preamp"
+    },
+    {
+      "id": 722,
+      "name": "PV Vitriol Crunch",
+      "key": "HD2_PreampPVVitriolCrunch",
+      "category": "preamp"
+    },
+    {
+      "id": 721,
+      "name": "PV Vitriol Lead",
+      "key": "HD2_PreampPVVitriolLead",
+      "category": "preamp"
+    },
+    {
+      "id": 670,
+      "name": "Placater Clean",
+      "key": "HD2_PreampPlacaterClean",
+      "category": "preamp"
+    },
+    {
+      "id": 666,
+      "name": "Placater Dirty",
+      "key": "HD2_PreampPlacaterDirty",
+      "category": "preamp"
+    },
+    {
+      "id": 690,
+      "name": "Revv Gen Purple",
+      "key": "HD2_PreampRevvGenPurple",
+      "category": "preamp"
+    },
+    {
+      "id": 688,
+      "name": "Revv Gen Red",
+      "key": "HD2_PreampRevvGenRed",
+      "category": "preamp"
+    },
+    {
+      "id": 552,
+      "name": "Solo Lead Clean",
+      "key": "HD2_PreampSoloLeadClean",
+      "category": "preamp"
+    },
+    {
+      "id": 553,
+      "name": "Solo Lead Crunch",
+      "key": "HD2_PreampSoloLeadCrunch",
+      "category": "preamp"
+    },
+    {
+      "id": 549,
+      "name": "Solo Lead OD",
+      "key": "HD2_PreampSoloLeadOD",
+      "category": "preamp"
+    },
+    {
+      "id": 547,
+      "name": "Soup Pro",
+      "key": "HD2_PreampSoupPro",
+      "category": "preamp"
+    },
+    {
+      "id": 545,
+      "name": "Stone Age 185",
+      "key": "HD2_PreampStoneAge185",
+      "category": "preamp"
+    },
+    {
+      "id": 540,
+      "name": "Tweed Blues Brt",
+      "key": "HD2_PreampTweedBluesBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 541,
+      "name": "Tweed Blues Nrm",
+      "key": "HD2_PreampTweedBluesNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 537,
+      "name": "US Deluxe Nrm",
+      "key": "HD2_PreampUSDeluxeNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 535,
+      "name": "US Deluxe Vib",
+      "key": "HD2_PreampUSDeluxeVib",
+      "category": "preamp"
+    },
+    {
+      "id": 533,
+      "name": "US Double Nrm",
+      "key": "HD2_PreampUSDoubleNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 531,
+      "name": "US Double Vib",
+      "key": "HD2_PreampUSDoubleVib",
+      "category": "preamp"
+    },
+    {
+      "id": 692,
+      "name": "US Princess",
+      "key": "HD2_PreampUSPrincess",
+      "category": "preamp"
+    },
+    {
+      "id": 529,
+      "name": "US Small Tweed",
+      "key": "HD2_PreampUSSmallTweed",
+      "category": "preamp"
+    },
+    {
+      "id": 738,
+      "name": "US Super Norm",
+      "key": "HD2_PreampUSSuperNorm",
+      "category": "preamp"
+    },
+    {
+      "id": 740,
+      "name": "US Super Vib",
+      "key": "HD2_PreampUSSuperVib",
+      "category": "preamp"
+    },
+    {
+      "id": 699,
+      "name": "Ventoux",
+      "key": "HD2_PreampLine6Ventoux",
+      "category": "preamp"
+    },
+    {
+      "id": 720,
+      "name": "Voltage",
+      "key": "HD2_PreampLine6Voltage",
+      "category": "preamp"
+    },
+    {
+      "id": 654,
+      "name": "Voltage Queen",
+      "key": "HD2_PreampVoltageQueen",
+      "category": "preamp"
+    },
+    {
+      "id": 527,
+      "name": "WhoWatt 100",
+      "key": "HD2_PreampWhoWatt100",
+      "category": "preamp"
+    }
+  ],
+  "cabs": [
+    {
+      "id": 434,
+      "name": "1x10 US Princess",
+      "key": "HD2_CabMicIr_1x10USPrincessWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 453,
+      "name": "1x12 Blue Bell",
+      "key": "HD2_CabMicIr_1x12BlueBellWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 448,
+      "name": "1x12 Cali EXT",
+      "key": "HD2_CabMicIr_1x12CaliEXTWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 458,
+      "name": "1x12 Cali IV",
+      "key": "HD2_CabMicIr_1x12CaliIVWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 460,
+      "name": "1x12 Fullerton",
+      "key": "HD2_CabMicIr_1x12FullertonWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 430,
+      "name": "1x12 Grammatico",
+      "key": "HD2_CabMicIr_1x12GrammaticoWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 454,
+      "name": "1x12 Open Cast",
+      "key": "HD2_CabMicIr_1x12OpenCastWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 455,
+      "name": "1x12 Open Cream",
+      "key": "HD2_CabMicIr_1x12OpenCreamWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 428,
+      "name": "1x12 US Deluxe",
+      "key": "HD2_CabMicIr_1x12USDeluxeWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 464,
+      "name": "1x8 Small Tweed",
+      "key": "HD2_CabMicIr_1x8SmallTweedWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 429,
+      "name": "2x12 Blue Bell",
+      "key": "HD2_CabMicIr_2x12BlueBellWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 437,
+      "name": "2x12 Double C12N",
+      "key": "HD2_CabMicIr_2x12DoubleC12NWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 459,
+      "name": "2x12 Interstate",
+      "key": "HD2_CabMicIr_2x12InterstateWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 443,
+      "name": "2x12 Jazz Rivet",
+      "key": "HD2_CabMicIr_2x12JazzRivetWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 445,
+      "name": "2x12 Mail C12Q",
+      "key": "HD2_CabMicIr_2x12MailC12QWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 447,
+      "name": "2x12 Mandarin 30",
+      "key": "HD2_CabMicIr_2x12MandarinWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 456,
+      "name": "2x12 Match G25",
+      "key": "HD2_CabMicIr_2x12MatchG25WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 457,
+      "name": "2x12 Match H30",
+      "key": "HD2_CabMicIr_2x12MatchH30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 449,
+      "name": "2x12 Silver Bell",
+      "key": "HD2_CabMicIr_2x12SilverBellWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 442,
+      "name": "4x10 Tweed P10R",
+      "key": "HD2_CabMicIr_4x10TweedP10RWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 469,
+      "name": "4x10 US Super",
+      "key": "HD2_CabMicIr_4x10USSuperWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 436,
+      "name": "4x12 1960A T75",
+      "key": "HD2_CabMicIr_4x121960AT75WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 432,
+      "name": "4x12 Blackback H30",
+      "key": "HD2_CabMicIr_4x12BlackbackH30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 431,
+      "name": "4x12 Brit V30",
+      "key": "HD2_CabMicIr_4x12BritV30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 435,
+      "name": "4x12 Cali V30",
+      "key": "HD2_CabMicIr_4x12CaliV30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 471,
+      "name": "4x12 Cartog C90",
+      "key": "HD2_CabMicIr_4x12CartogC90WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 472,
+      "name": "4x12 Cartog Guv",
+      "key": "HD2_CabMicIr_4x12CartogGuvWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 451,
+      "name": "4x12 Greenback 20",
+      "key": "HD2_CabMicIr_4x12Greenback20WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 441,
+      "name": "4x12 Greenback 25",
+      "key": "HD2_CabMicIr_4x12Greenback25WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 461,
+      "name": "4x12 Greenback 30",
+      "key": "HD2_CabMicIr_4x12Greenback30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 438,
+      "name": "4x12 MOO)))N T75",
+      "key": "HD2_CabMicIr_4x12MOONT75WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 433,
+      "name": "4x12 Mandarin EM",
+      "key": "HD2_CabMicIr_4x12MandarinWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 470,
+      "name": "4x12 SoloLead EM",
+      "key": "HD2_CabMicIr_4x12SoloLeadEMWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 439,
+      "name": "4x12 Uber T75",
+      "key": "HD2_CabMicIr_4x12UberT75WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 446,
+      "name": "4x12 Uber V30",
+      "key": "HD2_CabMicIr_4x12UberV30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 466,
+      "name": "4x12 WhoWatt 100",
+      "key": "HD2_CabMicIr_4x12WhoWatt100WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 427,
+      "name": "4x12 XXL V30",
+      "key": "HD2_CabMicIr_4x12XXLV30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 465,
+      "name": "Soup Pro Ellipse",
+      "key": "HD2_CabMicIr_SoupProEllipseWithPan",
+      "category": "cab_ir_interp"
+    }
+  ]
+}

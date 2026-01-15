@@ -9,6 +9,7 @@ interface IONodeProps {
   label?: string;
   value?: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
 const InputIcon: React.FC<{ size: number; color: string }> = ({ size, color }) => (
@@ -43,8 +44,9 @@ export const IONode: React.FC<IONodeProps> = ({
   label,
   value,
   onPress,
+  disabled = false,
 }) => (
-  <Pressable style={styles.container} onPress={onPress}>
+  <Pressable style={[styles.container, disabled && styles.containerDisabled]} onPress={onPress} disabled={disabled}>
     <View style={[styles.node, { width: size, height: size, borderRadius: size / 2 }]}>
       {type === 'input' ? (
         <InputIcon size={size * 0.5} color={COLORS.muted} />
@@ -62,6 +64,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 72,
     gap: 4,
+  },
+  containerDisabled: {
+    opacity: 0.6,
   },
   node: {
     backgroundColor: COLORS.panelAlt,

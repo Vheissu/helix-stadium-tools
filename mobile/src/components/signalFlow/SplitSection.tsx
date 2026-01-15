@@ -16,19 +16,23 @@ export const SplitSection: React.FC<SplitSectionProps> = React.memo(({
   selectedSlot,
   onSelectSlot,
   onSelectIO,
-}) => (
-  <View style={styles.container}>
-    <Connector width={8} />
-    <SplitMergeIcon type="split" />
-    <Connector width={8} />
-    <View style={styles.parallelContainer}>
-      <View style={styles.row}>
-        <IONode
-          type="input"
-          label="A In"
-          value={io?.[pathAIndex]?.input?.name ?? '—'}
-          onPress={() => onSelectIO(pathAIndex, 'input' as IOType)}
-        />
+}) => {
+  const inputADisabled = pathAIndex % 2 === 1;
+  const inputBDisabled = pathBIndex % 2 === 1;
+  return (
+    <View style={styles.container}>
+      <Connector width={8} />
+      <SplitMergeIcon type="split" />
+      <Connector width={8} />
+      <View style={styles.parallelContainer}>
+        <View style={styles.row}>
+          <IONode
+            type="input"
+            label="A In"
+            value={inputADisabled ? 'From Split' : io?.[pathAIndex]?.input?.name ?? '—'}
+            onPress={inputADisabled ? undefined : () => onSelectIO(pathAIndex, 'input' as IOType)}
+            disabled={inputADisabled}
+          />
         <Connector width={8} />
         <BlockRow
           blocks={pathA}
@@ -44,14 +48,15 @@ export const SplitSection: React.FC<SplitSectionProps> = React.memo(({
           value={io?.[pathAIndex]?.output?.name ?? '—'}
           onPress={() => onSelectIO(pathAIndex, 'output' as IOType)}
         />
-      </View>
-      <View style={styles.row}>
-        <IONode
-          type="input"
-          label="B In"
-          value={io?.[pathBIndex]?.input?.name ?? '—'}
-          onPress={() => onSelectIO(pathBIndex, 'input' as IOType)}
-        />
+        </View>
+        <View style={styles.row}>
+          <IONode
+            type="input"
+            label="B In"
+            value={inputBDisabled ? 'From Split' : io?.[pathBIndex]?.input?.name ?? '—'}
+            onPress={inputBDisabled ? undefined : () => onSelectIO(pathBIndex, 'input' as IOType)}
+            disabled={inputBDisabled}
+          />
         <Connector width={8} />
         <BlockRow
           blocks={pathB}
@@ -67,13 +72,14 @@ export const SplitSection: React.FC<SplitSectionProps> = React.memo(({
           value={io?.[pathBIndex]?.output?.name ?? '—'}
           onPress={() => onSelectIO(pathBIndex, 'output' as IOType)}
         />
+        </View>
       </View>
+      <Connector width={8} />
+      <SplitMergeIcon type="merge" />
+      <Connector width={8} />
     </View>
-    <Connector width={8} />
-    <SplitMergeIcon type="merge" />
-    <Connector width={8} />
-  </View>
-));
+  );
+});
 
 const styles = StyleSheet.create({
   container: {

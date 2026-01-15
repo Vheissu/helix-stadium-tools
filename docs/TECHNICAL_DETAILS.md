@@ -203,6 +203,8 @@ Input/Output blocks live inside each `sfg_.flow` entry, alongside standard block
 
 `bmap` provides a position → block index mapping that can be used to resolve the block index required by `/ModelSet` and `/ParamValueSet` calls even when a slot is empty.
 
+Row B inputs (1B/2B) are derived from the split and are not directly configurable in the editor UI.
+
 ## Remote access
 
 The device exposes a Remote Access setting (Allow / Deny / Require PIN). If PIN is required, additional authorisation steps are expected. This flow is not yet reverse engineered.

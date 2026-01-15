@@ -25,14 +25,17 @@ export const SignalPath: React.FC<SignalPathProps> = React.memo(({
     return hasBlocks || inputModel !== null || outputModel !== null;
   }, [grid, io, splitIndex]);
 
-  const renderRow = (rowIndex: PathIndex, label?: string) => (
-    <View style={styles.row}>
-      <IONode
-        type="input"
-        label={label ? `${label} In` : 'Input'}
-        value={io?.[rowIndex]?.input?.name ?? '—'}
-        onPress={() => onSelectIO(rowIndex, 'input' as IOType)}
-      />
+  const renderRow = (rowIndex: PathIndex, label?: string) => {
+    const inputDisabled = rowIndex % 2 === 1;
+    return (
+      <View style={styles.row}>
+        <IONode
+          type="input"
+          label={label ? `${label} In` : 'Input'}
+          value={inputDisabled ? 'From Split' : io?.[rowIndex]?.input?.name ?? '—'}
+          onPress={inputDisabled ? undefined : () => onSelectIO(rowIndex, 'input' as IOType)}
+          disabled={inputDisabled}
+        />
       <Connector width={8} />
       <BlockRow
         blocks={grid[rowIndex]}
@@ -48,8 +51,9 @@ export const SignalPath: React.FC<SignalPathProps> = React.memo(({
         value={io?.[rowIndex]?.output?.name ?? '—'}
         onPress={() => onSelectIO(rowIndex, 'output' as IOType)}
       />
-    </View>
-  );
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>

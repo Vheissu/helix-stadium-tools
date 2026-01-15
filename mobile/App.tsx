@@ -273,6 +273,10 @@ export default function App() {
   };
 
   const selectIO = (row: PathIndex, ioType: IOType) => {
+    if (ioType === 'input' && row % 2 === 1) {
+      setStatus('1B/2B inputs derive from the split and cannot be set directly');
+      return;
+    }
     setIoPickerRow(row);
     setIoPickerType(ioType);
     setIoPickerQuery('');

@@ -71,6 +71,7 @@ export interface BlockRowProps {
   pathIndex: PathIndex;
   selectedSlot: BlockSlot | null;
   onSelectSlot: (slot: BlockSlot) => void;
+  onOpenSlotMenu?: (slot: BlockSlot) => void;
   label?: string;
 }
 
@@ -81,6 +82,7 @@ export interface SignalPathProps {
   io: IOGrid;
   selectedSlot: BlockSlot | null;
   onSelectSlot: (slot: BlockSlot) => void;
+  onOpenSlotMenu: (slot: BlockSlot) => void;
   onSelectIO: (row: PathIndex, ioType: IOType) => void;
 }
 
@@ -93,6 +95,7 @@ export interface SplitSectionProps {
   io: IOGrid;
   selectedSlot: BlockSlot | null;
   onSelectSlot: (slot: BlockSlot) => void;
+  onOpenSlotMenu: (slot: BlockSlot) => void;
   onSelectIO: (row: PathIndex, ioType: IOType) => void;
 }
 

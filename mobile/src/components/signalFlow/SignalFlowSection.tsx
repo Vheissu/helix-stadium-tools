@@ -9,6 +9,7 @@ interface SignalFlowSectionProps {
   io: IOGrid;
   selectedSlot: BlockSlot | null;
   onSelectSlot: (slot: BlockSlot) => void;
+  onOpenSlotMenu: (slot: BlockSlot) => void;
   onSelectIO: (row: PathIndex, ioType: IOType) => void;
   onSync: () => void;
 }
@@ -18,6 +19,7 @@ export const SignalFlowSection: React.FC<SignalFlowSectionProps> = ({
   io,
   selectedSlot,
   onSelectSlot,
+  onOpenSlotMenu,
   onSelectIO,
   onSync,
 }) => {
@@ -68,6 +70,7 @@ export const SignalFlowSection: React.FC<SignalFlowSectionProps> = ({
           io={io}
           selectedSlot={selectedSlot}
           onSelectSlot={onSelectSlot}
+          onOpenSlotMenu={onOpenSlotMenu}
           onSelectIO={onSelectIO}
         />
         <View style={styles.pathDivider} />
@@ -77,6 +80,7 @@ export const SignalFlowSection: React.FC<SignalFlowSectionProps> = ({
           io={io}
           selectedSlot={selectedSlot}
           onSelectSlot={onSelectSlot}
+          onOpenSlotMenu={onOpenSlotMenu}
           onSelectIO={onSelectIO}
         />
       </View>

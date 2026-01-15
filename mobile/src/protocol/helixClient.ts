@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { decode as decodeMsgpack } from '@msgpack/msgpack';
+import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
 import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake } from './zmtp';
 
@@ -178,6 +178,18 @@ export class HelixClient {
     const cmdId = this.nextCmdId();
     const floatVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
     this.sendOsc('/ParamValueSet', 'iiiiifi', [cmdId, path, block, slot, paramId, floatVal, flags]);
+  }
+
+  doAgenda(commands: Array<any>) {
+    const cmdId = this.nextCmdId();
+    const blob = Buffer.from(encodeMsgpack(commands));
+    this.sendOsc('/doAgenda', 'ib', [cmdId, blob]);
+  }
+
+  clearBlocks(flow: number, blocks: number[]) {
+    if (!blocks.length) return;
+    const commands = blocks.map((block) => ({ bloc: block, cmnd: fourcc('clrb'), flow }));
+    this.doAgenda(commands);
   }
 
   async getEditBufferState() {

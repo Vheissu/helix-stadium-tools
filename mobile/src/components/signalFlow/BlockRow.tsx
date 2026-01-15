@@ -14,6 +14,7 @@ export const BlockRow: React.FC<BlockRowProps> = React.memo(({
   pathIndex,
   selectedSlot,
   onSelectSlot,
+  onOpenSlotMenu,
   label,
 }) => {
   const isSlotSelected = useCallback(
@@ -30,6 +31,14 @@ export const BlockRow: React.FC<BlockRowProps> = React.memo(({
     [onSelectSlot, pathIndex]
   );
 
+  const handleOpenSlotMenu = useCallback(
+    (blockIndex: BlockIndex) => {
+      if (!onOpenSlotMenu) return;
+      onOpenSlotMenu({ path: pathIndex, block: blockIndex });
+    },
+    [onOpenSlotMenu, pathIndex]
+  );
+
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -42,6 +51,9 @@ export const BlockRow: React.FC<BlockRowProps> = React.memo(({
             isSelected={isSlotSelected(index)}
             showConnector={index < BLOCK_COUNT - 1}
             onPress={() => handleSelectSlot(index)}
+            onLongPress={
+              blocks[index] && onOpenSlotMenu ? () => handleOpenSlotMenu(index) : undefined
+            }
           />
         ))}
       </View>

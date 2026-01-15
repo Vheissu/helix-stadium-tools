@@ -15,6 +15,7 @@ export const SplitSection: React.FC<SplitSectionProps> = React.memo(({
   io,
   selectedSlot,
   onSelectSlot,
+  onOpenSlotMenu,
   onSelectIO,
 }) => {
   const inputADisabled = pathAIndex % 2 === 1;
@@ -39,6 +40,7 @@ export const SplitSection: React.FC<SplitSectionProps> = React.memo(({
           pathIndex={pathAIndex}
           selectedSlot={selectedSlot}
           onSelectSlot={onSelectSlot}
+          onOpenSlotMenu={onOpenSlotMenu}
           label="A"
         />
         <Connector width={8} />
@@ -63,6 +65,7 @@ export const SplitSection: React.FC<SplitSectionProps> = React.memo(({
           pathIndex={pathBIndex}
           selectedSlot={selectedSlot}
           onSelectSlot={onSelectSlot}
+          onOpenSlotMenu={onOpenSlotMenu}
           label="B"
         />
         <Connector width={8} />

@@ -86,6 +86,8 @@ export default function App() {
   const [pickerType, setPickerType] = useState<null | keyof typeof blockTypes>(null);
   const [pickerQuery, setPickerQuery] = useState('');
   const [targetSlot, setTargetSlot] = useState({ path: 0, block: 0 });
+  const [slotMenuOpen, setSlotMenuOpen] = useState(false);
+  const [slotMenuTarget, setSlotMenuTarget] = useState<BlockSlot | null>(null);
   const [grid, setGrid] = useState<SignalFlowGrid>(() =>
     Array.from({ length: 4 }, () => Array.from({ length: 12 }, () => null))
   );
@@ -266,6 +268,11 @@ export default function App() {
     setPickerOpen(true);
   };
 
+  const openSlotMenu = (slot: BlockSlot) => {
+    setSlotMenuTarget(slot);
+    setSlotMenuOpen(true);
+  };
+
   const selectBlockType = (typeKey: keyof typeof blockTypes) => {
     setPickerType(typeKey);
     setPickerStep('model');
@@ -281,6 +288,26 @@ export default function App() {
     setIoPickerType(ioType);
     setIoPickerQuery('');
     setIoPickerOpen(true);
+  };
+
+  const clearSlot = (slot: BlockSlot) => {
+    const client = requireClient();
+    if (!client) return;
+    const blockId = slotBlockIds[slot.path]?.[slot.block];
+    if (blockId === undefined) {
+      setStatus('Sync required to resolve block id');
+      return;
+    }
+    client.clearBlocks(rowToFlow(slot.path), [blockId]);
+    setGrid((prev) => {
+      const next = prev.map((row) => row.slice());
+      if (next[slot.path] && next[slot.path][slot.block] !== undefined) {
+        next[slot.path][slot.block] = null;
+      }
+      return next;
+    });
+    setStatus(`Cleared ${rowLabels[slot.path]}-${slot.block + 1}`);
+    setSlotMenuOpen(false);
   };
 
   const setIOModel = (model: IOModel) => {
@@ -535,7 +562,7 @@ export default function App() {
             <Switch value={autoCab} onValueChange={handleAutoCab} />
           </View>
           <Text style={styles.sectionHint}>
-            Tap any slot in the grid to choose a block type and insert a model.
+            Tap a slot to insert a block. Long-press a block for actions.
           </Text>
         </Section>
 
@@ -544,9 +571,45 @@ export default function App() {
           io={ioGrid}
           selectedSlot={selectedSlot}
           onSelectSlot={selectSlot}
+          onOpenSlotMenu={openSlotMenu}
           onSelectIO={selectIO}
           onSync={handleSync}
         />
+
+        <Modal
+          visible={slotMenuOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setSlotMenuOpen(false)}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Block Actions</Text>
+                <Pressable onPress={() => setSlotMenuOpen(false)} accessibilityLabel="Close actions">
+                  <Text style={styles.modalClose}>×</Text>
+                </Pressable>
+              </View>
+              <Text style={styles.modalSubtitle}>
+                {slotMenuTarget
+                  ? `${rowLabels[slotMenuTarget.path]} · Block ${slotMenuTarget.block + 1}`
+                  : '—'}
+              </Text>
+              <Pressable
+                style={[styles.button, styles.buttonGhost]}
+                onPress={() => slotMenuTarget && clearSlot(slotMenuTarget)}
+              >
+                <Text style={[styles.buttonText, styles.buttonTextGhost]}>Clear Block</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, styles.buttonPrimary]}
+                onPress={() => setSlotMenuOpen(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
 
         <Modal visible={ioPickerOpen} transparent animationType="fade" onRequestClose={() => setIoPickerOpen(false)}>
           <View style={styles.modalBackdrop}>

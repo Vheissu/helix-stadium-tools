@@ -13,6 +13,7 @@ export const SignalPath: React.FC<SignalPathProps> = React.memo(({
   io,
   selectedSlot,
   onSelectSlot,
+  onOpenSlotMenu,
   onSelectIO,
 }) => {
   const primaryIndex: PathIndex = pathNumber === 1 ? 0 : 2;
@@ -42,6 +43,7 @@ export const SignalPath: React.FC<SignalPathProps> = React.memo(({
         pathIndex={rowIndex}
         selectedSlot={selectedSlot}
         onSelectSlot={onSelectSlot}
+        onOpenSlotMenu={onOpenSlotMenu}
         label={label}
       />
       <Connector width={8} />
@@ -79,6 +81,7 @@ export const SignalPath: React.FC<SignalPathProps> = React.memo(({
               io={io}
               selectedSlot={selectedSlot}
               onSelectSlot={onSelectSlot}
+              onOpenSlotMenu={onOpenSlotMenu}
               onSelectIO={onSelectIO}
             />
           ) : (

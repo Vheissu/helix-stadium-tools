@@ -72,6 +72,7 @@ export class HelixClient {
   private listening = false;
   private onEvent: ((event: { addr: string; typetags: string | null; vals: Array<any> }) => void) | null = null;
   private listening2002 = false;
+  private pendingResponses = new Map<string, (vals: Array<any>) => void>();
 
   constructor(host: string, port2001 = 2001, port2002 = 2002) {
     this.host = host;
@@ -90,6 +91,7 @@ export class HelixClient {
   close() {
     this.listening = false;
     this.listening2002 = false;
+    this.pendingResponses.clear();
     this.stream2001.close();
     this.stream2002.close();
   }
@@ -115,39 +117,113 @@ export class HelixClient {
   private async listenLoop() {
     while (this.listening) {
       const { flags, payload } = await this.stream2001.readFrame();
+      const data = ensureBuffer(payload);
       if (flags & 0x04) continue;
       if (flags & 0x01) continue;
-      const events = decodeFrames(payload);
+      const events = decodeFrames(data, true);
       for (const evt of events) {
-        this.onEvent?.(evt);
+        this.dispatchEvent(evt);
       }
     }
   }
 
-  private async readOsc2002() {
-    const { flags, payload } = await this.stream2002.readFrame();
-    if (flags & 0x04 || flags & 0x01) return null;
-    if (payload.length === 0) return null;
-    if (payload[0] === 0x2f) {
-      return decodeOsc(payload, true);
+  private async readFrameWithTimeout(timeoutMs: number) {
+    if (timeoutMs <= 0) return null;
+    return await Promise.race([
+      this.stream2002.readFrame(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs)),
+    ]);
+  }
+
+  private async readMultipart2002(timeoutMs: number) {
+    const deadline = Date.now() + timeoutMs;
+    const first = await this.readFrameWithTimeout(timeoutMs);
+    if (!first) return null;
+    let { flags } = first;
+    const parts: Buffer[] = [];
+    const firstPayload = ensureBuffer(first.payload);
+    if (firstPayload.length) parts.push(firstPayload);
+    while (flags & 0x01) {
+      const remaining = Math.max(0, deadline - Date.now());
+      const next = await this.readFrameWithTimeout(remaining);
+      if (!next) break;
+      flags = next.flags;
+      const payload = ensureBuffer(next.payload);
+      if (payload.length) parts.push(payload);
     }
-    const events = decodeFrames(payload, true);
+    if (!parts.length) return Buffer.alloc(0);
+    return parts[parts.length - 1];
+  }
+
+  private async readOsc2002(timeoutMs = 500) {
+    const data = await this.readMultipart2002(timeoutMs);
+    if (!data) return null;
+    if (data.length === 0) return null;
+    if (data[0] === 0x2f) {
+      return decodeOsc(data, true);
+    }
+    const events = decodeFrames(data, true);
     return events[0] ?? null;
+  }
+
+  private dispatchEvent(event: { addr: string; typetags: string | null; vals: Array<any> }) {
+    this.resolvePending(event.addr, event.vals);
+    this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []) });
+  }
+
+  private resolvePending(addr: string, vals: Array<any>) {
+    if (!Array.isArray(vals) || vals.length === 0) return false;
+    const cmdId = vals[0];
+    if (typeof cmdId !== 'number') return false;
+    const key = buildRequestKey(addr, cmdId);
+    const resolver = this.pendingResponses.get(key);
+    if (!resolver) return false;
+    this.pendingResponses.delete(key);
+    resolver(vals);
+    return true;
+  }
+
+  private waitForResponse(expectAddr: string, cmdId: number, timeoutMs: number) {
+    const key = buildRequestKey(expectAddr, cmdId);
+    let resolved = false;
+    let result: Array<any> | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const promise = new Promise<Array<any> | null>((resolve) => {
+      const resolver = (vals: Array<any>) => {
+        if (resolved) return;
+        resolved = true;
+        result = vals;
+        if (timer) clearTimeout(timer);
+        resolve(vals);
+      };
+      this.pendingResponses.set(key, resolver);
+      timer = setTimeout(() => {
+        if (this.pendingResponses.get(key) === resolver) {
+          this.pendingResponses.delete(key);
+        }
+        if (!resolved) resolve(null);
+      }, timeoutMs);
+    });
+    return {
+      promise,
+      isResolved: () => resolved,
+      getResult: () => result,
+    };
   }
 
   private async request(address: string, typetags: string, args: Array<any>, expectAddr: string, timeoutMs = 2000) {
     const cmdId = this.nextCmdId();
     const fullArgs = [cmdId, ...args];
     this.sendOsc(address, `i${typetags}`, fullArgs);
+    const wait = this.waitForResponse(expectAddr, cmdId, timeoutMs);
     const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      const evt = await this.readOsc2002();
+    while (Date.now() < deadline && !wait.isResolved()) {
+      const remaining = deadline - Date.now();
+      const evt = await this.readOsc2002(Math.min(500, remaining));
       if (!evt) continue;
-      if (evt.addr === expectAddr && evt.vals && evt.vals[0] === cmdId) {
-        return evt.vals;
-      }
+      this.dispatchEvent(evt);
     }
-    return null;
+    return wait.getResult() ?? (await wait.promise);
   }
 
   setProperty(key: string, value: any, valueType: 's' | 'i' | 'f' | 'b' = 's', propertyId = 0) {
@@ -206,18 +282,14 @@ export class HelixClient {
 
   async getProperty(key: string) {
     const vals = await this.request('/PropertyValueGet', 's', [key], '/getPropertyValue', 2000);
-    if (!vals || vals.length < 3) return null;
-    const blob = vals[2];
-    if (!Buffer.isBuffer(blob)) return null;
+    const blob = extractFirstBlob(vals);
+    if (!blob) return null;
     return decodePropertyBlob(blob);
   }
 
   async getEditBufferState() {
     const vals = await this.request('/EditBufferStateGet', '', [], '/getEditBufferState', 3000);
-    if (!vals || vals.length < 3) return null;
-    const blob = vals[2];
-    if (!Buffer.isBuffer(blob)) return null;
-    return decodeMsgpackBlob(blob);
+    return decodeStateFromBlobs(vals);
   }
 }
 
@@ -314,7 +386,7 @@ const normalizeKeys = (obj: any): any => {
 };
 
 const decodeMsgpackBlob = (blob: Buffer) => {
-  const offsets = [0, 8];
+  const offsets = [0, 4, 8, 12, 16];
   for (const off of offsets) {
     try {
       const decoded = decodeMsgpack(blob.subarray(off));
@@ -334,3 +406,59 @@ const decodePropertyBlob = (blob: Buffer) => {
   const value = decoded.val_ ?? decoded.val;
   return { key, type, value };
 };
+
+const summarizeVals = (vals: Array<any>) =>
+  vals.map((val) => {
+    if (Buffer.isBuffer(val)) {
+      return `<blob:${val.length}>`;
+    }
+    return val;
+  });
+
+const ensureBuffer = (payload: Buffer | Uint8Array | null | undefined) => {
+  if (!payload) return Buffer.alloc(0);
+  if (Buffer.isBuffer(payload)) return payload;
+  return Buffer.from(payload);
+};
+
+const extractFirstBlob = (vals: Array<any> | null | undefined) => {
+  if (!Array.isArray(vals)) return null;
+  for (const val of vals) {
+    if (Buffer.isBuffer(val)) {
+      return val;
+    }
+  }
+  return null;
+};
+
+const extractBlobs = (vals: Array<any> | null | undefined) => {
+  if (!Array.isArray(vals)) return [];
+  return vals.filter((val) => Buffer.isBuffer(val)) as Buffer[];
+};
+
+const hasFlowState = (decoded: any) => {
+  if (!decoded || typeof decoded !== 'object') return false;
+  const sfg = (decoded as any).sfg_;
+  if (sfg && typeof sfg === 'object' && Array.isArray((sfg as any).flow)) return true;
+  if (Array.isArray((decoded as any).flow)) return true;
+  return false;
+};
+
+const decodeStateFromBlobs = (vals: Array<any> | null | undefined) => {
+  const blobs = extractBlobs(vals);
+  if (!blobs.length) return null;
+  let fallback: any = null;
+  let fallbackSize = -1;
+  for (const blob of blobs) {
+    const decoded = decodeMsgpackBlob(blob);
+    if (!decoded) continue;
+    if (hasFlowState(decoded)) return decoded;
+    if (blob.length > fallbackSize) {
+      fallback = decoded;
+      fallbackSize = blob.length;
+    }
+  }
+  return fallback;
+};
+
+const buildRequestKey = (addr: string, cmdId: number) => `${addr}:${cmdId}`;

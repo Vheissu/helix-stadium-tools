@@ -72,8 +72,30 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </View>
 );
 
+const findFlows = (state: any): any[] | null => {
+  if (!state || typeof state !== 'object') return null;
+  const seen = new Set<any>();
+  const queue: any[] = [state];
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || typeof current !== 'object') continue;
+    if (seen.has(current)) continue;
+    seen.add(current);
+    const sfg = current.sfg_;
+    if (sfg && typeof sfg === 'object' && Array.isArray(sfg.flow)) return sfg.flow;
+    if (Array.isArray(current.flow)) return current.flow;
+    if (Array.isArray(current)) {
+      current.forEach((item) => queue.push(item));
+    } else {
+      Object.values(current).forEach((value) => queue.push(value));
+    }
+  }
+  return null;
+};
+
 export default function App() {
   const clientRef = useRef<HelixClient | null>(null);
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [host, setHost] = useState('p35x1.local');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -95,9 +117,6 @@ export default function App() {
   );
   const [ioGrid, setIoGrid] = useState<IOGrid>(() =>
     Array.from({ length: 4 }, () => ({ input: null, output: null }))
-  );
-  const [slotBlockIds, setSlotBlockIds] = useState<number[][]>(() =>
-    Array.from({ length: 4 }, () => Array.from({ length: 12 }, (_, idx) => idx))
   );
   const [ioPickerOpen, setIoPickerOpen] = useState(false);
   const [ioPickerRow, setIoPickerRow] = useState<PathIndex>(0);
@@ -143,6 +162,8 @@ export default function App() {
     }
     return row % 2 === 0 ? 13 : 27;
   };
+
+  const effectBlockIndex = (row: PathIndex, slot: number) => (row % 2 === 0 ? slot + 1 : slot + 15);
   const blockTypeOrder: Array<keyof typeof blockTypes> = [
     'amp',
     'preamp',
@@ -204,6 +225,10 @@ export default function App() {
   };
 
   const disconnect = () => {
+    if (syncTimerRef.current) {
+      clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = null;
+    }
     clientRef.current?.close();
     clientRef.current = null;
     setConnected(false);
@@ -246,11 +271,7 @@ export default function App() {
     if (!client) return;
     const p = targetSlot.path as PathIndex;
     const b = targetSlot.block;
-    const blockId = slotBlockIds[p]?.[b];
-    if (blockId === undefined) {
-      setStatus('Sync required to resolve block id');
-      return;
-    }
+    const blockId = effectBlockIndex(p, b);
     if (usage > availableUsage) {
       setStatus('DSP cap reached (70 per path)');
       return;
@@ -266,6 +287,7 @@ export default function App() {
       return next;
     });
     setPickerOpen(false);
+    scheduleSync();
   };
 
   const selectSlot = (slot: BlockSlot) => {
@@ -302,11 +324,7 @@ export default function App() {
   const clearSlot = (slot: BlockSlot) => {
     const client = requireClient();
     if (!client) return;
-    const blockId = slotBlockIds[slot.path]?.[slot.block];
-    if (blockId === undefined) {
-      setStatus('Sync required to resolve block id');
-      return;
-    }
+    const blockId = effectBlockIndex(slot.path, slot.block);
     client.clearBlocks(rowToFlow(slot.path), [blockId]);
     setGrid((prev) => {
       const next = prev.map((row) => row.slice());
@@ -441,124 +459,161 @@ export default function App() {
     const client = requireClient();
     if (!client) return;
     setStatus('Syncing from device...');
-    const state = await client.getEditBufferState();
-    if (!state) {
-      setStatus('Sync failed');
-      return;
-    }
-    const flows = state?.sfg_?.flow ?? [];
-    const nextGrid: SignalFlowGrid = Array.from({ length: 4 }, () =>
-      Array.from({ length: 12 }, () => null)
-    );
-    const nextIO: IOGrid = Array.from({ length: 4 }, () => ({ input: null, output: null }));
-    const nextSlotBlockIds: number[][] = Array.from({ length: 4 }, () =>
-      Array.from({ length: 12 }, (_, idx) => idx)
-    );
-
-    const assignSlot = (rowIndex: number, slotIndex: number, modelId: number | null) => {
-      if (!nextGrid[rowIndex]) return;
-      if (slotIndex < 0 || slotIndex >= 12) return;
-      if (typeof modelId === 'number' && modelLookup.has(modelId)) {
-        const info = modelLookup.get(modelId)!;
-        nextGrid[rowIndex][slotIndex] = {
-          id: modelId,
-          name: info.name,
-          kind: info.kind,
-          usage: info.usage,
-        };
-      } else {
-        nextGrid[rowIndex][slotIndex] = {
-          id: Number(modelId) || 0,
-          name: 'Block',
-          kind: 'fx',
-          usage: 0,
-        };
+    try {
+      const state = await client.getEditBufferState();
+      if (!state) {
+        setStatus('Sync failed: no response');
+        return;
       }
-    };
-
-    const assignIO = (rowIndex: number, ioType: IOType, modelId: number | null, params: Record<string, number | boolean>) => {
-      if (!nextIO[rowIndex]) return;
-      const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
-      const name = meta?.name ?? `ID ${modelId ?? '—'}`;
-      const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
-      nextIO[rowIndex][ioType] = {
-        blockId,
-        modelId,
-        name,
-        params,
-      };
-    };
-
-    flows.forEach((flow: any, flowIdx: number) => {
-      const blks = Array.isArray(flow?.blks) ? flow.blks : [];
-      const bmap = Array.isArray(flow?.bmap) ? flow.bmap : null;
-      const rowA = flowIdx * 2;
-      const rowB = flowIdx * 2 + 1;
-
-      if (bmap && bmap.length >= 28) {
-        for (let slot = 0; slot < 12; slot += 1) {
-          nextSlotBlockIds[rowA][slot] = bmap[slot + 1] ?? slot;
-          nextSlotBlockIds[rowB][slot] = bmap[slot + 15] ?? slot;
+      const flows = findFlows(state);
+      if (!Array.isArray(flows)) {
+        setStatus('Sync failed: no flow data');
+        return;
+      }
+      if (!flows.length) {
+        setStatus('Sync failed: empty flow data');
+        return;
+      }
+      const nextGrid: SignalFlowGrid = Array.from({ length: 4 }, () =>
+        Array.from({ length: 12 }, () => null)
+      );
+      const nextIO: IOGrid = Array.from({ length: 4 }, () => ({ input: null, output: null }));
+      const assignSlot = (rowIndex: number, slotIndex: number, modelId: number | null) => {
+        if (!nextGrid[rowIndex]) return;
+        if (slotIndex < 0 || slotIndex >= 12) return;
+        if (typeof modelId === 'number' && modelLookup.has(modelId)) {
+          const info = modelLookup.get(modelId)!;
+          nextGrid[rowIndex][slotIndex] = {
+            id: modelId,
+            name: info.name,
+            kind: info.kind,
+            usage: info.usage,
+          };
+        } else {
+          nextGrid[rowIndex][slotIndex] = {
+            id: Number(modelId) || 0,
+            name: 'Block',
+            kind: 'fx',
+            usage: 0,
+          };
         }
-      }
+      };
 
-      const handleEntry = (pos: number, blk: any) => {
-        if (typeof pos !== 'number') return;
-        if (!blk || typeof blk !== 'object') return;
-        const model = Array.isArray(blk.mdls) ? blk.mdls[0] : null;
-        const mid = model?.id__ ?? blk.mid ?? blk.mdid ?? blk.midx ?? blk.model ?? blk.mid_;
-        const params: Record<string, number | boolean> = {};
-        if (model && Array.isArray(model.parm)) {
-          model.parm.forEach((param: any) => {
-            const pid = param?.pid_;
-            if (typeof pid !== 'number') return;
-            params[String(pid)] = param?.valu ?? 0;
+      const assignIO = (
+        rowIndex: number,
+        ioType: IOType,
+        modelId: number | null,
+        params: Record<string, number | boolean>
+      ) => {
+        if (!nextIO[rowIndex]) return;
+        const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
+        const name = meta?.name ?? `ID ${modelId ?? '—'}`;
+        const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
+        nextIO[rowIndex][ioType] = {
+          blockId,
+          modelId,
+          name,
+          params,
+        };
+      };
+
+      flows.forEach((flow: any, flowIdx: number) => {
+        const rawBlks = flow?.blks ?? flow?.blk ?? flow?.blocks ?? null;
+        const bmap = Array.isArray(flow?.bmap) ? flow.bmap : null;
+        const rowA = flowIdx * 2;
+        const rowB = flowIdx * 2 + 1;
+        const posByBlockIndex = new Map<number, number>();
+        if (bmap) {
+          bmap.forEach((blockIndex: any, pos: number) => {
+            if (typeof blockIndex === 'number') {
+              posByBlockIndex.set(blockIndex, pos);
+            }
           });
         }
 
-        if (pos === 0) {
-          assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
-          return;
-        }
-        if (pos === 13) {
-          assignIO(rowA, 'output', typeof mid === 'number' ? mid : null, params);
-          return;
-        }
-        if (pos === 14) {
-          assignIO(rowB, 'input', typeof mid === 'number' ? mid : null, params);
-          return;
-        }
-        if (pos === 27) {
-          assignIO(rowB, 'output', typeof mid === 'number' ? mid : null, params);
-          return;
-        }
+        const handleEntry = (pos: number, blk: any) => {
+          if (typeof pos !== 'number') return;
+          if (!blk || typeof blk !== 'object') return;
+          const model = Array.isArray(blk.mdls) ? blk.mdls[0] : null;
+          const mid = model?.id__ ?? blk.mid ?? blk.mdid ?? blk.midx ?? blk.model ?? blk.mid_;
+          const params: Record<string, number | boolean> = {};
+          if (model && Array.isArray(model.parm)) {
+            model.parm.forEach((param: any) => {
+              const pid = param?.pid_;
+              if (typeof pid !== 'number') return;
+              params[String(pid)] = param?.valu ?? 0;
+            });
+          }
 
-        if (pos >= 1 && pos <= 12) {
-          assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null);
-          return;
-        }
-        if (pos >= 15 && pos <= 26) {
-          assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null);
-        }
-      };
+          if (pos === 0) {
+            assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
+            return;
+          }
+          if (pos === 13) {
+            assignIO(rowA, 'output', typeof mid === 'number' ? mid : null, params);
+            return;
+          }
+          if (pos === 14) {
+            assignIO(rowB, 'input', typeof mid === 'number' ? mid : null, params);
+            return;
+          }
+          if (pos === 27) {
+            assignIO(rowB, 'output', typeof mid === 'number' ? mid : null, params);
+            return;
+          }
 
-      if (blks.length > 1 && typeof blks[0] === 'number' && typeof blks[1] === 'object') {
-        for (let i = 1; i < blks.length; i += 2) {
-          const pos = blks[i - 1];
-          const blk = blks[i];
-          handleEntry(pos, blk);
-        }
-      } else {
-        blks.forEach((blk: any, idx: number) => {
-          handleEntry(idx, blk);
-        });
-      }
-    });
+          if (pos >= 1 && pos <= 12) {
+            assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null);
+            return;
+          }
+          if (pos >= 15 && pos <= 26) {
+            assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null);
+          }
+        };
 
-    setGrid(nextGrid);
-    setIoGrid(nextIO);
-    setSlotBlockIds(nextSlotBlockIds);
-    setStatus('Synced');
+        const resolvePos = (idx: number) => {
+          const mapped = posByBlockIndex.get(idx);
+          return typeof mapped === 'number' ? mapped : idx;
+        };
+
+        if (Array.isArray(rawBlks)) {
+          if (rawBlks.length > 1 && typeof rawBlks[0] === 'number' && typeof rawBlks[1] === 'object') {
+            for (let i = 1; i < rawBlks.length; i += 2) {
+              const pos = rawBlks[i - 1];
+              const blk = rawBlks[i];
+              handleEntry(pos, blk);
+            }
+          } else {
+            rawBlks.forEach((blk: any, idx: number) => {
+              handleEntry(resolvePos(idx), blk);
+            });
+          }
+        } else if (rawBlks && typeof rawBlks === 'object') {
+          Object.entries(rawBlks).forEach(([key, blk]) => {
+            const idx = Number(key);
+            if (!Number.isFinite(idx)) return;
+            handleEntry(resolvePos(idx), blk);
+          });
+        }
+      });
+
+      setGrid(nextGrid);
+      setIoGrid(nextIO);
+      setStatus('Synced');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Sync failed: ${message}`);
+    }
+  };
+
+  const scheduleSync = (delayMs = 350) => {
+    if (syncTimerRef.current) {
+      clearTimeout(syncTimerRef.current);
+    }
+    syncTimerRef.current = setTimeout(() => {
+      syncTimerRef.current = null;
+      handleSync();
+    }, delayMs);
   };
 
   return (

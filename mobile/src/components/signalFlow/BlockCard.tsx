@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   cardEmpty: {
-    borderStyle: 'dashed',
     borderColor: COLORS.stroke,
     borderTopColor: COLORS.stroke,
   },
@@ -107,7 +106,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.stroke,
-    borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
   },

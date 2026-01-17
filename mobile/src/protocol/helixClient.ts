@@ -73,6 +73,7 @@ export class HelixClient {
   private onEvent: ((event: { addr: string; typetags: string | null; vals: Array<any> }) => void) | null = null;
   private listening2002 = false;
   private pendingResponses = new Map<string, (vals: Array<any>) => void>();
+  private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
 
   constructor(host: string, port2001 = 2001, port2002 = 2002) {
     this.host = host;
@@ -86,12 +87,14 @@ export class HelixClient {
     await zmtpHandshake(this.stream2001, 'SUB');
     this.stream2001.sendFrame(Buffer.from([0x01]));
     await zmtpHandshake(this.stream2002, 'DEALER', Buffer.from(''));
+    this.startListener2002();
   }
 
   close() {
     this.listening = false;
     this.listening2002 = false;
     this.pendingResponses.clear();
+    this.lastEditBufferResponse = null;
     this.stream2001.close();
     this.stream2002.close();
   }
@@ -114,6 +117,12 @@ export class HelixClient {
     this.listenLoop().catch((err) => console.warn('listen loop error', err));
   }
 
+  private startListener2002() {
+    if (this.listening2002) return;
+    this.listening2002 = true;
+    this.listenLoop2002().catch((err) => console.warn('listen loop 2002 error', err));
+  }
+
   private async listenLoop() {
     while (this.listening) {
       const { flags, payload } = await this.stream2001.readFrame();
@@ -127,46 +136,46 @@ export class HelixClient {
     }
   }
 
-  private async readFrameWithTimeout(timeoutMs: number) {
-    if (timeoutMs <= 0) return null;
-    return await Promise.race([
-      this.stream2002.readFrame(),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs)),
-    ]);
+  private async listenLoop2002() {
+    while (this.listening2002) {
+      const data = await this.readMultipart2002(1000);
+      if (!data) continue;
+      if (data.length === 0) continue;
+      if (data[0] === 0x2f) {
+        const decoded = decodeOsc(data, true);
+        if (decoded) this.dispatchEvent(decoded);
+        continue;
+      }
+      const events = decodeFrames(data, true);
+      for (const evt of events) {
+        this.dispatchEvent(evt);
+      }
+    }
   }
 
   private async readMultipart2002(timeoutMs: number) {
-    const deadline = Date.now() + timeoutMs;
-    const first = await this.readFrameWithTimeout(timeoutMs);
+    void timeoutMs;
+    const first = await this.stream2002.readFrame();
     if (!first) return null;
     let { flags } = first;
-    const parts: Buffer[] = [];
-    const firstPayload = ensureBuffer(first.payload);
-    if (firstPayload.length) parts.push(firstPayload);
+    if (flags & 0x04) return null;
+    let lastPayload = ensureBuffer(first.payload);
     while (flags & 0x01) {
-      const remaining = Math.max(0, deadline - Date.now());
-      const next = await this.readFrameWithTimeout(remaining);
+      const next = await this.stream2002.readFrame();
       if (!next) break;
       flags = next.flags;
-      const payload = ensureBuffer(next.payload);
-      if (payload.length) parts.push(payload);
+      if (flags & 0x04) continue;
+      lastPayload = ensureBuffer(next.payload);
     }
-    if (!parts.length) return Buffer.alloc(0);
-    return parts[parts.length - 1];
+    return lastPayload;
   }
 
-  private async readOsc2002(timeoutMs = 500) {
-    const data = await this.readMultipart2002(timeoutMs);
-    if (!data) return null;
-    if (data.length === 0) return null;
-    if (data[0] === 0x2f) {
-      return decodeOsc(data, true);
-    }
-    const events = decodeFrames(data, true);
-    return events[0] ?? null;
-  }
+  // readOsc2002 removed; port-2002 listener handles responses.
 
   private dispatchEvent(event: { addr: string; typetags: string | null; vals: Array<any> }) {
+    if (event.addr.toLowerCase().includes('editbufferstate')) {
+      this.lastEditBufferResponse = { vals: event.vals ?? [], receivedAt: Date.now() };
+    }
     this.resolvePending(event.addr, event.vals);
     this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []) });
   }
@@ -177,10 +186,23 @@ export class HelixClient {
     if (typeof cmdId !== 'number') return false;
     const key = buildRequestKey(addr, cmdId);
     const resolver = this.pendingResponses.get(key);
-    if (!resolver) return false;
-    this.pendingResponses.delete(key);
-    resolver(vals);
-    return true;
+    if (resolver) {
+      this.pendingResponses.delete(key);
+      resolver(vals);
+      return true;
+    }
+    // Fallback: accept alternate edit-buffer response addr variants.
+    if (addr.toLowerCase().includes('editbufferstate')) {
+      const suffix = `:${cmdId}`;
+      for (const [pendingKey, pendingResolver] of this.pendingResponses) {
+        if (!pendingKey.endsWith(suffix)) continue;
+        if (!pendingKey.toLowerCase().startsWith('/geteditbufferstate')) continue;
+        this.pendingResponses.delete(pendingKey);
+        pendingResolver(vals);
+        return true;
+      }
+    }
+    return false;
   }
 
   private waitForResponse(expectAddr: string, cmdId: number, timeoutMs: number) {
@@ -214,16 +236,9 @@ export class HelixClient {
   private async request(address: string, typetags: string, args: Array<any>, expectAddr: string, timeoutMs = 2000) {
     const cmdId = this.nextCmdId();
     const fullArgs = [cmdId, ...args];
-    this.sendOsc(address, `i${typetags}`, fullArgs);
     const wait = this.waitForResponse(expectAddr, cmdId, timeoutMs);
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline && !wait.isResolved()) {
-      const remaining = deadline - Date.now();
-      const evt = await this.readOsc2002(Math.min(500, remaining));
-      if (!evt) continue;
-      this.dispatchEvent(evt);
-    }
-    return wait.getResult() ?? (await wait.promise);
+    this.sendOsc(address, `i${typetags}`, fullArgs);
+    return await wait.promise;
   }
 
   setProperty(key: string, value: any, valueType: 's' | 'i' | 'f' | 'b' = 's', propertyId = 0) {
@@ -289,40 +304,56 @@ export class HelixClient {
 
   async getEditBufferState() {
     const vals = await this.request('/EditBufferStateGet', '', [], '/getEditBufferState', 3000);
-    return decodeStateFromBlobs(vals);
+    if (!vals) {
+      throw new Error('no response');
+    }
+    const decoded = decodeStateFromBlobs(vals);
+    if (decoded) return decoded;
+    const fallback = this.lastEditBufferResponse;
+    if (fallback && Date.now() - fallback.receivedAt < 5000) {
+      const fallbackDecoded = decodeStateFromBlobs(fallback.vals);
+      if (fallbackDecoded) return fallbackDecoded;
+    }
+    throw new Error('decode failed');
   }
 }
 
 const align4 = (n: number) => n + ((4 - (n % 4)) % 4);
 
-const decodeOsc = (msg: Buffer, keepBlob = false) => {
-  const addrEnd = msg.indexOf(0x00);
+const decodeOsc = (msg: Buffer | Uint8Array, keepBlob = false) => {
+  const buf = Buffer.isBuffer(msg) ? msg : Buffer.from(msg);
+  const addrEnd = buf.indexOf(0x00);
   if (addrEnd === -1) return null;
-  const addr = msg.subarray(0, addrEnd).toString('utf8');
+  const addr = Buffer.from(buf.subarray(0, addrEnd)).toString('utf8');
   let idx = align4(addrEnd + 1);
-  if (idx >= msg.length || msg[idx] !== 0x2c) return { addr, typetags: null, vals: [] };
-  const ttEnd = msg.indexOf(0x00, idx);
+  if (idx >= buf.length || buf[idx] !== 0x2c) return { addr, typetags: null, vals: [] };
+  const ttEnd = buf.indexOf(0x00, idx);
   if (ttEnd === -1) return { addr, typetags: null, vals: [] };
-  const typetags = msg.subarray(idx, ttEnd).toString('utf8');
+  const typetags = Buffer.from(buf.subarray(idx, ttEnd)).toString('utf8');
   idx = align4(ttEnd + 1);
 
   const vals: Array<any> = [];
   for (const ch of typetags.slice(1)) {
     if (ch === 'i') {
-      vals.push(msg.readInt32BE(idx));
+      vals.push(buf.readInt32BE(idx));
       idx += 4;
+    } else if (ch === 'h') {
+      const high = buf.readInt32BE(idx);
+      const low = buf.readUInt32BE(idx + 4);
+      vals.push(high * 0x100000000 + low);
+      idx += 8;
     } else if (ch === 'f') {
-      vals.push(msg.readFloatBE(idx));
+      vals.push(buf.readFloatBE(idx));
       idx += 4;
     } else if (ch === 's') {
-      const end = msg.indexOf(0x00, idx);
+      const end = buf.indexOf(0x00, idx);
       if (end === -1) break;
-      vals.push(msg.subarray(idx, end).toString('utf8'));
+      vals.push(Buffer.from(buf.subarray(idx, end)).toString('utf8'));
       idx = align4(end + 1);
     } else if (ch === 'b') {
-      const len = msg.readUInt32BE(idx);
+      const len = buf.readUInt32BE(idx);
       idx += 4;
-      const blob = msg.subarray(idx, idx + len);
+      const blob = Buffer.from(buf.subarray(idx, idx + len));
       vals.push(keepBlob ? blob : `<blob:${len}>`);
       idx = align4(idx + len);
     } else {
@@ -378,7 +409,14 @@ const normalizeKeys = (obj: any): any => {
   if (obj && typeof obj === 'object') {
     const out: Record<string, any> = {};
     for (const [key, val] of Object.entries(obj)) {
-      out[key] = normalizeKeys(val);
+      let newKey = key;
+      if (/^\d+$/.test(key)) {
+        const asNum = Number(key);
+        if (Number.isFinite(asNum) && asNum >= 0 && asNum <= 0xffffffff) {
+          newKey = fourccStr(asNum) ?? key;
+        }
+      }
+      out[newKey] = normalizeKeys(val);
     }
     return out;
   }

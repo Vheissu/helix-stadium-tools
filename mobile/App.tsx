@@ -599,6 +599,16 @@ export default function App() {
 
       setGrid(nextGrid);
       setIoGrid(nextIO);
+      try {
+        const notes = await client.getProperty('preset.meta.info');
+        if (notes && typeof notes.value === 'string') {
+          setNotesText(notes.value);
+        } else if (notes && notes.value === null) {
+          setNotesText('');
+        }
+      } catch (_err) {
+        // Ignore notes sync failures; block sync succeeded.
+      }
       setStatus('Synced');
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

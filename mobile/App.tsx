@@ -779,15 +779,17 @@ export default function App() {
               <Text style={styles.modalSubtitle}>Parameters</Text>
               <ScrollView style={styles.paramList}>
                 {activeIOModelMeta ? (
-                  activeIOModelMeta.params.map((param) => {
-                    const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+                  activeIOModelMeta.params.map((param, paramIndex) => {
+                    const paramKey =
+                      param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
+                    const rowKey = `${paramKey}-${paramIndex}`;
                     const current = activeIOModel?.params?.[paramKey] ?? param.def ?? 0;
                     const options = param.options ?? null;
                     if (options && options.length) {
                       const min = typeof param.min === 'number' ? param.min : 0;
                       const max = typeof param.max === 'number' ? param.max : min + options.length - 1;
                       return (
-                        <View key={param.id} style={styles.paramRow}>
+                        <View key={rowKey} style={styles.paramRow}>
                           <Text style={styles.paramLabel}>{param.name}</Text>
                           <View style={styles.paramOptions}>
                             {options.map((label, idx) => {
@@ -800,7 +802,7 @@ export default function App() {
                               const isActive = Number(current) === value;
                               return (
                                 <Pressable
-                                  key={`${param.id}-${value}`}
+                                  key={`${rowKey}-${value}`}
                                   style={[styles.paramOption, isActive && styles.paramOptionActive]}
                                   onPress={() => updateIOParam(param, value)}
                                 >
@@ -813,7 +815,7 @@ export default function App() {
                       );
                     }
                     return (
-                      <View key={param.id} style={styles.paramRow}>
+                      <View key={rowKey} style={styles.paramRow}>
                         <Text style={styles.paramLabel}>{param.name}</Text>
                         <TextInput
                           style={styles.paramInput}

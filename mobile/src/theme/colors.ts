@@ -11,6 +11,7 @@ export const COLORS = {
   accent: '#c9c3b1',
   danger: '#e46b61',
   success: '#7bbf9e',
+  warn: '#e6b000',
 };
 
 // Block type colors (Helix-inspired from HTML mockup)

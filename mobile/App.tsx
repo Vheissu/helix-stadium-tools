@@ -389,6 +389,12 @@ export default function App() {
 
   const selectSlot = (slot: BlockSlot) => {
     setSelectedSlot(slot);
+    const existingBlock = grid[slot.path]?.[slot.block] ?? null;
+    if (existingBlock) {
+      setBlockEditorSlot(slot);
+      setBlockEditorOpen(true);
+      return;
+    }
     setTargetSlot({ path: slot.path, block: slot.block });
     setPickerStep('type');
     setPickerType(null);
@@ -829,7 +835,7 @@ export default function App() {
 
       <View style={styles.hint}>
         <Text style={styles.hintText}>
-          Tap a slot to insert a block. Long-press a populated block for actions.
+          Tap an empty slot to insert a block. Tap a populated block to edit parameters, or long-press it for replace and clear actions.
         </Text>
       </View>
     </ScrollView>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlockIcon } from '../../icons/BlockIcons';
 import { getBlockImage } from '../../icons/CategoryImages';
@@ -13,6 +13,7 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
   onPress,
   onLongPress,
 }) => {
+  const longPressHandledRef = useRef(false);
   const borderColor = block ? getBlockColor(block.kind) : COLORS.stroke;
   const isEmpty = block === null;
   const blockImage = block ? getBlockImage(block.kind) : null;
@@ -20,8 +21,21 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
   return (
     <View style={styles.container}>
       <Pressable
-        onPress={onPress}
-        onLongPress={onLongPress}
+        onPress={() => {
+          if (longPressHandledRef.current) {
+            longPressHandledRef.current = false;
+            return;
+          }
+          onPress();
+        }}
+        onLongPress={
+          onLongPress
+            ? () => {
+                longPressHandledRef.current = true;
+                onLongPress();
+              }
+            : undefined
+        }
         style={({ pressed }) => [
           styles.card,
           isEmpty && styles.cardEmpty,

@@ -895,7 +895,37 @@ class TestSession(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 session.do_agenda([])
 
-    def test_clear_blocks_builds_agenda(self):
+    def test_clear_block_position_wait_status_false(self):
+        stream = FakeStream()
+        session = HelixSession("dummy")
+        session._stream_2002 = stream
+        session._cmd_id = 5
+        session.clear_block_position(1, 15, wait_status=False)
+        self.assertEqual(len(stream.sent), 1)
+        _flags, payload = stream.sent[0]
+        addr, typetags, vals = decode_osc(payload)
+        self.assertEqual(addr, "/clrBlock")
+        self.assertEqual(typetags, ",iii")
+        self.assertEqual(vals, [5, 1, 15])
+
+    def test_clear_blocks_uses_positions_when_state_is_available(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28, 56)),
+                        "blks": [None] * 28,
+                    }
+                ]
+            }
+        }
+        session.clear_positions = mock.Mock(return_value=["ok"])
+        result = session.clear_blocks(0, [29, 30], wait_status=True)
+        self.assertEqual(result, ["ok"])
+        session.clear_positions.assert_called_once_with(0, [1, 2], wait_status=True)
+
+    def test_clear_blocks_falls_back_to_agenda_for_unresolved_ids(self):
         try:
             import msgpack  # noqa: F401
         except Exception:
@@ -904,11 +934,10 @@ class TestSession(unittest.TestCase):
         stream = FakeStream()
         session = HelixSession("dummy")
         session._stream_2002 = stream
-
+        session.get_edit_buffer_state = lambda: None
         session.clear_blocks(0, [1, 2], wait_status=False)
         self.assertEqual(len(stream.sent), 1)
-        flags, payload = stream.sent[0]
-        self.assertEqual(flags, 0x00)
+        _flags, payload = stream.sent[0]
         addr, typetags, vals = decode_osc(payload)
         self.assertEqual(addr, "/doAgenda")
         self.assertEqual(typetags, ",ib")
@@ -918,14 +947,6 @@ class TestSession(unittest.TestCase):
             {"bloc": 2, "cmnd": fourcc_int("clrb"), "flow": 0},
         ]
         self.assertEqual(agenda, expected)
-
-    def test_clear_blocks_accepts_int(self):
-        session = HelixSession("dummy")
-        calls = []
-        session.do_agenda = lambda cmds, wait_status=True: calls.append((cmds, wait_status))
-        session.clear_blocks(2, 3, wait_status=False)
-        self.assertEqual(calls[0][0], [{"bloc": 3, "cmnd": fourcc_int("clrb"), "flow": 2}])
-        self.assertFalse(calls[0][1])
 
     def test_set_auto_cab_sets_property(self):
         try:
@@ -952,38 +973,32 @@ class TestSession(unittest.TestCase):
         session.get_property = lambda _key: {"val_": 1}
         self.assertTrue(session.get_auto_cab_enabled())
 
-    def test_clear_all_blocks_builds_agenda(self):
-        try:
-            import msgpack  # noqa: F401
-        except Exception:
-            self.skipTest("msgpack not installed")
-
-        stream = FakeStream()
+    def test_clear_all_blocks_uses_occupied_positions(self):
         session = HelixSession("dummy")
-        session._stream_2002 = stream
-
         session.get_edit_buffer_state = lambda: {
             "sfg_": {
                 "flow": [
-                    {"blks": [0, {"x": 1}, 0, {"x": 2}]},
-                    {"blks": [0, {"x": 3}]},
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [None, {"mdls": [{"id__": 770, "parm": []}]}, {"mdls": [{"id__": 771, "parm": []}]}]
+                        + [None] * 25,
+                    },
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [None] * 15 + [{"mdls": [{"id__": 772, "parm": []}]}] + [None] * 12,
+                    },
                 ]
             }
         }
-
+        session.clear_positions = mock.Mock(return_value=None)
         session.clear_all_blocks(wait_status=False)
-        self.assertEqual(len(stream.sent), 1)
-        _flags, payload = stream.sent[0]
-        addr, typetags, vals = decode_osc(payload)
-        self.assertEqual(addr, "/doAgenda")
-        self.assertEqual(typetags, ",ib")
-        agenda = msgpack.unpackb(vals[1], raw=False)
-        expected = [
-            {"bloc": 1, "cmnd": fourcc_int("clrb"), "flow": 0},
-            {"bloc": 3, "cmnd": fourcc_int("clrb"), "flow": 0},
-            {"bloc": 1, "cmnd": fourcc_int("clrb"), "flow": 1},
-        ]
-        self.assertEqual(agenda, expected)
+        self.assertEqual(
+            session.clear_positions.call_args_list,
+            [
+                mock.call(0, [1, 2], wait_status=False),
+                mock.call(1, [15], wait_status=False),
+            ],
+        )
 
     def test_clear_all_blocks_with_missing_state(self):
         session = HelixSession("dummy")
@@ -1055,7 +1070,7 @@ class TestSession(unittest.TestCase):
         session.get_auto_cab_enabled = lambda: True
         calls = []
         session.set_auto_cab = lambda enabled, wait_status=True: calls.append(("set_auto_cab", enabled, wait_status))
-        session.clear_blocks = lambda path, blocks, wait_status=True: calls.append(("clear_blocks", path, blocks, wait_status))
+        session.clear_positions = lambda path, positions, wait_status=True: calls.append(("clear_positions", path, positions, wait_status))
         session.set_model = lambda path, block, model_id, slot=0, wait_status=True: calls.append(
             ("set_model", path, block, model_id, slot, wait_status)
         )
@@ -1088,7 +1103,7 @@ class TestSession(unittest.TestCase):
         with self.assertRaises(ValueError):
             session.copy_path(0, 0)
 
-    def test_copy_path_requires_empty_target_path(self):
+    def test_copy_path_clears_occupied_target_positions(self):
         session = HelixSession("dummy")
         session.get_edit_buffer_state = lambda: {
             "sfg_": {
@@ -1098,8 +1113,13 @@ class TestSession(unittest.TestCase):
                 ]
             }
         }
-        with self.assertRaises(HelixSessionError):
-            session.copy_path(0, 1)
+        session.get_auto_cab_enabled = lambda: False
+        session.clear_positions = mock.Mock(return_value=None)
+        session.set_model = mock.Mock(return_value=None)
+        session.set_block_enable = mock.Mock(return_value=None)
+        session.set_param_value = mock.Mock(return_value=None)
+        session.copy_path(0, 1)
+        session.clear_positions.assert_called_once_with(1, [1], wait_status=True)
 
     def test_enter_exit_calls_helpers(self):
         session = HelixSession("dummy")

@@ -306,10 +306,14 @@ export class HelixClient {
     this.sendOsc('/doAgenda', 'ib', [cmdId, blob]);
   }
 
-  clearBlocks(flow: number, blocks: number[]) {
-    if (!blocks.length) return;
-    const commands = blocks.map((block) => ({ bloc: block, cmnd: fourcc('clrb'), flow }));
-    this.doAgenda(commands);
+  async clearBlock(flow: number, position: number) {
+    return await this.request('/clrBlock', 'ii', [flow, position], '/status', 2500);
+  }
+
+  async clearBlocks(flow: number, positions: number[]) {
+    for (const position of positions) {
+      await this.clearBlock(flow, position);
+    }
   }
 
   async getProperty(key: string) {
@@ -560,14 +564,14 @@ export class HelixClient {
     const occupiedTargetPositions = extractPathClipboard(state, targetPath).entries
       .map((entry) => entry.position)
       .filter((position) => CLEARABLE_FLOW_POSITIONS.includes(position));
-    if (occupiedTargetPositions.length) {
-      throw new Error(`Target path must be empty before pasting (${occupiedTargetPositions.join(', ')})`);
-    }
     const autoCab = await this.getAutoCabEnabled();
     if (autoCab) {
       this.setAutoCab(false);
     }
     try {
+      if (occupiedTargetPositions.length) {
+        await this.clearBlocks(targetPath, occupiedTargetPositions);
+      }
       clipboard.entries.forEach((entry) => {
         const blockId = targetBlocks[entry.position];
         if (typeof blockId !== 'number') return;

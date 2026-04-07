@@ -11,7 +11,13 @@ from .blobs import (
     normalize_fourcc_map,
 )
 from .discovery import HelixService, discover_first_service
-from .editbuffer import CLEARABLE_FLOW_POSITIONS, extract_flow_clipboard, flow_block_map, normalize_edit_buffer
+from .editbuffer import (
+    CLEARABLE_FLOW_POSITIONS,
+    extract_flow_clipboard,
+    flow_block_map,
+    flow_position_map,
+    normalize_edit_buffer,
+)
 from .zmtp import ZMTPStream, zmtp_handshake
 
 FACTORY_PRESETS_CID = -1
@@ -859,10 +865,50 @@ class HelixSession:
         self.send("/doAgenda", "ib", [cmd_id, blob])
         return None
 
+    def clear_block_position(self, flow: int, position: int, wait_status: bool = True):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(flow), int(position)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/clrBlock", "iii", args)
+        self.send("/clrBlock", "iii", args)
+        return None
+
+    def clear_positions(self, flow: int, positions, wait_status: bool = True):
+        if isinstance(positions, int):
+            positions = [positions]
+        results = []
+        for position in positions:
+            result = self.clear_block_position(flow, int(position), wait_status=wait_status)
+            if wait_status:
+                results.append(result)
+        return results if wait_status else None
+
     def clear_blocks(self, flow: int, blocks, wait_status: bool = True):
-        """Clear one or more blocks on a path/flow."""
+        """Clear one or more blocks on a path/flow.
+
+        Accepts either raw block ids or visible flow positions. When the current
+        edit buffer is available, raw block ids are translated into `/clrBlock`
+        positions automatically. Falls back to `/doAgenda` for unresolved ids.
+        """
         if isinstance(blocks, int):
             blocks = [blocks]
+        state = None
+        try:
+            state = normalize_edit_buffer(self.get_edit_buffer_state())
+        except Exception:
+            state = None
+        if state is not None:
+            positions = []
+            inverse_map = flow_position_map(state, int(flow))
+            for block in blocks:
+                block_value = int(block)
+                position = inverse_map.get(block_value)
+                if position is None and block_value in CLEARABLE_FLOW_POSITIONS:
+                    position = block_value
+                if position in CLEARABLE_FLOW_POSITIONS and position not in positions:
+                    positions.append(position)
+            if positions:
+                return self.clear_positions(flow, positions, wait_status=wait_status)
         cmds = [{"bloc": int(block), "cmnd": fourcc_int("clrb"), "flow": int(flow)} for block in blocks]
         return self.do_agenda(cmds, wait_status=wait_status)
 
@@ -883,16 +929,20 @@ class HelixSession:
         for flow_idx in flow_indices:
             if flow_idx < 0 or flow_idx >= len(flows):
                 continue
-            flow = flows[flow_idx]
-            if not isinstance(flow, dict):
-                continue
-            blks = flow.get("blks", [])
-            for idx, blk in enumerate(blks):
-                if isinstance(blk, dict):
-                    cmds.append({"bloc": idx, "cmnd": fourcc_int("clrb"), "flow": flow_idx})
+            positions = [
+                int(entry["position"])
+                for entry in extract_flow_clipboard(data, flow_idx, positions=CLEARABLE_FLOW_POSITIONS)
+            ]
+            if positions:
+                cmds.append((flow_idx, positions))
         if not cmds:
             return None
-        return self.do_agenda(cmds, wait_status=wait_status)
+        results = []
+        for flow_idx, positions in cmds:
+            result = self.clear_positions(flow_idx, positions, wait_status=wait_status)
+            if wait_status:
+                results.append(result)
+        return results if wait_status else None
 
     def insert_block(
         self,
@@ -928,14 +978,12 @@ class HelixSession:
         occupied_positions = sorted(
             int(entry["position"]) for entry in target_existing if int(entry["position"]) in CLEARABLE_FLOW_POSITIONS
         )
-        if occupied_positions:
-            raise HelixSessionError(
-                f"target path {target_flow} is not empty; clear those blocks before copying ({occupied_positions})"
-            )
         auto_cab = self.get_auto_cab_enabled()
         if auto_cab:
             self.set_auto_cab(False, wait_status=wait_status)
         try:
+            if occupied_positions:
+                self.clear_positions(target_flow, occupied_positions, wait_status=wait_status)
             for entry in clipboard:
                 block_id = target_blocks.get(entry["position"])
                 if not isinstance(block_id, int):

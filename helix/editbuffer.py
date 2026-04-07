@@ -109,6 +109,10 @@ def flow_block_map(state, flow_index: int, positions=None):
     return out
 
 
+def flow_position_map(state, flow_index: int, positions=None):
+    return {block_id: position for position, block_id in flow_block_map(state, flow_index, positions=positions).items()}
+
+
 def extract_flow_clipboard(state, flow_index: int, positions=None):
     flow = _flow_for_index(state, flow_index)
     if flow is None:

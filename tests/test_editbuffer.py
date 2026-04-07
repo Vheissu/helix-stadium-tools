@@ -8,6 +8,7 @@ from helix.editbuffer import (
     find_io_block,
     find_signal_block,
     flow_block_map,
+    flow_position_map,
     normalize_edit_buffer,
     parse_row,
     row_block_position,
@@ -83,6 +84,20 @@ class TestEditBuffer(unittest.TestCase):
         self.assertEqual(sorted(mapping), list(COPYABLE_FLOW_POSITIONS))
         self.assertEqual(mapping[0], 0)
         self.assertEqual(mapping[27], 27)
+
+    def test_flow_position_map_inverts_block_mapping(self):
+        state = {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28, 56)),
+                        "blks": [None] * 28,
+                    }
+                ]
+            }
+        }
+        mapping = flow_position_map(state, 0, positions=[1, 2, 15])
+        self.assertEqual(mapping, {29: 1, 30: 2, 43: 15})
 
     def test_extract_flow_clipboard_reads_models_enabled_and_params(self):
         state = {

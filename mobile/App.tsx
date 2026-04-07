@@ -962,11 +962,11 @@ export default function App() {
     setIoPickerOpen(true);
   };
 
-  const clearSlot = (slot: BlockSlot) => {
+  const clearSlot = async (slot: BlockSlot) => {
     const client = requireClient();
     if (!client) return;
-    const blockId = effectBlockIndex(slot.path, slot.block);
-    client.clearBlocks(rowToFlow(slot.path), [blockId]);
+    const position = effectBlockIndex(slot.path, slot.block);
+    await client.clearBlocks(rowToFlow(slot.path), [position]);
     setGrid((prev) => {
       const next = cloneGrid(prev);
       if (next[slot.path] && next[slot.path][slot.block] !== undefined) {

@@ -184,8 +184,8 @@ Common OSC addresses seen in captures:
 - `/setBlockEnable` (device -> editor)
 - `/ModelSet` and `/setModelWithMID` (model change / model ID mapping)
 - `/GetContentRef`, `/GetContainerContents`, `/GetContentData`, and `/GetContentPath` (library/content browsing)
-- `/LoadPresetWithCID`, `/LoadPresetAtContainerPosition`, `/SavePresetWithCID`, and `/SetContentAttrs` (preset/content operations)
-- `/ActiveSnapshotIndexGet`, `/SnapshotCountGet`, `/activateSnapshot`, `/CopySnapshot`, and `/SnapshotColorSet` (snapshot navigation)
+- `/LoadPresetWithCID`, `/LoadPresetAtContainerPosition`, `/SavePresetWithCID`, `/SetContentAttrs`, `/SetContentData`, and `/SetContentPath` (preset/content operations)
+- `/ActiveSnapshotIndexGet`, `/SnapshotCountGet`, `/SnapshotTargetsGet`, `/activateSnapshot`, `/CopySnapshot`, `/SnapshotColorSet`, and `/SetSnapshotName` (snapshot navigation)
 - `/heartbeat` (device -> editor)
 
 Notes:
@@ -346,6 +346,8 @@ python3 scripts/helix_control.py load-preset --cid 508
 python3 scripts/helix_control.py get-snapshot-count
 python3 scripts/helix_control.py get-active-snapshot
 python3 scripts/helix_control.py get-preset-edited
+python3 scripts/helix_control.py list-snapshots
+python3 scripts/helix_control.py get-snapshot-targets --index 0
 
 # Activate snapshot 4 (zero-based index)
 python3 scripts/helix_control.py activate-snapshot --index 4
@@ -353,8 +355,11 @@ python3 scripts/helix_control.py activate-snapshot --index 4
 # Copy snapshot 2 onto snapshot 3
 python3 scripts/helix_control.py copy-snapshot --source 1 --target 2
 
-# Set snapshot 1 to color enum 0
-python3 scripts/helix_control.py snapshot-color --index 0 --color 0
+# Rename snapshot 1
+python3 scripts/helix_control.py snapshot-name --index 0 --name "Snapshot 1"
+
+# Set snapshot 1 to the desktop-app color name "Off"
+python3 scripts/helix_control.py snapshot-color --index 0 --color off
 
 # Rename the backing raw preset content
 python3 scripts/helix_control.py rename-content --cid 507 --name "Glory Belongs Test (HB)"
@@ -367,6 +372,10 @@ python3 scripts/helix_control.py get-content-path --cid 507
 
 # Write the raw preset content blob to disk
 python3 scripts/helix_control.py get-content-data --cid 507 --output /tmp/preset-507.bin
+
+# Re-send the current path/blob back to the same raw preset id
+python3 scripts/helix_control.py set-content-path --cid 507 --path ""
+python3 scripts/helix_control.py set-content-data --cid 507 --input /tmp/preset-507.bin
 
 # Toggle auto-cab insertion
 python3 scripts/helix_control.py set-autocab --enabled on
@@ -415,11 +424,14 @@ Supported action ops:
 - `snapshot_name` (`index`, `name`)
 - `rename_snapshot` / `rename-snapshot` (alias of `snapshot_name`)
 - `activate_snapshot` / `activate-snapshot` (`index`, optional `wait`)
+- `snapshot_name` / `rename_snapshot` / `rename-snapshot` (`index`, `name`)
 - `copy_snapshot` / `copy-snapshot` (`source`, `target`)
 - `snapshot_color` / `snapshot-color` (`index`, `color`)
 - `load_preset` / `load-preset` (`cid` or `container_cid`/`root` + `position`, optional `wait`)
 - `save_preset` / `save-preset` (optional `cid`, optional `wait`)
 - `rename_content` / `rename-content` (`cid`, `name`)
+- `set_content_path` / `set-content-path` (`cid`, `path`)
+- `set_content_data` / `set-content-data` (`cid`, `input` or `path`)
 - `scribble_label` (`stomp` or `key`, `label`)
 - `property_set` (`key`, `value`, `value_type`, `property_id`)
 - `preset_notes` / `notes` (`text`)

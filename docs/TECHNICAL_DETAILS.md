@@ -92,10 +92,11 @@ Example decoded payload:
 - `/BlockEnableSet` (editor → device)
 - `/setBlockEnable` (device → editor)
 - `/ModelSet` and `/setModelWithMID` (model change / model ID mapping)
-- `/GetContentRef` and `/GetContainerContents` (library/content browsing)
+- `/GetContentRef`, `/GetContainerContents`, `/GetContentData`, and `/GetContentPath` (library/content browsing)
 - `/LoadPresetWithCID` and `/LoadPresetAtContainerPosition` (preset recall)
-- `/SnapshotCountGet`, `/ActiveSnapshotIndexGet`, and `/activateSnapshot` (snapshot navigation)
+- `/SnapshotCountGet`, `/ActiveSnapshotIndexGet`, `/SnapshotTargetsGet`, and `/activateSnapshot` (snapshot navigation)
 - `/SetSnapshotName` and `/setSnapshotName` (snapshot naming)
+- `/CopySnapshot` and `/SnapshotColorSet` (snapshot copy / color)
 - `/PropertyValueSet` and `/setPropertyValue` (property updates, including scribble strips)
 - `/heartbeat` (device → editor)
 - `/status` (device → editor, on port 2002)
@@ -127,7 +128,7 @@ Device response on port 2001:
 Acknowledgement on port 2002:
 
 ```
-/status ,iii [cmdId, 0, 0]
+/status ,iii [cmdId, 0, 1]
 ```
 
 ## Snapshot recall
@@ -155,6 +156,7 @@ Additional snapshot commands verified against a live device:
 ```
 /CopySnapshot ,iii [cmdId, sourceSnapshotIndex, targetSnapshotIndex]
 /SnapshotColorSet ,iii [cmdId, snapshotIndex, colorEnum]
+/SnapshotTargetsGet ,ii [cmdId, snapshotIndex]
 ```
 
 Observed acknowledgement on port 2002:
@@ -164,6 +166,19 @@ Observed acknowledgement on port 2002:
 ```
 
 The second status field still appears to be the error code; the trailing `1` looks more like a change/result flag than a failure.
+
+Observed `SnapshotTargetsGet` response:
+
+```
+/getSnapshotTargets ,iibi [cmdId, 0, <msgpack blob>, 0]
+```
+
+Decoded blob values looked like a flat list of raw assignment ids. Example for one
+snapshot:
+
+```
+[16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 15, 14, 13, 12, 11, 10, 9, 8, 7, 5, 4, 3, 2]
+```
 
 ## Content library browsing
 
@@ -236,13 +251,18 @@ Additional live requests:
 ```
 /SavePresetWithCID ,ii [cmdId, contentId]
 /SetContentAttrs ,iib [cmdId, contentId, <msgpack attrs blob>]
+/SetContentData ,iib [cmdId, contentId, <msgpack blob>]
+/SetContentPath ,iis [cmdId, contentId, "<path>"]
 ```
 
 Observed behaviour:
 
 - `SavePresetWithCID` accepts the request but did not emit a synchronous `/status` acknowledgement during testing.
 - `SetContentAttrs` responds with `/status ,iii [cmdId, 0, 1]` on success.
+- `SetContentData` responds with `/status ,iii [cmdId, 0, 1]` on success.
+- `SetContentPath` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - Re-sending the `GetContentRef` attrs blob through `SetContentAttrs` succeeds.
+- Re-sending the current `GetContentData` blob through `SetContentData` succeeds.
 - Updating the `name` field in that attrs blob successfully renames:
   - raw preset ids (for example the `rcid` behind an active setlist entry)
   - setlist container ids
@@ -252,6 +272,14 @@ Commands present in the desktop app binary but not accepted by the device during
 - `/CreateContent`
 - `/SetContentInfo`
 - `/DeleteContentInfo`
+
+Commands present in the desktop app binary but still unverified or unresolved on the device:
+
+- `/GetContentInfo`
+- `/GetAllContentInfo`
+- `/FindContentMatches`
+- `/AddContentsToContainer`
+- `/ReorderContainerContent`
 
 ## Agenda commands (batch actions)
 

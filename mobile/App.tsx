@@ -229,6 +229,8 @@ export default function App() {
   const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
   const [targetSetlistPickerOpen, setTargetSetlistPickerOpen] = useState(false);
   const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -1529,54 +1531,28 @@ export default function App() {
       showsVerticalScrollIndicator={false}
     >
       <Section title="Library">
-        <View style={styles.rowBetween}>
-          <View style={styles.libraryHeader}>
-            <Text style={styles.libraryMeta}>Current Preset</Text>
-            <Text style={styles.libraryCurrentName}>{activePresetName}</Text>
+        {/* Compact active preset bar */}
+        <View style={styles.activePresetBar}>
+          <View style={styles.activePresetInfo}>
+            <Text style={styles.activePresetBarName} numberOfLines={1}>{activePresetName}</Text>
             <Text style={styles.libraryMeta}>
               {activePresetRef
-                ? `Slot ${typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014'} \u00b7 ${presetEdited === null ? 'Unknown' : presetEdited ? 'Unsaved edits' : 'Saved'}`
+                ? `Slot ${typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014'}${presetEdited ? ' \u00b7 Unsaved' : ''}`
                 : 'No active preset'}
             </Text>
           </View>
-          <View style={styles.libraryActionStack}>
-            <Pressable style={[styles.button, styles.buttonGhost, styles.libraryRefresh]} onPress={refreshPresetContext}>
-              <Text style={[styles.buttonText, styles.buttonTextGhost]}>{libraryLoading ? 'Refreshing\u2026' : 'Refresh'}</Text>
+          <Pressable style={styles.compactIconBtn} onPress={refreshPresetContext} hitSlop={8}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
+          {activePresetStorageId !== null && presetEdited && (
+            <Pressable style={styles.compactSaveBtn} onPress={handleSavePreset}>
+              <Text style={styles.compactSaveBtnText}>Save</Text>
             </Pressable>
-            <Pressable
-              style={[
-                styles.button,
-                styles.buttonPrimary,
-                styles.libraryRefresh,
-                (activePresetStorageId === null || presetEdited === false) && styles.buttonDisabled,
-              ]}
-              onPress={handleSavePreset}
-              disabled={activePresetStorageId === null || presetEdited === false}
-            >
-              <Text style={styles.buttonText}>Save</Text>
-            </Pressable>
-          </View>
+          )}
         </View>
-
-        {activePresetStorageId !== null && (
-          <View style={styles.inlineEditor}>
-            <TextInput
-              style={[styles.input, styles.inlineInput]}
-              value={presetRenameText}
-              onChangeText={setPresetRenameText}
-              placeholder="Rename current preset"
-              placeholderTextColor={COLORS.muted}
-            />
-            <Pressable
-              style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-              onPress={() => {
-                void handleRenameContent(activePresetStorageId, presetRenameText, 'Preset');
-              }}
-            >
-              <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-            </Pressable>
-          </View>
-        )}
 
         {/* Segmented control for library root */}
         <View style={styles.segmentedControl}>
@@ -1602,38 +1578,15 @@ export default function App() {
 
         {/* Setlist dropdown picker */}
         {libraryRoot === 'setlists' && setlists.length > 0 && (
-          <>
-            <Pressable style={styles.dropdownButton} onPress={() => setSetlistPickerOpen(true)}>
-              <View style={styles.dropdownContent}>
-                <Text style={styles.dropdownLabel}>Setlist</Text>
-                <Text style={styles.dropdownValue}>
-                  {activeSetlist?.name ?? 'Select a setlist'}
-                </Text>
-              </View>
-              <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
-            </Pressable>
-            {activeSetlist && (
-              <View style={styles.inlineEditor}>
-                <TextInput
-                  style={[styles.input, styles.inlineInput]}
-                  value={setlistRenameText}
-                  onChangeText={setSetlistRenameText}
-                  placeholder="Rename selected setlist"
-                  placeholderTextColor={COLORS.muted}
-                />
-                <Pressable
-                  style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-                  onPress={() => {
-                    if (typeof activeSetlist.cid_ === 'number') {
-                      void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
-                    }
-                  }}
-                >
-                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-                </Pressable>
-              </View>
-            )}
-          </>
+          <Pressable style={styles.dropdownButton} onPress={() => setSetlistPickerOpen(true)}>
+            <View style={styles.dropdownContent}>
+              <Text style={styles.dropdownLabel}>Setlist</Text>
+              <Text style={styles.dropdownValue}>
+                {activeSetlist?.name ?? 'Select a setlist'}
+              </Text>
+            </View>
+            <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
+          </Pressable>
         )}
 
         {/* Add-to-setlist dropdown (when browsing user/factory) */}
@@ -1649,21 +1602,31 @@ export default function App() {
           </Pressable>
         )}
 
-        <TextInput
-          style={styles.searchInput}
-          value={presetFilter}
-          onChangeText={setPresetFilter}
-          placeholder="Search presets by name, slot, or cid"
-          placeholderTextColor={COLORS.muted}
-        />
-
+        {/* Preset list */}
         <View style={styles.libraryList}>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{selectedContainerName}</Text>
-            <Text style={styles.libraryMeta}>
-              {filteredPresetItems.length}/{presetItems.length} presets
-            </Text>
+            <View style={styles.listHeaderRight}>
+              <Pressable hitSlop={8} onPress={() => setSearchVisible((v) => !v)}>
+                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                  <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={searchVisible ? COLORS.accent : COLORS.muted} strokeWidth={2} strokeLinecap="round" />
+                </Svg>
+              </Pressable>
+              <Text style={styles.libraryMeta}>
+                {filteredPresetItems.length}/{presetItems.length}
+              </Text>
+            </View>
           </View>
+          {searchVisible && (
+            <TextInput
+              style={styles.searchInput}
+              value={presetFilter}
+              onChangeText={setPresetFilter}
+              placeholder="Search presets..."
+              placeholderTextColor={COLORS.muted}
+              autoFocus
+            />
+          )}
           {filteredPresetItems.length === 0 ? (
             <Text style={styles.paramHint}>No presets loaded for this container yet.</Text>
           ) : (
@@ -1672,7 +1635,7 @@ export default function App() {
               const isSetlistView = libraryRoot === 'setlists' && typeof selectedContainerId === 'number';
               const canAddToSetlist =
                 !isSetlistView && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
-              const hasActions = isSetlistView || canAddToSetlist;
+              const hasActions = isSetlistView || canAddToSetlist || active;
               return (
                 <Pressable
                   key={String(item.cid_ ?? `${selectedContainerId}-${item.posi}`)}
@@ -1680,7 +1643,7 @@ export default function App() {
                   onPress={() => {
                     void handlePresetLoad(item);
                   }}
-                  onLongPress={hasActions ? () => setPresetActionTarget(item) : undefined}
+                  onLongPress={() => setPresetActionTarget(item)}
                 >
                   <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
                     {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
@@ -1708,18 +1671,13 @@ export default function App() {
       </Section>
 
       <Section title="Snapshots">
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Snapshot Recall</Text>
-            <Text style={styles.libraryMeta}>
-              {snapshotCount > 0
-                ? `Active ${activeSnapshotIndex !== null ? activeSnapshotIndex + 1 : '\u2014'} of ${snapshotCount}${
-                    activeSnapshot?.name ? ` · ${activeSnapshot.name}` : ''
-                  }`
-                : 'No snapshot data yet'}
-            </Text>
-          </View>
-        </View>
+        <Text style={styles.libraryMeta}>
+          {snapshotCount > 0
+            ? `Active ${activeSnapshotIndex !== null ? activeSnapshotIndex + 1 : '\u2014'} of ${snapshotCount}${
+                activeSnapshot?.name ? ` \u00b7 ${activeSnapshot.name}` : ''
+              }`
+            : 'No snapshot data yet'}
+        </Text>
         {snapshotCount > 0 ? (
           <>
             <View style={styles.libraryList}>
@@ -1735,6 +1693,7 @@ export default function App() {
                     key={`snapshot-${index}`}
                     style={[styles.libraryRow, active && styles.libraryRowActive]}
                     onPress={() => handleSnapshotActivate(index)}
+                    onLongPress={() => setSnapshotActionIndex(index)}
                   >
                     <View
                       style={[
@@ -1755,39 +1714,31 @@ export default function App() {
 
             {activeSnapshot && (
               <>
-                <Text style={styles.label}>Rename Active Snapshot</Text>
-                <View style={styles.inlineEditor}>
-                  <TextInput
-                    style={[styles.input, styles.inlineInput]}
-                    value={snapshotRenameText}
-                    onChangeText={setSnapshotRenameText}
-                    autoCapitalize="words"
-                    autoCorrect={false}
-                    placeholder="Snapshot name"
-                    placeholderTextColor={COLORS.muted}
-                  />
-                  <Pressable
-                    style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-                    onPress={() => void handleSnapshotRename()}
-                  >
-                    <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-                  </Pressable>
-                </View>
-
-                <View style={styles.snapshotDetailCard}>
-                  <Text style={styles.label}>Raw Snapshot Targets</Text>
-                  <Text style={styles.labelHint}>Device-reported assignment ids for the active snapshot.</Text>
-                  {activeSnapshotTargets && activeSnapshotTargets.length > 0 ? (
-                    <View style={styles.libraryPills}>
-                      {activeSnapshotTargets.map((targetId) => (
-                        <View key={`snapshot-target-${targetId}`} style={styles.snapshotTargetChip}>
-                          <Text style={styles.snapshotTargetText}>{targetId}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text style={styles.paramHint}>No target ids reported for this snapshot.</Text>
-                  )}
+                <Text style={styles.label}>Snapshot Color</Text>
+                <View style={styles.libraryPills}>
+                  {SNAPSHOT_COLOR_OPTIONS.map((option) => (
+                    <Pressable
+                      key={`snapshot-color-${option.value}`}
+                      style={[
+                        styles.togglePill,
+                        styles.snapshotColorPill,
+                        activeSnapshot?.colr === option.value && styles.togglePillActive,
+                      ]}
+                      onPress={() => {
+                        void handleSnapshotColor(option.value);
+                      }}
+                    >
+                      <View style={[styles.snapshotColorSwatch, { backgroundColor: option.swatch }]} />
+                      <Text
+                        style={[
+                          styles.togglePillText,
+                          activeSnapshot?.colr === option.value && styles.togglePillTextActive,
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  ))}
                 </View>
               </>
             )}
@@ -1795,7 +1746,6 @@ export default function App() {
             {snapshotCount > 1 && (
               <>
                 <Text style={styles.label}>Copy Snapshot</Text>
-                <Text style={styles.labelHint}>Select a source and destination, then copy.</Text>
                 <View style={styles.inlineLabelRow}>
                   <Text style={styles.libraryMeta}>Source</Text>
                   <View style={styles.libraryPills}>
@@ -1839,34 +1789,6 @@ export default function App() {
                 </Pressable>
               </>
             )}
-
-            <Text style={styles.label}>Snapshot Color</Text>
-            <Text style={styles.labelHint}>Matches the desktop editor color labels.</Text>
-            <View style={styles.libraryPills}>
-              {SNAPSHOT_COLOR_OPTIONS.map((option) => (
-                <Pressable
-                  key={`snapshot-color-${option.value}`}
-                  style={[
-                    styles.togglePill,
-                    styles.snapshotColorPill,
-                    activeSnapshot?.colr === option.value && styles.togglePillActive,
-                  ]}
-                  onPress={() => {
-                    void handleSnapshotColor(option.value);
-                  }}
-                >
-                  <View style={[styles.snapshotColorSwatch, { backgroundColor: option.swatch }]} />
-                  <Text
-                    style={[
-                      styles.togglePillText,
-                      activeSnapshot?.colr === option.value && styles.togglePillTextActive,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
           </>
         ) : (
           <Text style={styles.paramHint}>Refresh the preset tab after connecting to load snapshot buttons.</Text>
@@ -2258,6 +2180,27 @@ export default function App() {
               );
             })}
           </ScrollView>
+          {activeSetlist && (
+            <View style={styles.sheetRenameRow}>
+              <TextInput
+                style={[styles.input, styles.inlineInput]}
+                value={setlistRenameText}
+                onChangeText={setSetlistRenameText}
+                placeholder="Rename setlist"
+                placeholderTextColor={COLORS.muted}
+              />
+              <Pressable
+                style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                onPress={() => {
+                  if (typeof activeSetlist.cid_ === 'number') {
+                    void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
+                  }
+                }}
+              >
+                <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+              </Pressable>
+            </View>
+          )}
         </BottomSheet>
 
         {/* ── Bottom Sheet: Target Setlist Picker ──────────────── */}
@@ -2295,6 +2238,25 @@ export default function App() {
           subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${presetActionTarget.posi + 1}` : undefined}
         >
           <View style={styles.sheetActions}>
+            {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
+              <View style={styles.sheetRenameRow}>
+                <TextInput
+                  style={[styles.input, styles.inlineInput]}
+                  value={presetRenameText}
+                  onChangeText={setPresetRenameText}
+                  placeholder="Rename preset"
+                  placeholderTextColor={COLORS.muted}
+                />
+                <Pressable
+                  style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                  onPress={() => {
+                    void handleRenameContent(activePresetStorageId, presetRenameText, 'Preset');
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+                </Pressable>
+              </View>
+            )}
             {libraryRoot === 'setlists' && typeof selectedContainerId === 'number' && presetActionTarget && (
               <>
                 <Pressable
@@ -2349,6 +2311,50 @@ export default function App() {
                 }}
               >
                 <Text style={styles.actionButtonPrimaryText}>Add to {targetSetlist?.name ?? 'Setlist'}</Text>
+              </Pressable>
+            )}
+          </View>
+        </BottomSheet>
+
+        {/* ── Bottom Sheet: Snapshot Actions ───────────────────── */}
+        <BottomSheet
+          visible={snapshotActionIndex !== null}
+          onClose={() => setSnapshotActionIndex(null)}
+          title={snapshots.find((s) => s.index === snapshotActionIndex)?.name ?? `Snapshot ${(snapshotActionIndex ?? 0) + 1}`}
+          subtitle={`Snapshot ${(snapshotActionIndex ?? 0) + 1}`}
+        >
+          <View style={styles.sheetActions}>
+            {snapshotActionIndex === activeSnapshotIndex && (
+              <View style={styles.sheetRenameRow}>
+                <TextInput
+                  style={[styles.input, styles.inlineInput]}
+                  value={snapshotRenameText}
+                  onChangeText={setSnapshotRenameText}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  placeholder="Snapshot name"
+                  placeholderTextColor={COLORS.muted}
+                />
+                <Pressable
+                  style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                  onPress={() => {
+                    void handleSnapshotRename();
+                    setSnapshotActionIndex(null);
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+                </Pressable>
+              </View>
+            )}
+            {snapshotActionIndex !== null && snapshotActionIndex !== activeSnapshotIndex && (
+              <Pressable
+                style={[styles.actionButton, styles.actionButtonPrimary]}
+                onPress={() => {
+                  handleSnapshotActivate(snapshotActionIndex);
+                  setSnapshotActionIndex(null);
+                }}
+              >
+                <Text style={styles.actionButtonPrimaryText}>Activate Snapshot</Text>
               </Pressable>
             )}
           </View>
@@ -2716,6 +2722,24 @@ const styles = StyleSheet.create({
   /* ── Labels ───────────────────────────────────────────────────── */
   label: { color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
   labelHint: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, marginTop: 2, maxWidth: 240 },
+  /* ── Active preset bar ─────────────────────────────────── */
+  activePresetBar: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+  },
+  activePresetInfo: { flex: 1, gap: 2 },
+  activePresetBarName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15, flexShrink: 1 },
+  compactIconBtn: {
+    width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: COLORS.stroke,
+  },
+  compactSaveBtn: {
+    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10,
+    backgroundColor: COLORS.accent,
+  },
+  compactSaveBtnText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
+  listHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  sheetRenameRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke },
+
   libraryHeader: { flex: 1, gap: 4, paddingRight: 12 },
   libraryActionStack: { gap: 8 },
   libraryCurrentName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 17 },

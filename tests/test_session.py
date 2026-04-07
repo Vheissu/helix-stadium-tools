@@ -6,7 +6,7 @@ from unittest import mock
 from helix.blobs import build_property_blob, decode_property_blob, fourcc_int
 from helix.discovery import HelixService
 from helix.osc import build_osc, decode_osc
-from helix.session import HelixSession, HelixStatusError, HelixTimeoutError
+from helix.session import HelixSession, HelixSessionError, HelixStatusError, HelixTimeoutError
 
 
 class FakeStream:
@@ -499,16 +499,60 @@ class TestSession(unittest.TestCase):
 
     def test_get_content_info_returns_raw_fields(self):
         session = HelixSession("dummy")
-        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 0, "Preset Name", 42]
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 0, "hello", 0]
         self.assertEqual(
-            session.get_content_info(0, "Preset Name"),
+            session.get_content_info(0, "CodexTest"),
             {
                 "content_type": 0,
-                "name": "Preset Name",
-                "value": 42,
-                "raw": [1, 0, "Preset Name", 42],
+                "key": "CodexTest",
+                "value": "hello",
+                "status": 0,
+                "raw": [1, 0, "hello", 0],
             },
         )
+
+    def test_get_all_content_info_decodes_entries(self):
+        try:
+            import msgpack
+        except Exception:
+            self.skipTest("msgpack not installed")
+
+        payload = msgpack.packb([["CodexTest", "hello"]], use_bin_type=True)
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 0, payload, 0]
+        self.assertEqual(
+            session.get_all_content_info(0),
+            {
+                "content_type": 0,
+                "entries": [{"key": "CodexTest", "value": "hello"}],
+                "status": 0,
+                "raw": [1, 0, payload, 0],
+            },
+        )
+
+    def test_set_content_info_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_content_info(0, "CodexTest", "hello", wait_status=False)
+        session.send.assert_called_once_with("/SetContentInfo", "iiss", [1, 0, "CodexTest", "hello"])
+
+    def test_set_content_info_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_content_info(0, "CodexTest", "hello", wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_delete_content_info_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.delete_content_info(0, "CodexTest", wait_status=False)
+        session.send.assert_called_once_with("/DeleteContentInfo", "iis", [1, 0, "CodexTest"])
+
+    def test_delete_content_info_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.delete_content_info(0, "CodexTest", wait_status=True)
+        self.assertEqual(result, ["ok"])
 
     def test_find_content_matches_decodes_blob(self):
         try:
@@ -754,7 +798,7 @@ class TestSession(unittest.TestCase):
 
     def test_set_param_value_wait_status_true(self):
         session = HelixSession("dummy")
-        session.send_and_wait_status = mock.Mock(return_value=["ok"])
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
         result = session.set_param_value(0, 1, 2, 0.5, wait_status=True)
         self.assertEqual(result, ["ok"])
 
@@ -796,7 +840,7 @@ class TestSession(unittest.TestCase):
 
     def test_set_block_enable_wait_status_true(self):
         session = HelixSession("dummy")
-        session.send_and_wait_status = mock.Mock(return_value=["ok"])
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
         result = session.set_block_enable(1, 2, 1, wait_status=True)
         self.assertEqual(result, ["ok"])
 
@@ -814,7 +858,7 @@ class TestSession(unittest.TestCase):
 
     def test_set_model_wait_status_true(self):
         session = HelixSession("dummy")
-        session.send_and_wait_status = mock.Mock(return_value=["ok"])
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
         result = session.set_model(0, 1, 123, slot=2, wait_status=True)
         self.assertEqual(result, ["ok"])
 
@@ -836,7 +880,7 @@ class TestSession(unittest.TestCase):
             self.skipTest("msgpack not installed")
 
         session = HelixSession("dummy")
-        session.send_and_wait_status = mock.Mock(return_value=["ok"])
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
         result = session.do_agenda([{"x": 1}], wait_status=True)
         self.assertEqual(result, ["ok"])
 
@@ -902,6 +946,11 @@ class TestSession(unittest.TestCase):
         decoded = decode_property_blob(vals[2])
         self.assertEqual(decoded.get("key_"), "global.modelselect.addcabblock")
         self.assertEqual(decoded.get("val_"), 1)
+
+    def test_get_auto_cab_enabled_reads_property(self):
+        session = HelixSession("dummy")
+        session.get_property = lambda _key: {"val_": 1}
+        self.assertTrue(session.get_auto_cab_enabled())
 
     def test_clear_all_blocks_builds_agenda(self):
         try:
@@ -982,6 +1031,75 @@ class TestSession(unittest.TestCase):
         session.set_model = lambda *args, **kwargs: calls.append("set_model")
         session.insert_block(0, 1, 99, clear=False, auto_cab=None, wait_status=False)
         self.assertEqual(calls, ["set_model"])
+
+    def test_copy_path_replays_models_enable_and_params(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [
+                            {"enbl": 1, "mdls": [{"id__": 770, "parm": [{"pid_": 2, "valu": 1}, {"pid_": 3, "valu": 0.5}]}]},
+                            {"enbl": 0, "mdls": [{"id__": 771, "parm": [{"pid_": 4, "valu": False}]}]},
+                        ]
+                        + [None] * 26,
+                    },
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [None] * 28,
+                    },
+                ]
+            }
+        }
+        session.get_auto_cab_enabled = lambda: True
+        calls = []
+        session.set_auto_cab = lambda enabled, wait_status=True: calls.append(("set_auto_cab", enabled, wait_status))
+        session.clear_blocks = lambda path, blocks, wait_status=True: calls.append(("clear_blocks", path, blocks, wait_status))
+        session.set_model = lambda path, block, model_id, slot=0, wait_status=True: calls.append(
+            ("set_model", path, block, model_id, slot, wait_status)
+        )
+        session.set_block_enable = lambda path, block, enabled, wait_status=True: calls.append(
+            ("set_block_enable", path, block, enabled, wait_status)
+        )
+        session.set_param_value = lambda path, block, param_id, value, slot=0, flags=-1, wait_status=True, value_type=None: calls.append(
+            ("set_param_value", path, block, param_id, value, slot, flags, wait_status, value_type)
+        )
+
+        result = session.copy_path(0, 1, wait_status=False)
+        self.assertEqual(result, {"source_path": 0, "target_path": 1, "entry_count": 2})
+        self.assertEqual(
+            calls,
+            [
+                ("set_auto_cab", False, False),
+                ("set_model", 1, 0, 770, 0, False),
+                ("set_model", 1, 1, 771, 0, False),
+                ("set_block_enable", 1, 0, 1, False),
+                ("set_param_value", 1, 0, 2, 1, 0, -1, False, "i"),
+                ("set_param_value", 1, 0, 3, 0.5, 0, -1, False, "f"),
+                ("set_block_enable", 1, 1, 0, False),
+                ("set_param_value", 1, 1, 4, False, 0, -1, False, "b"),
+                ("set_auto_cab", True, False),
+            ],
+        )
+
+    def test_copy_path_rejects_same_source_and_target(self):
+        session = HelixSession("dummy")
+        with self.assertRaises(ValueError):
+            session.copy_path(0, 0)
+
+    def test_copy_path_requires_empty_target_path(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: {
+            "sfg_": {
+                "flow": [
+                    {"bmap": list(range(28)), "blks": [{"mdls": [{"id__": 770, "parm": []}]}] + [None] * 27},
+                    {"bmap": list(range(28)), "blks": [None, {"mdls": [{"id__": 771, "parm": []}]}] + [None] * 26},
+                ]
+            }
+        }
+        with self.assertRaises(HelixSessionError):
+            session.copy_path(0, 1)
 
     def test_enter_exit_calls_helpers(self):
         session = HelixSession("dummy")

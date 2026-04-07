@@ -461,6 +461,12 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             wait_status=True,
         )
         return cmd_id + 1
+    if op in ("set_content_info", "set-content-info"):
+        session.set_content_info(int(action["content_type"]), str(action["key"]), str(action["value"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("delete_content_info", "delete-content-info"):
+        session.delete_content_info(int(action["content_type"]), str(action["key"]), wait_status=True)
+        return cmd_id + 1
     if op == "scribble_label":
         if "key" in action:
             key = action["key"]
@@ -506,6 +512,9 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
         if path is not None:
             path = int(path)
         session.clear_all_blocks(path, wait_status=True)
+        return cmd_id + 1
+    if op in ("copy_path", "copy-path"):
+        session.copy_path(int(action["source_path"]), int(action["target_path"]), wait_status=True)
         return cmd_id + 1
     if op in ("insert_block", "insert-block"):
         auto_cab = action.get("auto_cab")
@@ -700,6 +709,15 @@ def main():
     get_content_info = sub.add_parser("get-content-info")
     get_content_info.add_argument("--content-type", type=int, required=True)
     get_content_info.add_argument("--name", required=True)
+    get_all_content_info = sub.add_parser("get-all-content-info")
+    get_all_content_info.add_argument("--content-type", type=int, required=True)
+    set_content_info = sub.add_parser("set-content-info")
+    set_content_info.add_argument("--content-type", type=int, required=True)
+    set_content_info.add_argument("--key", required=True)
+    set_content_info.add_argument("--value", required=True)
+    delete_content_info = sub.add_parser("delete-content-info")
+    delete_content_info.add_argument("--content-type", type=int, required=True)
+    delete_content_info.add_argument("--key", required=True)
     find_content = sub.add_parser("find-content")
     find_content.add_argument("--content-type", type=int, required=True)
     find_content.add_argument("--query", required=True)
@@ -794,6 +812,9 @@ def main():
     clear_all.add_argument("--path", type=int, help="Optional path/flow index to clear (default: all)")
     clear_all_short = sub.add_parser("clear-all")
     clear_all_short.add_argument("--path", type=int, help="Optional path/flow index to clear (default: all)")
+    copy_path = sub.add_parser("copy-path")
+    copy_path.add_argument("--source-path", type=int, required=True, help="Source flow index (0=Path 1, 1=Path 2)")
+    copy_path.add_argument("--target-path", type=int, required=True, help="Target flow index (0=Path 1, 1=Path 2)")
 
     discover = sub.add_parser("discover")
     discover.add_argument("--all", action="store_true", help="List all visible Helix services instead of resolving the first one")
@@ -901,6 +922,13 @@ def main():
         elif args.cmd == "get-content-info":
             json_print(session.get_content_info(args.content_type, args.name))
             return
+        elif args.cmd == "get-all-content-info":
+            json_print(session.get_all_content_info(args.content_type))
+            return
+        elif args.cmd == "set-content-info":
+            session.set_content_info(args.content_type, args.key, args.value, wait_status=True)
+        elif args.cmd == "delete-content-info":
+            session.delete_content_info(args.content_type, args.key, wait_status=True)
         elif args.cmd == "find-content":
             json_print(session.find_content_matches(args.content_type, args.query, args.location))
             return
@@ -1042,6 +1070,9 @@ def main():
             session.clear_all_blocks(args.path, wait_status=True)
         elif args.cmd == "clear-all":
             session.clear_all_blocks(args.path, wait_status=True)
+        elif args.cmd == "copy-path":
+            json_print(session.copy_path(args.source_path, args.target_path, wait_status=True))
+            return
         elif args.cmd != "monitor":
             raise SystemExit("provide --actions or a subcommand")
 

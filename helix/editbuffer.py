@@ -2,6 +2,9 @@
 
 from .blobs import normalize_fourcc_map
 
+COPYABLE_FLOW_POSITIONS = tuple([0, *range(1, 13), 13, *range(15, 27), 27])
+CLEARABLE_FLOW_POSITIONS = tuple([*range(1, 13), *range(15, 27)])
+
 
 def coerce_numeric_keys(obj):
     if isinstance(obj, dict):
@@ -49,19 +52,26 @@ def row_block_position(row: int, position: int) -> int:
     return position if row % 2 == 0 else 14 + position
 
 
-def _flow_for_row(state, row: int):
+def _flows(state):
     if state is None:
-        return None
-    flows = state.get("sfg_", {}).get("flow", [])
+        return []
+    return state.get("sfg_", {}).get("flow", [])
+
+
+def _flow_for_index(state, flow_index: int):
+    flows = _flows(state)
     if not isinstance(flows, list):
         return None
-    flow_idx = row // 2
-    if flow_idx < 0 or flow_idx >= len(flows):
+    if flow_index < 0 or flow_index >= len(flows):
         return None
-    flow = flows[flow_idx]
+    flow = flows[flow_index]
     if not isinstance(flow, dict):
         return None
     return flow
+
+
+def _flow_for_row(state, row: int):
+    return _flow_for_index(state, row // 2)
 
 
 def _resolve_flow_block(flow, pos: int):
@@ -77,8 +87,70 @@ def _resolve_flow_block(flow, pos: int):
                 return idx, blk if isinstance(blk, dict) else None
     bmap = flow.get("bmap")
     if isinstance(bmap, list) and len(bmap) > pos:
-        return bmap[pos], None
+        block_id = bmap[pos]
+        if isinstance(block_id, int) and isinstance(blks, list) and 0 <= block_id < len(blks):
+            block = blks[block_id]
+            return block_id, block if isinstance(block, dict) else None
+        return block_id, None
     return None, None
+
+
+def flow_block_map(state, flow_index: int, positions=None):
+    flow = _flow_for_index(state, flow_index)
+    if flow is None:
+        return {}
+    if positions is None:
+        positions = COPYABLE_FLOW_POSITIONS
+    out = {}
+    for pos in positions:
+        block_id, _block = _resolve_flow_block(flow, int(pos))
+        if isinstance(block_id, int):
+            out[int(pos)] = block_id
+    return out
+
+
+def extract_flow_clipboard(state, flow_index: int, positions=None):
+    flow = _flow_for_index(state, flow_index)
+    if flow is None:
+        return []
+    if positions is None:
+        positions = COPYABLE_FLOW_POSITIONS
+    blks = flow.get("blks", [])
+    if not isinstance(blks, list):
+        return []
+    entries = []
+    for pos in positions:
+        block_id, block = _resolve_flow_block(flow, int(pos))
+        if not isinstance(block_id, int) or not isinstance(block, dict):
+            continue
+        models = block.get("mdls", [])
+        if not isinstance(models, list) or not models or not isinstance(models[0], dict):
+            continue
+        model = models[0]
+        model_id = model.get("id__")
+        if not isinstance(model_id, int):
+            continue
+        params = []
+        for param in model.get("parm", []):
+            if not isinstance(param, dict):
+                continue
+            param_id = param.get("pid_")
+            if not isinstance(param_id, int):
+                continue
+            value = param.get("valu")
+            if not isinstance(value, (bool, int, float)):
+                continue
+            params.append({"param_id": param_id, "value": value})
+        entries.append(
+            {
+                "position": int(pos),
+                "block_id": block_id,
+                "model_id": model_id,
+                "enabled": bool(block.get("enbl", True)),
+                "params": params,
+            }
+        )
+    return entries
 
 
 def find_io_block(state, row: int, io_type: str):

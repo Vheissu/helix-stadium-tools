@@ -62,6 +62,18 @@ const buildPropertyBlob = (key: string, value: any, valueType: 's' | 'i' | 'f' |
   return Buffer.concat([Buffer.from('lavppgsm', 'utf8'), payload]);
 };
 
+export type HelixPathClipboardEntry = {
+  position: number;
+  modelId: number;
+  enabled: boolean;
+  params: Array<{ paramId: number; value: number | boolean }>;
+};
+
+export type HelixPathClipboard = {
+  sourcePath: number;
+  entries: HelixPathClipboardEntry[];
+};
+
 export class HelixClient {
   private host: string;
   private port2001: number;
@@ -260,6 +272,11 @@ export class HelixClient {
     this.setProperty('global.modelselect.addcabblock', enabled ? 1 : 0, 'i');
   }
 
+  setBlockEnable(path: number, block: number, enabled: boolean | number) {
+    const cmdId = this.nextCmdId();
+    this.sendOsc('/BlockEnableSet', 'iiii', [cmdId, path, block, enabled ? 1 : 0]);
+  }
+
   setModel(path: number, block: number, modelId: number, slot = 0) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/ModelSet', 'iiiii', [cmdId, path, block, slot, modelId]);
@@ -344,10 +361,37 @@ export class HelixClient {
     if (!Array.isArray(vals) || vals.length < 4) return null;
     return {
       contentType: typeof vals[1] === 'number' ? vals[1] : Number(vals[1] ?? 0),
-      name: typeof vals[2] === 'string' ? vals[2] : null,
-      value: typeof vals[3] === 'number' ? vals[3] : Number(vals[3] ?? 0),
+      key: name,
+      value: typeof vals[2] === 'string' ? vals[2] : vals[2] ?? null,
+      status: typeof vals[3] === 'number' ? vals[3] : Number(vals[3] ?? 0),
       raw: vals,
     };
+  }
+
+  async getAllContentInfo(contentType: number) {
+    const vals = await this.request('/GetAllContentInfo', 'i', [contentType], '/GetAllContentInfo', 2500);
+    if (!Array.isArray(vals) || vals.length < 4) return null;
+    const blob = Buffer.isBuffer(vals[2]) ? vals[2] : null;
+    const decoded = blob ? decodeMsgpackBlob(blob) : [];
+    const entries = Array.isArray(decoded)
+      ? decoded
+          .filter((item) => Array.isArray(item) && item.length >= 2)
+          .map((item) => ({ key: item[0], value: item[1] }))
+      : [];
+    return {
+      contentType: typeof vals[1] === 'number' ? vals[1] : Number(vals[1] ?? 0),
+      entries,
+      status: typeof vals[3] === 'number' ? vals[3] : Number(vals[3] ?? 0),
+      raw: vals,
+    };
+  }
+
+  async setContentInfo(contentType: number, key: string, value: string) {
+    return await this.request('/SetContentInfo', 'iss', [contentType, key, value], '/status', 2500);
+  }
+
+  async deleteContentInfo(contentType: number, key: string) {
+    return await this.request('/DeleteContentInfo', 'is', [contentType, key], '/status', 2500);
   }
 
   async findContentMatches(contentType: number, query: string, location = '') {
@@ -394,6 +438,14 @@ export class HelixClient {
 
   async isPresetEdited() {
     const value = await this.getProperty('volatile.preset.edited');
+    if (!value) return null;
+    const raw = value.value ?? (value as any).val_ ?? (value as any).val;
+    const numeric = Number(raw);
+    return Number.isFinite(numeric) ? numeric > 0 : null;
+  }
+
+  async getAutoCabEnabled() {
+    const value = await this.getProperty('global.modelselect.addcabblock');
     if (!value) return null;
     const raw = value.value ?? (value as any).val_ ?? (value as any).val;
     const numeric = Number(raw);
@@ -489,6 +541,54 @@ export class HelixClient {
       if (fallbackDecoded) return fallbackDecoded;
     }
     throw new Error('decode failed');
+  }
+
+  async capturePath(path: number) {
+    const state = await this.getEditBufferState();
+    return extractPathClipboard(state, path);
+  }
+
+  async pastePathClipboard(clipboard: HelixPathClipboard, targetPath: number) {
+    if (!clipboard) {
+      throw new Error('No copied path is available');
+    }
+    if (clipboard.sourcePath === targetPath) {
+      throw new Error('Source and target paths must differ');
+    }
+    const state = await this.getEditBufferState();
+    const targetBlocks = getFlowBlockMap(state, targetPath);
+    const occupiedTargetPositions = extractPathClipboard(state, targetPath).entries
+      .map((entry) => entry.position)
+      .filter((position) => CLEARABLE_FLOW_POSITIONS.includes(position));
+    if (occupiedTargetPositions.length) {
+      throw new Error(`Target path must be empty before pasting (${occupiedTargetPositions.join(', ')})`);
+    }
+    const autoCab = await this.getAutoCabEnabled();
+    if (autoCab) {
+      this.setAutoCab(false);
+    }
+    try {
+      clipboard.entries.forEach((entry) => {
+        const blockId = targetBlocks[entry.position];
+        if (typeof blockId !== 'number') return;
+        this.setModel(targetPath, blockId, entry.modelId, 0);
+      });
+      clipboard.entries.forEach((entry) => {
+        const blockId = targetBlocks[entry.position];
+        if (typeof blockId !== 'number') return;
+        this.setBlockEnable(targetPath, blockId, entry.enabled);
+        entry.params.forEach((param) => {
+          const valueType: 'i' | 'f' | 'b' =
+            typeof param.value === 'boolean' ? 'b' : Number.isInteger(param.value) ? 'i' : 'f';
+          this.setParamValue(targetPath, blockId, param.paramId, param.value, 0, -1, valueType);
+        });
+      });
+    } finally {
+      if (autoCab) {
+        this.setAutoCab(true);
+      }
+    }
+    return { sourcePath: clipboard.sourcePath, targetPath, entryCount: clipboard.entries.length };
   }
 }
 
@@ -713,6 +813,92 @@ const extractSnapshots = (state: any) => {
     })
     .filter((item) => item.index >= 0)
     .sort((left, right) => left.index - right.index);
+};
+
+const COPYABLE_FLOW_POSITIONS = [0, ...Array.from({ length: 12 }, (_value, index) => index + 1), 13, ...Array.from({ length: 12 }, (_value, index) => index + 15), 27];
+const CLEARABLE_FLOW_POSITIONS = [...Array.from({ length: 12 }, (_value, index) => index + 1), ...Array.from({ length: 12 }, (_value, index) => index + 15)];
+
+const getFlows = (state: any) => {
+  const sfg = state?.sfg_;
+  if (sfg && typeof sfg === 'object' && Array.isArray((sfg as any).flow)) {
+    return (sfg as any).flow as any[];
+  }
+  if (Array.isArray(state?.flow)) {
+    return state.flow as any[];
+  }
+  return [];
+};
+
+const getFlow = (state: any, flowIndex: number) => {
+  const flows = getFlows(state);
+  if (!Array.isArray(flows) || flowIndex < 0 || flowIndex >= flows.length) return null;
+  const flow = flows[flowIndex];
+  return flow && typeof flow === 'object' ? flow : null;
+};
+
+const resolveFlowBlock = (flow: any, position: number) => {
+  if (!flow || typeof flow !== 'object') return { blockId: null, block: null };
+  const bmap = Array.isArray(flow.bmap) ? flow.bmap : null;
+  const blks = Array.isArray(flow.blks) ? flow.blks : null;
+  if (bmap && position >= 0 && position < bmap.length) {
+    const blockId = bmap[position];
+    if (typeof blockId === 'number') {
+      const block = blks && blockId >= 0 && blockId < blks.length ? blks[blockId] : null;
+      return { blockId, block };
+    }
+  }
+  if (blks && position >= 0 && position < blks.length) {
+    return { blockId: position, block: blks[position] };
+  }
+  return { blockId: null, block: null };
+};
+
+const getFlowBlockMap = (state: any, flowIndex: number) => {
+  const flow = getFlow(state, flowIndex);
+  const out: Record<number, number> = {};
+  if (!flow) return out;
+  COPYABLE_FLOW_POSITIONS.forEach((position) => {
+    const { blockId } = resolveFlowBlock(flow, position);
+    if (typeof blockId === 'number') {
+      out[position] = blockId;
+    }
+  });
+  return out;
+};
+
+const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard => {
+  const flow = getFlow(state, flowIndex);
+  if (!flow) {
+    return { sourcePath: flowIndex, entries: [] };
+  }
+  const entries: HelixPathClipboardEntry[] = [];
+  COPYABLE_FLOW_POSITIONS.forEach((position) => {
+    const { blockId: _blockId, block } = resolveFlowBlock(flow, position);
+    if (!block || typeof block !== 'object') return;
+    const models = Array.isArray((block as any).mdls) ? (block as any).mdls : [];
+    const model = models[0];
+    if (!model || typeof model !== 'object') return;
+    const modelId = Number((model as any).id__);
+    if (!Number.isFinite(modelId)) return;
+    const params = Array.isArray((model as any).parm)
+      ? (model as any).parm
+          .map((param: any) => {
+            const paramId = Number(param?.pid_);
+            const value = param?.valu;
+            if (!Number.isFinite(paramId)) return null;
+            if (typeof value !== 'number' && typeof value !== 'boolean') return null;
+            return { paramId, value };
+          })
+          .filter((item: any): item is { paramId: number; value: number | boolean } => item !== null)
+      : [];
+    entries.push({
+      position,
+      modelId,
+      enabled: Boolean((block as any).enbl ?? true),
+      params,
+    });
+  });
+  return { sourcePath: flowIndex, entries };
 };
 
 const buildRequestKey = (addr: string, cmdId: number) => `${addr}:${cmdId}`;

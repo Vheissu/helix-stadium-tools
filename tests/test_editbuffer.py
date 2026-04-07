@@ -2,9 +2,12 @@ import unittest
 
 from helix.blobs import fourcc_int
 from helix.editbuffer import (
+    COPYABLE_FLOW_POSITIONS,
     extract_active_model_id,
+    extract_flow_clipboard,
     find_io_block,
     find_signal_block,
+    flow_block_map,
     normalize_edit_buffer,
     parse_row,
     row_block_position,
@@ -64,6 +67,58 @@ class TestEditBuffer(unittest.TestCase):
         block_id, block = find_io_block(state, 0, "output")
         self.assertEqual(block_id, 13)
         self.assertEqual(block["id__"], 99)
+
+    def test_flow_block_map_returns_copyable_positions(self):
+        state = {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [None] * 28,
+                    }
+                ]
+            }
+        }
+        mapping = flow_block_map(state, 0)
+        self.assertEqual(sorted(mapping), list(COPYABLE_FLOW_POSITIONS))
+        self.assertEqual(mapping[0], 0)
+        self.assertEqual(mapping[27], 27)
+
+    def test_extract_flow_clipboard_reads_models_enabled_and_params(self):
+        state = {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [
+                            {"enbl": 1, "mdls": [{"id__": 700, "parm": [{"pid_": 2, "valu": 1}, {"pid_": 3, "valu": 0.5}]}]},
+                            {"enbl": 0, "mdls": [{"id__": 701, "parm": [{"pid_": 4, "valu": False}]}]},
+                        ]
+                        + [None] * 26,
+                    }
+                ]
+            }
+        }
+        clipboard = extract_flow_clipboard(state, 0, positions=[0, 1, 14])
+        self.assertEqual(
+            clipboard,
+            [
+                {
+                    "position": 0,
+                    "block_id": 0,
+                    "model_id": 700,
+                    "enabled": True,
+                    "params": [{"param_id": 2, "value": 1}, {"param_id": 3, "value": 0.5}],
+                },
+                {
+                    "position": 1,
+                    "block_id": 1,
+                    "model_id": 701,
+                    "enabled": False,
+                    "params": [{"param_id": 4, "value": False}],
+                },
+            ],
+        )
 
     def test_extract_active_model_id_reads_first_model(self):
         model_id = extract_active_model_id({"mdls": [{"id__": 404}, {"id__": 405}]})

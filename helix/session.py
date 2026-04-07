@@ -11,6 +11,7 @@ from .blobs import (
     normalize_fourcc_map,
 )
 from .discovery import HelixService, discover_first_service
+from .editbuffer import CLEARABLE_FLOW_POSITIONS, extract_flow_clipboard, flow_block_map, normalize_edit_buffer
 from .zmtp import ZMTPStream, zmtp_handshake
 
 FACTORY_PRESETS_CID = -1
@@ -424,10 +425,53 @@ class HelixSession:
             return None
         return {
             "content_type": int(vals[1]) if isinstance(vals[1], int) else vals[1],
-            "name": vals[2] if isinstance(vals[2], str) else None,
-            "value": int(vals[3]) if isinstance(vals[3], int) else vals[3],
+            "key": str(name),
+            "value": vals[2] if isinstance(vals[2], str) else vals[2],
+            "status": int(vals[3]) if isinstance(vals[3], int) else vals[3],
             "raw": vals,
         }
+
+    def get_all_content_info(self, content_type: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id,
+            "/GetAllContentInfo",
+            "ii",
+            [cmd_id, int(content_type)],
+            "/GetAllContentInfo",
+        )
+        if not vals or len(vals) < 4:
+            return None
+        blob = vals[2] if isinstance(vals[2], (bytes, bytearray)) else None
+        decoded = decode_msgpack_blob(blob) if blob is not None else None
+        entries = []
+        if isinstance(decoded, list):
+            for item in decoded:
+                if not isinstance(item, (list, tuple)) or len(item) < 2:
+                    continue
+                entries.append({"key": item[0], "value": item[1]})
+        return {
+            "content_type": int(vals[1]) if isinstance(vals[1], int) else vals[1],
+            "entries": entries,
+            "status": int(vals[3]) if isinstance(vals[3], int) else vals[3],
+            "raw": vals,
+        }
+
+    def set_content_info(self, content_type: int, key: str, value: str, wait_status: bool = True):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(content_type), str(key), str(value)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/SetContentInfo", "iiss", args)
+        self.send("/SetContentInfo", "iiss", args)
+        return None
+
+    def delete_content_info(self, content_type: int, key: str, wait_status: bool = True):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(content_type), str(key)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/DeleteContentInfo", "iis", args)
+        self.send("/DeleteContentInfo", "iis", args)
+        return None
 
     def find_content_matches(self, content_type: int, query: str, location: str = ""):
         cmd_id = self.next_cmd_id
@@ -467,6 +511,18 @@ class HelixSession:
 
     def is_preset_edited(self):
         value = self.get_property("volatile.preset.edited")
+        if not isinstance(value, dict):
+            return None
+        raw = value.get("val_")
+        if raw is None:
+            raw = value.get("val")
+        try:
+            return bool(int(raw))
+        except Exception:
+            return None
+
+    def get_auto_cab_enabled(self):
+        value = self.get_property("global.modelselect.addcabblock")
         if not isinstance(value, dict):
             return None
         raw = value.get("val_")
@@ -746,26 +802,26 @@ class HelixSession:
         if value_type in ("i", "b") or isinstance(value, bool):
             args = [cmd_id, path, block, slot, param_id, int(bool(value)) if isinstance(value, bool) else int(value), flags]
             if wait_status:
-                return self.send_and_wait_status(cmd_id, "/ParamValueSet", "iiiiiii", args)
+                return self.send_and_wait_status_code(cmd_id, "/ParamValueSet", "iiiiiii", args)
             self.send("/ParamValueSet", "iiiiiii", args)
             return None
         args = [cmd_id, path, block, slot, param_id, float(value), flags]
         if wait_status:
-            return self.send_and_wait_status(cmd_id, "/ParamValueSet", "iiiiifi", args)
+            return self.send_and_wait_status_code(cmd_id, "/ParamValueSet", "iiiiifi", args)
         self.send("/ParamValueSet", "iiiiifi", args)
         return None
 
     def set_block_enable(self, path: int, block: int, enabled: int, wait_status: bool = True):
         cmd_id = self.next_cmd_id
         if wait_status:
-            return self.send_and_wait_status(cmd_id, "/BlockEnableSet", "iiii", [cmd_id, path, block, int(enabled)])
+            return self.send_and_wait_status_code(cmd_id, "/BlockEnableSet", "iiii", [cmd_id, path, block, int(enabled)])
         self.send("/BlockEnableSet", "iiii", [cmd_id, path, block, int(enabled)])
         return None
 
     def set_model(self, path: int, block: int, model_id: int, slot: int = 0, wait_status: bool = True):
         cmd_id = self.next_cmd_id
         if wait_status:
-            return self.send_and_wait_status(cmd_id, "/ModelSet", "iiiii", [cmd_id, path, block, slot, model_id])
+            return self.send_and_wait_status_code(cmd_id, "/ModelSet", "iiiii", [cmd_id, path, block, slot, model_id])
         self.send("/ModelSet", "iiiii", [cmd_id, path, block, slot, model_id])
         return None
 
@@ -799,7 +855,7 @@ class HelixSession:
         cmd_id = self.next_cmd_id
         blob = msgpack.packb(commands, use_bin_type=True)
         if wait_status:
-            return self.send_and_wait_status(cmd_id, "/doAgenda", "ib", [cmd_id, blob])
+            return self.send_and_wait_status_code(cmd_id, "/doAgenda", "ib", [cmd_id, blob])
         self.send("/doAgenda", "ib", [cmd_id, blob])
         return None
 
@@ -857,6 +913,60 @@ class HelixSession:
         if auto_cab is not None:
             self.set_auto_cab(auto_cab, wait_status=wait_status)
         return self.set_model(path, block, model_id, slot=slot, wait_status=wait_status)
+
+    def copy_path(self, source_path: int, target_path: int, wait_status: bool = True):
+        source_flow = int(source_path)
+        target_flow = int(target_path)
+        if source_flow == target_flow:
+            raise ValueError("source_path and target_path must differ")
+        state = normalize_edit_buffer(self.get_edit_buffer_state())
+        if state is None:
+            return None
+        clipboard = extract_flow_clipboard(state, source_flow)
+        target_existing = extract_flow_clipboard(state, target_flow)
+        target_blocks = flow_block_map(state, target_flow)
+        occupied_positions = sorted(
+            int(entry["position"]) for entry in target_existing if int(entry["position"]) in CLEARABLE_FLOW_POSITIONS
+        )
+        if occupied_positions:
+            raise HelixSessionError(
+                f"target path {target_flow} is not empty; clear those blocks before copying ({occupied_positions})"
+            )
+        auto_cab = self.get_auto_cab_enabled()
+        if auto_cab:
+            self.set_auto_cab(False, wait_status=wait_status)
+        try:
+            for entry in clipboard:
+                block_id = target_blocks.get(entry["position"])
+                if not isinstance(block_id, int):
+                    continue
+                self.set_model(target_flow, block_id, int(entry["model_id"]), slot=0, wait_status=wait_status)
+            for entry in clipboard:
+                block_id = target_blocks.get(entry["position"])
+                if not isinstance(block_id, int):
+                    continue
+                self.set_block_enable(target_flow, block_id, int(bool(entry["enabled"])), wait_status=wait_status)
+                for param in entry["params"]:
+                    value = param["value"]
+                    value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
+                    self.set_param_value(
+                        target_flow,
+                        block_id,
+                        int(param["param_id"]),
+                        value,
+                        slot=0,
+                        flags=-1,
+                        wait_status=wait_status,
+                        value_type=value_type,
+                    )
+        finally:
+            if auto_cab:
+                self.set_auto_cab(True, wait_status=wait_status)
+        return {
+            "source_path": source_flow,
+            "target_path": target_flow,
+            "entry_count": len(clipboard),
+        }
 
     # Context manager helpers
     def __enter__(self):

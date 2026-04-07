@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { HelixClient } from './src/protocol/helixClient';
+import { HelixClient, type HelixPathClipboard } from './src/protocol/helixClient';
 import blockTypes from './src/data/blockTypes.json';
 import ioModels from './src/data/ioModels.json';
 import { useFonts } from 'expo-font';
@@ -225,6 +225,10 @@ export default function App() {
   const [presetFilter, setPresetFilter] = useState('');
   const [snapshotCopySource, setSnapshotCopySource] = useState<number | null>(null);
   const [snapshotCopyTarget, setSnapshotCopyTarget] = useState<number | null>(null);
+  const [pathClipboard, setPathClipboard] = useState<HelixPathClipboard | null>(null);
+  const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
+  const [targetSetlistPickerOpen, setTargetSetlistPickerOpen] = useState(false);
+  const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -443,6 +447,7 @@ export default function App() {
     setPresetFilter('');
     setSnapshotCopySource(null);
     setSnapshotCopyTarget(null);
+    setPathClipboard(null);
   };
 
   useEffect(() => {
@@ -727,6 +732,46 @@ export default function App() {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Reorder failed: ${message}`);
+    }
+  };
+
+  const handleCopyPath = async (pathNum: 1 | 2) => {
+    const client = requireClient();
+    if (!client) return;
+    const flowIndex = pathNum - 1;
+    try {
+      const clipboard = await client.capturePath(flowIndex);
+      if (!clipboard.entries.length) {
+        setStatus(`Path ${pathNum} has no devices to copy`);
+        return;
+      }
+      setPathClipboard(clipboard);
+      setStatus(`Copied Path ${pathNum} (${clipboard.entries.length} blocks)`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Copy path failed: ${message}`);
+    }
+  };
+
+  const handlePastePath = async (pathNum: 1 | 2) => {
+    const client = requireClient();
+    if (!client) return;
+    if (!pathClipboard) {
+      setStatus('Copy a path first');
+      return;
+    }
+    const targetFlow = pathNum - 1;
+    if (pathClipboard.sourcePath === targetFlow) {
+      setStatus('Choose a different target path');
+      return;
+    }
+    try {
+      const result = await client.pastePathClipboard(pathClipboard, targetFlow);
+      setStatus(`Pasting Path ${pathClipboard.sourcePath + 1} to Path ${pathNum} (${result.entryCount} blocks)...`);
+      scheduleSync(1800);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Paste path failed: ${message}`);
     }
   };
 
@@ -1360,10 +1405,13 @@ export default function App() {
   const renderPathSection = (pathNum: 1 | 2) => {
     const primary: PathIndex = pathNum === 1 ? 0 : 2;
     const split: PathIndex = pathNum === 1 ? 1 : 3;
+    const flowIndex = pathNum - 1;
     const usage = pathNum === 1 ? pathUsage.path1 : pathUsage.path2;
     const hasSplit = pathNum === 1 ? hasSplit1 : hasSplit2;
     const ratio = Math.min(usage / DSP_CAP, 1);
     const dspColor = usage > DSP_CAP ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
+    const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
+    const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex;
 
     // Find last populated slot index for compact display
     const lastA = grid[primary].reduce((last, b, i) => (b ? i : last), -1);
@@ -1372,11 +1420,35 @@ export default function App() {
       <View style={styles.pathSection}>
         {/* Path header with DSP bar */}
         <View style={styles.pathHeader}>
-          <Text style={styles.pathTitle}>Path {pathNum}</Text>
+          <View style={styles.pathHeaderCopy}>
+            <Text style={styles.pathTitle}>Path {pathNum}</Text>
+            {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied</Text>}
+          </View>
           <Text style={[styles.pathDsp, { color: dspColor }]}>{usage.toFixed(1)}/{DSP_CAP}</Text>
         </View>
         <View style={styles.dspTrack}>
           <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
+        </View>
+        <View style={styles.pathActionRow}>
+          <Pressable style={[styles.button, styles.buttonGhost, styles.pathActionButton]} onPress={() => { void handleCopyPath(pathNum); }}>
+            <Text style={[styles.buttonText, styles.buttonTextGhost]}>Copy</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.button,
+              styles.buttonGhost,
+              styles.pathActionButton,
+              !canPasteClipboard && styles.rowActionButtonDisabled,
+            ]}
+            disabled={!canPasteClipboard}
+            onPress={() => {
+              void handlePastePath(pathNum);
+            }}
+          >
+            <Text style={[styles.buttonText, styles.buttonTextGhost]}>
+              {pathClipboard ? `Paste Path ${pathClipboard.sourcePath + 1}` : 'Paste'}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Input */}
@@ -1459,15 +1531,12 @@ export default function App() {
       <Section title="Library">
         <View style={styles.rowBetween}>
           <View style={styles.libraryHeader}>
-            <Text style={styles.label}>Current Preset</Text>
+            <Text style={styles.libraryMeta}>Current Preset</Text>
             <Text style={styles.libraryCurrentName}>{activePresetName}</Text>
             <Text style={styles.libraryMeta}>
               {activePresetRef
-                ? `CID ${activePresetRef.cid_ ?? '\u2014'} \u00b7 Slot ${(typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014')}`
-                : 'No active preset data yet'}
-            </Text>
-            <Text style={styles.libraryMeta}>
-              {presetEdited === null ? 'Save state unknown' : presetEdited ? 'Unsaved edits on device' : 'Preset saved'}
+                ? `Slot ${typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014'} \u00b7 ${presetEdited === null ? 'Unknown' : presetEdited ? 'Unsaved edits' : 'Saved'}`
+                : 'No active preset'}
             </Text>
           </View>
           <View style={styles.libraryActionStack}>
@@ -1509,91 +1578,75 @@ export default function App() {
           </View>
         )}
 
-        <View style={styles.libraryPills}>
+        {/* Segmented control for library root */}
+        <View style={styles.segmentedControl}>
           {([
             ['setlists', 'Setlists'],
             ['user', 'User'],
             ['factory', 'Factory'],
-          ] as Array<[PresetLibraryRoot, string]>).map(([key, label]) => {
+          ] as Array<[PresetLibraryRoot, string]>).map(([key, label], idx) => {
             const active = libraryRoot === key;
             return (
               <Pressable
                 key={key}
-                style={[styles.togglePill, active && styles.togglePillActive]}
+                style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
                 onPress={() => {
                   void handleLibraryRootChange(key);
                 }}
               >
-                <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>{label}</Text>
+                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{label}</Text>
               </Pressable>
             );
           })}
         </View>
 
+        {/* Setlist dropdown picker */}
         {libraryRoot === 'setlists' && setlists.length > 0 && (
-          <View style={styles.libraryPills}>
-            {setlists.map((item) => {
-              const active = item.cid_ === selectedContainerId;
-              return (
+          <>
+            <Pressable style={styles.dropdownButton} onPress={() => setSetlistPickerOpen(true)}>
+              <View style={styles.dropdownContent}>
+                <Text style={styles.dropdownLabel}>Setlist</Text>
+                <Text style={styles.dropdownValue}>
+                  {activeSetlist?.name ?? 'Select a setlist'}
+                </Text>
+              </View>
+              <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
+            </Pressable>
+            {activeSetlist && (
+              <View style={styles.inlineEditor}>
+                <TextInput
+                  style={[styles.input, styles.inlineInput]}
+                  value={setlistRenameText}
+                  onChangeText={setSetlistRenameText}
+                  placeholder="Rename selected setlist"
+                  placeholderTextColor={COLORS.muted}
+                />
                 <Pressable
-                  key={String(item.cid_)}
-                  style={[styles.togglePill, active && styles.togglePillActive]}
+                  style={[styles.button, styles.buttonGhost, styles.inlineButton]}
                   onPress={() => {
-                    void handleSetlistSelect(item);
+                    if (typeof activeSetlist.cid_ === 'number') {
+                      void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
+                    }
                   }}
                 >
-                  <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
-                    {item.name ?? `Setlist ${item.posi ?? '\u2014'}`}
-                  </Text>
+                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
                 </Pressable>
-              );
-            })}
-          </View>
+              </View>
+            )}
+          </>
         )}
 
-        {libraryRoot === 'setlists' && activeSetlist && (
-          <View style={styles.inlineEditor}>
-            <TextInput
-              style={[styles.input, styles.inlineInput]}
-              value={setlistRenameText}
-              onChangeText={setSetlistRenameText}
-              placeholder="Rename selected setlist"
-              placeholderTextColor={COLORS.muted}
-            />
-            <Pressable
-              style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-              onPress={() => {
-                if (typeof activeSetlist.cid_ === 'number') {
-                  void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
-                }
-              }}
-            >
-              <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-            </Pressable>
-          </View>
-        )}
-
+        {/* Add-to-setlist dropdown (when browsing user/factory) */}
         {libraryRoot !== 'setlists' && setlists.length > 0 && (
-          <View style={styles.inlineLabelRow}>
-            <Text style={styles.label}>Add To Setlist</Text>
-            <Text style={styles.labelHint}>Verified device route uses copy-style add with the default flags.</Text>
-            <View style={styles.libraryPills}>
-              {setlists.map((item) => {
-                const active = item.cid_ === targetSetlistId;
-                return (
-                  <Pressable
-                    key={`target-setlist-${String(item.cid_)}`}
-                    style={[styles.togglePill, active && styles.togglePillActive]}
-                    onPress={() => setTargetSetlistId(item.cid_ ?? null)}
-                  >
-                    <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
-                      {item.name ?? `Setlist ${item.posi ?? '\u2014'}`}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+          <Pressable style={styles.dropdownButton} onPress={() => setTargetSetlistPickerOpen(true)}>
+            <View style={styles.dropdownContent}>
+              <Text style={styles.dropdownLabel}>Add to Setlist</Text>
+              <Text style={styles.dropdownValue}>
+                {targetSetlist?.name ?? 'Select target setlist'}
+              </Text>
             </View>
-          </View>
+            <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
+          </Pressable>
         )}
 
         <TextInput
@@ -1617,84 +1670,37 @@ export default function App() {
             filteredPresetItems.map((item) => {
               const active = isPresetActive(item);
               const isSetlistView = libraryRoot === 'setlists' && typeof selectedContainerId === 'number';
-              const canMoveUp = isSetlistView && typeof item.posi === 'number' && item.posi > 0;
-              const canMoveDown =
-                isSetlistView && typeof item.posi === 'number' && item.posi < presetItems.length - 1;
               const canAddToSetlist =
                 !isSetlistView && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
+              const hasActions = isSetlistView || canAddToSetlist;
               return (
-                <View
+                <Pressable
                   key={String(item.cid_ ?? `${selectedContainerId}-${item.posi}`)}
                   style={[styles.libraryRow, active && styles.libraryRowActive]}
+                  onPress={() => {
+                    void handlePresetLoad(item);
+                  }}
+                  onLongPress={hasActions ? () => setPresetActionTarget(item) : undefined}
                 >
-                  <Pressable
-                    style={styles.libraryRowMain}
-                    onPress={() => {
-                      void handlePresetLoad(item);
-                    }}
-                  >
-                    <View style={styles.libraryRowCopy}>
-                      <Text style={styles.sheetListText}>{item.name ?? `Preset ${item.posi ?? '\u2014'}`}</Text>
-                      <Text style={styles.libraryMeta}>
-                        #{typeof item.posi === 'number' ? item.posi + 1 : '\u2014'} \u00b7 CID {item.cid_ ?? '\u2014'}
-                        {typeof item.rcid === 'number' ? ` \u00b7 Raw ${item.rcid}` : ''}
-                      </Text>
-                    </View>
-                    {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  </Pressable>
-                  <View style={styles.libraryRowActions}>
-                    {canAddToSetlist && (
-                      <Pressable
-                        style={[styles.button, styles.buttonGhost, styles.rowActionButton]}
-                        onPress={() => {
-                          void handleAddPresetToSetlist(item);
-                        }}
-                      >
-                        <Text style={[styles.buttonText, styles.buttonTextGhost]}>Add</Text>
-                      </Pressable>
-                    )}
-                    {isSetlistView && (
-                      <>
-                        <Pressable
-                          style={[
-                            styles.button,
-                            styles.buttonGhost,
-                            styles.rowActionButton,
-                            !canMoveUp && styles.rowActionButtonDisabled,
-                          ]}
-                          disabled={!canMoveUp}
-                          onPress={() => {
-                            void handleMoveSetlistPreset(item, -1);
-                          }}
-                        >
-                          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Up</Text>
-                        </Pressable>
-                        <Pressable
-                          style={[
-                            styles.button,
-                            styles.buttonGhost,
-                            styles.rowActionButton,
-                            !canMoveDown && styles.rowActionButtonDisabled,
-                          ]}
-                          disabled={!canMoveDown}
-                          onPress={() => {
-                            void handleMoveSetlistPreset(item, 1);
-                          }}
-                        >
-                          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Down</Text>
-                        </Pressable>
-                        <Pressable
-                          style={[styles.button, styles.buttonGhost, styles.rowActionButton]}
-                          onPress={() => {
-                            void handleRemovePresetFromSetlist(item);
-                          }}
-                        >
-                          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Remove</Text>
-                        </Pressable>
-                      </>
-                    )}
+                  <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
+                    {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
+                  </Text>
+                  <View style={styles.libraryRowCopy}>
+                    <Text style={styles.sheetListText} numberOfLines={1}>
+                      {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
+                    </Text>
                   </View>
-                </View>
+                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
+                  {hasActions && (
+                    <Pressable
+                      style={styles.presetMoreButton}
+                      hitSlop={8}
+                      onPress={() => setPresetActionTarget(item)}
+                    >
+                      <Text style={styles.presetMoreText}>{'\u22EF'}</Text>
+                    </Pressable>
+                  )}
+                </Pressable>
               );
             })
           )}
@@ -1720,21 +1726,26 @@ export default function App() {
               {Array.from({ length: snapshotCount }, (_item, index) => {
                 const snapshot = snapshots.find((item) => item.index === index) ?? null;
                 const active = activeSnapshotIndex === index;
-                const colorName =
+                const colorOption =
                   typeof snapshot?.colr === 'number'
-                    ? SNAPSHOT_COLOR_LABELS[snapshot.colr] ?? `Color ${snapshot.colr}`
-                    : 'Color unknown';
+                    ? SNAPSHOT_COLOR_OPTIONS.find((o) => o.value === snapshot.colr) ?? null
+                    : null;
                 return (
                   <Pressable
                     key={`snapshot-${index}`}
                     style={[styles.libraryRow, active && styles.libraryRowActive]}
                     onPress={() => handleSnapshotActivate(index)}
                   >
+                    <View
+                      style={[
+                        styles.snapshotDot,
+                        { backgroundColor: colorOption?.swatch ?? COLORS.stroke },
+                      ]}
+                    />
                     <View style={styles.libraryRowCopy}>
-                      <Text style={styles.sheetListText}>
+                      <Text style={styles.sheetListText} numberOfLines={1}>
                         {index + 1}. {snapshot?.name ?? `Snapshot ${index + 1}`}
                       </Text>
-                      <Text style={styles.libraryMeta}>{colorName}</Text>
                     </View>
                     {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
                   </Pressable>
@@ -2223,6 +2234,126 @@ export default function App() {
         {activeTab === 'preset' && renderPresetTab()}
         {activeTab === 'device' && renderDeviceTab()}
 
+        {/* ── Bottom Sheet: Setlist Picker ─────────────────────── */}
+        <BottomSheet
+          visible={setlistPickerOpen}
+          onClose={() => setSetlistPickerOpen(false)}
+          title="Select Setlist"
+        >
+          <ScrollView style={styles.sheetList}>
+            {setlists.map((item) => {
+              const active = item.cid_ === selectedContainerId;
+              return (
+                <Pressable
+                  key={`setlist-pick-${String(item.cid_)}`}
+                  style={[styles.sheetListItem, active && styles.sheetListItemActive]}
+                  onPress={() => {
+                    setSetlistPickerOpen(false);
+                    void handleSetlistSelect(item);
+                  }}
+                >
+                  <Text style={styles.sheetListText}>{item.name ?? `Setlist ${item.posi ?? '\u2014'}`}</Text>
+                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </BottomSheet>
+
+        {/* ── Bottom Sheet: Target Setlist Picker ──────────────── */}
+        <BottomSheet
+          visible={targetSetlistPickerOpen}
+          onClose={() => setTargetSetlistPickerOpen(false)}
+          title="Add to Setlist"
+          subtitle="Select the target setlist"
+        >
+          <ScrollView style={styles.sheetList}>
+            {setlists.map((item) => {
+              const active = item.cid_ === targetSetlistId;
+              return (
+                <Pressable
+                  key={`target-pick-${String(item.cid_)}`}
+                  style={[styles.sheetListItem, active && styles.sheetListItemActive]}
+                  onPress={() => {
+                    setTargetSetlistId(item.cid_ ?? null);
+                    setTargetSetlistPickerOpen(false);
+                  }}
+                >
+                  <Text style={styles.sheetListText}>{item.name ?? `Setlist ${item.posi ?? '\u2014'}`}</Text>
+                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </BottomSheet>
+
+        {/* ── Bottom Sheet: Preset Actions ─────────────────────── */}
+        <BottomSheet
+          visible={presetActionTarget !== null}
+          onClose={() => setPresetActionTarget(null)}
+          title={presetActionTarget?.name ?? 'Preset'}
+          subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${presetActionTarget.posi + 1}` : undefined}
+        >
+          <View style={styles.sheetActions}>
+            {libraryRoot === 'setlists' && typeof selectedContainerId === 'number' && presetActionTarget && (
+              <>
+                <Pressable
+                  style={[
+                    styles.actionButton,
+                    styles.actionButtonPrimary,
+                    (typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi <= 0) && styles.buttonDisabled,
+                  ]}
+                  disabled={typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi <= 0}
+                  onPress={() => {
+                    const target = presetActionTarget;
+                    setPresetActionTarget(null);
+                    void handleMoveSetlistPreset(target, -1);
+                  }}
+                >
+                  <Text style={styles.actionButtonPrimaryText}>Move Up</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.actionButton,
+                    styles.actionButtonPrimary,
+                    (typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi >= presetItems.length - 1) && styles.buttonDisabled,
+                  ]}
+                  disabled={typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi >= presetItems.length - 1}
+                  onPress={() => {
+                    const target = presetActionTarget;
+                    setPresetActionTarget(null);
+                    void handleMoveSetlistPreset(target, 1);
+                  }}
+                >
+                  <Text style={styles.actionButtonPrimaryText}>Move Down</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.actionButton, styles.actionButtonDanger]}
+                  onPress={() => {
+                    const target = presetActionTarget;
+                    setPresetActionTarget(null);
+                    void handleRemovePresetFromSetlist(target);
+                  }}
+                >
+                  <Text style={styles.actionButtonDangerText}>Remove from Setlist</Text>
+                </Pressable>
+              </>
+            )}
+            {libraryRoot !== 'setlists' && typeof presetActionTarget?.cid_ === 'number' && typeof targetSetlistId === 'number' && (
+              <Pressable
+                style={[styles.actionButton, styles.actionButtonPrimary]}
+                onPress={() => {
+                  const target = presetActionTarget;
+                  setPresetActionTarget(null);
+                  if (target) void handleAddPresetToSetlist(target);
+                }}
+              >
+                <Text style={styles.actionButtonPrimaryText}>Add to {targetSetlist?.name ?? 'Setlist'}</Text>
+              </Pressable>
+            )}
+          </View>
+        </BottomSheet>
+
         {/* ── Bottom Sheet: Slot Actions ───────────────────────── */}
         <BottomSheet
           visible={slotMenuOpen}
@@ -2426,13 +2557,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8,
   },
+  pathHeaderCopy: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   pathTitle: { color: COLORS.text, fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: 0.5 },
+  pathClipboardBadge: {
+    color: COLORS.accent,
+    fontFamily: FONT_MONO,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
   pathDsp: { fontFamily: FONT_MONO, fontSize: 13 },
   dspTrack: {
     height: 4, borderRadius: 2, backgroundColor: COLORS.panelAlt,
     marginHorizontal: 16, marginBottom: 12, overflow: 'hidden',
   },
   dspFill: { height: '100%', borderRadius: 2 },
+  pathActionRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  pathActionButton: {
+    minWidth: 108,
+  },
 
   /* ── Effect row (populated block) ──────────────────────────────── */
   effectList: { gap: 2 },
@@ -2570,6 +2722,45 @@ const styles = StyleSheet.create({
   libraryMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, lineHeight: 16 },
   libraryRefresh: { minWidth: 104, paddingVertical: 10, paddingHorizontal: 12 },
   libraryPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+
+  /* ── Segmented control ────────────────────────────────── */
+  segmentedControl: {
+    flexDirection: 'row', borderRadius: 12, borderWidth: 1,
+    borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt, overflow: 'hidden',
+  },
+  segment: {
+    flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center',
+  },
+  segmentDivider: { borderLeftWidth: 1, borderLeftColor: COLORS.stroke },
+  segmentActive: { backgroundColor: COLORS.accentDim },
+  segmentText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.3 },
+  segmentTextActive: { color: COLORS.accent },
+
+  /* ── Dropdown button ──────────────────────────────────── */
+  dropdownButton: {
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 14,
+    borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt,
+  },
+  dropdownContent: { flex: 1, gap: 2 },
+  dropdownLabel: {
+    color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 10,
+    textTransform: 'uppercase', letterSpacing: 1,
+  },
+  dropdownValue: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
+  dropdownChevron: { color: COLORS.muted, fontSize: 18, marginLeft: 8 },
+
+  /* ── Preset row extras ────────────────────────────────── */
+  presetSlotNum: { width: 28, color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12, textAlign: 'center' },
+  presetSlotNumActive: { color: COLORS.accent },
+  presetMoreButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  presetMoreText: { color: COLORS.muted, fontSize: 18 },
+
+  /* ── Snapshot dot ─────────────────────────────────────── */
+  snapshotDot: {
+    width: 10, height: 10, borderRadius: 5,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+  },
+
   libraryList: { gap: 8 },
   inlineEditor: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   inlineInput: { flex: 1 },

@@ -20,6 +20,7 @@ import { BlockIcon } from './src/icons/BlockIcons';
 import { BLOCK_IMAGES } from './src/icons/CategoryImages';
 import { TabBar } from './src/components/TabBar';
 import type { TabKey } from './src/components/TabBar';
+import { ConnectionGate } from './src/components/ConnectionGate';
 import { BottomSheet } from './src/components/BottomSheet';
 import { ParamKnob } from './src/components/ParamKnob';
 import { COLORS as THEME_COLORS, BLOCK_COLORS, FONTS } from './src/theme/colors';
@@ -324,7 +325,9 @@ export default function App() {
     clientRef.current?.close();
     clientRef.current = null;
     setConnected(false);
-    setStatus('Disconnected');
+    setStatus('Idle');
+    setActiveTab('flow');
+    setScreen('main');
   };
 
   const requireClient = () => {
@@ -1306,6 +1309,19 @@ export default function App() {
   /* ── Full-screen editor takes over when active ─────────────────── */
   if (screen === 'editor' && blockEditorOpen) {
     return renderEditor();
+  }
+
+  /* ── Connection gate – must connect before using the app ──────── */
+  if (!connected && screen !== 'editor') {
+    return (
+      <ConnectionGate
+        host={host}
+        onHostChange={setHost}
+        onConnect={connect}
+        connecting={connecting}
+        status={status}
+      />
+    );
   }
 
   return (

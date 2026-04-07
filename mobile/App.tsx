@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -7,15 +8,20 @@ import {
   View,
   Pressable,
   Switch,
-  Modal,
   Platform,
 } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { HelixClient } from './src/protocol/helixClient';
 import blockTypes from './src/data/blockTypes.json';
 import ioModels from './src/data/ioModels.json';
+import { useFonts } from 'expo-font';
 import { BlockIcon } from './src/icons/BlockIcons';
+import { BLOCK_IMAGES } from './src/icons/CategoryImages';
 import { SignalFlowSection } from './src/components/signalFlow';
+import { TabBar } from './src/components/TabBar';
+import type { TabKey } from './src/components/TabBar';
+import { BottomSheet } from './src/components/BottomSheet';
+import { BLOCK_COLORS } from './src/theme/colors';
 import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 
 const COLORS = {
@@ -30,9 +36,11 @@ const COLORS = {
   success: '#7bbf9e',
 };
 
-const FONT_BODY = Platform.select({ ios: 'Avenir Next', android: 'sans-serif' });
+const FONT_BODY = 'Roboto-Regular';
+const FONT_BODY_MEDIUM = 'Roboto-Medium';
+const FONT_BODY_SEMI = 'Roboto-Medium';
 const FONT_MONO = Platform.select({ ios: 'Menlo', android: 'monospace' });
-const FONT_DISPLAY = Platform.select({ ios: 'Georgia', android: 'serif' });
+const FONT_DISPLAY = 'Roboto-Bold';
 const DSP_CAP = 70;
 
 type IOModelParam = {
@@ -94,6 +102,13 @@ const findFlows = (state: any): any[] | null => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
+    'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
+    'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
+    'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
+  });
+
   const clientRef = useRef<HelixClient | null>(null);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [host, setHost] = useState('p35x1.local');
@@ -103,7 +118,7 @@ export default function App() {
   const [autoCab, setAutoCab] = useState(true);
   const [notesText, setNotesText] = useState('');
   const [status, setStatus] = useState('Idle');
-  const [lastEvent, setLastEvent] = useState('—');
+  const [lastEvent, setLastEvent] = useState('\u2014');
   const [selectedSlot, setSelectedSlot] = useState<BlockSlot | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerStep, setPickerStep] = useState<'type' | 'model'>('type');
@@ -122,6 +137,7 @@ export default function App() {
   const [ioPickerRow, setIoPickerRow] = useState<PathIndex>(0);
   const [ioPickerType, setIoPickerType] = useState<IOType>('input');
   const [ioPickerQuery, setIoPickerQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<TabKey>('flow');
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number }>();
@@ -154,7 +170,7 @@ export default function App() {
     };
   }, [grid]);
 
-  const rowLabels = ['1A', '1B', '2A', '2B']; // Used in picker modal
+  const rowLabels = ['1A', '1B', '2A', '2B'];
   const rowToFlow = (row: PathIndex) => (row < 2 ? 0 : 1);
   const ioBlockIndex = (row: PathIndex, ioType: IOType) => {
     if (ioType === 'input') {
@@ -392,7 +408,7 @@ export default function App() {
         rowEntry[ioPickerType] = {
           blockId,
           modelId: existing?.modelId ?? null,
-          name: existing?.name ?? '—',
+          name: existing?.name ?? '\u2014',
           params: {
             ...(existing?.params ?? {}),
             [paramKey]: value,
@@ -507,7 +523,7 @@ export default function App() {
       ) => {
         if (!nextIO[rowIndex]) return;
         const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
-        const name = meta?.name ?? `ID ${modelId ?? '—'}`;
+        const name = meta?.name ?? `ID ${modelId ?? '\u2014'}`;
         const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
         nextIO[rowIndex][ioType] = {
           blockId,
@@ -626,301 +642,362 @@ export default function App() {
     }, delayMs);
   };
 
+  /* ── Render helpers ─────────────────────────────────────────────── */
+
+  const renderFlowTab = () => (
+    <ScrollView
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabPadding}
+      showsVerticalScrollIndicator={false}
+    >
+      <SignalFlowSection
+        grid={grid}
+        io={ioGrid}
+        selectedSlot={selectedSlot}
+        onSelectSlot={selectSlot}
+        onOpenSlotMenu={openSlotMenu}
+        onSelectIO={selectIO}
+        onSync={handleSync}
+      />
+    </ScrollView>
+  );
+
+  const renderPresetTab = () => (
+    <ScrollView
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabPadding}
+      showsVerticalScrollIndicator={false}
+    >
+      <Section title="Notes">
+        <View style={styles.rowBetween}>
+          <Text style={styles.label}>Show on device</Text>
+          <Switch value={notesVisible} onValueChange={handleNotesToggle} />
+        </View>
+        <TextInput
+          style={styles.textArea}
+          value={notesText}
+          onChangeText={setNotesText}
+          multiline
+          numberOfLines={10}
+          placeholder="Write preset notes..."
+          placeholderTextColor={COLORS.muted}
+        />
+        <Pressable style={[styles.button, styles.buttonPrimary]} onPress={handleNotesSend}>
+          <Text style={styles.buttonText}>Send Notes</Text>
+        </Pressable>
+      </Section>
+
+      <Section title="Settings">
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Auto-Cab</Text>
+            <Text style={styles.labelHint}>Automatically assign cab when inserting an amp</Text>
+          </View>
+          <Switch value={autoCab} onValueChange={handleAutoCab} />
+        </View>
+      </Section>
+
+      <View style={styles.hint}>
+        <Text style={styles.hintText}>
+          Tap a slot to insert a block. Long-press a populated block for actions.
+        </Text>
+      </View>
+    </ScrollView>
+  );
+
+  const renderDeviceTab = () => (
+    <ScrollView
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabPadding}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.deviceHero}>
+        <Text style={styles.deviceTitle}>Helix Stadium</Text>
+        <Text style={styles.deviceSubtitle}>Wi-Fi control over ZMTP + OSC</Text>
+      </View>
+
+      <Section title="Connection">
+        <TextInput
+          style={styles.input}
+          value={host}
+          onChangeText={setHost}
+          placeholder="p35x1.local or IP address"
+          placeholderTextColor={COLORS.muted}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <View style={styles.row}>
+          <Pressable
+            style={[styles.button, styles.buttonFlex, connected ? styles.buttonGhost : styles.buttonPrimary]}
+            onPress={connect}
+          >
+            <Text style={[styles.buttonText, connected && styles.buttonTextGhost]}>
+              {connecting ? 'Connecting\u2026' : 'Connect'}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.button, styles.buttonFlex, styles.buttonGhost]}
+            onPress={disconnect}
+          >
+            <Text style={[styles.buttonText, styles.buttonTextGhost]}>Disconnect</Text>
+          </Pressable>
+        </View>
+        <View style={styles.statusRow}>
+          <View
+            style={[styles.statusDot, { backgroundColor: connected ? COLORS.success : COLORS.danger }]}
+          />
+          <Text style={styles.statusText}>{status}</Text>
+        </View>
+      </Section>
+
+      <Section title="Event Log">
+        <Text style={styles.eventText} selectable>
+          {lastEvent}
+        </Text>
+      </Section>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>TCP 2001/2002 \u00b7 ZMTP + OSC</Text>
+      </View>
+    </ScrollView>
+  );
+
+  const renderIOParams = () => {
+    if (!activeIOModelMeta) {
+      return <Text style={styles.paramHint}>Select a model to edit parameters.</Text>;
+    }
+    return activeIOModelMeta.params.map((param, paramIndex) => {
+      const paramKey =
+        param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
+      const rowKey = `${paramKey}-${paramIndex}`;
+      const current = activeIOModel?.params?.[paramKey] ?? param.def ?? 0;
+      const options = param.options ?? null;
+      if (options && options.length) {
+        const min = typeof param.min === 'number' ? param.min : 0;
+        const max = typeof param.max === 'number' ? param.max : min + options.length - 1;
+        return (
+          <View key={rowKey} style={styles.paramRow}>
+            <Text style={styles.paramLabel}>{param.name}</Text>
+            <View style={styles.paramOptions}>
+              {options.map((optLabel, idx) => {
+                let value = idx;
+                if (param.type === 'b') {
+                  value = idx === 0 ? 0 : 1;
+                } else if (options.length === max - min + 1) {
+                  value = min + idx;
+                }
+                const isActive = Number(current) === value;
+                return (
+                  <Pressable
+                    key={`${rowKey}-${value}`}
+                    style={[styles.paramOption, isActive && styles.paramOptionActive]}
+                    onPress={() => updateIOParam(param, value)}
+                  >
+                    <Text style={[styles.paramOptionText, isActive && styles.paramOptionTextActive]}>
+                      {optLabel}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        );
+      }
+      return (
+        <View key={rowKey} style={styles.paramRow}>
+          <Text style={styles.paramLabel}>{param.name}</Text>
+          <TextInput
+            style={styles.paramInput}
+            defaultValue={String(current)}
+            keyboardType="numeric"
+            onEndEditing={(evt) => {
+              const nextVal = Number(evt.nativeEvent.text);
+              if (Number.isFinite(nextVal)) {
+                updateIOParam(param, nextVal);
+              }
+            }}
+          />
+        </View>
+      );
+    });
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-        <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Stadium Remote</Text>
-          <Text style={styles.subtitle}>Mobile control prototype</Text>
+        {/* ── App bar ──────────────────────────────────────────── */}
+        <View style={styles.appBar}>
+          <Text style={styles.appTitle}>Stadium Remote</Text>
+          <Pressable style={styles.statusPill} onPress={() => setActiveTab('device')}>
+            <View
+              style={[
+                styles.pillDot,
+                { backgroundColor: connected ? COLORS.success : COLORS.danger },
+              ]}
+            />
+            <Text style={styles.pillText}>
+              {connected ? host : 'Disconnected'}
+            </Text>
+          </Pressable>
         </View>
 
-        <Section title="Connection">
-          <View style={styles.row}>
-            <TextInput
-              style={styles.input}
-              value={host}
-              onChangeText={setHost}
-              placeholder="p35x1.local or IP"
-              placeholderTextColor={COLORS.muted}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <Pressable style={[styles.button, connected ? styles.buttonGhost : styles.buttonPrimary]} onPress={connect}>
-              <Text style={[styles.buttonText, connected && styles.buttonTextGhost]}>
-                {connecting ? '...' : 'Connect'}
-              </Text>
-            </Pressable>
-            <Pressable style={[styles.button, styles.buttonGhost]} onPress={disconnect}>
-              <Text style={[styles.buttonText, styles.buttonTextGhost]}>Disconnect</Text>
-            </Pressable>
-          </View>
-          <View style={styles.statusRow}>
-            <Text style={[styles.statusDot, { color: connected ? COLORS.success : COLORS.danger }]}>●</Text>
-            <Text style={styles.statusText}>{status}</Text>
-          </View>
-          <Text style={styles.eventText}>Last event: {lastEvent}</Text>
-        </Section>
+        {/* ── Status line ──────────────────────────────────────── */}
+        <View style={styles.statusLine}>
+          <Text style={styles.statusLineText} numberOfLines={1}>
+            {status}
+          </Text>
+        </View>
 
-        <Section title="Notes Panel">
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>Visible</Text>
-            <Switch value={notesVisible} onValueChange={handleNotesToggle} />
+        {/* ── Tab content ──────────────────────────────────────── */}
+        {activeTab === 'flow' && renderFlowTab()}
+        {activeTab === 'preset' && renderPresetTab()}
+        {activeTab === 'device' && renderDeviceTab()}
+
+        {/* ── Bottom Sheet: Slot Actions ───────────────────────── */}
+        <BottomSheet
+          visible={slotMenuOpen}
+          onClose={() => setSlotMenuOpen(false)}
+          title="Block Actions"
+          subtitle={
+            slotMenuTarget
+              ? `${rowLabels[slotMenuTarget.path]} \u00b7 Block ${slotMenuTarget.block + 1}`
+              : undefined
+          }
+        >
+          <View style={styles.sheetActions}>
+            <Pressable
+              style={[styles.actionButton, styles.actionButtonDanger]}
+              onPress={() => slotMenuTarget && clearSlot(slotMenuTarget)}
+            >
+              <Text style={styles.actionButtonDangerText}>Clear Block</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.actionButton, styles.actionButtonGhost]}
+              onPress={() => setSlotMenuOpen(false)}
+            >
+              <Text style={styles.actionButtonText}>Cancel</Text>
+            </Pressable>
           </View>
+        </BottomSheet>
+
+        {/* ── Bottom Sheet: IO Picker ──────────────────────────── */}
+        <BottomSheet
+          visible={ioPickerOpen}
+          onClose={() => setIoPickerOpen(false)}
+          title={`${ioPickerType === 'input' ? 'Input' : 'Output'} Settings`}
+          subtitle={`${rowLabels[ioPickerRow]} \u00b7 ${ioPickerType === 'input' ? 'Input' : 'Output'}`}
+        >
           <TextInput
-            style={styles.textArea}
-            value={notesText}
-            onChangeText={setNotesText}
-            multiline
-            numberOfLines={8}
-            placeholder="Preset notes"
+            style={styles.searchInput}
+            value={ioPickerQuery}
+            onChangeText={setIoPickerQuery}
+            placeholder={`Search ${ioPickerType === 'input' ? 'inputs' : 'outputs'}\u2026`}
             placeholderTextColor={COLORS.muted}
           />
-          <Pressable style={[styles.button, styles.buttonPrimary]} onPress={handleNotesSend}>
-            <Text style={styles.buttonText}>Send Notes</Text>
-          </Pressable>
-        </Section>
+          <ScrollView style={styles.sheetList} nestedScrollEnabled>
+            {ioPickerModels.map((model) => {
+              const isActive = activeIOModel?.modelId === model.id;
+              return (
+                <Pressable
+                  key={model.id}
+                  style={[styles.sheetListItem, isActive && styles.sheetListItemActive]}
+                  onPress={() => setIOModel(model)}
+                  accessibilityLabel={`Select ${model.name}`}
+                >
+                  <Text style={styles.sheetListText}>{model.name}</Text>
+                  <Text style={styles.sheetListMeta}>ID {model.id}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
 
-        <Section title="Global">
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>Auto-Cab</Text>
-            <Switch value={autoCab} onValueChange={handleAutoCab} />
-          </View>
-          <Text style={styles.sectionHint}>
-            Tap a slot to insert a block. Long-press a block for actions.
-          </Text>
-        </Section>
+          <Text style={styles.paramSectionTitle}>Parameters</Text>
+          <ScrollView style={styles.paramList} nestedScrollEnabled>
+            {renderIOParams()}
+          </ScrollView>
+        </BottomSheet>
 
-        <SignalFlowSection
-          grid={grid}
-          io={ioGrid}
-          selectedSlot={selectedSlot}
-          onSelectSlot={selectSlot}
-          onOpenSlotMenu={openSlotMenu}
-          onSelectIO={selectIO}
-          onSync={handleSync}
-        />
-
-        <Modal
-          visible={slotMenuOpen}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setSlotMenuOpen(false)}
+        {/* ── Bottom Sheet: Block Picker ───────────────────────── */}
+        <BottomSheet
+          visible={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          title={pickerStep === 'type' ? 'Add Block' : blockTypes[pickerType ?? 'amp']?.label}
+          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Block ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${DSP_CAP}`}
         >
-          <View style={styles.modalBackdrop}>
-            <View style={styles.modalCard}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Block Actions</Text>
-                <Pressable onPress={() => setSlotMenuOpen(false)} accessibilityLabel="Close actions">
-                  <Text style={styles.modalClose}>×</Text>
-                </Pressable>
-              </View>
-              <Text style={styles.modalSubtitle}>
-                {slotMenuTarget
-                  ? `${rowLabels[slotMenuTarget.path]} · Block ${slotMenuTarget.block + 1}`
-                  : '—'}
-              </Text>
-              <Pressable
-                style={[styles.button, styles.buttonGhost]}
-                onPress={() => slotMenuTarget && clearSlot(slotMenuTarget)}
-              >
-                <Text style={[styles.buttonText, styles.buttonTextGhost]}>Clear Block</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.buttonPrimary]}
-                onPress={() => setSlotMenuOpen(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={ioPickerOpen} transparent animationType="fade" onRequestClose={() => setIoPickerOpen(false)}>
-          <View style={styles.modalBackdrop}>
-            <View style={styles.modalCard}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {ioPickerType === 'input' ? 'Input' : 'Output'} Settings
-                </Text>
-                <Pressable onPress={() => setIoPickerOpen(false)} accessibilityLabel="Close IO picker">
-                  <Text style={styles.modalClose}>×</Text>
-                </Pressable>
-              </View>
-              <Text style={styles.modalSubtitle}>
-                Target: {rowLabels[ioPickerRow]} · {ioPickerType === 'input' ? 'Input' : 'Output'}
-              </Text>
-
-              <TextInput
-                style={styles.input}
-                value={ioPickerQuery}
-                onChangeText={setIoPickerQuery}
-                placeholder={`Search ${ioPickerType === 'input' ? 'inputs' : 'outputs'}`}
-                placeholderTextColor={COLORS.muted}
-              />
-
-              <ScrollView style={styles.modalList}>
-                {ioPickerModels.map((model) => {
-                  const isActive = activeIOModel?.modelId === model.id;
+          {pickerStep === 'type' ? (
+            <ScrollView style={styles.sheetList} nestedScrollEnabled>
+              <View style={styles.typeGrid}>
+                {blockTypeOrder.map((typeKey) => {
+                  const group = blockTypes[typeKey];
+                  const color = BLOCK_COLORS[typeKey] ?? COLORS.muted;
                   return (
                     <Pressable
-                      key={model.id}
-                      style={[styles.modalListItem, isActive && styles.modalListItemActive]}
-                      onPress={() => setIOModel(model)}
-                      accessibilityLabel={`Select ${model.name}`}
+                      key={typeKey}
+                      style={styles.typeCard}
+                      onPress={() => selectBlockType(typeKey)}
+                      accessibilityLabel={`Select ${group.label}`}
                     >
-                      <Text style={styles.modalListText}>{model.name}</Text>
-                      <Text style={styles.modalListMeta}>ID {model.id}</Text>
+                      <View style={[styles.typeAccent, { backgroundColor: color }]} />
+                      {BLOCK_IMAGES[typeKey] ? (
+                        <Image source={BLOCK_IMAGES[typeKey]} style={styles.typeIcon} resizeMode="contain" />
+                      ) : (
+                        <BlockIcon type={typeKey} size={24} color={color} />
+                      )}
+                      <View style={styles.typeInfo}>
+                        <Text style={styles.typeLabel}>{group.label}</Text>
+                        <Text style={styles.typeMeta}>{group.models.length} models</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          ) : (
+            <>
+              <View style={styles.pickerNav}>
+                <Pressable style={styles.backButton} onPress={() => setPickerStep('type')}>
+                  <Text style={styles.backButtonText}>{'\u2190'} Back</Text>
+                </Pressable>
+              </View>
+              <TextInput
+                style={styles.searchInput}
+                value={pickerQuery}
+                onChangeText={setPickerQuery}
+                placeholder="Search models\u2026"
+                placeholderTextColor={COLORS.muted}
+              />
+              <ScrollView style={styles.sheetModelList} nestedScrollEnabled>
+                {pickerModels.map((item) => {
+                  const required = item.usage ?? 0;
+                  const canInsert = required <= availableUsage;
+                  const color = BLOCK_COLORS[pickerType ?? ''] ?? COLORS.muted;
+                  return (
+                    <Pressable
+                      key={item.id}
+                      style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
+                      onPress={() => insertModel(item.id, item.name, pickerType ?? 'fx', item.usage ?? 0)}
+                      accessibilityLabel={`Insert ${item.name}`}
+                      disabled={!canInsert}
+                    >
+                      <View style={[styles.modelDot, { backgroundColor: color }]} />
+                      <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>
+                        {item.name}
+                      </Text>
+                      <View style={styles.dspBadge}>
+                        <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>
+                          {required.toFixed(1)}
+                        </Text>
+                      </View>
                     </Pressable>
                   );
                 })}
               </ScrollView>
+            </>
+          )}
+        </BottomSheet>
 
-              <Text style={styles.modalSubtitle}>Parameters</Text>
-              <ScrollView style={styles.paramList}>
-                {activeIOModelMeta ? (
-                  activeIOModelMeta.params.map((param, paramIndex) => {
-                    const paramKey =
-                      param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
-                    const rowKey = `${paramKey}-${paramIndex}`;
-                    const current = activeIOModel?.params?.[paramKey] ?? param.def ?? 0;
-                    const options = param.options ?? null;
-                    if (options && options.length) {
-                      const min = typeof param.min === 'number' ? param.min : 0;
-                      const max = typeof param.max === 'number' ? param.max : min + options.length - 1;
-                      return (
-                        <View key={rowKey} style={styles.paramRow}>
-                          <Text style={styles.paramLabel}>{param.name}</Text>
-                          <View style={styles.paramOptions}>
-                            {options.map((label, idx) => {
-                              let value = idx;
-                              if (param.type === 'b') {
-                                value = idx === 0 ? 0 : 1;
-                              } else if (options.length === max - min + 1) {
-                                value = min + idx;
-                              }
-                              const isActive = Number(current) === value;
-                              return (
-                                <Pressable
-                                  key={`${rowKey}-${value}`}
-                                  style={[styles.paramOption, isActive && styles.paramOptionActive]}
-                                  onPress={() => updateIOParam(param, value)}
-                                >
-                                  <Text style={styles.paramOptionText}>{label}</Text>
-                                </Pressable>
-                              );
-                            })}
-                          </View>
-                        </View>
-                      );
-                    }
-                    return (
-                      <View key={rowKey} style={styles.paramRow}>
-                        <Text style={styles.paramLabel}>{param.name}</Text>
-                        <TextInput
-                          style={styles.paramInput}
-                          defaultValue={String(current)}
-                          keyboardType="numeric"
-                          onEndEditing={(evt) => {
-                            const nextVal = Number(evt.nativeEvent.text);
-                            if (Number.isFinite(nextVal)) {
-                              updateIOParam(param, nextVal);
-                            }
-                          }}
-                        />
-                      </View>
-                    );
-                  })
-                ) : (
-                  <Text style={styles.modalHint}>Select an input/output model to edit parameters.</Text>
-                )}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={pickerOpen} transparent animationType="fade" onRequestClose={() => setPickerOpen(false)}>
-          <View style={styles.modalBackdrop}>
-            <View style={styles.modalCard}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {pickerStep === 'type' ? 'Choose Block Type' : blockTypes[pickerType ?? 'amp']?.label}
-                </Text>
-                <Pressable onPress={() => setPickerOpen(false)} accessibilityLabel="Close picker">
-                  <Text style={styles.modalClose}>×</Text>
-                </Pressable>
-              </View>
-
-              <Text style={styles.modalSubtitle}>
-                Target: {rowLabels[targetSlot.path]} · Block {targetSlot.block + 1}
-              </Text>
-              <Text style={styles.modalSubtitle}>
-                DSP headroom: {availableUsage.toFixed(1)} / {DSP_CAP}
-              </Text>
-
-              {pickerStep === 'type' ? (
-                <View style={styles.typeGrid}>
-                  {blockTypeOrder.map((typeKey) => {
-                    const group = blockTypes[typeKey];
-                    return (
-                      <Pressable
-                        key={typeKey}
-                        style={styles.typeCard}
-                        onPress={() => selectBlockType(typeKey)}
-                        accessibilityLabel={`Select ${group.label}`}
-                      >
-                        <BlockIcon type={typeKey} size={20} color={COLORS.text} />
-                        <Text style={styles.typeLabel}>{group.label}</Text>
-                        <Text style={styles.typeMeta}>{group.models.length} models</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              ) : (
-                <>
-                  <View style={styles.rowBetween}>
-                    <Pressable style={[styles.button, styles.buttonGhost]} onPress={() => setPickerStep('type')}>
-                      <Text style={[styles.buttonText, styles.buttonTextGhost]}>Back</Text>
-                    </Pressable>
-                    <Text style={styles.modalHint}>{blockTypes[pickerType ?? 'amp']?.label}</Text>
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    value={pickerQuery}
-                    onChangeText={setPickerQuery}
-                    placeholder="Search models"
-                    placeholderTextColor={COLORS.muted}
-                  />
-                  <ScrollView style={styles.modalList}>
-                    {pickerModels.map((item) => {
-                      const required = item.usage ?? 0;
-                      const canInsert = required <= availableUsage;
-                      return (
-                        <Pressable
-                          key={item.id}
-                          style={[styles.modalListItem, !canInsert && styles.modalListItemDisabled]}
-                          onPress={() => insertModel(item.id, item.name, pickerType ?? 'fx', item.usage ?? 0)}
-                          accessibilityLabel={`Insert ${item.name}`}
-                          disabled={!canInsert}
-                        >
-                          <BlockIcon type={pickerType ?? ''} size={16} color={COLORS.muted} />
-                          <Text style={styles.modalListText}>{item.name}</Text>
-                          <Text style={styles.modalListMeta}>ID {item.id}</Text>
-                          <Text style={styles.modalListMeta}>{required.toFixed(1)} DSP</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </ScrollView>
-                </>
-              )}
-            </View>
-          </View>
-        </Modal>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>TCP 2001/2002 · ZMTP + OSC</Text>
-        </View>
-      </ScrollView>
+        {/* ── Tab bar ──────────────────────────────────────────── */}
+        <TabBar activeTab={activeTab} onTabChange={setActiveTab} connected={connected} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -931,28 +1008,69 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg,
   },
-  container: {
-    padding: 20,
-    paddingBottom: 48,
+
+  /* ── App bar ──────────────────────────────────────────────────── */
+  appBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
-  header: {
-    marginBottom: 18,
-  },
-  title: {
-    fontSize: 28,
+  appTitle: {
+    fontSize: 22,
     color: COLORS.text,
     fontFamily: FONT_DISPLAY,
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
   },
-  subtitle: {
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: COLORS.panel,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+  },
+  pillDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  pillText: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
-    marginTop: 4,
+    fontSize: 12,
   },
+
+  /* ── Status line ──────────────────────────────────────────────── */
+  statusLine: {
+    paddingHorizontal: 20,
+    paddingBottom: 6,
+  },
+  statusLineText: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+  },
+
+  /* ── Tab content ──────────────────────────────────────────────── */
+  tabContent: {
+    flex: 1,
+  },
+  tabPadding: {
+    padding: 16,
+    paddingBottom: 24,
+  },
+
+  /* ── Sections ─────────────────────────────────────────────────── */
   section: {
     marginTop: 16,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: COLORS.panel,
     borderWidth: 1,
     borderColor: COLORS.stroke,
@@ -960,14 +1078,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: COLORS.accent,
     fontFamily: FONT_MONO,
-    fontSize: 12,
+    fontSize: 11,
     letterSpacing: 2,
     textTransform: 'uppercase',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sectionBody: {
-    gap: 12,
+    gap: 14,
   },
+
+  /* ── Layout helpers ───────────────────────────────────────────── */
   row: {
     flexDirection: 'row',
     gap: 12,
@@ -978,31 +1098,47 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
+  /* ── Inputs ───────────────────────────────────────────────────── */
   input: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 6,
+    padding: 14,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     color: COLORS.text,
     fontFamily: FONT_MONO,
+    fontSize: 15,
     backgroundColor: COLORS.panelAlt,
   },
   textArea: {
-    minHeight: 160,
+    minHeight: 180,
     textAlignVertical: 'top',
-    padding: 12,
-    borderRadius: 6,
+    padding: 14,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     color: COLORS.text,
     fontFamily: FONT_MONO,
+    fontSize: 14,
     backgroundColor: COLORS.panelAlt,
   },
+  searchInput: {
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    color: COLORS.text,
+    fontFamily: FONT_MONO,
+    fontSize: 14,
+    backgroundColor: COLORS.panelAlt,
+    marginBottom: 12,
+  },
+
+  /* ── Buttons ──────────────────────────────────────────────────── */
   button: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1013,84 +1149,164 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.stroke,
   },
+  buttonFlex: {
+    flex: 1,
+  },
   buttonText: {
     color: COLORS.bg,
-    fontFamily: FONT_BODY,
-    fontWeight: '600',
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 14,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   buttonTextGhost: {
     color: COLORS.text,
   },
+
+  /* ── Labels ───────────────────────────────────────────────────── */
   label: {
     color: COLORS.text,
     fontFamily: FONT_BODY,
+    fontSize: 15,
   },
+  labelHint: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    marginTop: 2,
+    maxWidth: 240,
+  },
+
+  /* ── Status / events ──────────────────────────────────────────── */
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   statusDot: {
-    fontSize: 18,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   statusText: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
+    fontSize: 13,
   },
   eventText: {
-    marginTop: 8,
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+
+  /* ── Device hero ──────────────────────────────────────────────── */
+  deviceHero: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    gap: 6,
+  },
+  deviceTitle: {
+    fontSize: 28,
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    letterSpacing: 0.8,
+  },
+  deviceSubtitle: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+  },
+
+  /* ── Hints / footer ───────────────────────────────────────────── */
+  hint: {
+    marginTop: 24,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  hintText: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
     fontSize: 11,
+    textAlign: 'center',
+    lineHeight: 18,
   },
-  sectionHint: {
-    color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
-    marginBottom: 10,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  modalCard: {
-    backgroundColor: COLORS.panel,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    padding: 16,
-    maxHeight: '85%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  footer: {
+    marginTop: 32,
     alignItems: 'center',
   },
-  modalTitle: {
-    color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
-    fontSize: 18,
-  },
-  modalClose: {
-    color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
-    fontSize: 22,
-    paddingHorizontal: 8,
-  },
-  modalSubtitle: {
+  footerText: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
-    marginTop: 6,
-    marginBottom: 12,
+    fontSize: 11,
   },
-  modalHint: {
+
+  /* ── Bottom sheet: actions ─────────────────────────────────────── */
+  sheetActions: {
+    gap: 10,
+  },
+  actionButton: {
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  actionButtonDanger: {
+    backgroundColor: 'rgba(228, 107, 97, 0.15)',
+  },
+  actionButtonDangerText: {
+    color: COLORS.danger,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 16,
+  },
+  actionButtonGhost: {
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+  },
+  actionButtonText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 16,
+  },
+
+  /* ── Bottom sheet: lists ───────────────────────────────────────── */
+  sheetList: {
+    maxHeight: 200,
+  },
+  sheetModelList: {
+    maxHeight: 360,
+  },
+  sheetListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.stroke,
+  },
+  sheetListItemActive: {
+    backgroundColor: 'rgba(201, 195, 177, 0.1)',
+    borderRadius: 8,
+  },
+  sheetListItemDisabled: {
+    opacity: 0.35,
+  },
+  sheetListText: {
+    flex: 1,
+    color: COLORS.text,
+    fontFamily: FONT_BODY,
+    fontSize: 15,
+  },
+  sheetListTextDim: {
+    color: COLORS.muted,
+  },
+  sheetListMeta: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
+    fontSize: 11,
   },
+
+  /* ── Block type picker grid ────────────────────────────────────── */
   typeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1098,70 +1314,113 @@ const styles = StyleSheet.create({
   },
   typeCard: {
     width: '47%',
-    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panelAlt,
-    padding: 12,
-    gap: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    overflow: 'hidden',
+  },
+  typeAccent: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+  },
+  typeIcon: {
+    width: 32,
+    height: 32,
+  },
+  typeInfo: {
+    flex: 1,
   },
   typeLabel: {
     color: COLORS.text,
-    fontFamily: FONT_BODY,
-    fontSize: 14,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
   },
   typeMeta: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
-    fontSize: 11,
+    fontSize: 10,
+    marginTop: 2,
   },
-  modalList: {
-    marginTop: 10,
+
+  /* ── Model picker ──────────────────────────────────────────────── */
+  modelDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
-  modalListItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.stroke,
+  dspBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: COLORS.panelAlt,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
   },
-  modalListItemActive: {
-    backgroundColor: 'rgba(201, 195, 177, 0.12)',
-  },
-  modalListItemDisabled: {
-    opacity: 0.4,
-  },
-  modalListText: {
-    flex: 1,
-    color: COLORS.text,
-    fontFamily: FONT_BODY,
-  },
-  modalListMeta: {
+  dspBadgeText: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
     fontSize: 11,
   },
+  pickerNav: {
+    marginBottom: 12,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+  },
+  backButtonText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY,
+    fontSize: 13,
+  },
+
+  /* ── IO parameters ─────────────────────────────────────────────── */
+  paramSectionTitle: {
+    color: COLORS.accent,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    marginTop: 16,
+    marginBottom: 8,
+  },
   paramList: {
-    marginTop: 6,
     maxHeight: 220,
   },
   paramRow: {
-    marginBottom: 10,
+    marginBottom: 12,
     gap: 6,
   },
   paramLabel: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
     fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   paramInput: {
-    padding: 8,
-    borderRadius: 6,
+    padding: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     color: COLORS.text,
     fontFamily: FONT_MONO,
+    fontSize: 14,
     backgroundColor: COLORS.panelAlt,
   },
   paramOptions: {
@@ -1170,26 +1429,26 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   paramOption: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panelAlt,
   },
   paramOptionActive: {
     borderColor: COLORS.accent,
+    backgroundColor: 'rgba(201, 195, 177, 0.1)',
   },
   paramOptionText: {
     color: COLORS.text,
     fontFamily: FONT_BODY,
-    fontSize: 12,
+    fontSize: 13,
   },
-  footer: {
-    marginTop: 24,
-    alignItems: 'center',
+  paramOptionTextActive: {
+    color: COLORS.accent,
   },
-  footerText: {
+  paramHint: {
     color: COLORS.muted,
     fontFamily: FONT_MONO,
     fontSize: 12,

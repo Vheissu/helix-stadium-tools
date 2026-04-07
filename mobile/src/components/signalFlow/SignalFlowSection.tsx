@@ -140,9 +140,8 @@ const styles = StyleSheet.create({
   },
   syncText: {
     color: COLORS.text,
-    fontFamily: FONTS.body,
+    fontFamily: FONTS.bodySemi,
     fontSize: 12,
-    fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },

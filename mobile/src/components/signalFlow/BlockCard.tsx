@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlockIcon } from '../../icons/BlockIcons';
+import { getBlockImage } from '../../icons/CategoryImages';
 import { COLORS, FONTS, SIGNAL_FLOW, getBlockColor } from '../../theme/colors';
 import type { BlockCardProps } from '../../types/signalFlow';
 
@@ -14,6 +15,7 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
 }) => {
   const borderColor = block ? getBlockColor(block.kind) : COLORS.stroke;
   const isEmpty = block === null;
+  const blockImage = block ? getBlockImage(block.kind) : null;
 
   return (
     <View style={styles.container}>
@@ -31,11 +33,11 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
         <Text style={styles.index}>{index + 1}</Text>
         {block ? (
           <>
-            <BlockIcon
-              type={block.kind}
-              size={18}
-              color={getBlockColor(block.kind)}
-            />
+            {blockImage ? (
+              <Image source={blockImage} style={styles.blockImage} resizeMode="contain" />
+            ) : (
+              <BlockIcon type={block.kind} size={18} color={getBlockColor(block.kind)} />
+            )}
             <Text style={styles.name} numberOfLines={2}>
               {block.name}
             </Text>
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.panelAlt,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 3,
   },
   cardEmpty: {
     borderColor: COLORS.stroke,
@@ -88,22 +90,25 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.mono,
     fontSize: 9,
     position: 'absolute',
-    top: 4,
-    right: 6,
+    top: 3,
+    right: 5,
+  },
+  blockImage: {
+    width: 32,
+    height: 32,
   },
   name: {
     color: COLORS.text,
-    fontFamily: FONTS.body,
+    fontFamily: FONTS.bodyMedium,
     fontSize: 9,
-    fontWeight: '500',
     textAlign: 'center',
     paddingHorizontal: 3,
     lineHeight: 12,
   },
   emptyIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     alignItems: 'center',

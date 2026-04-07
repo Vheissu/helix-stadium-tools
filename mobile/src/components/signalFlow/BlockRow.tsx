@@ -68,9 +68,8 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    fontFamily: FONTS.bodySemi,
     fontSize: 10,
-    fontWeight: '600',
     marginRight: 8,
     width: 20,
   },

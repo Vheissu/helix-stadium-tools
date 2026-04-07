@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { getIOImage } from '../../icons/CategoryImages';
 import { COLORS, FONTS, SIGNAL_FLOW } from '../../theme/colors';
 
 interface IONodeProps {
@@ -45,19 +46,25 @@ export const IONode: React.FC<IONodeProps> = ({
   value,
   onPress,
   disabled = false,
-}) => (
-  <Pressable style={[styles.container, disabled && styles.containerDisabled]} onPress={onPress} disabled={disabled}>
-    <View style={[styles.node, { width: size, height: size, borderRadius: size / 2 }]}>
-      {type === 'input' ? (
-        <InputIcon size={size * 0.5} color={COLORS.muted} />
-      ) : (
-        <OutputIcon size={size * 0.5} color={COLORS.muted} />
-      )}
-    </View>
-    <Text style={styles.label}>{label ?? (type === 'input' ? 'Input' : 'Output')}</Text>
-    {value ? <Text style={styles.value}>{value}</Text> : null}
-  </Pressable>
-);
+}) => {
+  const ioImage = getIOImage(type);
+
+  return (
+    <Pressable style={[styles.container, disabled && styles.containerDisabled]} onPress={onPress} disabled={disabled}>
+      <View style={[styles.node, { width: size, height: size, borderRadius: size / 2 }]}>
+        {ioImage ? (
+          <Image source={ioImage} style={styles.ioImage} resizeMode="contain" />
+        ) : type === 'input' ? (
+          <InputIcon size={size * 0.5} color={COLORS.muted} />
+        ) : (
+          <OutputIcon size={size * 0.5} color={COLORS.muted} />
+        )}
+      </View>
+      <Text style={styles.label}>{label ?? (type === 'input' ? 'Input' : 'Output')}</Text>
+      {value ? <Text style={styles.value} numberOfLines={1}>{value}</Text> : null}
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -74,6 +81,11 @@ const styles = StyleSheet.create({
     borderColor: COLORS.stroke,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  ioImage: {
+    width: 24,
+    height: 24,
   },
   label: {
     color: COLORS.muted,

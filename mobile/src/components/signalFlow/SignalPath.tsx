@@ -115,13 +115,11 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontFamily: FONTS.mono,
     fontSize: 12,
-    fontWeight: '700',
   },
   pathLabel: {
     color: COLORS.text,
-    fontFamily: FONTS.body,
+    fontFamily: FONTS.bodySemi,
     fontSize: 14,
-    fontWeight: '600',
     letterSpacing: 0.5,
   },
   scroll: {

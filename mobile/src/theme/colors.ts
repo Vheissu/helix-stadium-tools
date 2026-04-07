@@ -37,11 +37,13 @@ export const getBlockColor = (kind: string): string => {
   return BLOCK_COLORS[kind] ?? COLORS.muted;
 };
 
-// Font families
+// Font families – Roboto loaded via expo-font in App.tsx
 export const FONTS = {
-  body: Platform.select({ ios: 'Avenir Next', android: 'sans-serif' }) as string,
+  body: 'Roboto-Regular',
+  bodyMedium: 'Roboto-Medium',
+  bodySemi: 'Roboto-Medium',
   mono: Platform.select({ ios: 'Menlo', android: 'monospace' }) as string,
-  display: Platform.select({ ios: 'Georgia', android: 'serif' }) as string,
+  display: 'Roboto-Bold',
 };
 
 // Layout constants for signal flow

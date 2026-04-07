@@ -4,6 +4,7 @@ import unittest
 from unittest import mock
 
 from helix.blobs import build_property_blob, decode_property_blob, fourcc_int
+from helix.discovery import HelixService
 from helix.osc import build_osc, decode_osc
 from helix.session import HelixSession, HelixStatusError, HelixTimeoutError
 
@@ -60,12 +61,16 @@ class FakeSocket:
     def __init__(self):
         self.connected = None
         self.closed = False
+        self.timeout = None
 
     def connect(self, addr):
         self.connected = addr
 
     def close(self):
         self.closed = True
+
+    def settimeout(self, value):
+        self.timeout = value
 
 
 class FakeZMTPStream:
@@ -110,6 +115,26 @@ class TestSession(unittest.TestCase):
                 (FakeZMTPStream.instances[1], "DEALER", b""),
             ],
         )
+
+    def test_connect_autodiscovers_host_and_ports(self):
+        FakeZMTPStream.instances = []
+        sockets = [FakeSocket(), FakeSocket()]
+
+        def fake_socket(*_args, **_kwargs):
+            return sockets.pop(0)
+
+        service = HelixService(instance="p35x1", host="p35x1.local", port=2001, interface=14)
+
+        with mock.patch("helix.session.socket.socket", side_effect=fake_socket), \
+            mock.patch("helix.session.ZMTPStream", FakeZMTPStream), \
+            mock.patch("helix.session.zmtp_handshake"), \
+            mock.patch("helix.session.discover_first_service", return_value=service):
+            session = HelixSession(None)
+            session.connect()
+
+        self.assertEqual(FakeZMTPStream.instances[0].sock.connected, ("p35x1.local", 2001))
+        self.assertEqual(FakeZMTPStream.instances[1].sock.connected, ("p35x1.local", 2002))
+        self.assertEqual(session._resolved_service, service)
 
     def test_close_closes_streams(self):
         session = HelixSession("dummy")

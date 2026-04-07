@@ -22,6 +22,8 @@ The device advertises `_stadiumserver._tcp` via Bonjour. Example on macOS:
 
 This yields the hostname (e.g. `p35x1.local`) and the TCP ports.
 
+The Python tooling in this repo now uses the same discovery path when `--host` is omitted: browse `_stadiumserver._tcp`, resolve the first visible instance, then connect to the advertised port and the adjacent command port.
+
 ## ZMTP 3.0 handshake
 
 Both ports require the standard ZMTP 3.0 handshake:

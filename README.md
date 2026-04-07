@@ -55,10 +55,11 @@ python3 -m pip install -r requirements-dev.txt
 from helix import HelixSession
 
 with HelixSession(
-    "p35x1.local",
+    None,  # auto-discover via Bonjour
     timeout=5.0,
     retries=2,
     retry_delay=0.1,
+    discover_timeout=5.0,
     raise_on_timeout=True,
 ) as session:
     info = session.get_product_info()
@@ -233,49 +234,52 @@ Examples:
 
 ```bash
 # Rename a snapshot
-python3 scripts/helix_control.py --host p35x1.local snapshot-name --index 0 --name "Dwayne!"
+python3 scripts/helix_control.py snapshot-name --index 0 --name "Dwayne!"
 
 # Update a scribble strip label
-python3 scripts/helix_control.py --host p35x1.local scribble-label --stomp a.7 --label "MY LABEL"
+python3 scripts/helix_control.py scribble-label --stomp a.7 --label "MY LABEL"
+
+# Show the auto-discovered device details
+python3 scripts/helix_control.py discover
 
 # Read a property value
-python3 scripts/helix_control.py --host p35x1.local get-property --key global.remote.access
+python3 scripts/helix_control.py get-property --key global.remote.access
 
 # Read product info
-python3 scripts/helix_control.py --host p35x1.local get-product-info
+python3 scripts/helix_control.py get-product-info
 
 # Read the edit buffer state (large blob)
-python3 scripts/helix_control.py --host p35x1.local get-edit-buffer
+python3 scripts/helix_control.py get-edit-buffer
 
 # Toggle auto-cab insertion
-python3 scripts/helix_control.py --host p35x1.local set-autocab --enabled on
+python3 scripts/helix_control.py set-autocab --enabled on
 
 # Insert a block (clears target + next slot, optionally toggles auto-cab)
-python3 scripts/helix_control.py --host p35x1.local insert-block --path 0 --block 1 --model-id 749 --auto-cab on --clear
+python3 scripts/helix_control.py insert-block --path 0 --block 1 --model-id 749 --auto-cab on --clear
 
 # Insert a block by human-friendly name (resolved via model map/resources)
-python3 scripts/helix_control.py --host p35x1.local insert-block --path 0 --block 1 --model "US Tweedman" --auto-cab on --clear
+python3 scripts/helix_control.py insert-block --path 0 --block 1 --model "US Tweedman" --auto-cab on --clear
 
 # Set a parameter on an IO block by name
-python3 scripts/helix_control.py --host p35x1.local io-param --row 1A --type input --param Pad --value on
+python3 scripts/helix_control.py io-param --row 1A --type input --param Pad --value on
 
 # Set a parameter on a visible signal block by row + position
-python3 scripts/helix_control.py --host p35x1.local block-param --row 1A --position 3 --param Drive --value 6.0
+python3 scripts/helix_control.py block-param --row 1A --position 3 --param Drive --value 6.0
 
 # Clear all blocks (both paths)
-python3 scripts/helix_control.py --host p35x1.local clear-all-blocks
+python3 scripts/helix_control.py clear-all-blocks
 
 # Clear all blocks on a single path/flow
-python3 scripts/helix_control.py --host p35x1.local clear-all-blocks --path 0
+python3 scripts/helix_control.py clear-all-blocks --path 0
 
 # Short alias
-python3 scripts/helix_control.py --host p35x1.local clear-all
+python3 scripts/helix_control.py clear-all
 
 # Watch push updates for 15 seconds
-python3 scripts/helix_control.py --host p35x1.local --duration 15 monitor
+python3 scripts/helix_control.py --duration 15 monitor
 
 # Increase timeout/retry policy
-python3 scripts/helix_control.py --host p35x1.local --timeout 6 --retries 2 --retry-delay 0.2 \
+python3 scripts/helix_control.py --timeout 6 --retries 2 --retry-delay 0.2 \
   snapshot-name --index 0 --name "Dwayne!"
 
 # Run a batch of actions
@@ -286,7 +290,7 @@ cat > /tmp/helix-actions.json <<'JSON'
   {"op": "block_enable", "path": 1, "block": 6, "enabled": 1}
 ]
 JSON
-python3 scripts/helix_control.py --host p35x1.local --actions /tmp/helix-actions.json
+python3 scripts/helix_control.py --actions /tmp/helix-actions.json
 ```
 
 Supported action ops:
@@ -311,6 +315,8 @@ Supported action ops:
 
 Notes:
 
+- The CLI auto-discovers the first `_stadiumserver._tcp` Bonjour service when `--host` is omitted.
+- Use `discover` to print the resolved host/port pair or `discover --all` to list visible instances.
 - `scribble_label` and `property_set` require `msgpack` to be installed.
 - The CLI now fails fast on missing acknowledgements instead of silently succeeding after a timeout.
 - `monitor` and `--listen` decode wrapped port `2001` push traffic, including heartbeats and edit notifications.

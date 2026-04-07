@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from helix import HelixSession, HelixSessionError  # noqa: E402
+from helix import HelixDiscoveryError, HelixSession, HelixSessionError, browse_services, discover_first_service  # noqa: E402
 from helix.editbuffer import (  # noqa: E402
     extract_active_model_id,
     find_io_block,
@@ -245,6 +245,10 @@ def format_event(decoded):
     return f"{addr} {typetags} {rendered}"
 
 
+def json_print(value):
+    print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+
+
 def json_safe(value):
     if isinstance(value, bytes):
         try:
@@ -466,13 +470,14 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--host", default="p35x1.local")
+    ap.add_argument("--host", help="Device hostname. Omit or use 'auto' to discover via Bonjour.")
     ap.add_argument("--port-2001", type=int, default=2001)
     ap.add_argument("--port-2002", type=int, default=2002)
     ap.add_argument("--cmd-base", type=int, default=1)
     ap.add_argument("--timeout", type=float, default=5.0)
     ap.add_argument("--retries", type=int, default=1)
     ap.add_argument("--retry-delay", type=float, default=0.1)
+    ap.add_argument("--discover-timeout", type=float, default=5.0, help="Seconds to wait for Bonjour discovery")
     ap.add_argument("--actions", help="JSON file with action list")
     ap.add_argument("--duration", type=float, default=1.0, help="Seconds to wait before closing")
     ap.add_argument("--listen", action="store_true", help="Print incoming frames while waiting")
@@ -546,9 +551,23 @@ def main():
     clear_all_short = sub.add_parser("clear-all")
     clear_all_short.add_argument("--path", type=int, help="Optional path/flow index to clear (default: all)")
 
+    discover = sub.add_parser("discover")
+    discover.add_argument("--all", action="store_true", help="List all visible Helix services instead of resolving the first one")
+
     sub.add_parser("monitor")
 
     args = ap.parse_args()
+
+    if args.cmd == "discover":
+        try:
+            if args.all:
+                json_print(browse_services(timeout=args.discover_timeout))
+            else:
+                service = discover_first_service(timeout=args.discover_timeout)
+                json_print(service.__dict__)
+            return
+        except HelixDiscoveryError as exc:
+            raise SystemExit(str(exc)) from exc
 
     session = HelixSession(
         args.host,
@@ -557,6 +576,7 @@ def main():
         timeout=args.timeout,
         retries=args.retries,
         retry_delay=args.retry_delay,
+        discover_timeout=args.discover_timeout,
         raise_on_timeout=True,
     )
     session._cmd_id = args.cmd_base
@@ -583,15 +603,15 @@ def main():
             session.set_preset_notes_visible(parse_visibility(args.visible), wait_status=True)
         elif args.cmd == "get-property":
             value = session.get_property(args.key)
-            print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+            json_print(value)
             return
         elif args.cmd == "get-product-info":
             value = session.get_product_info()
-            print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+            json_print(value)
             return
         elif args.cmd == "get-edit-buffer":
             value = session.get_edit_buffer_state()
-            print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+            json_print(value)
             return
         elif args.cmd == "set-autocab":
             session.set_auto_cab(parse_bool(args.enabled), wait_status=True)
@@ -685,7 +705,7 @@ def main():
                     print(format_event(decoded))
         else:
             time.sleep(args.duration)
-    except HelixSessionError as exc:
+    except (HelixDiscoveryError, HelixSessionError) as exc:
         raise SystemExit(str(exc)) from exc
     finally:
         session.close()

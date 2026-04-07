@@ -10,6 +10,7 @@ from .blobs import (
     fourcc_int,
     normalize_fourcc_map,
 )
+from .discovery import HelixService, discover_first_service
 from .zmtp import ZMTPStream, zmtp_handshake
 
 
@@ -34,12 +35,13 @@ class HelixStatusError(HelixSessionError):
 class HelixSession:
     def __init__(
         self,
-        host: str,
+        host: str | None,
         port_2001: int = 2001,
         port_2002: int = 2002,
         timeout: float = 5.0,
         retries: int = 1,
         retry_delay: float = 0.1,
+        discover_timeout: float = 5.0,
         raise_on_timeout: bool = False,
         strict_status: bool = True,
     ):
@@ -49,18 +51,21 @@ class HelixSession:
         self.timeout = timeout
         self.retries = retries
         self.retry_delay = retry_delay
+        self.discover_timeout = discover_timeout
         self.raise_on_timeout = raise_on_timeout
         self.strict_status = strict_status
         self._cmd_id = 1
         self._stream_2001 = None
         self._stream_2002 = None
+        self._resolved_service: HelixService | None = None
 
     def connect(self):
         sock_2001 = None
         sock_2002 = None
         try:
-            sock_2001 = self._open_socket(self.port_2001)
-            sock_2002 = self._open_socket(self.port_2002)
+            host, port_2001, port_2002 = self._connection_target()
+            sock_2001 = self._open_socket(host, port_2001)
+            sock_2002 = self._open_socket(host, port_2002)
             stream_2001 = ZMTPStream(sock_2001)
             stream_2002 = ZMTPStream(sock_2002)
             zmtp_handshake(stream_2001, "SUB", identity=None)
@@ -105,10 +110,25 @@ class HelixSession:
     def _configure_poll_timeout(self, sock):
         self._set_socket_timeout(sock, self._socket_timeout())
 
-    def _open_socket(self, port: int):
+    def _connection_target(self):
+        host = self.host
+        port_2001 = self.port_2001
+        port_2002 = self.port_2002
+        if host and str(host).strip().lower() != "auto":
+            self._resolved_service = None
+            return host, port_2001, port_2002
+        service = discover_first_service(timeout=self.discover_timeout)
+        self._resolved_service = service
+        if port_2001 == 2001:
+            port_2001 = service.port
+        if port_2002 == 2002:
+            port_2002 = service.port + 1
+        return service.host, port_2001, port_2002
+
+    def _open_socket(self, host: str, port: int):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._set_socket_timeout(sock, self.timeout)
-        sock.connect((self.host, port))
+        sock.connect((host, port))
         return sock
 
     def _safe_close_socket(self, sock):

@@ -84,7 +84,12 @@ def _resolve_flow_block(flow, pos: int):
                 bmap = flow.get("bmap")
                 if isinstance(bmap, list) and len(bmap) > pos:
                     return bmap[pos], blk if isinstance(blk, dict) else None
-                return idx, blk if isinstance(blk, dict) else None
+                if isinstance(blk, dict):
+                    block_id = blk.get("id__")
+                    if isinstance(block_id, int):
+                        return block_id, blk
+                return None, None
+        return None, None
     bmap = flow.get("bmap")
     if isinstance(bmap, list) and len(bmap) > pos:
         block_id = bmap[pos]
@@ -152,6 +157,14 @@ def extract_flow_clipboard(state, flow_index: int, positions=None):
                 "model_id": model_id,
                 "enabled": bool(block.get("enbl", True)),
                 "params": params,
+                **(
+                    {
+                        "link_flow": int(block.get("bflw")),
+                        "link_position": int(block.get("bblk")),
+                    }
+                    if isinstance(block.get("bflw"), int) and isinstance(block.get("bblk"), int)
+                    else {}
+                ),
             }
         )
     return entries

@@ -67,6 +67,8 @@ export type HelixPathClipboardEntry = {
   modelId: number;
   enabled: boolean;
   params: Array<{ paramId: number; value: number | boolean }>;
+  linkFlow?: number;
+  linkPosition?: number;
 };
 
 export type HelixPathClipboard = {
@@ -75,6 +77,8 @@ export type HelixPathClipboard = {
 };
 
 const ROUTING_MODEL_IDS = new Set([474, 475, 476, 477, 478]);
+const SPLIT_MODEL_IDS = new Set([474, 475, 476, 477]);
+const JOIN_MODEL_IDS = new Set([478]);
 
 export class HelixClient {
   private host: string;
@@ -310,6 +314,14 @@ export class HelixClient {
 
   async clearBlock(flow: number, position: number) {
     return await this.request('/clrBlock', 'ii', [flow, position], '/status', 2500);
+  }
+
+  async setSplitDestination(flow: number, position: number, linkedFlow: number, linkedPosition: number) {
+    return await this.request('/SplitDestinationSet', 'iiii', [flow, position, linkedFlow, linkedPosition], '/status', 2500);
+  }
+
+  async setJoinOrigin(flow: number, position: number, linkedFlow: number, linkedPosition: number) {
+    return await this.request('/JoinOriginSet', 'iiii', [flow, position, linkedFlow, linkedPosition], '/status', 2500);
   }
 
   async clearBlocks(flow: number, positions: number[]) {
@@ -576,6 +588,15 @@ export class HelixClient {
       clipboard.entries.forEach((entry) => {
         this.setModel(targetPath, entry.position, entry.modelId, 0);
       });
+      for (const entry of clipboard.entries) {
+        if (typeof entry.linkFlow !== 'number' || typeof entry.linkPosition !== 'number') continue;
+        const mappedLinkFlow = entry.linkFlow === clipboard.sourcePath ? targetPath : entry.linkFlow;
+        if (SPLIT_MODEL_IDS.has(entry.modelId)) {
+          await this.setSplitDestination(targetPath, entry.position, mappedLinkFlow, entry.linkPosition);
+        } else if (JOIN_MODEL_IDS.has(entry.modelId)) {
+          await this.setJoinOrigin(targetPath, entry.position, mappedLinkFlow, entry.linkPosition);
+        }
+      }
       clipboard.entries.forEach((entry) => {
         this.setBlockEnable(targetPath, entry.position, entry.enabled);
         entry.params.forEach((param) => {
@@ -846,6 +867,21 @@ const resolveFlowBlock = (flow: any, position: number) => {
   if (!flow || typeof flow !== 'object') return { blockId: null, block: null };
   const bmap = Array.isArray(flow.bmap) ? flow.bmap : null;
   const blks = Array.isArray(flow.blks) ? flow.blks : null;
+
+  if (blks && blks.length > 1 && typeof blks[0] === 'number') {
+    for (let idx = 1; idx < blks.length; idx += 2) {
+      const blockPosition = blks[idx - 1];
+      const block = blks[idx];
+      if (blockPosition !== position || !block || typeof block !== 'object') continue;
+      if (bmap && position >= 0 && position < bmap.length && typeof bmap[position] === 'number') {
+        return { blockId: bmap[position], block };
+      }
+      const blockId = Number((block as any).id__);
+      return { blockId: Number.isFinite(blockId) ? blockId : null, block };
+    }
+    return { blockId: null, block: null };
+  }
+
   if (bmap && position >= 0 && position < bmap.length) {
     const blockId = bmap[position];
     if (typeof blockId === 'number') {
@@ -902,6 +938,12 @@ const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard
       modelId,
       enabled: Boolean((block as any).enbl ?? true),
       params,
+      ...(Number.isInteger((block as any).bflw) && Number.isInteger((block as any).bblk)
+        ? {
+            linkFlow: Number((block as any).bflw),
+            linkPosition: Number((block as any).bblk),
+          }
+        : {}),
     });
   });
   return { sourcePath: flowIndex, entries };

@@ -63,4 +63,5 @@ npx expo start --dev-client
 - Tap a slot to choose block type, then select a model to insert
 - Long-press a populated block to edit its parameters, replace the model, or clear it
 - DSP-aware picker that greys out models exceeding the 70‑per‑path cap
-- Split/join routing nodes are not duplicated by path copy yet, so complex parallel-path routing still needs manual cleanup after a paste
+- Path copy duplicates the realized split/join routing nodes the device exposes in the edit buffer
+- Derived shadow routing markers are ignored during path copy because the device does not expose them as normal insertable blocks

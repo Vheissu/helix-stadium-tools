@@ -37,6 +37,8 @@ SNAPSHOT_COLOR_NAMES = {
     11: "Off",
 }
 ROUTING_MODEL_IDS = {474, 475, 476, 477, 478}
+SPLIT_MODEL_IDS = {474, 475, 476, 477}
+JOIN_MODEL_IDS = {478}
 
 
 class HelixSessionError(RuntimeError):
@@ -831,6 +833,36 @@ class HelixSession:
         self.send("/ModelSet", "iiiii", [cmd_id, path, block, slot, model_id])
         return None
 
+    def set_split_destination(
+        self,
+        path: int,
+        position: int,
+        linked_flow: int,
+        linked_position: int,
+        wait_status: bool = True,
+    ):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(path), int(position), int(linked_flow), int(linked_position)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/SplitDestinationSet", "iiiii", args)
+        self.send("/SplitDestinationSet", "iiiii", args)
+        return None
+
+    def set_join_origin(
+        self,
+        path: int,
+        position: int,
+        linked_flow: int,
+        linked_position: int,
+        wait_status: bool = True,
+    ):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(path), int(position), int(linked_flow), int(linked_position)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/JoinOriginSet", "iiiii", args)
+        self.send("/JoinOriginSet", "iiiii", args)
+        return None
+
     def set_property(self, key: str, value, value_type: str = "s", property_id: int = 0, wait_status: bool = True):
         cmd_id = self.next_cmd_id
         blob = build_property_blob(key, value, value_type)
@@ -987,6 +1019,30 @@ class HelixSession:
             for entry in clipboard:
                 self.set_model(target_flow, int(entry["position"]), int(entry["model_id"]), slot=0, wait_status=wait_status)
             for entry in clipboard:
+                model_id = int(entry["model_id"])
+                link_flow = entry.get("link_flow")
+                link_position = entry.get("link_position")
+                if not isinstance(link_flow, int) or not isinstance(link_position, int):
+                    continue
+                mapped_link_flow = target_flow if link_flow == source_flow else int(link_flow)
+                position = int(entry["position"])
+                if model_id in SPLIT_MODEL_IDS:
+                    self.set_split_destination(
+                        target_flow,
+                        position,
+                        mapped_link_flow,
+                        link_position,
+                        wait_status=wait_status,
+                    )
+                elif model_id in JOIN_MODEL_IDS:
+                    self.set_join_origin(
+                        target_flow,
+                        position,
+                        mapped_link_flow,
+                        link_position,
+                        wait_status=wait_status,
+                    )
+            for entry in clipboard:
                 position = int(entry["position"])
                 self.set_block_enable(target_flow, position, int(bool(entry["enabled"])), wait_status=False)
                 for param in entry["params"]:
@@ -1008,6 +1064,8 @@ class HelixSession:
                         "position": int(entry["position"]),
                         "model_id": int(entry["model_id"]),
                         "enabled": bool(entry["enabled"]),
+                        "link_flow": entry.get("link_flow"),
+                        "link_position": entry.get("link_position"),
                     }
                     for entry in clipboard
                 ]
@@ -1020,8 +1078,6 @@ class HelixSession:
                         int(entry["position"]): entry for entry in extract_flow_clipboard(current_state, target_flow)
                     }
                     for expected in expected_entries:
-                        if expected["model_id"] in ROUTING_MODEL_IDS:
-                            continue
                         current = current_entries.get(expected["position"])
                         if not isinstance(current, dict):
                             return None
@@ -1029,6 +1085,13 @@ class HelixSession:
                             return None
                         if bool(current.get("enabled", True)) != expected["enabled"]:
                             return None
+                        if expected["model_id"] in ROUTING_MODEL_IDS:
+                            if expected["link_flow"] is not None and current.get("link_flow") != (
+                                target_flow if expected["link_flow"] == source_flow else expected["link_flow"]
+                            ):
+                                return None
+                            if expected["link_position"] is not None and current.get("link_position") != expected["link_position"]:
+                                return None
                     return True
 
                 result = self._poll_until(clipboard_matches)

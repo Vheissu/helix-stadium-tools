@@ -135,6 +135,56 @@ class TestEditBuffer(unittest.TestCase):
             ],
         )
 
+    def test_extract_flow_clipboard_skips_non_realized_pair_list_positions(self):
+        state = {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [
+                            0,
+                            {"id__": 0, "enbl": 1, "mdls": [{"id__": 770, "parm": []}]},
+                            9,
+                            {"id__": 9, "enbl": 1, "mdls": [{"id__": 475, "parm": []}], "bflw": 0, "bblk": 19},
+                            19,
+                            {"id__": 19, "enbl": 1, "mdls": [{"id__": 192, "parm": []}], "bflw": 0, "bblk": 9},
+                        ],
+                    }
+                ]
+            }
+        }
+        clipboard = extract_flow_clipboard(state, 0, positions=[0, 9, 15, 19])
+        self.assertEqual(
+            clipboard,
+            [
+                {
+                    "position": 0,
+                    "block_id": 0,
+                    "model_id": 770,
+                    "enabled": True,
+                    "params": [],
+                },
+                {
+                    "position": 9,
+                    "block_id": 9,
+                    "model_id": 475,
+                    "enabled": True,
+                    "params": [],
+                    "link_flow": 0,
+                    "link_position": 19,
+                },
+                {
+                    "position": 19,
+                    "block_id": 19,
+                    "model_id": 192,
+                    "enabled": True,
+                    "params": [],
+                    "link_flow": 0,
+                    "link_position": 9,
+                },
+            ],
+        )
+
     def test_extract_active_model_id_reads_first_model(self):
         model_id = extract_active_model_id({"mdls": [{"id__": 404}, {"id__": 405}]})
         self.assertEqual(model_id, 404)

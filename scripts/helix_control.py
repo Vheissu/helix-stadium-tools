@@ -516,6 +516,24 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
     if op in ("copy_path", "copy-path"):
         session.copy_path(int(action["source_path"]), int(action["target_path"]), wait_status=True)
         return cmd_id + 1
+    if op in ("split_destination", "split-destination"):
+        session.set_split_destination(
+            int(action["path"]),
+            int(action["position"]),
+            int(action["linked_flow"]),
+            int(action["linked_position"]),
+            wait_status=True,
+        )
+        return cmd_id + 1
+    if op in ("join_origin", "join-origin"):
+        session.set_join_origin(
+            int(action["path"]),
+            int(action["position"]),
+            int(action["linked_flow"]),
+            int(action["linked_position"]),
+            wait_status=True,
+        )
+        return cmd_id + 1
     if op in ("insert_block", "insert-block"):
         auto_cab = action.get("auto_cab")
         if isinstance(auto_cab, str):
@@ -815,6 +833,16 @@ def main():
     copy_path = sub.add_parser("copy-path")
     copy_path.add_argument("--source-path", type=int, required=True, help="Source flow index (0=Path 1, 1=Path 2)")
     copy_path.add_argument("--target-path", type=int, required=True, help="Target flow index (0=Path 1, 1=Path 2)")
+    split_destination = sub.add_parser("split-destination")
+    split_destination.add_argument("--path", type=int, required=True, help="Target flow index (0=Path 1, 1=Path 2)")
+    split_destination.add_argument("--position", type=int, required=True, help="Visible split node position within the flow")
+    split_destination.add_argument("--linked-flow", type=int, required=True, help="Linked flow index stored in the routing node")
+    split_destination.add_argument("--linked-position", type=int, required=True, help="Linked destination position within the flow")
+    join_origin = sub.add_parser("join-origin")
+    join_origin.add_argument("--path", type=int, required=True, help="Target flow index (0=Path 1, 1=Path 2)")
+    join_origin.add_argument("--position", type=int, required=True, help="Visible join node position within the flow")
+    join_origin.add_argument("--linked-flow", type=int, required=True, help="Linked flow index stored in the routing node")
+    join_origin.add_argument("--linked-position", type=int, required=True, help="Linked origin position within the flow")
 
     discover = sub.add_parser("discover")
     discover.add_argument("--all", action="store_true", help="List all visible Helix services instead of resolving the first one")
@@ -1072,6 +1100,28 @@ def main():
             session.clear_all_blocks(args.path, wait_status=True)
         elif args.cmd == "copy-path":
             json_print(session.copy_path(args.source_path, args.target_path, wait_status=True))
+            return
+        elif args.cmd == "split-destination":
+            json_print(
+                session.set_split_destination(
+                    args.path,
+                    args.position,
+                    args.linked_flow,
+                    args.linked_position,
+                    wait_status=True,
+                )
+            )
+            return
+        elif args.cmd == "join-origin":
+            json_print(
+                session.set_join_origin(
+                    args.path,
+                    args.position,
+                    args.linked_flow,
+                    args.linked_position,
+                    wait_status=True,
+                )
+            )
             return
         elif args.cmd != "monitor":
             raise SystemExit("provide --actions or a subcommand")

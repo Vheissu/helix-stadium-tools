@@ -456,6 +456,8 @@ Supported action ops:
 - `clear_blocks` / `clear-blocks` (`path`, `blocks`)
 - `clear_all_blocks` / `clear-all-blocks` (`path`)
 - `copy_path` / `copy-path` (`source_path`, `target_path`)
+- `split_destination` / `split-destination` (`path`, `position`, `linked_flow`, `linked_position`)
+- `join_origin` / `join-origin` (`path`, `position`, `linked_flow`, `linked_position`)
 - `insert_block` / `insert-block` (`path`, `block`, `model_id` or `model`, `slot`, `auto_cab`, `clear`, `clear_blocks`)
 - `io_set` / `io-set` (`row`, `type`, `model_id` or `model`)
 - `io_param` / `io-param` (`row`, `type`, `param_id` or `param`, `value`)
@@ -472,7 +474,8 @@ Notes:
 - `scribble_label` and `property_set` require `msgpack` to be installed.
 - The CLI now fails fast on missing acknowledgements instead of silently succeeding after a timeout.
 - `monitor` and `--listen` decode wrapped port `2001` push traffic, including heartbeats and edit notifications.
-- `copy-path` overwrites the target path's standard IO/effect slots. Split/join routing nodes are not duplicated yet, so complex parallel-path routing still needs manual follow-up.
+- `copy-path` overwrites the target path's realized IO/effect/routing slots, including the live split/join nodes the device materializes in the edit buffer.
+- Derived shadow routing markers are ignored during path copy because the device does not expose them as normal insertable blocks.
 
 ## scripts/set_scribble_label.py
 

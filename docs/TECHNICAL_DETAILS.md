@@ -301,6 +301,12 @@ Commands present in the desktop app binary but still unverified or unresolved on
 
 - `/CreateContent`
 
+Current live probe status:
+
+- The desktop app binary still contains the `/CreateContent` route string.
+- A direct network probe against the current device returned `/error ,iis [cmdId, 0, "Msg dispatch failed: /CreateContent is NOT known!!!"]`.
+- Do not ship a public `CreateContent` wrapper yet; the transport or preconditions are still unresolved.
+
 ## Direct clear + structural routing commands
 
 Confirmed live:
@@ -314,7 +320,7 @@ Notes:
 - `/clrBlock` clears by visible flow position, not by the raw `bmap` block id.
 - `/clrBlock` returns `/status ,iii [cmdId, 0, 1]` on success.
 
-Partially confirmed:
+Confirmed live:
 
 ```
 /SplitDestinationSet ,iiiii [cmdId, flow, position, linkedFlow, linkedBlock]
@@ -324,8 +330,12 @@ Partially confirmed:
 Notes:
 
 - The device accepts the `iiiii` request shape for both commands.
+- `flow` and `position` are the visible path/flow indices for the split or join node being edited.
+- `linkedFlow` and `linkedBlock` are also visible flow/position values, not raw `bmap` ids.
+- `SplitDestinationSet` updates the split node's `bflw`/`bblk` link immediately.
+- `JoinOriginSet` updates the join node's `bflw`/`bblk` link immediately.
 - Invalid value combinations return `/status` with `[-4, 1]`.
-- These routes appear to be required for reconstructing split/join routing nodes (`P35_AppDSPSplit*`, `P35_AppDSPJoin`), but the valid field semantics are still unresolved.
+- Path copy should treat the concrete split/join nodes as copyable routing blocks and ignore any extra derived shadow markers that appear only in the graph representation.
 
 ## Agenda commands (batch actions)
 

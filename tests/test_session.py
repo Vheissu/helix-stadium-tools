@@ -598,6 +598,30 @@ class TestSession(unittest.TestCase):
         result = session.set_snapshot_name(1, "Name", wait_status=True)
         self.assertEqual(result, ["ok"])
 
+    def test_set_split_destination_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_split_destination(1, 9, 1, 19, wait_status=False)
+        session.send.assert_called_once_with("/SplitDestinationSet", "iiiii", [1, 1, 9, 1, 19])
+
+    def test_set_split_destination_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_split_destination(1, 9, 1, 19, wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_set_join_origin_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_join_origin(1, 10, 1, 26, wait_status=False)
+        session.send.assert_called_once_with("/JoinOriginSet", "iiiii", [1, 1, 10, 1, 26])
+
+    def test_set_join_origin_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_join_origin(1, 10, 1, 26, wait_status=True)
+        self.assertEqual(result, ["ok"])
+
     def test_activate_snapshot_wait_change_false(self):
         session = HelixSession("dummy")
         session.send = mock.Mock()
@@ -1055,14 +1079,17 @@ class TestSession(unittest.TestCase):
                     {
                         "bmap": list(range(28)),
                         "blks": [
-                            {"enbl": 1, "mdls": [{"id__": 770, "parm": [{"pid_": 2, "valu": 1}, {"pid_": 3, "valu": 0.5}]}]},
-                            {"enbl": 0, "mdls": [{"id__": 771, "parm": [{"pid_": 4, "valu": False}]}]},
-                        ]
-                        + [None] * 26,
+                            0,
+                            {"id__": 0, "enbl": 1, "mdls": [{"id__": 770, "parm": [{"pid_": 2, "valu": 1}, {"pid_": 3, "valu": 0.5}]}]},
+                            9,
+                            {"id__": 9, "enbl": 1, "mdls": [{"id__": 475, "parm": []}], "bflw": 0, "bblk": 19},
+                            19,
+                            {"id__": 19, "enbl": 0, "mdls": [{"id__": 771, "parm": [{"pid_": 4, "valu": False}]}]},
+                        ],
                     },
                     {
                         "bmap": list(range(28)),
-                        "blks": [None] * 28,
+                        "blks": [],
                     },
                 ]
             }
@@ -1074,6 +1101,9 @@ class TestSession(unittest.TestCase):
         session.set_model = lambda path, block, model_id, slot=0, wait_status=True: calls.append(
             ("set_model", path, block, model_id, slot, wait_status)
         )
+        session.set_split_destination = lambda path, position, linked_flow, linked_position, wait_status=True: calls.append(
+            ("set_split_destination", path, position, linked_flow, linked_position, wait_status)
+        )
         session.set_block_enable = lambda path, block, enabled, wait_status=True: calls.append(
             ("set_block_enable", path, block, enabled, wait_status)
         )
@@ -1082,18 +1112,21 @@ class TestSession(unittest.TestCase):
         )
 
         result = session.copy_path(0, 1, wait_status=False)
-        self.assertEqual(result, {"source_path": 0, "target_path": 1, "entry_count": 2, "routing_entry_count": 0})
+        self.assertEqual(result, {"source_path": 0, "target_path": 1, "entry_count": 3, "routing_entry_count": 1})
         self.assertEqual(
             calls,
             [
                 ("set_auto_cab", False, False),
                 ("set_model", 1, 0, 770, 0, False),
-                ("set_model", 1, 1, 771, 0, False),
+                ("set_model", 1, 9, 475, 0, False),
+                ("set_model", 1, 19, 771, 0, False),
+                ("set_split_destination", 1, 9, 1, 19, False),
                 ("set_block_enable", 1, 0, 1, False),
                 ("set_param_value", 1, 0, 2, 1, 0, -1, False, "i"),
                 ("set_param_value", 1, 0, 3, 0.5, 0, -1, False, "f"),
-                ("set_block_enable", 1, 1, 0, False),
-                ("set_param_value", 1, 1, 4, False, 0, -1, False, "b"),
+                ("set_block_enable", 1, 9, 1, False),
+                ("set_block_enable", 1, 19, 0, False),
+                ("set_param_value", 1, 19, 4, False, 0, -1, False, "b"),
                 ("set_auto_cab", True, False),
             ],
         )

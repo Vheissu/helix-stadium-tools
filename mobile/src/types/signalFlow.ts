@@ -20,8 +20,10 @@ export interface BlockData {
   id: number;
   name: string;
   kind: string;
+  blockId?: number;
   enabled?: boolean;
   usage?: number;
+  params?: Record<string, number | boolean>;
 }
 
 // Path indices: 0=1A, 1=1B, 2=2A, 3=2B

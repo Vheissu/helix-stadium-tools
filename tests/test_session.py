@@ -423,6 +423,30 @@ class TestSession(unittest.TestCase):
         result = session.set_param_value(0, 1, 2, 0.5, wait_status=True)
         self.assertEqual(result, ["ok"])
 
+    def test_set_param_value_bool_uses_integer_payload(self):
+        stream = FakeStream()
+        session = HelixSession("dummy")
+        session._stream_2002 = stream
+        session._cmd_id = 10
+        session.set_param_value(0, 1, 7, True, wait_status=False)
+        _flags, payload = stream.sent[0]
+        addr, typetags, vals = decode_osc(payload)
+        self.assertEqual(addr, "/ParamValueSet")
+        self.assertEqual(typetags, ",iiiiiii")
+        self.assertEqual(vals, [10, 0, 1, 0, 7, 1, -1])
+
+    def test_set_param_value_explicit_int_type_uses_integer_payload(self):
+        stream = FakeStream()
+        session = HelixSession("dummy")
+        session._stream_2002 = stream
+        session._cmd_id = 11
+        session.set_param_value(1, 2, 3, 4, wait_status=False, value_type="i")
+        _flags, payload = stream.sent[0]
+        addr, typetags, vals = decode_osc(payload)
+        self.assertEqual(addr, "/ParamValueSet")
+        self.assertEqual(typetags, ",iiiiiii")
+        self.assertEqual(vals, [11, 1, 2, 0, 3, 4, -1])
+
     def test_set_block_enable_wait_status_false(self):
         stream = FakeStream()
         session = HelixSession("dummy")

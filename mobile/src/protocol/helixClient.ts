@@ -276,7 +276,7 @@ export class HelixClient {
   ) {
     const cmdId = this.nextCmdId();
     const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
-    if (valueType === 'i') {
+    if (valueType === 'i' || valueType === 'b') {
       this.sendOsc('/ParamValueSet', 'iiiiiii', [cmdId, path, block, slot, paramId, Math.round(numericVal), flags]);
       return;
     }

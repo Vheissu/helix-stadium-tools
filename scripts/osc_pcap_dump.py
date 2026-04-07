@@ -15,12 +15,13 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from helix.blobs import decode_property_blob  # noqa: E402
+from scripts.generate_helix_model_json import resolve_default_modeldefs_path  # noqa: E402
 
 DEFAULT_PCAP = "/tmp/helix-stadium.pcap"
 DEFAULT_PORTS = "2001,2002"
 DEFAULT_MODEL_UIDEFS = "/Applications/Line6/Helix Stadium.app/Contents/Resources/P35ModelUIDefs.json"
 DEFAULT_BLOCK_MAP = None
-DEFAULT_MODELDEFS = "/Applications/Line6/Helix Stadium.app/Contents/Resources/modeldefs/p35md-26002601-1_2_0_0.bin"
+DEFAULT_MODELDEFS = resolve_default_modeldefs_path()
 ZMTP_GREETING_LEN = 64
 PCAPNG_BLOCK_SHB = 0x0A0D0D0A
 PCAPNG_BLOCK_IDB = 0x00000001

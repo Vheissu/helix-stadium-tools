@@ -15,7 +15,6 @@ import re
 from pathlib import Path
 
 DEFAULT_APP_RES = "/Applications/Line6/Helix Stadium.app/Contents/Resources"
-DEFAULT_MODELDEFS = f"{DEFAULT_APP_RES}/modeldefs/p35md-26002601-1_2_0_0.bin"
 DEFAULT_UIDEFS = f"{DEFAULT_APP_RES}/P35ModelUIDefs.json"
 DEFAULT_PARAM_META = f"{DEFAULT_APP_RES}/meta-data/parameter-meta"
 DEFAULT_CONTROLS = f"{DEFAULT_APP_RES}/P35Controls.json"
@@ -79,6 +78,29 @@ TYPE_LABELS = {
 UNIT_OVERRIDES = {
     "percent": "%",
 }
+
+
+def resolve_default_modeldefs_path(app_res: str = DEFAULT_APP_RES, prefix: str = "p35md-") -> str:
+    modeldefs_dir = Path(app_res) / "modeldefs"
+    candidates = list(modeldefs_dir.glob(f"{prefix}*.bin"))
+    if not candidates:
+        return str(modeldefs_dir / f"{prefix}1_2_0_0.bin")
+
+    def version_key(path: Path):
+        stem = path.stem
+        version_text = stem[len(prefix):] if stem.startswith(prefix) else stem
+        parts = []
+        for piece in version_text.split("_"):
+            try:
+                parts.append(int(piece))
+            except ValueError:
+                parts.append(-1)
+        return tuple(parts)
+
+    return str(max(candidates, key=version_key))
+
+
+DEFAULT_MODELDEFS = resolve_default_modeldefs_path()
 
 
 def normalise_key(value: str) -> str:

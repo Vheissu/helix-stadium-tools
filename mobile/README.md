@@ -36,6 +36,10 @@ npx expo start --dev-client
   ```bash
   python3 scripts/update_block_types_usage.py
   ```
+- To regenerate the full mobile block catalog, including amp/cab/fx parameter metadata, run:
+  ```bash
+  python3 scripts/generate_mobile_block_types_json.py
+  ```
 
 ## Prototype features
 
@@ -44,4 +48,5 @@ npx expo start --dev-client
 - Toggle auto-cab (`global.modelselect.addcabblock`)
 - Grid-based signal flow editor (1A/1B/2A/2B, 12 slots each)
 - Tap a slot to choose block type, then select a model to insert
+- Long-press a populated block to edit its parameters, replace the model, or clear it
 - DSP-aware picker that greys out models exceeding the 70‑per‑path cap

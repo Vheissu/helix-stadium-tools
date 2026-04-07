@@ -43,18 +43,43 @@ const FONT_MONO = Platform.select({ ios: 'Menlo', android: 'monospace' });
 const FONT_DISPLAY = 'Roboto-Bold';
 const DSP_CAP = 70;
 
-type IOModelParam = {
+type HelixParamType = 'i' | 'f' | 'b';
+
+type EditorParam = {
   id: number | null;
   key: string;
   name: string;
-  type: 'i' | 'f' | 'b';
+  type: HelixParamType;
   min: number;
   max: number;
-  def: number;
+  def: number | boolean;
+  display_min?: number;
+  display_max?: number;
+  display_def?: number | boolean;
+  unit?: string | null;
   options?: string[] | null;
+  description?: string;
   faux?: boolean;
   property_key?: string | null;
 };
+
+type BlockModel = {
+  id: number;
+  key: string;
+  name: string;
+  category: string;
+  usage?: number;
+  params: EditorParam[];
+};
+
+type BlockModelGroup = {
+  label: string;
+  models: BlockModel[];
+};
+
+type BlockCatalog = Record<string, BlockModelGroup>;
+
+type IOModelParam = EditorParam;
 
 type IOModel = {
   id: number;
@@ -72,6 +97,8 @@ type IOModelData = {
   inputs: IOModelGroup;
   outputs: IOModelGroup;
 };
+
+const blockCatalog = blockTypes as BlockCatalog;
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <View style={styles.section}>
@@ -127,6 +154,8 @@ export default function App() {
   const [targetSlot, setTargetSlot] = useState({ path: 0, block: 0 });
   const [slotMenuOpen, setSlotMenuOpen] = useState(false);
   const [slotMenuTarget, setSlotMenuTarget] = useState<BlockSlot | null>(null);
+  const [blockEditorOpen, setBlockEditorOpen] = useState(false);
+  const [blockEditorSlot, setBlockEditorSlot] = useState<BlockSlot | null>(null);
   const [grid, setGrid] = useState<SignalFlowGrid>(() =>
     Array.from({ length: 4 }, () => Array.from({ length: 12 }, () => null))
   );
@@ -140,10 +169,15 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('flow');
 
   const modelLookup = useMemo(() => {
-    const map = new Map<number, { name: string; kind: string; usage: number }>();
-    Object.entries(blockTypes).forEach(([key, group]) => {
+    const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
+    Object.entries(blockCatalog).forEach(([key, group]) => {
       group.models.forEach((item) => {
-        map.set(item.id, { name: item.name, kind: key, usage: item.usage ?? 0 });
+        map.set(item.id, {
+          name: item.name,
+          kind: key,
+          usage: item.usage ?? 0,
+          params: item.params ?? [],
+        });
       });
     });
     return map;
@@ -180,6 +214,41 @@ export default function App() {
   };
 
   const effectBlockIndex = (row: PathIndex, slot: number) => (row % 2 === 0 ? slot + 1 : slot + 15);
+  const cloneGrid = (prev: SignalFlowGrid): SignalFlowGrid =>
+    prev.map((row) =>
+      row.map((cell) =>
+        cell
+          ? {
+              ...cell,
+              params: cell.params ? { ...cell.params } : {},
+            }
+          : null
+      )
+    );
+  const buildParamDefaults = (params: EditorParam[]) =>
+    params.reduce<Record<string, number | boolean>>((acc, param) => {
+      const key = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+      if (!key || param.def === undefined) return acc;
+      acc[key] = param.def;
+      return acc;
+    }, {});
+  const clampParamValue = (param: EditorParam, value: number | boolean) => {
+    if (param.type === 'b') {
+      return typeof value === 'boolean' ? value : Boolean(Number(value));
+    }
+    const numeric = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
+    if (!Number.isFinite(numeric)) {
+      return null;
+    }
+    let next = param.type === 'i' ? Math.round(numeric) : numeric;
+    if (typeof param.min === 'number') {
+      next = Math.max(param.min, next);
+    }
+    if (typeof param.max === 'number') {
+      next = Math.min(param.max, next);
+    }
+    return next;
+  };
   const blockTypeOrder: Array<keyof typeof blockTypes> = [
     'amp',
     'preamp',
@@ -198,7 +267,7 @@ export default function App() {
   ];
   const pickerModels = useMemo(() => {
     if (!pickerType) return [];
-    const items = blockTypes[pickerType].models;
+    const items = blockCatalog[pickerType].models;
     if (!pickerQuery.trim()) return items;
     const q = pickerQuery.trim().toLowerCase();
     return items.filter((item) => item.name.toLowerCase().includes(q));
@@ -213,6 +282,10 @@ export default function App() {
   const activeIOModelMeta = activeIOModel?.modelId
     ? ioModelLookup.get(activeIOModel.modelId) ?? null
     : null;
+  const activeBlock = blockEditorSlot
+    ? grid[blockEditorSlot.path]?.[blockEditorSlot.block] ?? null
+    : null;
+  const activeBlockMeta = activeBlock?.id ? modelLookup.get(activeBlock.id) ?? null : null;
   const availableUsage = useMemo(() => {
     const remaining = targetSlot.path < 2 ? DSP_CAP - pathUsage.path1 : DSP_CAP - pathUsage.path2;
     return Math.max(0, remaining);
@@ -288,6 +361,7 @@ export default function App() {
     const p = targetSlot.path as PathIndex;
     const b = targetSlot.block;
     const blockId = effectBlockIndex(p, b);
+    const meta = modelLookup.get(modelId);
     if (usage > availableUsage) {
       setStatus('DSP cap reached (70 per path)');
       return;
@@ -296,9 +370,16 @@ export default function App() {
     client.setModel(flow, blockId, modelId, 0);
     setStatus(`Inserted ${name} into ${rowLabels[p]}-${b + 1}`);
     setGrid((prev) => {
-      const next = prev.map((row) => row.slice());
+      const next = cloneGrid(prev);
       if (next[p] && next[p][b] !== undefined) {
-        next[p][b] = { id: modelId, name, kind, usage };
+        next[p][b] = {
+          id: modelId,
+          name,
+          kind,
+          usage,
+          blockId,
+          params: buildParamDefaults(meta?.params ?? []),
+        };
       }
       return next;
     });
@@ -318,6 +399,18 @@ export default function App() {
   const openSlotMenu = (slot: BlockSlot) => {
     setSlotMenuTarget(slot);
     setSlotMenuOpen(true);
+  };
+
+  const openBlockEditor = (slot: BlockSlot) => {
+    setSelectedSlot(slot);
+    setBlockEditorSlot(slot);
+    setBlockEditorOpen(true);
+    setSlotMenuOpen(false);
+  };
+
+  const replaceSlotModel = (slot: BlockSlot) => {
+    setSlotMenuOpen(false);
+    selectSlot(slot);
   };
 
   const selectBlockType = (typeKey: keyof typeof blockTypes) => {
@@ -343,12 +436,16 @@ export default function App() {
     const blockId = effectBlockIndex(slot.path, slot.block);
     client.clearBlocks(rowToFlow(slot.path), [blockId]);
     setGrid((prev) => {
-      const next = prev.map((row) => row.slice());
+      const next = cloneGrid(prev);
       if (next[slot.path] && next[slot.path][slot.block] !== undefined) {
         next[slot.path][slot.block] = null;
       }
       return next;
     });
+    if (blockEditorSlot?.path === slot.path && blockEditorSlot?.block === slot.block) {
+      setBlockEditorOpen(false);
+      setBlockEditorSlot(null);
+    }
     setStatus(`Cleared ${rowLabels[slot.path]}-${slot.block + 1}`);
     setSlotMenuOpen(false);
   };
@@ -391,10 +488,12 @@ export default function App() {
     const row = ioPickerRow;
     const flow = rowToFlow(row);
     const blockId = ioBlockIndex(row, ioPickerType);
+    const nextValue = clampParamValue(param, value);
+    if (nextValue === null) return;
     if (param.faux && param.property_key) {
-      client.setProperty(param.property_key, value, param.type);
+      client.setProperty(param.property_key, nextValue, param.type);
     } else if (param.id !== null) {
-      client.setParamValue(flow, blockId, param.id, value, 0, -1, param.type);
+      client.setParamValue(flow, blockId, param.id, nextValue, 0, -1, param.type);
     }
     const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
     setIoGrid((prev) => {
@@ -411,13 +510,34 @@ export default function App() {
           name: existing?.name ?? '\u2014',
           params: {
             ...(existing?.params ?? {}),
-            [paramKey]: value,
+            [paramKey]: nextValue,
           },
         };
       }
       return next;
     });
     setStatus(`Updated ${rowLabels[row]} ${ioPickerType} ${param.name}`);
+  };
+
+  const updateBlockParam = (param: EditorParam, value: number | boolean) => {
+    const client = requireClient();
+    if (!client || !blockEditorSlot || !activeBlock || param.id === null) return;
+    const nextValue = clampParamValue(param, value);
+    if (nextValue === null || activeBlock.blockId === undefined) return;
+    const row = blockEditorSlot.path;
+    client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+    setGrid((prev) => {
+      const next = cloneGrid(prev);
+      const block = next[row]?.[blockEditorSlot.block];
+      if (block) {
+        block.params = {
+          ...(block.params ?? {}),
+          [String(param.id)]: nextValue,
+        };
+      }
+      return next;
+    });
+    setStatus(`Updated ${rowLabels[row]}-${blockEditorSlot.block + 1} ${param.name}`);
   };
 
   const hydrateFauxParams = async (row: PathIndex, ioType: IOType) => {
@@ -494,7 +614,13 @@ export default function App() {
         Array.from({ length: 12 }, () => null)
       );
       const nextIO: IOGrid = Array.from({ length: 4 }, () => ({ input: null, output: null }));
-      const assignSlot = (rowIndex: number, slotIndex: number, modelId: number | null) => {
+      const assignSlot = (
+        rowIndex: number,
+        slotIndex: number,
+        modelId: number | null,
+        params: Record<string, number | boolean>,
+        blockId: number
+      ) => {
         if (!nextGrid[rowIndex]) return;
         if (slotIndex < 0 || slotIndex >= 12) return;
         if (typeof modelId === 'number' && modelLookup.has(modelId)) {
@@ -504,13 +630,17 @@ export default function App() {
             name: info.name,
             kind: info.kind,
             usage: info.usage,
+            blockId,
+            params,
           };
         } else {
           nextGrid[rowIndex][slotIndex] = {
             id: Number(modelId) || 0,
-            name: 'Block',
-            kind: 'fx',
+            name: modelId !== null ? `ID ${modelId}` : 'Block',
+            kind: 'fx_loop',
             usage: 0,
+            blockId,
+            params,
           };
         }
       };
@@ -579,11 +709,11 @@ export default function App() {
           }
 
           if (pos >= 1 && pos <= 12) {
-            assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null);
+            assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos);
             return;
           }
           if (pos >= 15 && pos <= 26) {
-            assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null);
+            assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos);
           }
         };
 
@@ -762,15 +892,37 @@ export default function App() {
     </ScrollView>
   );
 
-  const renderIOParams = () => {
-    if (!activeIOModelMeta) {
-      return <Text style={styles.paramHint}>Select a model to edit parameters.</Text>;
+  const renderParamHint = (param: EditorParam) => {
+    const parts: string[] = [];
+    if (param.description) {
+      parts.push(param.description);
     }
-    return activeIOModelMeta.params.map((param, paramIndex) => {
+    if (!param.options?.length && typeof param.display_min === 'number' && typeof param.display_max === 'number') {
+      const unit = param.unit && param.unit !== 'unitless' ? ` ${param.unit}` : '';
+      parts.push(`Range ${param.display_min}-${param.display_max}${unit}`);
+    }
+    if (!parts.length) return null;
+    return (
+      <Text style={styles.paramHintText} numberOfLines={3}>
+        {parts.join(' • ')}
+      </Text>
+    );
+  };
+
+  const renderParamFields = (
+    params: EditorParam[],
+    values: Record<string, number | boolean> | undefined,
+    onChange: (param: EditorParam, value: number | boolean) => void,
+    emptyHint: string
+  ) => {
+    if (!params.length) {
+      return <Text style={styles.paramHint}>{emptyHint}</Text>;
+    }
+    return params.map((param, paramIndex) => {
       const paramKey =
         param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
       const rowKey = `${paramKey}-${paramIndex}`;
-      const current = activeIOModel?.params?.[paramKey] ?? param.def ?? 0;
+      const current = values?.[paramKey] ?? param.def ?? 0;
       const options = param.options ?? null;
       if (options && options.length) {
         const min = typeof param.min === 'number' ? param.min : 0;
@@ -778,20 +930,23 @@ export default function App() {
         return (
           <View key={rowKey} style={styles.paramRow}>
             <Text style={styles.paramLabel}>{param.name}</Text>
+            {renderParamHint(param)}
             <View style={styles.paramOptions}>
               {options.map((optLabel, idx) => {
-                let value = idx;
+                let value: number | boolean = idx;
                 if (param.type === 'b') {
-                  value = idx === 0 ? 0 : 1;
+                  value = idx > 0;
                 } else if (options.length === max - min + 1) {
                   value = min + idx;
                 }
-                const isActive = Number(current) === value;
+                const comparableCurrent = param.type === 'b' ? Boolean(current) : Number(current);
+                const comparableValue = param.type === 'b' ? Boolean(value) : Number(value);
+                const isActive = comparableCurrent === comparableValue;
                 return (
                   <Pressable
                     key={`${rowKey}-${value}`}
                     style={[styles.paramOption, isActive && styles.paramOptionActive]}
-                    onPress={() => updateIOParam(param, value)}
+                    onPress={() => onChange(param, value)}
                   >
                     <Text style={[styles.paramOptionText, isActive && styles.paramOptionTextActive]}>
                       {optLabel}
@@ -806,6 +961,7 @@ export default function App() {
       return (
         <View key={rowKey} style={styles.paramRow}>
           <Text style={styles.paramLabel}>{param.name}</Text>
+          {renderParamHint(param)}
           <TextInput
             style={styles.paramInput}
             defaultValue={String(current)}
@@ -813,13 +969,37 @@ export default function App() {
             onEndEditing={(evt) => {
               const nextVal = Number(evt.nativeEvent.text);
               if (Number.isFinite(nextVal)) {
-                updateIOParam(param, nextVal);
+                onChange(param, nextVal);
               }
             }}
           />
         </View>
       );
     });
+  };
+
+  const renderIOParams = () => {
+    if (!activeIOModelMeta) {
+      return <Text style={styles.paramHint}>Select a model to edit parameters.</Text>;
+    }
+    return renderParamFields(
+      activeIOModelMeta.params,
+      activeIOModel?.params,
+      updateIOParam,
+      'Select a model to edit parameters.'
+    );
+  };
+
+  const renderBlockParams = () => {
+    if (!activeBlockMeta || !activeBlock) {
+      return <Text style={styles.paramHint}>Long-press a populated block to edit its parameters.</Text>;
+    }
+    return renderParamFields(
+      activeBlockMeta.params,
+      activeBlock.params,
+      updateBlockParam,
+      'No editable parameters were found for this block.'
+    );
   };
 
   return (
@@ -866,6 +1046,18 @@ export default function App() {
         >
           <View style={styles.sheetActions}>
             <Pressable
+              style={[styles.actionButton, styles.actionButtonPrimary]}
+              onPress={() => slotMenuTarget && openBlockEditor(slotMenuTarget)}
+            >
+              <Text style={styles.actionButtonPrimaryText}>Edit Parameters</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.actionButton, styles.actionButtonGhost]}
+              onPress={() => slotMenuTarget && replaceSlotModel(slotMenuTarget)}
+            >
+              <Text style={styles.actionButtonText}>Replace Model</Text>
+            </Pressable>
+            <Pressable
               style={[styles.actionButton, styles.actionButtonDanger]}
               onPress={() => slotMenuTarget && clearSlot(slotMenuTarget)}
             >
@@ -878,6 +1070,21 @@ export default function App() {
               <Text style={styles.actionButtonText}>Cancel</Text>
             </Pressable>
           </View>
+        </BottomSheet>
+
+        <BottomSheet
+          visible={blockEditorOpen}
+          onClose={() => setBlockEditorOpen(false)}
+          title="Block Parameters"
+          subtitle={
+            blockEditorSlot && activeBlock
+              ? `${activeBlock.name} · ${rowLabels[blockEditorSlot.path]} · Block ${blockEditorSlot.block + 1}`
+              : undefined
+          }
+        >
+          <ScrollView style={styles.paramList} nestedScrollEnabled>
+            {renderBlockParams()}
+          </ScrollView>
         </BottomSheet>
 
         {/* ── Bottom Sheet: IO Picker ──────────────────────────── */}
@@ -921,14 +1128,14 @@ export default function App() {
         <BottomSheet
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
-          title={pickerStep === 'type' ? 'Add Block' : blockTypes[pickerType ?? 'amp']?.label}
+          title={pickerStep === 'type' ? 'Add Block' : blockCatalog[pickerType ?? 'amp']?.label}
           subtitle={`${rowLabels[targetSlot.path]} \u00b7 Block ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${DSP_CAP}`}
         >
           {pickerStep === 'type' ? (
             <ScrollView style={styles.sheetList} nestedScrollEnabled>
               <View style={styles.typeGrid}>
                 {blockTypeOrder.map((typeKey) => {
-                  const group = blockTypes[typeKey];
+                  const group = blockCatalog[typeKey];
                   const color = BLOCK_COLORS[typeKey] ?? COLORS.muted;
                   return (
                     <Pressable
@@ -1250,6 +1457,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
   },
+  actionButtonPrimary: {
+    backgroundColor: 'rgba(123, 191, 158, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 191, 158, 0.35)',
+  },
+  actionButtonPrimaryText: {
+    color: COLORS.success,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 16,
+  },
   actionButtonDanger: {
     backgroundColor: 'rgba(228, 107, 97, 0.15)',
   },
@@ -1412,6 +1629,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  paramHintText: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    lineHeight: 17,
   },
   paramInput: {
     padding: 10,

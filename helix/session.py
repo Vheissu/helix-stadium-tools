@@ -265,8 +265,24 @@ class HelixSession:
         self.send("/SetSnapshotName", "iis", [cmd_id, index, name])
         return None
 
-    def set_param_value(self, path: int, block: int, param_id: int, value, slot: int = 0, flags: int = -1, wait_status: bool = True):
+    def set_param_value(
+        self,
+        path: int,
+        block: int,
+        param_id: int,
+        value,
+        slot: int = 0,
+        flags: int = -1,
+        wait_status: bool = True,
+        value_type: str | None = None,
+    ):
         cmd_id = self.next_cmd_id
+        if value_type in ("i", "b") or isinstance(value, bool):
+            args = [cmd_id, path, block, slot, param_id, int(bool(value)) if isinstance(value, bool) else int(value), flags]
+            if wait_status:
+                return self.send_and_wait_status(cmd_id, "/ParamValueSet", "iiiiiii", args)
+            self.send("/ParamValueSet", "iiiiiii", args)
+            return None
         args = [cmd_id, path, block, slot, param_id, float(value), flags]
         if wait_status:
             return self.send_and_wait_status(cmd_id, "/ParamValueSet", "iiiiifi", args)

@@ -21,10 +21,11 @@ from helix.editbuffer import (  # noqa: E402
     normalize_edit_buffer,
     parse_row,
 )
+from scripts.generate_helix_model_json import resolve_default_modeldefs_path  # noqa: E402
 
 
 DEFAULT_APP_RES = "/Applications/Line6/Helix Stadium.app/Contents/Resources"
-DEFAULT_MODELDEFS = f"{DEFAULT_APP_RES}/modeldefs/p35md-26002601-1_2_0_0.bin"
+DEFAULT_MODELDEFS = resolve_default_modeldefs_path(DEFAULT_APP_RES)
 DEFAULT_UIDEFS = f"{DEFAULT_APP_RES}/P35ModelUIDefs.json"
 DEFAULT_MODEL_MAP = str(Path(__file__).resolve().parents[1] / "generated" / "helix-models" / "model_id_map.json")
 
@@ -68,7 +69,7 @@ def parse_param_value(value: str):
     try:
         return float(value)
     except ValueError:
-        return 1.0 if parse_bool(value) else 0.0
+        return parse_bool(value)
 
 
 def parse_blocks(value: str):

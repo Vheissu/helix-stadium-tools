@@ -446,6 +446,8 @@ Supported action ops:
 - `reorder_container_content` / `reorder-container-content` (`container_cid`, `content_ids`, `position`)
 - `set_content_path` / `set-content-path` (`cid`, `path`)
 - `set_content_data` / `set-content-data` (`cid`, `input` or `path`)
+- `set_content_info` / `set-content-info` (`content_type`, `key`, `value`)
+- `delete_content_info` / `delete-content-info` (`content_type`, `key`)
 - `scribble_label` (`stomp` or `key`, `label`)
 - `property_set` (`key`, `value`, `value_type`, `property_id`)
 - `preset_notes` / `notes` (`text`)
@@ -453,6 +455,7 @@ Supported action ops:
 - `set_autocab` / `set-autocab` (`enabled`)
 - `clear_blocks` / `clear-blocks` (`path`, `blocks`)
 - `clear_all_blocks` / `clear-all-blocks` (`path`)
+- `copy_path` / `copy-path` (`source_path`, `target_path`)
 - `insert_block` / `insert-block` (`path`, `block`, `model_id` or `model`, `slot`, `auto_cab`, `clear`, `clear_blocks`)
 - `io_set` / `io-set` (`row`, `type`, `model_id` or `model`)
 - `io_param` / `io-param` (`row`, `type`, `param_id` or `param`, `value`)
@@ -469,6 +472,7 @@ Notes:
 - `scribble_label` and `property_set` require `msgpack` to be installed.
 - The CLI now fails fast on missing acknowledgements instead of silently succeeding after a timeout.
 - `monitor` and `--listen` decode wrapped port `2001` push traffic, including heartbeats and edit notifications.
+- `copy-path` overwrites the target path's standard IO/effect slots. Split/join routing nodes are not duplicated yet, so complex parallel-path routing still needs manual follow-up.
 
 ## scripts/set_scribble_label.py
 

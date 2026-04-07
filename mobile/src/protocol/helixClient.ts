@@ -74,6 +74,8 @@ export type HelixPathClipboard = {
   entries: HelixPathClipboardEntry[];
 };
 
+const ROUTING_MODEL_IDS = new Set([474, 475, 476, 477, 478]);
+
 export class HelixClient {
   private host: string;
   private port2001: number;
@@ -587,7 +589,12 @@ export class HelixClient {
         this.setAutoCab(true);
       }
     }
-    return { sourcePath: clipboard.sourcePath, targetPath, entryCount: clipboard.entries.length };
+    return {
+      sourcePath: clipboard.sourcePath,
+      targetPath,
+      entryCount: clipboard.entries.length,
+      routingEntryCount: clipboard.entries.filter((entry) => ROUTING_MODEL_IDS.has(entry.modelId)).length,
+    };
   }
 }
 

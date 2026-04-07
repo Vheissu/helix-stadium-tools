@@ -55,6 +55,7 @@ npx expo start --dev-client
 - Rename the active snapshot from the preset tab
 - Copy one snapshot over another and inspect the active snapshot's raw target ids
 - Send snapshot color changes using the same named colors shown in the desktop app
+- Copy Path 1 to Path 2 or Path 2 to Path 1 and overwrite the target path's standard IO/effect slots
 - Toggle Notes panel open/close
 - Update preset notes text (property `preset.meta.info`)
 - Toggle auto-cab (`global.modelselect.addcabblock`)
@@ -62,3 +63,4 @@ npx expo start --dev-client
 - Tap a slot to choose block type, then select a model to insert
 - Long-press a populated block to edit its parameters, replace the model, or clear it
 - DSP-aware picker that greys out models exceeding the 70‑per‑path cap
+- Split/join routing nodes are not duplicated by path copy yet, so complex parallel-path routing still needs manual cleanup after a paste

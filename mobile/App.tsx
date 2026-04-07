@@ -769,7 +769,11 @@ export default function App() {
     }
     try {
       const result = await client.pastePathClipboard(pathClipboard, targetFlow);
-      setStatus(`Pasting Path ${pathClipboard.sourcePath + 1} to Path ${pathNum} (${result.entryCount} blocks)...`);
+      const routingNote =
+        result.routingEntryCount > 0 ? ` Split/join routing still needs manual cleanup (${result.routingEntryCount} nodes).` : '';
+      setStatus(
+        `Pasting Path ${pathClipboard.sourcePath + 1} to Path ${pathNum} (${result.entryCount} blocks).${routingNote}`
+      );
       scheduleSync(1800);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

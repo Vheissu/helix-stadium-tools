@@ -267,16 +267,13 @@ Observed behaviour:
   - raw preset ids (for example the `rcid` behind an active setlist entry)
   - setlist container ids
 
-Commands present in the desktop app binary but not accepted by the device during testing:
-
-- `/CreateContent`
-- `/SetContentInfo`
-- `/DeleteContentInfo`
-
 Additional live content-management requests:
 
 ```
+/GetAllContentInfo ,ii [cmdId, contentType]
+/SetContentInfo ,iiss [cmdId, contentType, key, value]
 /GetContentInfo ,iis [cmdId, contentType, name]
+/DeleteContentInfo ,iis [cmdId, contentType, key]
 /FindContentMatches ,iiss [cmdId, contentType, query, location]
 /AddContentsToContainer ,iibiii [cmdId, containerId, <msgpack [contentIds...]>, position, flagA, flagB]
 /ReorderContainerContent ,iibi [cmdId, containerId, <msgpack [contentIds...]>, position]
@@ -286,6 +283,7 @@ Additional live content-management requests:
 Observed responses:
 
 ```
+/GetAllContentInfo ,iibi [cmdId, contentType, <msgpack blob>, status]
 /GetContentInfo ,iisi [cmdId, contentType, "<string>", value]
 /FindContentInfo ,iissbi [cmdId, contentType, "<string>", "<string>", <msgpack blob>, value]
 /status ,iii [cmdId, 0, 1]
@@ -296,11 +294,38 @@ Practical notes:
 - `AddContentsToContainer` with `flagA=0` and `flagB=0` was verified to add a raw preset id to a setlist as a new setlist entry without removing the backing raw preset from the user library.
 - `RemoveContent` with the setlist container id removes those created setlist-entry refs cleanly.
 - `ReorderContainerContent` uses an insertion index, not a final position. For forward moves, appending to the end of a 6-item container required `position=6`, not `position=5`.
-- `GetContentInfo` and `FindContentMatches` now return valid responses from the device, but the higher-level meaning of their string/value fields is still unresolved.
+- `SetContentInfo`, `GetContentInfo`, `GetAllContentInfo`, and `DeleteContentInfo` all work against the device's content-info store.
+- `GetContentInfo` and `FindContentMatches` return valid responses from the device, but the higher-level meaning of the string/value fields returned by `FindContentMatches` is still unresolved.
 
 Commands present in the desktop app binary but still unverified or unresolved on the device:
 
-- `/GetAllContentInfo`
+- `/CreateContent`
+
+## Direct clear + structural routing commands
+
+Confirmed live:
+
+```
+/clrBlock ,iii [cmdId, flow, position]
+```
+
+Notes:
+
+- `/clrBlock` clears by visible flow position, not by the raw `bmap` block id.
+- `/clrBlock` returns `/status ,iii [cmdId, 0, 1]` on success.
+
+Partially confirmed:
+
+```
+/SplitDestinationSet ,iiiii [cmdId, flow, position, linkedFlow, linkedBlock]
+/JoinOriginSet ,iiiii [cmdId, flow, position, linkedFlow, linkedBlock]
+```
+
+Notes:
+
+- The device accepts the `iiiii` request shape for both commands.
+- Invalid value combinations return `/status` with `[-4, 1]`.
+- These routes appear to be required for reconstructing split/join routing nodes (`P35_AppDSPSplit*`, `P35_AppDSPJoin`), but the valid field semantics are still unresolved.
 
 ## Agenda commands (batch actions)
 
@@ -378,7 +403,11 @@ Input/Output blocks live inside each `sfg_.flow` entry, alongside standard block
 - Row A positions: `0` (Input), `1–12` (blocks), `13` (Output)
 - Row B positions: `14` (Input), `15–26` (blocks), `27` (Output)
 
-`bmap` provides a position → block index mapping that can be used to resolve the block index required by `/ModelSet` and `/ParamValueSet` calls even when a slot is empty.
+`bmap` still exposes useful structure, but live testing shows that writes on the second flow are keyed by visible position. In practice:
+
+- `/clrBlock` uses `flow + position`
+- `/ModelSet`, `/BlockEnableSet`, and `/ParamValueSet` work reliably with visible positions on flow 1
+- raw `bmap` ids on flow 1 acknowledge but do not reliably change the device state
 
 Row B inputs (1B/2B) are derived from the split and are not directly configurable in the editor UI.
 

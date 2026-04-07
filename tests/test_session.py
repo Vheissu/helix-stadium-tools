@@ -1082,7 +1082,7 @@ class TestSession(unittest.TestCase):
         )
 
         result = session.copy_path(0, 1, wait_status=False)
-        self.assertEqual(result, {"source_path": 0, "target_path": 1, "entry_count": 2})
+        self.assertEqual(result, {"source_path": 0, "target_path": 1, "entry_count": 2, "routing_entry_count": 0})
         self.assertEqual(
             calls,
             [

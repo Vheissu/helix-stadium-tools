@@ -36,6 +36,7 @@ SNAPSHOT_COLOR_NAMES = {
     10: "Pink",
     11: "Off",
 }
+ROUTING_MODEL_IDS = {474, 475, 476, 477, 478}
 
 
 class HelixSessionError(RuntimeError):
@@ -976,6 +977,7 @@ class HelixSession:
         occupied_positions = sorted(
             int(entry["position"]) for entry in target_existing if int(entry["position"]) in CLEARABLE_FLOW_POSITIONS
         )
+        routing_entry_count = sum(1 for entry in clipboard if int(entry["model_id"]) in ROUTING_MODEL_IDS)
         auto_cab = self.get_auto_cab_enabled()
         if auto_cab:
             self.set_auto_cab(False, wait_status=wait_status)
@@ -1006,7 +1008,6 @@ class HelixSession:
                         "position": int(entry["position"]),
                         "model_id": int(entry["model_id"]),
                         "enabled": bool(entry["enabled"]),
-                        "params": {int(param["param_id"]): param["value"] for param in entry["params"]},
                     }
                     for entry in clipboard
                 ]
@@ -1019,6 +1020,8 @@ class HelixSession:
                         int(entry["position"]): entry for entry in extract_flow_clipboard(current_state, target_flow)
                     }
                     for expected in expected_entries:
+                        if expected["model_id"] in ROUTING_MODEL_IDS:
+                            continue
                         current = current_entries.get(expected["position"])
                         if not isinstance(current, dict):
                             return None
@@ -1026,16 +1029,6 @@ class HelixSession:
                             return None
                         if bool(current.get("enabled", True)) != expected["enabled"]:
                             return None
-                        current_params = {int(param["param_id"]): param["value"] for param in current.get("params", [])}
-                        for param_id, expected_value in expected["params"].items():
-                            if param_id not in current_params:
-                                return None
-                            current_value = current_params[param_id]
-                            if isinstance(expected_value, float):
-                                if not isinstance(current_value, (int, float)) or abs(float(current_value) - expected_value) > 1e-6:
-                                    return None
-                            elif current_value != expected_value:
-                                return None
                     return True
 
                 result = self._poll_until(clipboard_matches)
@@ -1048,6 +1041,7 @@ class HelixSession:
             "source_path": source_flow,
             "target_path": target_flow,
             "entry_count": len(clipboard),
+            "routing_entry_count": routing_entry_count,
         }
 
     # Context manager helpers

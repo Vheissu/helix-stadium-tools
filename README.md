@@ -4,6 +4,8 @@
 
 This repo contains tools and data extraction scripts for understanding the Helix Stadium XL editor protocol and generating structured model metadata suitable for AI-driven preset builders.
 
+> **Disclaimer:** This is an unofficial, independent open-source project and is not affiliated with, endorsed by, or associated with Yamaha Guitar Group, Line 6, or any of their subsidiaries. All trademarks, logos, and brand names (including but not limited to "Helix", "Line 6", and "Yamaha") are the property of their respective owners and are used here solely for identification purposes. Use of these names does not imply any affiliation or endorsement.
+
 All paths assume the macOS editor app is installed at:
 
 - `/Applications/Line6/Helix Stadium.app`

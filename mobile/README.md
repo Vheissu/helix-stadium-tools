@@ -44,8 +44,12 @@ npx expo start --dev-client
 ## Prototype features
 
 - Browse preset containers on the device (`Factory`, `User`, and `Setlists`)
+- Filter presets by name, slot, or content id inside the mobile library view
 - Recall presets from the mobile app using content ids or container positions
+- Rename the active preset and the selected setlist from the mobile preset tab
+- Save the current active preset back to its backing content slot
 - Switch active snapshots from the preset tab
+- Copy one snapshot over another and send snapshot color enum changes
 - Toggle Notes panel open/close
 - Update preset notes text (property `preset.meta.info`)
 - Toggle auto-cab (`global.modelselect.addcabblock`)

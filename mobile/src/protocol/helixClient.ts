@@ -351,6 +351,21 @@ export class HelixClient {
     return vals[1];
   }
 
+  async getSnapshotTargets(index: number) {
+    const vals = await this.request('/SnapshotTargetsGet', 'i', [index], '/getSnapshotTargets', 2500);
+    const blob = Array.isArray(vals) && Buffer.isBuffer(vals[2]) ? vals[2] : extractFirstBlob(vals);
+    const decoded = blob ? decodeMsgpackBlob(blob) : null;
+    if (!Array.isArray(decoded)) return null;
+    return decoded
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value));
+  }
+
+  async getSnapshots() {
+    const state = await this.getEditBufferState();
+    return extractSnapshots(state);
+  }
+
   async isPresetEdited() {
     const value = await this.getProperty('volatile.preset.edited');
     if (!value) return null;
@@ -362,6 +377,10 @@ export class HelixClient {
   activateSnapshot(index: number) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/activateSnapshot', 'iii', [cmdId, index, 0]);
+  }
+
+  async setSnapshotName(index: number, name: string) {
+    return await this.request('/SetSnapshotName', 'is', [index, name], '/status', 2500);
   }
 
   async copySnapshot(sourceIndex: number, targetIndex: number) {
@@ -385,6 +404,14 @@ export class HelixClient {
   savePresetWithCid(contentId: number) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/SavePresetWithCID', 'ii', [cmdId, contentId]);
+  }
+
+  async setContentData(contentId: number, data: Buffer | Uint8Array) {
+    return await this.request('/SetContentData', 'ib', [contentId, ensureBuffer(data)], '/status', 4000);
+  }
+
+  async setContentPath(contentId: number, path: string) {
+    return await this.request('/SetContentPath', 'is', [contentId, path], '/status', 2500);
   }
 
   async renameContent(contentId: number, name: string) {
@@ -597,6 +624,42 @@ const decodeStateFromBlobs = (vals: Array<any> | null | undefined) => {
     }
   }
   return fallback;
+};
+
+const findFirstKey = (value: any, targetKey: string) => {
+  const queue = [value];
+  const seen = new Set<any>();
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || typeof current !== 'object') continue;
+    if (seen.has(current)) continue;
+    seen.add(current);
+    if (!Array.isArray(current) && Object.prototype.hasOwnProperty.call(current, targetKey)) {
+      return (current as Record<string, any>)[targetKey];
+    }
+    if (Array.isArray(current)) {
+      queue.push(...current);
+    } else {
+      queue.push(...Object.values(current));
+    }
+  }
+  return null;
+};
+
+const extractSnapshots = (state: any) => {
+  const snapshots = findFirstKey(state, 'snps');
+  if (!Array.isArray(snapshots)) return [];
+  return snapshots
+    .filter((item) => item && typeof item === 'object')
+    .map((item: any) => {
+      const index = Number(item.si__);
+      return {
+        ...item,
+        index: Number.isFinite(index) ? index : -1,
+      };
+    })
+    .filter((item) => item.index >= 0)
+    .sort((left, right) => left.index - right.index);
 };
 
 const buildRequestKey = (addr: string, cmdId: number) => `${addr}:${cmdId}`;

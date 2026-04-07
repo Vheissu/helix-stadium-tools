@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from helix import (  # noqa: E402
     FACTORY_PRESETS_CID,
     SETLIST_DIRECTORY_CID,
+    SNAPSHOT_COLOR_NAMES,
     USER_PRESETS_CID,
     HelixDiscoveryError,
     HelixSession,
@@ -39,6 +40,23 @@ DEFAULT_APP_RES = "/Applications/Line6/Helix Stadium.app/Contents/Resources"
 DEFAULT_MODELDEFS = resolve_default_modeldefs_path(DEFAULT_APP_RES)
 DEFAULT_UIDEFS = f"{DEFAULT_APP_RES}/P35ModelUIDefs.json"
 DEFAULT_MODEL_MAP = str(Path(__file__).resolve().parents[1] / "generated" / "helix-models" / "model_id_map.json")
+SNAPSHOT_COLOR_ALIASES = {
+    "auto": 0,
+    "white": 1,
+    "red": 2,
+    "darkorange": 3,
+    "oranged": 3,
+    "lightorange": 4,
+    "orangel": 4,
+    "yellow": 5,
+    "green": 6,
+    "turquoise": 7,
+    "bluel": 7,
+    "blue": 8,
+    "violet": 9,
+    "pink": 10,
+    "off": 11,
+}
 
 
 def parse_stomp(value: str):
@@ -98,6 +116,18 @@ def resolve_content_root(value: str) -> int:
     if key not in mapping:
         raise ValueError(f"unknown content root: {value!r}")
     return mapping[key]
+
+
+def parse_snapshot_color(value):
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    if re.fullmatch(r"-?\d+", text):
+        return int(text)
+    key = normalize_query(text)
+    if key in SNAPSHOT_COLOR_ALIASES:
+        return SNAPSHOT_COLOR_ALIASES[key]
+    raise ValueError(f"unknown snapshot color: {value!r}")
 
 
 def normalize_query(value: str) -> str:
@@ -288,6 +318,24 @@ def print_or_write_content_data(data: bytes | None, output_path: str | None):
     json_print({"length": len(data)})
 
 
+def decorate_snapshot(snapshot: dict):
+    color = snapshot.get("colr")
+    target_values = snapshot.get("tamv")
+    ir_assignments = snapshot.get("iras")
+    item = {
+        "si__": snapshot.get("si__"),
+        "name": snapshot.get("name"),
+        "colr": color,
+        "color_name": SNAPSHOT_COLOR_NAMES.get(color, f"Unknown ({color})") if isinstance(color, int) else None,
+        "bpm_": snapshot.get("bpm_"),
+        "exsw": snapshot.get("exsw"),
+        "vald": snapshot.get("vald"),
+        "target_value_count": len(target_values) // 2 if isinstance(target_values, list) else None,
+        "ir_assignment_count": len(ir_assignments) if isinstance(ir_assignments, list) else None,
+    }
+    return {key: value for key, value in item.items() if value is not None}
+
+
 def resolve_active_preset_save_id(session: HelixSession):
     active_ref = session.get_active_preset_ref()
     if isinstance(active_ref, dict):
@@ -341,7 +389,7 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
         session.copy_snapshot(int(action["source"]), int(action["target"]), wait_status=True)
         return cmd_id + 1
     if op in ("snapshot_color", "snapshot-color", "set_snapshot_color", "set-snapshot-color"):
-        session.set_snapshot_color(int(action["index"]), int(action["color"]), wait_status=True)
+        session.set_snapshot_color(int(action["index"]), parse_snapshot_color(action["color"]), wait_status=True)
         return cmd_id + 1
     if op in ("load_preset", "load-preset"):
         wait_change = action.get("wait", True)
@@ -375,6 +423,15 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
         return cmd_id + 1
     if op in ("rename_content", "rename-content"):
         session.rename_content(int(action["cid"]), str(action["name"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("set_content_path", "set-content-path"):
+        session.set_content_path(int(action["cid"]), str(action["path"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("set_content_data", "set-content-data"):
+        input_path = action.get("input") or action.get("path")
+        if not input_path:
+            raise SystemExit("set_content_data requires input/path")
+        session.set_content_data(int(action["cid"]), Path(str(input_path)).read_bytes(), wait_status=True)
         return cmd_id + 1
     if op == "scribble_label":
         if "key" in action:
@@ -603,12 +660,21 @@ def main():
     sub.add_parser("get-snapshot-count")
     sub.add_parser("get-active-snapshot")
     sub.add_parser("get-preset-edited")
+    sub.add_parser("list-snapshots")
+    get_snapshot_targets = sub.add_parser("get-snapshot-targets")
+    get_snapshot_targets.add_argument("--index", type=int, required=True)
     sub.add_parser("list-setlists")
     get_content_path = sub.add_parser("get-content-path")
     get_content_path.add_argument("--cid", type=int, required=True)
     get_content_data = sub.add_parser("get-content-data")
     get_content_data.add_argument("--cid", type=int, required=True)
     get_content_data.add_argument("--output", help="Optional path to write the raw content blob")
+    set_content_path = sub.add_parser("set-content-path")
+    set_content_path.add_argument("--cid", type=int, required=True)
+    set_content_path.add_argument("--path", required=True)
+    set_content_data = sub.add_parser("set-content-data")
+    set_content_data.add_argument("--cid", type=int, required=True)
+    set_content_data.add_argument("--input", required=True, help="Path to a raw content blob to send")
     list_presets = sub.add_parser("list-presets")
     list_presets.add_argument("--container-cid", type=int, help="Container content id to list")
     list_presets.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
@@ -632,7 +698,7 @@ def main():
     copy_snapshot.add_argument("--target", type=int, required=True, help="Zero-based snapshot target index")
     snapshot_color = sub.add_parser("snapshot-color")
     snapshot_color.add_argument("--index", type=int, required=True, help="Zero-based snapshot index")
-    snapshot_color.add_argument("--color", type=int, required=True, help="Snapshot color enum value")
+    snapshot_color.add_argument("--color", required=True, help="Snapshot color enum or name")
     set_autocab = sub.add_parser("set-autocab")
     set_autocab.add_argument("--enabled", required=True, help="on/off/true/false/1/0")
 
@@ -761,6 +827,20 @@ def main():
         elif args.cmd == "get-preset-edited":
             json_print({"preset_edited": session.is_preset_edited()})
             return
+        elif args.cmd == "list-snapshots":
+            snapshots = session.get_snapshots()
+            json_print([decorate_snapshot(item) for item in snapshots] if isinstance(snapshots, list) else snapshots)
+            return
+        elif args.cmd == "get-snapshot-targets":
+            targets = session.get_snapshot_targets(args.index)
+            json_print(
+                {
+                    "index": args.index,
+                    "target_count": len(targets) if isinstance(targets, list) else None,
+                    "targets": targets,
+                }
+            )
+            return
         elif args.cmd == "list-setlists":
             json_print(session.list_setlists())
             return
@@ -770,6 +850,10 @@ def main():
         elif args.cmd == "get-content-data":
             print_or_write_content_data(session.get_content_data(args.cid), args.output)
             return
+        elif args.cmd == "set-content-path":
+            session.set_content_path(args.cid, args.path, wait_status=True)
+        elif args.cmd == "set-content-data":
+            session.set_content_data(args.cid, Path(args.input).read_bytes(), wait_status=True)
         elif args.cmd == "list-presets":
             if args.container_cid is not None and args.root:
                 raise SystemExit("use either --container-cid or --root, not both")
@@ -804,7 +888,7 @@ def main():
         elif args.cmd == "copy-snapshot":
             session.copy_snapshot(args.source, args.target, wait_status=True)
         elif args.cmd == "snapshot-color":
-            session.set_snapshot_color(args.index, args.color, wait_status=True)
+            session.set_snapshot_color(args.index, parse_snapshot_color(args.color), wait_status=True)
         elif args.cmd == "set-autocab":
             session.set_auto_cab(parse_bool(args.enabled), wait_status=True)
         elif args.cmd == "insert-block":

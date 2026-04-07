@@ -104,12 +104,36 @@ type HelixContentRef = {
   [key: string]: any;
 };
 
+type SnapshotRef = {
+  index: number;
+  name?: string;
+  colr?: number;
+  si__?: number;
+  [key: string]: any;
+};
+
 type PresetLibraryRoot = 'setlists' | 'user' | 'factory';
 
 const FACTORY_PRESETS_CID = -1;
 const USER_PRESETS_CID = -2;
 const SETLIST_DIRECTORY_CID = -5;
-const SNAPSHOT_COLOR_OPTIONS = Array.from({ length: 10 }, (_item, index) => index);
+const SNAPSHOT_COLOR_OPTIONS = [
+  { value: 0, label: 'Auto', swatch: '#A9AFBA' },
+  { value: 1, label: 'White', swatch: '#F3F1E7' },
+  { value: 2, label: 'Red', swatch: '#D85858' },
+  { value: 3, label: 'Dark Orange', swatch: '#B96B2B' },
+  { value: 4, label: 'Light Orange', swatch: '#ECA045' },
+  { value: 5, label: 'Yellow', swatch: '#D8C347' },
+  { value: 6, label: 'Green', swatch: '#63B96E' },
+  { value: 7, label: 'Turquoise', swatch: '#37BDB3' },
+  { value: 8, label: 'Blue', swatch: '#4D84F5' },
+  { value: 9, label: 'Violet', swatch: '#7D65E6' },
+  { value: 10, label: 'Pink', swatch: '#D86DB5' },
+  { value: 11, label: 'Off', swatch: '#4A5263' },
+];
+const SNAPSHOT_COLOR_LABELS = Object.fromEntries(
+  SNAPSHOT_COLOR_OPTIONS.map((option) => [option.value, option.label])
+);
 
 const blockCatalog = blockTypes as BlockCatalog;
 
@@ -190,10 +214,13 @@ export default function App() {
   const [activePresetRef, setActivePresetRef] = useState<HelixContentRef | null>(null);
   const [snapshotCount, setSnapshotCount] = useState(0);
   const [activeSnapshotIndex, setActiveSnapshotIndex] = useState<number | null>(null);
+  const [snapshots, setSnapshots] = useState<SnapshotRef[]>([]);
+  const [activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
   const [presetRenameText, setPresetRenameText] = useState('');
   const [setlistRenameText, setSetlistRenameText] = useState('');
+  const [snapshotRenameText, setSnapshotRenameText] = useState('');
   const [presetFilter, setPresetFilter] = useState('');
   const [snapshotCopySource, setSnapshotCopySource] = useState<number | null>(null);
   const [snapshotCopyTarget, setSnapshotCopyTarget] = useState<number | null>(null);
@@ -338,6 +365,10 @@ export default function App() {
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
   );
+  const activeSnapshot = useMemo(
+    () => snapshots.find((item) => item.index === activeSnapshotIndex) ?? null,
+    [activeSnapshotIndex, snapshots]
+  );
   const filteredPresetItems = useMemo(() => {
     const query = presetFilter.trim().toLowerCase();
     if (!query) return presetItems;
@@ -396,10 +427,13 @@ export default function App() {
     setActivePresetRef(null);
     setSnapshotCount(0);
     setActiveSnapshotIndex(null);
+    setSnapshots([]);
+    setActiveSnapshotTargets(null);
     setLibraryLoading(false);
     setPresetEdited(null);
     setPresetRenameText('');
     setSetlistRenameText('');
+    setSnapshotRenameText('');
     setPresetFilter('');
     setSnapshotCopySource(null);
     setSnapshotCopyTarget(null);
@@ -414,6 +448,14 @@ export default function App() {
   }, [activeSetlist?.name]);
 
   useEffect(() => {
+    if (!activeSnapshot) {
+      setSnapshotRenameText('');
+      return;
+    }
+    setSnapshotRenameText(activeSnapshot.name ?? `Snapshot ${activeSnapshot.index + 1}`);
+  }, [activeSnapshot]);
+
+  useEffect(() => {
     if (activeSnapshotIndex === null || snapshotCount <= 0) return;
     setSnapshotCopySource((prev) => (prev === null ? activeSnapshotIndex : prev));
     setSnapshotCopyTarget((prev) => {
@@ -422,6 +464,32 @@ export default function App() {
       return (activeSnapshotIndex + 1) % snapshotCount;
     });
   }, [activeSnapshotIndex, snapshotCount]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const client = clientRef.current;
+    if (!client || activeSnapshotIndex === null) {
+      setActiveSnapshotTargets(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+    client
+      .getSnapshotTargets(activeSnapshotIndex)
+      .then((targets) => {
+        if (!cancelled) {
+          setActiveSnapshotTargets(targets);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setActiveSnapshotTargets(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSnapshotIndex, activePresetContentId]);
 
   const requireClient = () => {
     if (!clientRef.current) {
@@ -445,20 +513,23 @@ export default function App() {
     if (!client) return;
     setLibraryLoading(true);
     try {
-      const [activeId, snapshotTotal, snapshotIndex, setlistItems, edited] = await Promise.all([
+      const [activeId, snapshotTotal, snapshotIndex, setlistItems, edited, snapshotItems] = await Promise.all([
         client.getActivePresetContentId(),
         client.getSnapshotCount(),
         client.getActiveSnapshotIndex(),
         client.getContainerContents(SETLIST_DIRECTORY_CID),
         client.isPresetEdited(),
+        client.getSnapshots().catch(() => []),
       ]);
       const nextSetlists = (setlistItems as HelixContentRef[]) ?? [];
+      const nextSnapshots = (snapshotItems as SnapshotRef[]) ?? [];
       const activeRef = activeId !== null ? ((await client.getContentRef(activeId)) as HelixContentRef | null) : null;
       setSetlists(nextSetlists);
       setActivePresetContentId(activeId);
       setActivePresetRef(activeRef);
-      setSnapshotCount(snapshotTotal ?? 0);
+      setSnapshotCount(snapshotTotal ?? nextSnapshots.length);
       setActiveSnapshotIndex(snapshotIndex);
+      setSnapshots(nextSnapshots);
       setPresetEdited(edited);
 
       if (libraryRoot === 'factory') {
@@ -586,8 +657,34 @@ export default function App() {
     if (!client) return;
     client.activateSnapshot(index);
     setActiveSnapshotIndex(index);
-    setStatus(`Activating snapshot ${index + 1}`);
+    const snapshotName = snapshots.find((item) => item.index === index)?.name;
+    setStatus(`Activating ${snapshotName ? `${index + 1}: ${snapshotName}` : `snapshot ${index + 1}`}`);
     scheduleSync(500);
+  };
+
+  const handleSnapshotRename = async () => {
+    const client = requireClient();
+    if (!client) return;
+    if (activeSnapshotIndex === null) {
+      setStatus('No active snapshot selected');
+      return;
+    }
+    const trimmed = snapshotRenameText.trim();
+    if (!trimmed) {
+      setStatus('A snapshot name is required');
+      return;
+    }
+    try {
+      await client.setSnapshotName(activeSnapshotIndex, trimmed);
+      setSnapshots((prev) =>
+        prev.map((item) => (item.index === activeSnapshotIndex ? { ...item, name: trimmed } : item))
+      );
+      setStatus(`Renamed snapshot ${activeSnapshotIndex + 1} to ${trimmed}`);
+      scheduleSync(900);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Snapshot rename failed: ${message}`);
+    }
   };
 
   const handleSnapshotCopy = async () => {
@@ -616,7 +713,13 @@ export default function App() {
     }
     try {
       await client.setSnapshotColor(activeSnapshotIndex, color);
-      setStatus(`Set snapshot ${activeSnapshotIndex + 1} color to enum ${color}`);
+      setSnapshots((prev) =>
+        prev.map((item) => (item.index === activeSnapshotIndex ? { ...item, colr: color } : item))
+      );
+      setStatus(
+        `Set snapshot ${activeSnapshotIndex + 1} color to ${SNAPSHOT_COLOR_LABELS[color] ?? `enum ${color}`}`
+      );
+      scheduleSync(700);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Snapshot color failed: ${message}`);
@@ -1440,29 +1543,79 @@ export default function App() {
             <Text style={styles.label}>Snapshot Recall</Text>
             <Text style={styles.libraryMeta}>
               {snapshotCount > 0
-                ? `Active ${activeSnapshotIndex !== null ? activeSnapshotIndex + 1 : '\u2014'} of ${snapshotCount}`
+                ? `Active ${activeSnapshotIndex !== null ? activeSnapshotIndex + 1 : '\u2014'} of ${snapshotCount}${
+                    activeSnapshot?.name ? ` · ${activeSnapshot.name}` : ''
+                  }`
                 : 'No snapshot data yet'}
             </Text>
           </View>
         </View>
         {snapshotCount > 0 ? (
           <>
-            <View style={styles.libraryPills}>
+            <View style={styles.libraryList}>
               {Array.from({ length: snapshotCount }, (_item, index) => {
+                const snapshot = snapshots.find((item) => item.index === index) ?? null;
                 const active = activeSnapshotIndex === index;
+                const colorName =
+                  typeof snapshot?.colr === 'number'
+                    ? SNAPSHOT_COLOR_LABELS[snapshot.colr] ?? `Color ${snapshot.colr}`
+                    : 'Color unknown';
                 return (
                   <Pressable
                     key={`snapshot-${index}`}
-                    style={[styles.togglePill, active && styles.togglePillActive]}
+                    style={[styles.libraryRow, active && styles.libraryRowActive]}
                     onPress={() => handleSnapshotActivate(index)}
                   >
-                    <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
-                      {index + 1}
-                    </Text>
+                    <View style={styles.libraryRowCopy}>
+                      <Text style={styles.sheetListText}>
+                        {index + 1}. {snapshot?.name ?? `Snapshot ${index + 1}`}
+                      </Text>
+                      <Text style={styles.libraryMeta}>{colorName}</Text>
+                    </View>
+                    {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
                   </Pressable>
                 );
               })}
             </View>
+
+            {activeSnapshot && (
+              <>
+                <Text style={styles.label}>Rename Active Snapshot</Text>
+                <View style={styles.inlineEditor}>
+                  <TextInput
+                    style={[styles.input, styles.inlineInput]}
+                    value={snapshotRenameText}
+                    onChangeText={setSnapshotRenameText}
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    placeholder="Snapshot name"
+                    placeholderTextColor={COLORS.muted}
+                  />
+                  <Pressable
+                    style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                    onPress={() => void handleSnapshotRename()}
+                  >
+                    <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+                  </Pressable>
+                </View>
+
+                <View style={styles.snapshotDetailCard}>
+                  <Text style={styles.label}>Raw Snapshot Targets</Text>
+                  <Text style={styles.labelHint}>Device-reported assignment ids for the active snapshot.</Text>
+                  {activeSnapshotTargets && activeSnapshotTargets.length > 0 ? (
+                    <View style={styles.libraryPills}>
+                      {activeSnapshotTargets.map((targetId) => (
+                        <View key={`snapshot-target-${targetId}`} style={styles.snapshotTargetChip}>
+                          <Text style={styles.snapshotTargetText}>{targetId}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : (
+                    <Text style={styles.paramHint}>No target ids reported for this snapshot.</Text>
+                  )}
+                </View>
+              </>
+            )}
 
             {snapshotCount > 1 && (
               <>
@@ -1513,17 +1666,29 @@ export default function App() {
             )}
 
             <Text style={styles.label}>Snapshot Color</Text>
-            <Text style={styles.labelHint}>Uses the raw desktop-editor color enum for now.</Text>
+            <Text style={styles.labelHint}>Matches the desktop editor color labels.</Text>
             <View style={styles.libraryPills}>
-              {SNAPSHOT_COLOR_OPTIONS.map((color) => (
+              {SNAPSHOT_COLOR_OPTIONS.map((option) => (
                 <Pressable
-                  key={`snapshot-color-${color}`}
-                  style={styles.togglePill}
+                  key={`snapshot-color-${option.value}`}
+                  style={[
+                    styles.togglePill,
+                    styles.snapshotColorPill,
+                    activeSnapshot?.colr === option.value && styles.togglePillActive,
+                  ]}
                   onPress={() => {
-                    void handleSnapshotColor(color);
+                    void handleSnapshotColor(option.value);
                   }}
                 >
-                  <Text style={styles.togglePillText}>{color}</Text>
+                  <View style={[styles.snapshotColorSwatch, { backgroundColor: option.swatch }]} />
+                  <Text
+                    style={[
+                      styles.togglePillText,
+                      activeSnapshot?.colr === option.value && styles.togglePillTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
                 </Pressable>
               ))}
             </View>
@@ -2258,6 +2423,23 @@ const styles = StyleSheet.create({
     color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11,
     textTransform: 'uppercase', letterSpacing: 1.2,
   },
+  snapshotDetailCard: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  snapshotTargetChip: {
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panel,
+  },
+  snapshotTargetText: { color: COLORS.text, fontFamily: FONT_MONO, fontSize: 12 },
 
   /* ── Status / events ──────────────────────────────────────────── */
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -2338,6 +2520,14 @@ const styles = StyleSheet.create({
   togglePillActive: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
   togglePillText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13 },
   togglePillTextActive: { color: COLORS.accent },
+  snapshotColorPill: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  snapshotColorSwatch: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
 
   /* ── IO parameters ─────────────────────────────────────────────── */
   paramSectionTitle: { color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 16, marginBottom: 8 },

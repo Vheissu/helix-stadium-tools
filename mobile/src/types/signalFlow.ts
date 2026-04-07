@@ -13,7 +13,8 @@ export type BlockKind =
   | 'wah_filter'
   | 'volume_pan'
   | 'looper'
-  | 'fx_loop';
+  | 'fx_loop'
+  | 'routing';
 
 // Data for a single block in the signal flow
 export interface BlockData {

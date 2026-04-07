@@ -1211,6 +1211,16 @@
             "property_key": null
           }
         ]
+      },
+      {
+        "id": 776,
+        "name": "Nexus 1",
+        "params": []
+      },
+      {
+        "id": 777,
+        "name": "Nexus 2",
+        "params": []
       }
     ]
   },
@@ -1645,6 +1655,11 @@
             "property_key": null
           }
         ]
+      },
+      {
+        "id": 789,
+        "name": "None",
+        "params": []
       }
     ]
   }

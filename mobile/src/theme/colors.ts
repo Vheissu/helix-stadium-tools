@@ -30,6 +30,7 @@ export const BLOCK_COLORS: Record<string, string> = {
   volume_pan: '#9ca3ab',
   looper: '#2e7de6',
   fx_loop: '#9ca3ab',
+  routing: '#9ca3ab',
 };
 
 // Get color for a block type, with fallback

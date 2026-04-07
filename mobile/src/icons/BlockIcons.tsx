@@ -114,6 +114,13 @@ const FxLoopIcon = ({ color, size }: { color: string; size: number }) => (
   </Svg>
 );
 
+const RoutingIcon = ({ color, size }: { color: string; size: number }) => (
+  <Svg viewBox="0 0 24 24" {...iconSize(size)}>
+    <Path d="M4 12h4l4-4h8" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <Path d="M4 12h4l4 4h8" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+  </Svg>
+);
+
 const FallbackIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg viewBox="0 0 24 24" {...iconSize(size)}>
     <Circle cx="12" cy="12" r="6" stroke={color} strokeWidth="1.5" fill="none" />
@@ -135,6 +142,7 @@ const ICONS: Record<string, React.FC<{ color: string; size: number }>> = {
   volume_pan: VolumeIcon,
   looper: LooperIcon,
   fx_loop: FxLoopIcon,
+  routing: RoutingIcon,
 };
 
 export const BlockIcon = ({ type, color, size = 18 }: { type: string; color: string; size?: number }) => {

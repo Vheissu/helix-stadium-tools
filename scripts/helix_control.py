@@ -13,7 +13,16 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from helix import HelixDiscoveryError, HelixSession, HelixSessionError, browse_services, discover_first_service  # noqa: E402
+from helix import (  # noqa: E402
+    FACTORY_PRESETS_CID,
+    SETLIST_DIRECTORY_CID,
+    USER_PRESETS_CID,
+    HelixDiscoveryError,
+    HelixSession,
+    HelixSessionError,
+    browse_services,
+    discover_first_service,
+)
 from helix.editbuffer import (  # noqa: E402
     extract_active_model_id,
     find_io_block,
@@ -75,6 +84,18 @@ def parse_param_value(value: str):
 def parse_blocks(value: str):
     parts = [p.strip() for p in value.split(",") if p.strip()]
     return [int(p) for p in parts]
+
+
+def resolve_content_root(value: str) -> int:
+    key = value.strip().lower()
+    mapping = {
+        "factory": FACTORY_PRESETS_CID,
+        "user": USER_PRESETS_CID,
+        "setlists": SETLIST_DIRECTORY_CID,
+    }
+    if key not in mapping:
+        raise ValueError(f"unknown content root: {value!r}")
+    return mapping[key]
 
 
 def normalize_query(value: str) -> str:
@@ -280,6 +301,31 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
     op = action.get("op")
     if op in ("snapshot_name", "rename_snapshot", "rename-snapshot"):
         session.set_snapshot_name(int(action["index"]), str(action["name"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("activate_snapshot", "activate-snapshot", "snapshot_activate", "snapshot-activate"):
+        wait_change = action.get("wait", True)
+        if isinstance(wait_change, str):
+            wait_change = parse_bool(wait_change)
+        session.activate_snapshot(int(action["index"]), wait_change=bool(wait_change))
+        return cmd_id + 1
+    if op in ("load_preset", "load-preset"):
+        wait_change = action.get("wait", True)
+        if isinstance(wait_change, str):
+            wait_change = parse_bool(wait_change)
+        content_id = action.get("cid", action.get("content_id"))
+        if content_id is not None:
+            session.load_preset_with_cid(int(content_id), wait_change=bool(wait_change))
+            return cmd_id + 1
+        container_id = action.get("container_cid")
+        if container_id is None and action.get("root"):
+            container_id = resolve_content_root(str(action["root"]))
+        if container_id is None or "position" not in action:
+            raise SystemExit("load_preset requires cid or container_cid/root plus position")
+        session.load_preset_at_container_position(
+            int(container_id),
+            int(action["position"]),
+            wait_change=bool(wait_change),
+        )
         return cmd_id + 1
     if op == "scribble_label":
         if "key" in action:
@@ -504,6 +550,22 @@ def main():
 
     sub.add_parser("get-product-info")
     sub.add_parser("get-edit-buffer")
+    sub.add_parser("get-active-preset")
+    sub.add_parser("get-snapshot-count")
+    sub.add_parser("get-active-snapshot")
+    sub.add_parser("list-setlists")
+    list_presets = sub.add_parser("list-presets")
+    list_presets.add_argument("--container-cid", type=int, help="Container content id to list")
+    list_presets.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
+    load_preset = sub.add_parser("load-preset")
+    load_preset.add_argument("--cid", type=int, help="Content id to load directly")
+    load_preset.add_argument("--container-cid", type=int, help="Container content id to load from")
+    load_preset.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
+    load_preset.add_argument("--position", type=int, help="Zero-based container position")
+    load_preset.add_argument("--no-wait", action="store_true", help="Do not wait for the active preset to change")
+    activate_snapshot = sub.add_parser("activate-snapshot")
+    activate_snapshot.add_argument("--index", type=int, required=True, help="Zero-based snapshot index")
+    activate_snapshot.add_argument("--no-wait", action="store_true", help="Do not wait for the active snapshot to change")
     set_autocab = sub.add_parser("set-autocab")
     set_autocab.add_argument("--enabled", required=True, help="on/off/true/false/1/0")
 
@@ -614,6 +676,48 @@ def main():
             value = session.get_edit_buffer_state()
             json_print(value)
             return
+        elif args.cmd == "get-active-preset":
+            active_id = session.get_active_preset_content_id()
+            json_print(
+                {
+                    "active_content_id": active_id,
+                    "active_preset": session.get_content_ref(active_id) if active_id is not None else None,
+                }
+            )
+            return
+        elif args.cmd == "get-snapshot-count":
+            json_print({"snapshot_count": session.get_snapshot_count()})
+            return
+        elif args.cmd == "get-active-snapshot":
+            json_print({"active_snapshot_index": session.get_active_snapshot_index()})
+            return
+        elif args.cmd == "list-setlists":
+            json_print(session.list_setlists())
+            return
+        elif args.cmd == "list-presets":
+            if args.container_cid is not None and args.root:
+                raise SystemExit("use either --container-cid or --root, not both")
+            if args.container_cid is None and not args.root:
+                raise SystemExit("list-presets requires --container-cid or --root")
+            container_cid = args.container_cid if args.container_cid is not None else resolve_content_root(args.root)
+            json_print(session.get_container_contents(container_cid))
+            return
+        elif args.cmd == "load-preset":
+            if args.cid is not None and (args.container_cid is not None or args.root or args.position is not None):
+                raise SystemExit("use either --cid or --container-cid/--root with --position")
+            if args.cid is not None:
+                session.load_preset_with_cid(args.cid, wait_change=not args.no_wait)
+            else:
+                if args.position is None:
+                    raise SystemExit("load-preset requires --position when using --container-cid or --root")
+                if args.container_cid is not None and args.root:
+                    raise SystemExit("use either --container-cid or --root, not both")
+                if args.container_cid is None and not args.root:
+                    raise SystemExit("load-preset requires --cid or --container-cid/--root")
+                container_cid = args.container_cid if args.container_cid is not None else resolve_content_root(args.root)
+                session.load_preset_at_container_position(container_cid, args.position, wait_change=not args.no_wait)
+        elif args.cmd == "activate-snapshot":
+            session.activate_snapshot(args.index, wait_change=not args.no_wait)
         elif args.cmd == "set-autocab":
             session.set_auto_cab(parse_bool(args.enabled), wait_status=True)
         elif args.cmd == "insert-block":

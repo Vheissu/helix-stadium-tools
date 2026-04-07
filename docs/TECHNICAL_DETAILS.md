@@ -92,6 +92,9 @@ Example decoded payload:
 - `/BlockEnableSet` (editor → device)
 - `/setBlockEnable` (device → editor)
 - `/ModelSet` and `/setModelWithMID` (model change / model ID mapping)
+- `/GetContentRef` and `/GetContainerContents` (library/content browsing)
+- `/LoadPresetWithCID` and `/LoadPresetAtContainerPosition` (preset recall)
+- `/SnapshotCountGet`, `/ActiveSnapshotIndexGet`, and `/activateSnapshot` (snapshot navigation)
 - `/SetSnapshotName` and `/setSnapshotName` (snapshot naming)
 - `/PropertyValueSet` and `/setPropertyValue` (property updates, including scribble strips)
 - `/heartbeat` (device → editor)
@@ -126,6 +129,81 @@ Acknowledgement on port 2002:
 ```
 /status ,iii [cmdId, 0, 0]
 ```
+
+## Snapshot recall
+
+Verified editor command:
+
+```
+/activateSnapshot ,iii [cmdId, snapshotIndex, 0]
+```
+
+Observed device push on port 2001:
+
+```
+/activateSnapshot ,iii [sessionId, cmdId, snapshotIndex]
+```
+
+Notes:
+
+- `/ActiveSnapshotIndexGet` returns `/getActiveSnapshotIndex ,ii [cmdId, snapshotIndex]`
+- `/SnapshotCountGet` returns `/getSnapshotCount ,ii [cmdId, snapshotCount]`
+- The `/status` payload for `/activateSnapshot` does not follow the usual `0,0 == success` pattern, so clients should confirm snapshot changes by polling `ActiveSnapshotIndexGet` or by watching the port-2001 push event.
+
+## Content library browsing
+
+The editor uses content ids (`cid_`) and container ids to browse presets and setlists.
+
+Verified requests:
+
+```
+/GetContentRef ,ii [cmdId, contentId]
+/GetContainerContents ,ii [cmdId, containerId]
+```
+
+Observed responses reuse the same OSC address and return a msgpack blob plus a trailing integer:
+
+```
+/GetContentRef ,ibi [cmdId, <blob>, 0]
+/GetContainerContents ,ibi [cmdId, <blob>, 0]
+```
+
+Useful container ids observed on a live device:
+
+- `-1` — Factory Presets
+- `-2` — User Presets
+- `-5` — Setlist Directory
+
+Example `GetContentRef` fields:
+
+- `cid_` — content id
+- `ccid` — parent container id
+- `cctp` — parent container type
+- `name` — display name
+- `posi` — zero-based position inside the container
+- `rcid` — backing raw preset id for setlist entries
+- `type` — observed `1` for setlist refs and `2` for raw preset refs
+
+## Preset recall
+
+Confirmed working requests:
+
+```
+/LoadPresetWithCID ,ii [cmdId, contentId]
+/LoadPresetAtContainerPosition ,iii [cmdId, containerId, position]
+```
+
+Observed acknowledgement on port 2002:
+
+```
+/status ,iii [cmdId, 0, 0]
+```
+
+Practical notes:
+
+- `server.active.preset.id` exposes the currently active preset content id via `PropertyValueGet`.
+- `LoadPresetWithCID` works with both raw preset ids (for example entries from `-2`) and setlist content refs.
+- `LoadPresetAtContainerPosition` is the simplest way to recall the item currently shown in a browsed container list.
 
 ## Agenda commands (batch actions)
 

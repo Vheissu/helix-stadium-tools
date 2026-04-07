@@ -387,6 +387,70 @@ class TestSession(unittest.TestCase):
         session.request = lambda *args, **kwargs: [1, "key", "not-bytes"]
         self.assertIsNone(session.get_property("key"))
 
+    def test_get_active_preset_content_id_reads_property_value(self):
+        session = HelixSession("dummy")
+        session.get_property = lambda _key: {"val_": 508}
+        self.assertEqual(session.get_active_preset_content_id(), 508)
+
+    def test_get_snapshot_count_returns_int(self):
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 8]
+        self.assertEqual(session.get_snapshot_count(), 8)
+
+    def test_get_active_snapshot_index_returns_int(self):
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 3]
+        self.assertEqual(session.get_active_snapshot_index(), 3)
+
+    def test_get_content_ref_decodes_blob(self):
+        try:
+            import msgpack
+        except Exception:
+            self.skipTest("msgpack not installed")
+
+        payload = msgpack.packb({fourcc_int("cid_"): 508, fourcc_int("name"): "Preset"}, use_bin_type=True)
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, payload, 0]
+        value = session.get_content_ref(508)
+        self.assertEqual(value, {"cid_": 508, "name": "Preset"})
+
+    def test_get_container_contents_decodes_blob(self):
+        try:
+            import msgpack
+        except Exception:
+            self.skipTest("msgpack not installed")
+
+        payload = msgpack.packb(
+            [{fourcc_int("cid_"): 239, fourcc_int("name"): "Church"}],
+            use_bin_type=True,
+        )
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, payload, 0]
+        value = session.get_container_contents(-5)
+        self.assertEqual(value, [{"cid_": 239, "name": "Church"}])
+
+    def test_get_content_ref_blob_returns_bytes(self):
+        payload = b"blob"
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, payload, 0]
+        self.assertEqual(session.get_content_ref_blob(508), payload)
+
+    def test_get_content_data_returns_bytes(self):
+        payload = b"raw-content"
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, payload, 0]
+        self.assertEqual(session.get_content_data(507), payload)
+
+    def test_get_content_path_returns_string(self):
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, "User/Setlist/Test", 0]
+        self.assertEqual(session.get_content_path(507), "User/Setlist/Test")
+
+    def test_is_preset_edited_reads_property_value(self):
+        session = HelixSession("dummy")
+        session.get_property = lambda _key: {"val_": 1}
+        self.assertTrue(session.is_preset_edited())
+
     def test_set_snapshot_name_wait_status_false(self):
         stream = FakeStream()
         session = HelixSession("dummy")
@@ -404,6 +468,129 @@ class TestSession(unittest.TestCase):
         session.send_and_wait_status = mock.Mock(return_value=["ok"])
         result = session.set_snapshot_name(1, "Name", wait_status=True)
         self.assertEqual(result, ["ok"])
+
+    def test_activate_snapshot_wait_change_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.activate_snapshot(4, wait_change=False)
+        session.send.assert_called_once_with("/activateSnapshot", "iii", [1, 4, 0])
+
+    def test_activate_snapshot_wait_change_true(self):
+        session = HelixSession("dummy", timeout=0.1)
+        session.send = mock.Mock()
+        values = iter([0, 4])
+        session.get_active_snapshot_index = lambda: next(values)
+        with mock.patch("helix.session.time.sleep"):
+            result = session.activate_snapshot(4, wait_change=True, timeout=0.1)
+        self.assertEqual(result, 4)
+
+    def test_copy_snapshot_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.copy_snapshot(1, 2, wait_status=False)
+        session.send.assert_called_once_with("/CopySnapshot", "iii", [1, 1, 2])
+
+    def test_copy_snapshot_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.copy_snapshot(1, 2, wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_set_snapshot_color_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_snapshot_color(3, 5, wait_status=False)
+        session.send.assert_called_once_with("/SnapshotColorSet", "iii", [1, 3, 5])
+
+    def test_set_snapshot_color_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_snapshot_color(3, 5, wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_load_preset_with_cid_wait_change_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.load_preset_with_cid(436, wait_change=False)
+        session.send.assert_called_once_with("/LoadPresetWithCID", "ii", [1, 436])
+
+    def test_load_preset_with_cid_wait_change_true(self):
+        session = HelixSession("dummy", timeout=0.1)
+        session.send = mock.Mock()
+        active_ids = iter([508, 436])
+        refs = {
+            508: {"cid_": 508, "name": "Current"},
+            436: {"cid_": 436, "name": "Target"},
+        }
+        session.get_active_preset_content_id = lambda: next(active_ids)
+        session.get_content_ref = lambda cid: refs.get(cid)
+        with mock.patch("helix.session.time.sleep"):
+            result = session.load_preset_with_cid(436, wait_change=True, timeout=0.1)
+        self.assertEqual(result, {"cid_": 436, "name": "Target"})
+
+    def test_load_preset_at_container_position_wait_change_true(self):
+        session = HelixSession("dummy", timeout=0.1)
+        session.send = mock.Mock()
+        active_ids = iter([508, 506])
+        refs = {
+            508: {"cid_": 508, "ccid": 500, "posi": 5},
+            506: {"cid_": 506, "ccid": 500, "posi": 4},
+        }
+        session.get_active_preset_content_id = lambda: next(active_ids)
+        session.get_content_ref = lambda cid: refs.get(cid)
+        with mock.patch("helix.session.time.sleep"):
+            result = session.load_preset_at_container_position(500, 4, wait_change=True, timeout=0.1)
+        self.assertEqual(result, {"cid_": 506, "ccid": 500, "posi": 4})
+
+    def test_save_preset_with_cid_wait_clean_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.save_preset_with_cid(508, wait_clean=False)
+        session.send.assert_called_once_with("/SavePresetWithCID", "ii", [1, 508])
+
+    def test_save_preset_with_cid_wait_clean_true(self):
+        session = HelixSession("dummy", timeout=0.1)
+        session.send = mock.Mock()
+        values = iter([True, False])
+        session.is_preset_edited = lambda: next(values)
+        with mock.patch("helix.session.time.sleep"):
+            result = session.save_preset_with_cid(508, wait_clean=True, timeout=0.1)
+        self.assertFalse(result)
+
+    def test_set_content_attrs_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_content_attrs(508, b"blob", wait_status=False)
+        session.send.assert_called_once_with("/SetContentAttrs", "iib", [1, 508, b"blob"])
+
+    def test_set_content_attrs_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_content_attrs(508, b"blob", wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_rename_content_updates_name_attr(self):
+        try:
+            import msgpack
+        except Exception:
+            self.skipTest("msgpack not installed")
+
+        session = HelixSession("dummy")
+        session.get_content_ref_blob = lambda _cid: msgpack.packb({"name": "Old Name", "cid_": 508}, use_bin_type=True)
+        captured = {}
+
+        def fake_set_content_attrs(content_id, attrs, wait_status=True):
+            captured["content_id"] = content_id
+            captured["attrs"] = attrs
+            captured["wait_status"] = wait_status
+            return ["ok"]
+
+        session.set_content_attrs = fake_set_content_attrs
+        result = session.rename_content(508, "New Name")
+        self.assertEqual(result, ["ok"])
+        self.assertEqual(captured["content_id"], 508)
+        self.assertEqual(captured["attrs"]["name"], "New Name")
+        self.assertTrue(captured["wait_status"])
 
     def test_set_param_value_wait_status_false(self):
         stream = FakeStream()

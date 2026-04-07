@@ -13,6 +13,10 @@ from .blobs import (
 from .discovery import HelixService, discover_first_service
 from .zmtp import ZMTPStream, zmtp_handshake
 
+FACTORY_PRESETS_CID = -1
+USER_PRESETS_CID = -2
+SETLIST_DIRECTORY_CID = -5
+
 
 class HelixSessionError(RuntimeError):
     """Base error for session-level failures."""
@@ -210,6 +214,32 @@ class HelixSession:
     def send_and_wait_status(self, cmd_id: int, address: str, typetags: str, args, timeout: float | None = None):
         return self.send_and_wait_ack(cmd_id, address, typetags, args, ("/status",), timeout=timeout)
 
+    def send_and_wait_status_code(self, cmd_id: int, address: str, typetags: str, args, timeout: float | None = None):
+        if timeout is None:
+            timeout = self.timeout
+        for attempt in range(self.retries):
+            if attempt:
+                time.sleep(self.retry_delay)
+            self.send(address, typetags, args)
+            deadline = time.time() + timeout
+            while time.time() < deadline:
+                decoded = self._recv_osc(self._stream_2002, deadline)
+                if not decoded:
+                    continue
+                response_addr, _tt, vals = decoded
+                if response_addr != "/status" or not vals or int(vals[0]) != cmd_id:
+                    continue
+                if len(vals) < 2:
+                    return vals
+                try:
+                    status_code = int(vals[1])
+                except Exception:
+                    return vals
+                if status_code != 0:
+                    raise HelixStatusError(address, cmd_id, vals[1:])
+                return vals
+        return self._handle_timeout(address, cmd_id, "/status")
+
     def request(self, cmd_id: int, address: str, typetags: str, args, expect_addr: str, timeout: float | None = None):
         if timeout is None:
             timeout = self.timeout
@@ -236,20 +266,44 @@ class HelixSession:
         deadline = time.time() + timeout
         return self._recv_osc(self._stream_2001, deadline)
 
+    def _decode_blob_response(self, vals, blob_index: int):
+        if not vals or len(vals) <= blob_index or not isinstance(vals[blob_index], (bytes, bytearray)):
+            return None
+        return decode_msgpack_blob(vals[blob_index])
+
+    def _raw_blob_response(self, vals, blob_index: int):
+        if not vals or len(vals) <= blob_index or not isinstance(vals[blob_index], (bytes, bytearray)):
+            return None
+        return bytes(vals[blob_index])
+
+    def _encode_msgpack(self, value):
+        try:
+            import msgpack  # type: ignore
+        except Exception as exc:
+            raise HelixSessionError(f"msgpack is required: {exc}") from exc
+        return msgpack.packb(value, use_bin_type=True)
+
+    def _poll_until(self, predicate, timeout: float | None = None, interval: float = 0.05):
+        if timeout is None:
+            timeout = self.timeout
+        deadline = time.time() + max(timeout, 0.0)
+        while time.time() < deadline:
+            result = predicate()
+            if result is not None:
+                return result
+            time.sleep(interval)
+        return None
+
     # High-level APIs
     def get_product_info(self):
         cmd_id = self.next_cmd_id
         vals = self.request(cmd_id, "/ProductInfoGet", "i", [cmd_id], "/getProductInfo")
-        if not vals or len(vals) < 2 or not isinstance(vals[1], (bytes, bytearray)):
-            return None
-        return decode_msgpack_blob(vals[1])
+        return self._decode_blob_response(vals, 1)
 
     def get_edit_buffer_state(self):
         cmd_id = self.next_cmd_id
         vals = self.request(cmd_id, "/EditBufferStateGet", "i", [cmd_id], "/getEditBufferState")
-        if not vals or len(vals) < 3 or not isinstance(vals[2], (bytes, bytearray)):
-            return None
-        return decode_msgpack_blob(vals[2])
+        return self._decode_blob_response(vals, 2)
 
     def get_property(self, key: str):
         cmd_id = self.next_cmd_id
@@ -257,6 +311,247 @@ class HelixSession:
         if not vals or len(vals) < 3 or not isinstance(vals[2], (bytes, bytearray)):
             return None
         return decode_property_blob(vals[2])
+
+    def get_active_preset_content_id(self):
+        value = self.get_property("server.active.preset.id")
+        if not isinstance(value, dict):
+            return None
+        raw = value.get("val_")
+        if raw is None:
+            raw = value.get("val")
+        try:
+            return int(raw)
+        except Exception:
+            return None
+
+    def get_content_ref(self, content_id: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(cmd_id, "/GetContentRef", "ii", [cmd_id, int(content_id)], "/GetContentRef")
+        decoded = self._decode_blob_response(vals, 1)
+        if decoded is None:
+            return None
+        return normalize_fourcc_map(decoded)
+
+    def get_content_ref_blob(self, content_id: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(cmd_id, "/GetContentRef", "ii", [cmd_id, int(content_id)], "/GetContentRef")
+        return self._raw_blob_response(vals, 1)
+
+    def get_container_contents(self, container_id: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id,
+            "/GetContainerContents",
+            "ii",
+            [cmd_id, int(container_id)],
+            "/GetContainerContents",
+        )
+        decoded = self._decode_blob_response(vals, 1)
+        if decoded is None:
+            return None
+        return normalize_fourcc_map(decoded)
+
+    def get_content_data(self, content_id: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(cmd_id, "/GetContentData", "ii", [cmd_id, int(content_id)], "/GetContentData")
+        return self._raw_blob_response(vals, 1)
+
+    def get_content_data_decoded(self, content_id: int):
+        blob = self.get_content_data(content_id)
+        if not blob:
+            return None
+        decoded = decode_msgpack_blob(blob)
+        if decoded is None:
+            return None
+        return normalize_fourcc_map(decoded)
+
+    def get_content_path(self, content_id: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(cmd_id, "/GetContentPath", "ii", [cmd_id, int(content_id)], "/GetContentPath")
+        if not vals or len(vals) < 2:
+            return None
+        path = vals[1]
+        return path if isinstance(path, str) else None
+
+    def list_factory_presets(self):
+        items = self.get_container_contents(FACTORY_PRESETS_CID)
+        return items if isinstance(items, list) else None
+
+    def list_user_presets(self):
+        items = self.get_container_contents(USER_PRESETS_CID)
+        return items if isinstance(items, list) else None
+
+    def list_setlists(self):
+        items = self.get_container_contents(SETLIST_DIRECTORY_CID)
+        return items if isinstance(items, list) else None
+
+    def is_preset_edited(self):
+        value = self.get_property("volatile.preset.edited")
+        if not isinstance(value, dict):
+            return None
+        raw = value.get("val_")
+        if raw is None:
+            raw = value.get("val")
+        try:
+            return bool(int(raw))
+        except Exception:
+            return None
+
+    def get_active_preset_ref(self):
+        active_id = self.get_active_preset_content_id()
+        if active_id is None:
+            return None
+        return self.get_content_ref(active_id)
+
+    def get_snapshot_count(self):
+        cmd_id = self.next_cmd_id
+        vals = self.request(cmd_id, "/SnapshotCountGet", "i", [cmd_id], "/getSnapshotCount")
+        if not vals or len(vals) < 2:
+            return None
+        try:
+            return int(vals[1])
+        except Exception:
+            return None
+
+    def get_active_snapshot_index(self):
+        cmd_id = self.next_cmd_id
+        vals = self.request(cmd_id, "/ActiveSnapshotIndexGet", "i", [cmd_id], "/getActiveSnapshotIndex")
+        if not vals or len(vals) < 2:
+            return None
+        try:
+            return int(vals[1])
+        except Exception:
+            return None
+
+    def activate_snapshot(self, index: int, wait_change: bool = True, timeout: float | None = None):
+        cmd_id = self.next_cmd_id
+        target_index = int(index)
+        self.send("/activateSnapshot", "iii", [cmd_id, target_index, 0])
+        if not wait_change:
+            return None
+
+        def predicate():
+            active_index = self.get_active_snapshot_index()
+            if active_index == target_index:
+                return active_index
+            return None
+
+        result = self._poll_until(predicate, timeout=timeout)
+        if result is not None:
+            return result
+        return self._handle_timeout("/activateSnapshot", cmd_id, f"snapshot {target_index}")
+
+    def copy_snapshot(self, source_index: int, target_index: int, wait_status: bool = True):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(source_index), int(target_index)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/CopySnapshot", "iii", args)
+        self.send("/CopySnapshot", "iii", args)
+        return None
+
+    def set_snapshot_color(self, index: int, color: int, wait_status: bool = True):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(index), int(color)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/SnapshotColorSet", "iii", args)
+        self.send("/SnapshotColorSet", "iii", args)
+        return None
+
+    def load_preset_with_cid(self, content_id: int, wait_change: bool = True, timeout: float | None = None):
+        cmd_id = self.next_cmd_id
+        target_id = int(content_id)
+        self.send("/LoadPresetWithCID", "ii", [cmd_id, target_id])
+        if not wait_change:
+            return None
+
+        def predicate():
+            active_id = self.get_active_preset_content_id()
+            if active_id is None:
+                return None
+            active_ref = self.get_content_ref(active_id)
+            if active_id == target_id:
+                return active_ref or active_id
+            if isinstance(active_ref, dict) and active_ref.get("rcid") == target_id:
+                return active_ref
+            return None
+
+        result = self._poll_until(predicate, timeout=timeout)
+        if result is not None:
+            return result
+        return self._handle_timeout("/LoadPresetWithCID", cmd_id, f"preset {target_id}")
+
+    def load_preset_at_container_position(
+        self,
+        container_id: int,
+        position: int,
+        wait_change: bool = True,
+        timeout: float | None = None,
+    ):
+        cmd_id = self.next_cmd_id
+        target_container = int(container_id)
+        target_position = int(position)
+        self.send("/LoadPresetAtContainerPosition", "iii", [cmd_id, target_container, target_position])
+        if not wait_change:
+            return None
+
+        def predicate():
+            active_id = self.get_active_preset_content_id()
+            if active_id is None:
+                return None
+            active_ref = self.get_content_ref(active_id)
+            if isinstance(active_ref, dict):
+                if active_ref.get("ccid") == target_container and active_ref.get("posi") == target_position:
+                    return active_ref
+            return None
+
+        result = self._poll_until(predicate, timeout=timeout)
+        if result is not None:
+            return result
+        return self._handle_timeout(
+            "/LoadPresetAtContainerPosition",
+            cmd_id,
+            f"container {target_container} position {target_position}",
+        )
+
+    def save_preset_with_cid(self, content_id: int, wait_clean: bool = False, timeout: float | None = None):
+        cmd_id = self.next_cmd_id
+        target_id = int(content_id)
+        self.send("/SavePresetWithCID", "ii", [cmd_id, target_id])
+        if not wait_clean:
+            return None
+
+        def predicate():
+            edited = self.is_preset_edited()
+            if edited is False:
+                return False
+            return None
+
+        result = self._poll_until(predicate, timeout=timeout)
+        if result is not None:
+            return result
+        return self._handle_timeout("/SavePresetWithCID", cmd_id, f"preset {target_id}")
+
+    def set_content_attrs(self, content_id: int, attrs, wait_status: bool = True):
+        blob = attrs if isinstance(attrs, (bytes, bytearray)) else self._encode_msgpack(attrs)
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(content_id), bytes(blob)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/SetContentAttrs", "iib", args)
+        self.send("/SetContentAttrs", "iib", args)
+        return None
+
+    def rename_content(self, content_id: int, name: str, wait_status: bool = True):
+        blob = self.get_content_ref_blob(content_id)
+        if blob is None:
+            return None
+        decoded = decode_msgpack_blob(blob)
+        if not isinstance(decoded, dict):
+            raise HelixSessionError(f"unable to decode attrs for content {content_id}")
+        name_key = "name"
+        if name_key not in decoded and fourcc_int("name") in decoded:
+            name_key = fourcc_int("name")
+        decoded[name_key] = str(name)
+        return self.set_content_attrs(content_id, decoded, wait_status=wait_status)
 
     def set_snapshot_name(self, index: int, name: str, wait_status: bool = True):
         cmd_id = self.next_cmd_id

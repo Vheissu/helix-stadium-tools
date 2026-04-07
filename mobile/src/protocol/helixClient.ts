@@ -302,6 +302,58 @@ export class HelixClient {
     return decodePropertyBlob(blob);
   }
 
+  async getActivePresetContentId() {
+    const value = await this.getProperty('server.active.preset.id');
+    if (!value) return null;
+    const raw = value.value ?? (value as any).val_ ?? (value as any).val;
+    const numeric = Number(raw);
+    return Number.isFinite(numeric) ? numeric : null;
+  }
+
+  async getActivePresetRef() {
+    const contentId = await this.getActivePresetContentId();
+    if (contentId === null) return null;
+    return await this.getContentRef(contentId);
+  }
+
+  async getContentRef(contentId: number) {
+    const vals = await this.request('/GetContentRef', 'i', [contentId], '/GetContentRef', 2500);
+    return decodeCommandBlob(vals);
+  }
+
+  async getContainerContents(containerId: number) {
+    const vals = await this.request('/GetContainerContents', 'i', [containerId], '/GetContainerContents', 3000);
+    const decoded = decodeCommandBlob(vals);
+    return Array.isArray(decoded) ? decoded : [];
+  }
+
+  async getSnapshotCount() {
+    const vals = await this.request('/SnapshotCountGet', '', [], '/getSnapshotCount', 2000);
+    if (!Array.isArray(vals) || typeof vals[1] !== 'number') return null;
+    return vals[1];
+  }
+
+  async getActiveSnapshotIndex() {
+    const vals = await this.request('/ActiveSnapshotIndexGet', '', [], '/getActiveSnapshotIndex', 2000);
+    if (!Array.isArray(vals) || typeof vals[1] !== 'number') return null;
+    return vals[1];
+  }
+
+  activateSnapshot(index: number) {
+    const cmdId = this.nextCmdId();
+    this.sendOsc('/activateSnapshot', 'iii', [cmdId, index, 0]);
+  }
+
+  loadPresetWithCid(contentId: number) {
+    const cmdId = this.nextCmdId();
+    this.sendOsc('/LoadPresetWithCID', 'ii', [cmdId, contentId]);
+  }
+
+  loadPresetAtContainerPosition(containerId: number, position: number) {
+    const cmdId = this.nextCmdId();
+    this.sendOsc('/LoadPresetAtContainerPosition', 'iii', [cmdId, containerId, position]);
+  }
+
   async getEditBufferState() {
     const vals = await this.request('/EditBufferStateGet', '', [], '/getEditBufferState', 3000);
     if (!vals) {
@@ -472,6 +524,12 @@ const extractFirstBlob = (vals: Array<any> | null | undefined) => {
 const extractBlobs = (vals: Array<any> | null | undefined) => {
   if (!Array.isArray(vals)) return [];
   return vals.filter((val) => Buffer.isBuffer(val)) as Buffer[];
+};
+
+const decodeCommandBlob = (vals: Array<any> | null | undefined) => {
+  const blob = extractFirstBlob(vals);
+  if (!blob) return null;
+  return decodeMsgpackBlob(blob);
 };
 
 const hasFlowState = (decoded: any) => {

@@ -90,6 +90,26 @@ type IOModelData = {
   outputs: IOModelGroup;
 };
 
+type HelixContentRef = {
+  altp?: number;
+  blck?: number;
+  ccid?: number;
+  cctp?: number;
+  cid_?: number;
+  flow?: number;
+  name?: string;
+  posi?: number;
+  rcid?: number;
+  type?: number;
+  [key: string]: any;
+};
+
+type PresetLibraryRoot = 'setlists' | 'user' | 'factory';
+
+const FACTORY_PRESETS_CID = -1;
+const USER_PRESETS_CID = -2;
+const SETLIST_DIRECTORY_CID = -5;
+
 const blockCatalog = blockTypes as BlockCatalog;
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -160,6 +180,16 @@ export default function App() {
   const [ioPickerQuery, setIoPickerQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabKey>('flow');
   const [screen, setScreen] = useState<'main' | 'editor'>('main');
+  const [libraryRoot, setLibraryRoot] = useState<PresetLibraryRoot>('setlists');
+  const [setlists, setSetlists] = useState<HelixContentRef[]>([]);
+  const [selectedContainerId, setSelectedContainerId] = useState<number | null>(null);
+  const [selectedContainerName, setSelectedContainerName] = useState('Setlists');
+  const [presetItems, setPresetItems] = useState<HelixContentRef[]>([]);
+  const [activePresetContentId, setActivePresetContentId] = useState<number | null>(null);
+  const [activePresetRef, setActivePresetRef] = useState<HelixContentRef | null>(null);
+  const [snapshotCount, setSnapshotCount] = useState(0);
+  const [activeSnapshotIndex, setActiveSnapshotIndex] = useState<number | null>(null);
+  const [libraryLoading, setLibraryLoading] = useState(false);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -294,6 +324,14 @@ export default function App() {
     const remaining = targetSlot.path < 2 ? DSP_CAP - pathUsage.path1 : DSP_CAP - pathUsage.path2;
     return Math.max(0, remaining);
   }, [pathUsage, targetSlot.path]);
+  const activePresetName = activePresetRef?.name ?? 'None';
+  const isPresetActive = (item: HelixContentRef) => {
+    const itemId = typeof item.cid_ === 'number' ? item.cid_ : null;
+    if (itemId === null) return false;
+    if (itemId === activePresetContentId) return true;
+    if (typeof activePresetRef?.rcid === 'number' && activePresetRef.rcid === itemId) return true;
+    return false;
+  };
 
   const connect = async () => {
     if (connecting || connected) return;
@@ -308,7 +346,7 @@ export default function App() {
       clientRef.current = client;
       setConnected(true);
       setStatus('Connected');
-      handleSync();
+      await handleFullSync();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Connection failed: ${message}`);
@@ -328,6 +366,15 @@ export default function App() {
     setStatus('Idle');
     setActiveTab('flow');
     setScreen('main');
+    setSetlists([]);
+    setSelectedContainerId(null);
+    setSelectedContainerName('Setlists');
+    setPresetItems([]);
+    setActivePresetContentId(null);
+    setActivePresetRef(null);
+    setSnapshotCount(0);
+    setActiveSnapshotIndex(null);
+    setLibraryLoading(false);
   };
 
   const requireClient = () => {
@@ -336,6 +383,132 @@ export default function App() {
       return null;
     }
     return clientRef.current;
+  };
+
+  const loadPresetContainer = async (containerId: number, label: string) => {
+    const client = requireClient();
+    if (!client) return;
+    const items = await client.getContainerContents(containerId);
+    setSelectedContainerId(containerId);
+    setSelectedContainerName(label);
+    setPresetItems(items as HelixContentRef[]);
+  };
+
+  const refreshPresetContext = async () => {
+    const client = requireClient();
+    if (!client) return;
+    setLibraryLoading(true);
+    try {
+      const [activeId, snapshotTotal, snapshotIndex, setlistItems] = await Promise.all([
+        client.getActivePresetContentId(),
+        client.getSnapshotCount(),
+        client.getActiveSnapshotIndex(),
+        client.getContainerContents(SETLIST_DIRECTORY_CID),
+      ]);
+      const nextSetlists = (setlistItems as HelixContentRef[]) ?? [];
+      const activeRef = activeId !== null ? ((await client.getContentRef(activeId)) as HelixContentRef | null) : null;
+      setSetlists(nextSetlists);
+      setActivePresetContentId(activeId);
+      setActivePresetRef(activeRef);
+      setSnapshotCount(snapshotTotal ?? 0);
+      setActiveSnapshotIndex(snapshotIndex);
+
+      if (libraryRoot === 'factory') {
+        await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets');
+        return;
+      }
+      if (libraryRoot === 'user') {
+        await loadPresetContainer(USER_PRESETS_CID, 'User Presets');
+        return;
+      }
+
+      const defaultSetlist =
+        nextSetlists.find((item) => item.cid_ === activeRef?.ccid) ??
+        nextSetlists.find((item) => item.cid_ === selectedContainerId) ??
+        nextSetlists[0] ??
+        null;
+
+      if (defaultSetlist && typeof defaultSetlist.cid_ === 'number') {
+        await loadPresetContainer(defaultSetlist.cid_, defaultSetlist.name ?? 'Setlist');
+      } else {
+        setSelectedContainerId(null);
+        setSelectedContainerName('Setlists');
+        setPresetItems([]);
+      }
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
+
+  const handleLibraryRootChange = async (nextRoot: PresetLibraryRoot) => {
+    setLibraryRoot(nextRoot);
+    const client = requireClient();
+    if (!client) return;
+    setLibraryLoading(true);
+    try {
+      if (nextRoot === 'factory') {
+        await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets');
+        return;
+      }
+      if (nextRoot === 'user') {
+        await loadPresetContainer(USER_PRESETS_CID, 'User Presets');
+        return;
+      }
+      const nextSetlists = setlists.length ? setlists : ((await client.getContainerContents(SETLIST_DIRECTORY_CID)) as HelixContentRef[]);
+      setSetlists(nextSetlists);
+      const targetSetlist =
+        nextSetlists.find((item) => item.cid_ === activePresetRef?.ccid) ??
+        nextSetlists.find((item) => item.cid_ === selectedContainerId) ??
+        nextSetlists[0] ??
+        null;
+      if (targetSetlist && typeof targetSetlist.cid_ === 'number') {
+        await loadPresetContainer(targetSetlist.cid_, targetSetlist.name ?? 'Setlist');
+      } else {
+        setSelectedContainerId(null);
+        setSelectedContainerName('Setlists');
+        setPresetItems([]);
+      }
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
+
+  const handleSetlistSelect = async (item: HelixContentRef) => {
+    if (typeof item.cid_ !== 'number') return;
+    setLibraryLoading(true);
+    try {
+      await loadPresetContainer(item.cid_, item.name ?? 'Setlist');
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
+
+  const handlePresetLoad = async (item: HelixContentRef) => {
+    const client = requireClient();
+    if (!client) return;
+    if (isPresetActive(item)) {
+      setStatus(`Already on ${item.name ?? 'this preset'}`);
+      return;
+    }
+    if (libraryRoot === 'setlists' && typeof selectedContainerId === 'number' && typeof item.posi === 'number') {
+      client.loadPresetAtContainerPosition(selectedContainerId, item.posi);
+    } else if (typeof item.cid_ === 'number') {
+      client.loadPresetWithCid(item.cid_);
+    } else {
+      setStatus('Preset is missing a content id');
+      return;
+    }
+    setStatus(`Loading ${item.name ?? 'preset'}...`);
+    scheduleSync(900);
+  };
+
+  const handleSnapshotActivate = (index: number) => {
+    const client = requireClient();
+    if (!client) return;
+    client.activateSnapshot(index);
+    setActiveSnapshotIndex(index);
+    setStatus(`Activating snapshot ${index + 1}`);
+    scheduleSync(500);
   };
 
   const handleNotesToggle = (value: boolean) => {
@@ -781,13 +954,23 @@ export default function App() {
     }
   };
 
+  const handleFullSync = async () => {
+    await handleSync();
+    try {
+      await refreshPresetContext();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Preset sync failed: ${message}`);
+    }
+  };
+
   const scheduleSync = (delayMs = 350) => {
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
     }
     syncTimerRef.current = setTimeout(() => {
       syncTimerRef.current = null;
-      handleSync();
+      handleFullSync();
     }, delayMs);
   };
 
@@ -961,7 +1144,7 @@ export default function App() {
       showsVerticalScrollIndicator={false}
     >
       {/* Sync button */}
-      <Pressable style={styles.syncBtn} onPress={handleSync}>
+      <Pressable style={styles.syncBtn} onPress={handleFullSync}>
         <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
           <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -980,6 +1163,129 @@ export default function App() {
       contentContainerStyle={styles.tabPadding}
       showsVerticalScrollIndicator={false}
     >
+      <Section title="Library">
+        <View style={styles.rowBetween}>
+          <View style={styles.libraryHeader}>
+            <Text style={styles.label}>Current Preset</Text>
+            <Text style={styles.libraryCurrentName}>{activePresetName}</Text>
+            <Text style={styles.libraryMeta}>
+              {activePresetRef
+                ? `CID ${activePresetRef.cid_ ?? '\u2014'} \u00b7 Slot ${(typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014')}`
+                : 'No active preset data yet'}
+            </Text>
+          </View>
+          <Pressable style={[styles.button, styles.buttonGhost, styles.libraryRefresh]} onPress={refreshPresetContext}>
+            <Text style={[styles.buttonText, styles.buttonTextGhost]}>{libraryLoading ? 'Refreshing\u2026' : 'Refresh'}</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.libraryPills}>
+          {([
+            ['setlists', 'Setlists'],
+            ['user', 'User'],
+            ['factory', 'Factory'],
+          ] as Array<[PresetLibraryRoot, string]>).map(([key, label]) => {
+            const active = libraryRoot === key;
+            return (
+              <Pressable
+                key={key}
+                style={[styles.togglePill, active && styles.togglePillActive]}
+                onPress={() => {
+                  void handleLibraryRootChange(key);
+                }}
+              >
+                <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>{label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {libraryRoot === 'setlists' && setlists.length > 0 && (
+          <View style={styles.libraryPills}>
+            {setlists.map((item) => {
+              const active = item.cid_ === selectedContainerId;
+              return (
+                <Pressable
+                  key={String(item.cid_)}
+                  style={[styles.togglePill, active && styles.togglePillActive]}
+                  onPress={() => {
+                    void handleSetlistSelect(item);
+                  }}
+                >
+                  <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
+                    {item.name ?? `Setlist ${item.posi ?? '\u2014'}`}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
+
+        <View style={styles.libraryList}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{selectedContainerName}</Text>
+            <Text style={styles.libraryMeta}>{presetItems.length} presets</Text>
+          </View>
+          {presetItems.length === 0 ? (
+            <Text style={styles.paramHint}>No presets loaded for this container yet.</Text>
+          ) : (
+            presetItems.map((item) => {
+              const active = isPresetActive(item);
+              return (
+                <Pressable
+                  key={String(item.cid_ ?? `${selectedContainerId}-${item.posi}`)}
+                  style={[styles.libraryRow, active && styles.libraryRowActive]}
+                  onPress={() => {
+                    void handlePresetLoad(item);
+                  }}
+                >
+                  <View style={styles.libraryRowCopy}>
+                    <Text style={styles.sheetListText}>{item.name ?? `Preset ${item.posi ?? '\u2014'}`}</Text>
+                    <Text style={styles.libraryMeta}>
+                      #{typeof item.posi === 'number' ? item.posi + 1 : '\u2014'} \u00b7 CID {item.cid_ ?? '\u2014'}
+                    </Text>
+                  </View>
+                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
+                </Pressable>
+              );
+            })
+          )}
+        </View>
+      </Section>
+
+      <Section title="Snapshots">
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Snapshot Recall</Text>
+            <Text style={styles.libraryMeta}>
+              {snapshotCount > 0
+                ? `Active ${activeSnapshotIndex !== null ? activeSnapshotIndex + 1 : '\u2014'} of ${snapshotCount}`
+                : 'No snapshot data yet'}
+            </Text>
+          </View>
+        </View>
+        {snapshotCount > 0 ? (
+          <View style={styles.libraryPills}>
+            {Array.from({ length: snapshotCount }, (_item, index) => {
+              const active = activeSnapshotIndex === index;
+              return (
+                <Pressable
+                  key={`snapshot-${index}`}
+                  style={[styles.togglePill, active && styles.togglePillActive]}
+                  onPress={() => handleSnapshotActivate(index)}
+                >
+                  <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
+                    {index + 1}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : (
+          <Text style={styles.paramHint}>Refresh the preset tab after connecting to load snapshot buttons.</Text>
+        )}
+      </Section>
+
       <Section title="Notes">
         <View style={styles.rowBetween}>
           <Text style={styles.label}>Show on device</Text>
@@ -1681,6 +1987,24 @@ const styles = StyleSheet.create({
   /* ── Labels ───────────────────────────────────────────────────── */
   label: { color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
   labelHint: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, marginTop: 2, maxWidth: 240 },
+  libraryHeader: { flex: 1, gap: 4, paddingRight: 12 },
+  libraryCurrentName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 17 },
+  libraryMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, lineHeight: 16 },
+  libraryRefresh: { minWidth: 104, paddingVertical: 10, paddingHorizontal: 12 },
+  libraryPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  libraryList: { gap: 8 },
+  libraryRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12, paddingHorizontal: 14,
+    borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  libraryRowActive: { borderColor: COLORS.accentMid, backgroundColor: COLORS.accentDim },
+  libraryRowCopy: { flex: 1, gap: 4 },
+  libraryActiveBadge: {
+    color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11,
+    textTransform: 'uppercase', letterSpacing: 1.2,
+  },
 
   /* ── Status / events ──────────────────────────────────────────── */
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

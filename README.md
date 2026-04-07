@@ -19,6 +19,7 @@ Note: The mobile prototype (see `mobile/`) uses per-model DSP `usage` values fro
   - `osc_client.py` - Minimal OSC-over-TCP client (read-only by default).
   - `osc_session.py` - ZMTP-aware session client that performs the handshake and can send commands.
   - `helix_control.py` - Programmatic control tool (batch actions, snapshot names, scribble labels, etc.).
+  - `helix_usb_probe.py` - Inspect the connected device's USB interfaces and endpoints via libusb.
   - `set_scribble_label.py` - Set a footswitch scribble-strip label via PropertyValueSet.
   - `generate_helix_model_json.py` - Build JSON model catalogs (amps/bass/effects/cabs).
   - `based_on_overrides.json` - Official "based on" mappings scraped from Line 6's model list page.

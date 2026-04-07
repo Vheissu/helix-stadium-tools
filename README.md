@@ -54,10 +54,18 @@ python3 -m pip install -r requirements-dev.txt
 ```python
 from helix import HelixSession
 
-with HelixSession("p35x1.local", timeout=5.0, retries=2, retry_delay=0.1) as session:
+with HelixSession(
+    "p35x1.local",
+    timeout=5.0,
+    retries=2,
+    retry_delay=0.1,
+    raise_on_timeout=True,
+) as session:
     info = session.get_product_info()
     print(info)
     session.set_snapshot_name(0, "Dwayne!")
+    update = session.recv_update(timeout=1.0)
+    print(update)
 ```
 
 ## Testing
@@ -248,6 +256,12 @@ python3 scripts/helix_control.py --host p35x1.local insert-block --path 0 --bloc
 # Insert a block by human-friendly name (resolved via model map/resources)
 python3 scripts/helix_control.py --host p35x1.local insert-block --path 0 --block 1 --model "US Tweedman" --auto-cab on --clear
 
+# Set a parameter on an IO block by name
+python3 scripts/helix_control.py --host p35x1.local io-param --row 1A --type input --param Pad --value on
+
+# Set a parameter on a visible signal block by row + position
+python3 scripts/helix_control.py --host p35x1.local block-param --row 1A --position 3 --param Drive --value 6.0
+
 # Clear all blocks (both paths)
 python3 scripts/helix_control.py --host p35x1.local clear-all-blocks
 
@@ -256,6 +270,9 @@ python3 scripts/helix_control.py --host p35x1.local clear-all-blocks --path 0
 
 # Short alias
 python3 scripts/helix_control.py --host p35x1.local clear-all
+
+# Watch push updates for 15 seconds
+python3 scripts/helix_control.py --host p35x1.local --duration 15 monitor
 
 # Increase timeout/retry policy
 python3 scripts/helix_control.py --host p35x1.local --timeout 6 --retries 2 --retry-delay 0.2 \
@@ -284,6 +301,9 @@ Supported action ops:
 - `clear_blocks` / `clear-blocks` (`path`, `blocks`)
 - `clear_all_blocks` / `clear-all-blocks` (`path`)
 - `insert_block` / `insert-block` (`path`, `block`, `model_id` or `model`, `slot`, `auto_cab`, `clear`, `clear_blocks`)
+- `io_set` / `io-set` (`row`, `type`, `model_id` or `model`)
+- `io_param` / `io-param` (`row`, `type`, `param_id` or `param`, `value`)
+- `block_param` / `block-param` (`row`, `position`, `param_id` or `param`, `value`, `slot`, `flags`)
 - `param_value` (`path`, `block`, `param_id`, `value`, `slot`, `flags`)
 - `block_enable` (`path`, `block`, `enabled`)
 - `model_set` (`path`, `block`, `model_id`, `slot`)
@@ -292,6 +312,8 @@ Supported action ops:
 Notes:
 
 - `scribble_label` and `property_set` require `msgpack` to be installed.
+- The CLI now fails fast on missing acknowledgements instead of silently succeeding after a timeout.
+- `monitor` and `--listen` decode wrapped port `2001` push traffic, including heartbeats and edit notifications.
 
 ## scripts/set_scribble_label.py
 

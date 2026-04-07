@@ -1,3 +1,4 @@
+import socket
 import unittest
 
 from helix.zmtp import ZMTPStream, recv_exact, zmtp_handshake, zmtp_ready_payload
@@ -23,6 +24,11 @@ class FakeRecvSocket:
 
     def sendall(self, payload: bytes):
         self.sent += payload
+
+
+class TimeoutRecvSocket(FakeRecvSocket):
+    def recv(self, _size: int):
+        raise socket.timeout()
 
 
 class NoReadyStream:
@@ -110,6 +116,12 @@ class TestZmtp(unittest.TestCase):
     def test_recv_frame_empty_socket_returns_none(self):
         sock = FakeRecvSocket([])
         stream = ZMTPStream(sock)
+        flags, payload = stream.recv_frame()
+        self.assertIsNone(flags)
+        self.assertIsNone(payload)
+
+    def test_recv_frame_timeout_returns_none(self):
+        stream = ZMTPStream(TimeoutRecvSocket([]))
         flags, payload = stream.recv_frame()
         self.assertIsNone(flags)
         self.assertIsNone(payload)

@@ -46,11 +46,11 @@ export const FONTS = {
 
 // Layout constants for signal flow
 export const SIGNAL_FLOW = {
-  blockWidth: 64,
-  blockHeight: 80,
-  connectorWidth: 12,
-  nodeSize: 32,
+  blockWidth: 72,
+  blockHeight: 88,
+  connectorWidth: 10,
+  nodeSize: 34,
   splitIconSize: 24,
-  borderRadius: 6,
-  topBorderHeight: 4,
+  borderRadius: 8,
+  topBorderHeight: 3,
 };

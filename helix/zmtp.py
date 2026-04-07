@@ -1,4 +1,5 @@
 """ZeroMQ ZMTP 3.0 helpers."""
+import socket
 import struct
 
 
@@ -43,7 +44,10 @@ class ZMTPStream:
                         payload = self.buf[off:off+size]
                         self.buf = self.buf[off+size:]
                         return flags, payload
-            data = self.sock.recv(4096)
+            try:
+                data = self.sock.recv(4096)
+            except socket.timeout:
+                return None, None
             if not data:
                 return None, None
             self.buf += data

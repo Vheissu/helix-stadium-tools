@@ -93,3 +93,31 @@ def decode_osc(msg: bytes):
             vals.append(("?", ch))
             idx += 4
     return addr, typetags, vals
+
+
+def decode_wrapped_osc(payload: bytes):
+    events = []
+    offset = 0
+    while offset + 12 <= len(payload):
+        version = struct.unpack(">H", payload[offset:offset + 2])[0]
+        msg_len = struct.unpack(">H", payload[offset + 10:offset + 12])[0]
+        if version != 0x0108 or msg_len == 0 or offset + 12 + msg_len > len(payload):
+            break
+        decoded = decode_osc(payload[offset + 12:offset + 12 + msg_len])
+        if decoded is not None:
+            events.append(decoded)
+        offset += 12 + msg_len
+    return events
+
+
+def decode_osc_payloads(payload: bytes):
+    if not payload:
+        return []
+    if payload[:1] == b"/":
+        decoded = decode_osc(payload)
+        return [decoded] if decoded is not None else []
+    wrapped = decode_wrapped_osc(payload)
+    if wrapped:
+        return wrapped
+    decoded = decode_osc(payload)
+    return [decoded] if decoded is not None else []

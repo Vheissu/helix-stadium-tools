@@ -13,8 +13,14 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from helix import HelixSession  # noqa: E402
-from helix.blobs import normalize_fourcc_map  # noqa: E402
+from helix import HelixSession, HelixSessionError  # noqa: E402
+from helix.editbuffer import (  # noqa: E402
+    extract_active_model_id,
+    find_io_block,
+    find_signal_block,
+    normalize_edit_buffer,
+    parse_row,
+)
 
 
 DEFAULT_APP_RES = "/Applications/Line6/Helix Stadium.app/Contents/Resources"
@@ -110,45 +116,8 @@ def load_uidefs(path: str):
         return json.load(f)
 
 
-def coerce_numeric_keys(obj):
-    if isinstance(obj, dict):
-        out = {}
-        for key, val in obj.items():
-            new_key = key
-            if isinstance(key, str) and key.isdigit():
-                try:
-                    new_key = int(key)
-                except Exception:
-                    new_key = key
-            out[new_key] = coerce_numeric_keys(val)
-        return out
-    if isinstance(obj, list):
-        return [coerce_numeric_keys(v) for v in obj]
-    return obj
-
-
 def load_edit_buffer(session: HelixSession):
-    raw = session.get_edit_buffer_state()
-    if raw is None:
-        return None
-    return normalize_fourcc_map(coerce_numeric_keys(raw))
-
-
-def parse_row(value: str) -> int:
-    text = value.strip().upper()
-    if text in ("1A", "A1"):
-        return 0
-    if text in ("1B", "B1"):
-        return 1
-    if text in ("2A", "A2"):
-        return 2
-    if text in ("2B", "B2"):
-        return 3
-    if text.isdigit():
-        idx = int(text)
-        if idx in (0, 1, 2, 3):
-            return idx
-    raise ValueError(f"invalid row: {value!r} (expected 1A, 1B, 2A, 2B, or 0-3)")
+    return normalize_edit_buffer(session.get_edit_buffer_state())
 
 
 def resolve_io_model_id(query: str, modeldefs_path: str, uidefs_path: str):
@@ -172,36 +141,6 @@ def resolve_io_model_id(query: str, modeldefs_path: str, uidefs_path: str):
             name = uidefs.get(key, {}).get("name")
             if name and normalize_query(name) == needle:
                 return info.get("id")
-    return None
-
-
-def find_io_block(state, row: int, io_type: str):
-    if state is None:
-        return None
-    flows = state.get("sfg_", {}).get("flow", [])
-    if not isinstance(flows, list):
-        return None
-    flow_idx = row // 2
-    if flow_idx < 0 or flow_idx >= len(flows):
-        return None
-    flow = flows[flow_idx]
-    if not isinstance(flow, dict):
-        return None
-    local_row = row % 2
-    if io_type == "input":
-        pos = 0 if local_row == 0 else 14
-    else:
-        pos = 13 if local_row == 0 else 27
-    blks = flow.get("blks", [])
-    if isinstance(blks, list) and len(blks) > 1 and isinstance(blks[0], int) and isinstance(blks[1], dict):
-        for i in range(1, len(blks), 2):
-            blk_pos = blks[i - 1]
-            blk = blks[i]
-            if blk_pos == pos and isinstance(blk, dict):
-                return blk.get("id__"), blk
-    bmap = flow.get("bmap")
-    if isinstance(bmap, list) and len(bmap) > pos:
-        return bmap[pos], None
     return None
 
 
@@ -279,6 +218,31 @@ def resolve_model_id(query: str, model_map_path: str, modeldefs_path: str, uidef
             raise SystemExit(f"model key '{query}' has no id")
         return int(mid)
     raise SystemExit(f"unknown model '{query}' (use --model-id or update model map)")
+
+
+def resolve_block_param_target(state, row: int, position: int):
+    block_id, block = find_signal_block(state, row, position)
+    if block_id is None:
+        raise SystemExit("unable to resolve block id; sync or check row/position")
+    if not isinstance(block, dict):
+        raise SystemExit("target block is empty or unavailable in the current edit buffer")
+    return int(block_id), block
+
+
+def resolve_named_param_id(modeldefs_path: str, model_id: int, param_key: str):
+    modeldefs = load_modeldefs(modeldefs_path)
+    if not modeldefs:
+        raise SystemExit("modeldefs not found; install the Helix app or pass --modeldefs")
+    param_id = resolve_param_id(modeldefs, int(model_id), param_key)
+    if param_id is None:
+        raise SystemExit(f"unable to resolve param id for '{param_key}' on model {model_id}")
+    return int(param_id)
+
+
+def format_event(decoded):
+    addr, typetags, vals = decoded
+    rendered = json.dumps(json_safe(vals))
+    return f"{addr} {typetags} {rendered}"
 
 
 def json_safe(value):
@@ -422,19 +386,37 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             param_key = action.get("param")
             if not param_key:
                 raise SystemExit("io_param requires param_id or param")
-            model_id = None
-            if isinstance(blk, dict):
-                models = blk.get("mdls", [])
-                if isinstance(models, list) and models and isinstance(models[0], dict):
-                    model_id = models[0].get("id__")
+            model_id = extract_active_model_id(blk)
             if model_id is None:
                 raise SystemExit("unable to resolve IO model id for param lookup")
-            modeldefs = load_modeldefs(action.get("modeldefs", DEFAULT_MODELDEFS))
-            if not modeldefs:
-                raise SystemExit("modeldefs not found; install the Helix app or pass --modeldefs")
-            param_id = resolve_param_id(modeldefs, int(model_id), str(param_key))
+            param_id = resolve_named_param_id(action.get("modeldefs", DEFAULT_MODELDEFS), int(model_id), str(param_key))
+        value = action.get("value")
+        if isinstance(value, str):
+            value = parse_param_value(value)
+        session.set_param_value(
+            row // 2,
+            int(block_id),
+            int(param_id),
+            value,
+            int(action.get("slot", 0)),
+            int(action.get("flags", -1)),
+            wait_status=True,
+        )
+        return cmd_id + 1
+    if op in ("block_param", "block-param"):
+        row = parse_row(str(action.get("row")))
+        position = int(action.get("position"))
+        state = load_edit_buffer(session)
+        block_id, blk = resolve_block_param_target(state, row, position)
+        param_id = action.get("param_id")
         if param_id is None:
-            raise SystemExit("unable to resolve param id")
+            param_key = action.get("param")
+            if not param_key:
+                raise SystemExit("block_param requires param_id or param")
+            model_id = extract_active_model_id(blk)
+            if model_id is None:
+                raise SystemExit("unable to resolve block model id for param lookup")
+            param_id = resolve_named_param_id(action.get("modeldefs", DEFAULT_MODELDEFS), int(model_id), str(param_key))
         value = action.get("value")
         if isinstance(value, str):
             value = parse_param_value(value)
@@ -549,10 +531,22 @@ def main():
     io_param.add_argument("--modeldefs", default=DEFAULT_MODELDEFS, help="Path to modeldefs .bin")
     io_param.add_argument("--uidefs", default=DEFAULT_UIDEFS, help="Path to P35ModelUIDefs.json")
 
+    block_param = sub.add_parser("block-param")
+    block_param.add_argument("--row", required=True, help="Row label (1A, 1B, 2A, 2B) or index 0-3")
+    block_param.add_argument("--position", type=int, required=True, help="Visible block position within the row (1-12)")
+    block_param.add_argument("--param-id", type=int)
+    block_param.add_argument("--param", help="Parameter key (for example Drive, Bass, Level)")
+    block_param.add_argument("--value", required=True, help="Value to set (number or boolean)")
+    block_param.add_argument("--slot", type=int, default=0, help="Model slot for dual-model blocks")
+    block_param.add_argument("--flags", type=int, default=-1)
+    block_param.add_argument("--modeldefs", default=DEFAULT_MODELDEFS, help="Path to modeldefs .bin")
+
     clear_all = sub.add_parser("clear-all-blocks")
     clear_all.add_argument("--path", type=int, help="Optional path/flow index to clear (default: all)")
     clear_all_short = sub.add_parser("clear-all")
     clear_all_short.add_argument("--path", type=int, help="Optional path/flow index to clear (default: all)")
+
+    sub.add_parser("monitor")
 
     args = ap.parse_args()
 
@@ -563,125 +557,138 @@ def main():
         timeout=args.timeout,
         retries=args.retries,
         retry_delay=args.retry_delay,
+        raise_on_timeout=True,
     )
     session._cmd_id = args.cmd_base
-    session.connect()
-    cmd_id = session._cmd_id
+    try:
+        session.connect()
+        cmd_id = session._cmd_id
 
-    if args.actions:
-        for action in iter_actions_from_file(args.actions):
-            cmd_id = apply_action(session, cmd_id, action)
-    elif args.cmd == "snapshot-name":
-        session.set_snapshot_name(args.index, args.name, wait_status=True)
-    elif args.cmd == "scribble-label":
-        if not args.key and not args.stomp:
-            raise SystemExit("must supply --stomp or --key")
-        key = args.key
-        if not key:
-            bank, idx = parse_stomp(args.stomp)
-            key = f"preset.floorboard.stomp.{bank}.{idx}.label"
-        session.set_property(key, args.label, "s", wait_status=True)
-    elif args.cmd == "preset-notes":
-        session.set_preset_notes(args.text, wait_status=True)
-    elif args.cmd == "preset-notes-visible":
-        session.set_preset_notes_visible(parse_visibility(args.visible), wait_status=True)
-    elif args.cmd == "get-property":
-        value = session.get_property(args.key)
-        print(json.dumps(json_safe(value), indent=2, sort_keys=True))
-        session.close()
-        return
-    elif args.cmd == "get-product-info":
-        value = session.get_product_info()
-        print(json.dumps(json_safe(value), indent=2, sort_keys=True))
-        session.close()
-        return
-    elif args.cmd == "get-edit-buffer":
-        value = session.get_edit_buffer_state()
-        print(json.dumps(json_safe(value), indent=2, sort_keys=True))
-        session.close()
-        return
-    elif args.cmd == "set-autocab":
-        session.set_auto_cab(parse_bool(args.enabled), wait_status=True)
-    elif args.cmd == "insert-block":
-        if args.model_id is None and not args.model:
-            raise SystemExit("insert-block requires --model-id or --model")
-        if args.model_id is not None and args.model:
-            raise SystemExit("use either --model-id or --model, not both")
-        auto_cab = None
-        if args.auto_cab != "leave":
-            auto_cab = True if args.auto_cab == "on" else False
-        clear_blocks = None
-        if args.clear_blocks:
-            clear_blocks = parse_blocks(args.clear_blocks)
-        elif args.clear:
-            clear_blocks = [args.block, args.block + 1]
-        model_id = args.model_id
-        if model_id is None:
-            model_id = resolve_model_id(args.model, args.model_map, args.modeldefs, args.uidefs)
-        session.insert_block(
-            args.path,
-            args.block,
-            int(model_id),
-            args.slot,
-            auto_cab=auto_cab,
-            clear_blocks=clear_blocks,
-            wait_status=True,
-        )
-    elif args.cmd == "io-set":
-        row = parse_row(args.row)
-        model_id = args.model_id
-        if model_id is None and args.model:
-            model_id = resolve_io_model_id(args.model, args.modeldefs, args.uidefs)
-        if model_id is None:
-            raise SystemExit("io-set requires --model-id or --model")
-        state = load_edit_buffer(session)
-        block_id, _blk = find_io_block(state, row, args.type)
-        if block_id is None:
-            raise SystemExit("unable to resolve IO block id; run get-edit-buffer first")
-        session.set_model(row // 2, int(block_id), int(model_id), 0, wait_status=True)
-    elif args.cmd == "io-param":
-        row = parse_row(args.row)
-        state = load_edit_buffer(session)
-        block_id, blk = find_io_block(state, row, args.type)
-        if block_id is None:
-            raise SystemExit("unable to resolve IO block id; run get-edit-buffer first")
-        param_id = args.param_id
-        if param_id is None:
-            if not args.param:
-                raise SystemExit("io-param requires --param-id or --param")
-            model_id = None
-            if isinstance(blk, dict):
-                models = blk.get("mdls", [])
-                if isinstance(models, list) and models and isinstance(models[0], dict):
-                    model_id = models[0].get("id__")
+        if args.actions:
+            for action in iter_actions_from_file(args.actions):
+                cmd_id = apply_action(session, cmd_id, action)
+        elif args.cmd == "snapshot-name":
+            session.set_snapshot_name(args.index, args.name, wait_status=True)
+        elif args.cmd == "scribble-label":
+            if not args.key and not args.stomp:
+                raise SystemExit("must supply --stomp or --key")
+            key = args.key
+            if not key:
+                bank, idx = parse_stomp(args.stomp)
+                key = f"preset.floorboard.stomp.{bank}.{idx}.label"
+            session.set_property(key, args.label, "s", wait_status=True)
+        elif args.cmd == "preset-notes":
+            session.set_preset_notes(args.text, wait_status=True)
+        elif args.cmd == "preset-notes-visible":
+            session.set_preset_notes_visible(parse_visibility(args.visible), wait_status=True)
+        elif args.cmd == "get-property":
+            value = session.get_property(args.key)
+            print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+            return
+        elif args.cmd == "get-product-info":
+            value = session.get_product_info()
+            print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+            return
+        elif args.cmd == "get-edit-buffer":
+            value = session.get_edit_buffer_state()
+            print(json.dumps(json_safe(value), indent=2, sort_keys=True))
+            return
+        elif args.cmd == "set-autocab":
+            session.set_auto_cab(parse_bool(args.enabled), wait_status=True)
+        elif args.cmd == "insert-block":
+            if args.model_id is None and not args.model:
+                raise SystemExit("insert-block requires --model-id or --model")
+            if args.model_id is not None and args.model:
+                raise SystemExit("use either --model-id or --model, not both")
+            auto_cab = None
+            if args.auto_cab != "leave":
+                auto_cab = True if args.auto_cab == "on" else False
+            clear_blocks = None
+            if args.clear_blocks:
+                clear_blocks = parse_blocks(args.clear_blocks)
+            elif args.clear:
+                clear_blocks = [args.block, args.block + 1]
+            model_id = args.model_id
             if model_id is None:
-                raise SystemExit("unable to resolve IO model id for param lookup")
-            modeldefs = load_modeldefs(args.modeldefs)
-            if not modeldefs:
-                raise SystemExit("modeldefs not found; install the Helix app or pass --modeldefs")
-            param_id = resolve_param_id(modeldefs, int(model_id), str(args.param))
-        if param_id is None:
-            raise SystemExit("unable to resolve param id")
-        value = parse_param_value(args.value)
-        session.set_param_value(row // 2, int(block_id), int(param_id), value, 0, -1, wait_status=True)
-    elif args.cmd == "clear-all-blocks":
-        session.clear_all_blocks(args.path, wait_status=True)
-    elif args.cmd == "clear-all":
-        session.clear_all_blocks(args.path, wait_status=True)
-    else:
-        raise SystemExit("provide --actions or a subcommand")
+                model_id = resolve_model_id(args.model, args.model_map, args.modeldefs, args.uidefs)
+            session.insert_block(
+                args.path,
+                args.block,
+                int(model_id),
+                args.slot,
+                auto_cab=auto_cab,
+                clear_blocks=clear_blocks,
+                wait_status=True,
+            )
+        elif args.cmd == "io-set":
+            row = parse_row(args.row)
+            model_id = args.model_id
+            if model_id is None and args.model:
+                model_id = resolve_io_model_id(args.model, args.modeldefs, args.uidefs)
+            if model_id is None:
+                raise SystemExit("io-set requires --model-id or --model")
+            state = load_edit_buffer(session)
+            block_id, _blk = find_io_block(state, row, args.type)
+            if block_id is None:
+                raise SystemExit("unable to resolve IO block id; run get-edit-buffer first")
+            session.set_model(row // 2, int(block_id), int(model_id), 0, wait_status=True)
+        elif args.cmd == "io-param":
+            row = parse_row(args.row)
+            state = load_edit_buffer(session)
+            block_id, blk = find_io_block(state, row, args.type)
+            if block_id is None:
+                raise SystemExit("unable to resolve IO block id; run get-edit-buffer first")
+            param_id = args.param_id
+            if param_id is None:
+                if not args.param:
+                    raise SystemExit("io-param requires --param-id or --param")
+                model_id = extract_active_model_id(blk)
+                if model_id is None:
+                    raise SystemExit("unable to resolve IO model id for param lookup")
+                param_id = resolve_named_param_id(args.modeldefs, int(model_id), str(args.param))
+            value = parse_param_value(args.value)
+            session.set_param_value(row // 2, int(block_id), int(param_id), value, 0, -1, wait_status=True)
+        elif args.cmd == "block-param":
+            row = parse_row(args.row)
+            state = load_edit_buffer(session)
+            block_id, blk = resolve_block_param_target(state, row, args.position)
+            param_id = args.param_id
+            if param_id is None:
+                if not args.param:
+                    raise SystemExit("block-param requires --param-id or --param")
+                model_id = extract_active_model_id(blk)
+                if model_id is None:
+                    raise SystemExit("unable to resolve block model id for param lookup")
+                param_id = resolve_named_param_id(args.modeldefs, int(model_id), str(args.param))
+            value = parse_param_value(args.value)
+            session.set_param_value(
+                row // 2,
+                int(block_id),
+                int(param_id),
+                value,
+                args.slot,
+                args.flags,
+                wait_status=True,
+            )
+        elif args.cmd == "clear-all-blocks":
+            session.clear_all_blocks(args.path, wait_status=True)
+        elif args.cmd == "clear-all":
+            session.clear_all_blocks(args.path, wait_status=True)
+        elif args.cmd != "monitor":
+            raise SystemExit("provide --actions or a subcommand")
 
-    if args.listen:
-        end = time.time() + args.duration
-        while time.time() < end:
-            decoded = session._recv_osc(session._stream_2001, end)
-            if decoded:
-                addr, typetags, vals = decoded
-                print(addr, typetags, vals)
-    else:
-        time.sleep(args.duration)
-
-    session.close()
+        if args.listen or args.cmd == "monitor":
+            end = time.time() + args.duration
+            while time.time() < end:
+                decoded = session.recv_update(timeout=max(0.0, end - time.time()))
+                if decoded:
+                    print(format_event(decoded))
+        else:
+            time.sleep(args.duration)
+    except HelixSessionError as exc:
+        raise SystemExit(str(exc)) from exc
+    finally:
+        session.close()
 
 
 if __name__ == "__main__":

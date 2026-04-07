@@ -25,7 +25,7 @@ def decode_msgpack_blob(blob: bytes):
         import msgpack  # type: ignore
     except Exception:
         return None
-    for offset in (0, 8):
+    for offset in (0, 4, 8, 12, 16):
         try:
             return msgpack.unpackb(blob[offset:], raw=False, strict_map_key=False)
         except Exception:

@@ -1,6 +1,7 @@
+import struct
 import unittest
 
-from helix.osc import build_osc, decode_osc, pad4
+from helix.osc import build_osc, decode_osc, decode_osc_payloads, decode_wrapped_osc, pad4
 
 
 class TestOsc(unittest.TestCase):
@@ -124,6 +125,16 @@ class TestOsc(unittest.TestCase):
         self.assertIsNotNone(decoded)
         _addr, _tt, vals = decoded
         self.assertEqual(vals[0], "<blob:5?>")
+
+    def test_decode_wrapped_osc(self):
+        msg = build_osc("/Wrapped", "i", [7])
+        header = struct.pack(">H6xHH", 0x0108, 1, len(msg))
+        decoded = decode_wrapped_osc(header + msg)
+        self.assertEqual(decoded, [("/Wrapped", ",i", [7])])
+
+    def test_decode_osc_payloads_falls_back_to_raw(self):
+        msg = build_osc("/Raw", "s", ["ok"])
+        self.assertEqual(decode_osc_payloads(msg), [("/Raw", ",s", ["ok"])])
 
 
 if __name__ == "__main__":

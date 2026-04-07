@@ -5,7 +5,7 @@ from unittest import mock
 
 from helix.blobs import build_property_blob, decode_property_blob, fourcc_int
 from helix.osc import build_osc, decode_osc
-from helix.session import HelixSession
+from helix.session import HelixSession, HelixStatusError, HelixTimeoutError
 
 
 class FakeStream:
@@ -178,6 +178,12 @@ class TestSession(unittest.TestCase):
         result = session.request(1, "/Foo", "i", [1], "/Bar", timeout=0.0)
         self.assertIsNone(result)
 
+    def test_request_timeout_raises_in_strict_mode(self):
+        session = HelixSession("dummy", timeout=0.0, retries=1, retry_delay=0.0, raise_on_timeout=True)
+        session._stream_2002 = FrameQueueStream([])
+        with self.assertRaises(HelixTimeoutError):
+            session.request(1, "/Foo", "i", [1], "/Bar", timeout=0.0)
+
     def test_send_and_wait_ack_returns_none(self):
         session = HelixSession("dummy", timeout=0.0, retries=1, retry_delay=0.0)
         session._stream_2002 = FakeStream()
@@ -249,6 +255,43 @@ class TestSession(unittest.TestCase):
         result = session.send_and_wait_ack(cmd_id, "/PropertyValueSet", "iib", [cmd_id, 0, b""], ("/success",))
         self.assertIsNotNone(result)
         self.assertEqual(stream.send_count, 2)
+
+    def test_send_and_wait_status_raises_on_non_zero_status(self):
+        cmd_id = 33
+        status_msg = build_osc("/status", "iii", [cmd_id, 1, 0])
+        stream = StatusRetryStream(status_msg)
+        session = HelixSession("dummy", timeout=0.01, retries=2, retry_delay=0.0)
+        session._stream_2002 = stream
+        with self.assertRaises(HelixStatusError):
+            session.send_and_wait_status(cmd_id, "/SetSnapshotName", "iis", [cmd_id, 0, "Name"])
+
+    def test_recv_update_decodes_wrapped_push_payload(self):
+        inner = build_osc("/heartbeat", "i", [1])
+        wrapped = b"\x01\x08" + (b"\x00" * 6) + b"\x00\x05" + len(inner).to_bytes(2, "big") + inner
+        session = HelixSession("dummy", timeout=0.01, retries=1, retry_delay=0.0)
+        session._stream_2001 = FakeStream()
+        session._stream_2001.queue_payload(wrapped)
+        self.assertEqual(session.recv_update(timeout=0.01), ("/heartbeat", ",i", [1]))
+
+    def test_connect_closes_sockets_on_failure(self):
+        FakeZMTPStream.instances = []
+        sockets = [FakeSocket(), FakeSocket()]
+
+        def fake_socket(*_args, **_kwargs):
+            return sockets.pop(0)
+
+        def fake_handshake(stream, socket_type, identity=None):
+            if socket_type == "DEALER":
+                raise ConnectionError("boom")
+
+        with mock.patch("helix.session.socket.socket", side_effect=fake_socket), \
+            mock.patch("helix.session.ZMTPStream", FakeZMTPStream), \
+            mock.patch("helix.session.zmtp_handshake", side_effect=fake_handshake):
+            session = HelixSession("host", port_2001=1111, port_2002=2222)
+            with self.assertRaises(ConnectionError):
+                session.connect()
+
+        self.assertTrue(all(stream.sock.closed for stream in FakeZMTPStream.instances))
 
     def test_get_property_decodes_blob(self):
         try:

@@ -2,7 +2,7 @@
 import socket
 import time
 
-from .osc import build_osc, decode_osc
+from .osc import build_osc, decode_osc_payloads
 from .blobs import (
     build_property_blob,
     decode_msgpack_blob,
@@ -11,6 +11,24 @@ from .blobs import (
     normalize_fourcc_map,
 )
 from .zmtp import ZMTPStream, zmtp_handshake
+
+
+class HelixSessionError(RuntimeError):
+    """Base error for session-level failures."""
+
+
+class HelixTimeoutError(HelixSessionError):
+    """Raised when a command does not receive an expected response in time."""
+
+
+class HelixStatusError(HelixSessionError):
+    """Raised when the device acknowledges a command with a non-zero status."""
+
+    def __init__(self, address: str, cmd_id: int, status_values):
+        self.address = address
+        self.cmd_id = cmd_id
+        self.status_values = tuple(status_values)
+        super().__init__(f"{address} failed for cmd_id={cmd_id}: status={self.status_values}")
 
 
 class HelixSession:
@@ -22,6 +40,8 @@ class HelixSession:
         timeout: float = 5.0,
         retries: int = 1,
         retry_delay: float = 0.1,
+        raise_on_timeout: bool = False,
+        strict_status: bool = True,
     ):
         self.host = host
         self.port_2001 = port_2001
@@ -29,29 +49,40 @@ class HelixSession:
         self.timeout = timeout
         self.retries = retries
         self.retry_delay = retry_delay
+        self.raise_on_timeout = raise_on_timeout
+        self.strict_status = strict_status
         self._cmd_id = 1
         self._stream_2001 = None
         self._stream_2002 = None
 
     def connect(self):
-        sock_2001 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock_2002 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock_2001.connect((self.host, self.port_2001))
-        sock_2002.connect((self.host, self.port_2002))
-        stream_2001 = ZMTPStream(sock_2001)
-        stream_2002 = ZMTPStream(sock_2002)
-        zmtp_handshake(stream_2001, "SUB", identity=None)
-        stream_2001.send_frame(b"\x01")
-        zmtp_handshake(stream_2002, "DEALER", identity=b"")
-        self._stream_2001 = stream_2001
-        self._stream_2002 = stream_2002
-        return self
+        sock_2001 = None
+        sock_2002 = None
+        try:
+            sock_2001 = self._open_socket(self.port_2001)
+            sock_2002 = self._open_socket(self.port_2002)
+            stream_2001 = ZMTPStream(sock_2001)
+            stream_2002 = ZMTPStream(sock_2002)
+            zmtp_handshake(stream_2001, "SUB", identity=None)
+            stream_2001.send_frame(b"\x01")
+            zmtp_handshake(stream_2002, "DEALER", identity=b"")
+            self._configure_poll_timeout(sock_2001)
+            self._configure_poll_timeout(sock_2002)
+            self._stream_2001 = stream_2001
+            self._stream_2002 = stream_2002
+            return self
+        except Exception:
+            for sock in (sock_2001, sock_2002):
+                self._safe_close_socket(sock)
+            self._stream_2001 = None
+            self._stream_2002 = None
+            raise
 
     def close(self):
         if self._stream_2001:
-            self._stream_2001.sock.close()
+            self._safe_close_socket(self._stream_2001.sock)
         if self._stream_2002:
-            self._stream_2002.sock.close()
+            self._safe_close_socket(self._stream_2002.sock)
         self._stream_2001 = None
         self._stream_2002 = None
 
@@ -60,6 +91,52 @@ class HelixSession:
         cid = self._cmd_id
         self._cmd_id += 1
         return cid
+
+    def _socket_timeout(self):
+        if self.timeout <= 0:
+            return 0.05
+        return min(max(self.timeout, 0.05), 0.25)
+
+    def _set_socket_timeout(self, sock, timeout: float):
+        setter = getattr(sock, "settimeout", None)
+        if callable(setter):
+            setter(timeout)
+
+    def _configure_poll_timeout(self, sock):
+        self._set_socket_timeout(sock, self._socket_timeout())
+
+    def _open_socket(self, port: int):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._set_socket_timeout(sock, self.timeout)
+        sock.connect((self.host, port))
+        return sock
+
+    def _safe_close_socket(self, sock):
+        if not sock:
+            return
+        try:
+            sock.close()
+        except Exception:
+            pass
+
+    def _handle_timeout(self, address: str, cmd_id: int, expect_desc: str):
+        if self.raise_on_timeout:
+            raise HelixTimeoutError(
+                f"timed out waiting for {expect_desc} after {address} (cmd_id={cmd_id})"
+            )
+        return None
+
+    def _validate_status(self, address: str, cmd_id: int, response_addr: str, vals):
+        if not self.strict_status or response_addr != "/status" or len(vals) < 3:
+            return
+        status_values = []
+        for value in vals[1:3]:
+            try:
+                status_values.append(int(value))
+            except Exception:
+                return
+        if any(status_values):
+            raise HelixStatusError(address, cmd_id, status_values)
 
     def _recv_data_frame(self, stream, deadline):
         pending = None
@@ -80,12 +157,10 @@ class HelixSession:
             payload, _topic = self._recv_data_frame(stream, deadline)
             if not payload:
                 continue
-            if payload[:1] != b"/":
-                continue
-            decoded = decode_osc(payload)
-            if decoded is None:
-                continue
-            return decoded
+            for decoded in decode_osc_payloads(payload):
+                addr, _tt, _vals = decoded
+                if addr.startswith("/"):
+                    return decoded
         return None
 
     def send(self, address: str, typetags: str, args):
@@ -108,8 +183,9 @@ class HelixSession:
                     continue
                 addr, _tt, vals = decoded
                 if addr in ack_addrs and vals and int(vals[0]) == cmd_id:
+                    self._validate_status(address, cmd_id, addr, vals)
                     return vals
-        return None
+        return self._handle_timeout(address, cmd_id, " or ".join(ack_addrs))
 
     def send_and_wait_status(self, cmd_id: int, address: str, typetags: str, args, timeout: float | None = None):
         return self.send_and_wait_ack(cmd_id, address, typetags, args, ("/status",), timeout=timeout)
@@ -129,7 +205,16 @@ class HelixSession:
                 addr, _tt, vals = decoded
                 if addr == expect_addr and vals and int(vals[0]) == cmd_id:
                     return vals
-        return None
+        return self._handle_timeout(address, cmd_id, expect_addr)
+
+    def recv_update(self, timeout: float | None = None):
+        """Read the next device->editor update from port 2001."""
+        if not self._stream_2001:
+            raise RuntimeError("session not connected")
+        if timeout is None:
+            timeout = self.timeout
+        deadline = time.time() + timeout
+        return self._recv_osc(self._stream_2001, deadline)
 
     # High-level APIs
     def get_product_info(self):

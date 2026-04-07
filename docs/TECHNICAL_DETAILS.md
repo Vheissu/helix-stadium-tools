@@ -216,6 +216,8 @@ The device exposes a Remote Access setting (Allow / Deny / Require PIN). If PIN 
 - Port 2001 requires a SUBSCRIBE frame (empty topic) to receive updates.
 - Keep a single session open when issuing multiple commands; the device responds with `/status` per command.
 - Expect `/heartbeat` messages at a steady cadence on port 2001.
+- The device->editor stream on port 2001 may arrive as either raw OSC or OSC wrapped in the 12-byte Helix header, so clients should handle both forms.
+- Use short socket poll timeouts inside longer command deadlines; otherwise a blocking `recv()` can bypass the higher-level retry and timeout policy.
 
 ## Reference tooling in this repo
 

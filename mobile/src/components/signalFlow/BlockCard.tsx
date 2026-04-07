@@ -33,11 +33,11 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
           <>
             <BlockIcon
               type={block.kind}
-              size={20}
+              size={18}
               color={getBlockColor(block.kind)}
             />
-            <Text style={styles.label} numberOfLines={1}>
-              {block.kind.toUpperCase()}
+            <Text style={styles.name} numberOfLines={2}>
+              {block.name}
             </Text>
           </>
         ) : (
@@ -45,7 +45,7 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
             <View style={styles.emptyIcon}>
               <Text style={styles.emptyPlus}>+</Text>
             </View>
-            <Text style={styles.emptyLabel}>—</Text>
+            <Text style={styles.emptyLabel}>empty</Text>
           </>
         )}
       </Pressable>
@@ -91,14 +91,14 @@ const styles = StyleSheet.create({
     top: 4,
     right: 6,
   },
-  label: {
+  name: {
     color: COLORS.text,
     fontFamily: FONTS.body,
     fontSize: 9,
-    fontWeight: '600',
+    fontWeight: '500',
     textAlign: 'center',
-    paddingHorizontal: 2,
-    letterSpacing: 0.5,
+    paddingHorizontal: 3,
+    lineHeight: 12,
   },
   emptyIcon: {
     width: 24,

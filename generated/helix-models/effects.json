@@ -739,7 +739,7 @@
         "unit": "unitless"
       },
       {
-        "name": "Osc 3 Shape",
+        "name": "Osc 3 Wave",
         "description": "Morphs Oscillator 3 from a sine wave (at 0.0) to a triangle wave (at 5.0) to a modified square wave (at 10.0).",
         "min": 0,
         "max": 10,
@@ -2010,7 +2010,7 @@
     ]
   },
   {
-    "name": "Auto Filter",
+    "name": "Autofilter",
     "type": "Filter",
     "is_agoura": false,
     "based_on": "Line 6 Original",
@@ -2109,7 +2109,7 @@
     ]
   },
   {
-    "name": "Auto Swell",
+    "name": "Autoswell",
     "type": "Dynamics",
     "is_agoura": false,
     "based_on": "Line 6 Original",
@@ -3656,6 +3656,70 @@
         "max": 10,
         "default": 6.5,
         "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Distortion Clone",
+    "type": "Distortion",
+    "is_agoura": true,
+    "based_on": null,
+    "params": [
+      {
+        "name": "High",
+        "description": "",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "High Cut",
+        "description": "",
+        "min": 1000,
+        "max": 20100,
+        "default": 20100,
+        "unit": "Hz"
+      },
+      {
+        "name": "Low",
+        "description": "",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Low Cut",
+        "description": "",
+        "min": 19.9,
+        "max": 1000,
+        "default": 19.9,
+        "unit": "Off"
+      },
+      {
+        "name": "Mid",
+        "description": "",
+        "min": -12,
+        "max": 12,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Post Gain",
+        "description": "",
+        "min": -40,
+        "max": 10,
+        "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "Pre Gain",
+        "description": "",
+        "min": -40,
+        "max": 10,
+        "default": 0,
+        "unit": "dB"
       }
     ]
   },
@@ -17998,7 +18062,7 @@
     "params": [
       {
         "name": "Mix",
-        "description": "",
+        "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
         "max": 100,
         "default": 100,
@@ -18006,7 +18070,7 @@
       },
       {
         "name": "Return",
-        "description": "",
+        "description": "Sets the level of the Return 1 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18014,7 +18078,7 @@
       },
       {
         "name": "Send",
-        "description": "",
+        "description": "Sets the level of the Send 1 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18030,7 +18094,7 @@
     "params": [
       {
         "name": "Mix",
-        "description": "",
+        "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
         "max": 100,
         "default": 100,
@@ -18038,7 +18102,7 @@
       },
       {
         "name": "Return",
-        "description": "",
+        "description": "Sets the level of the Return 1/2 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18046,7 +18110,7 @@
       },
       {
         "name": "Send",
-        "description": "",
+        "description": "Sets the level of the Send 1/2 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18062,7 +18126,7 @@
     "params": [
       {
         "name": "Mix",
-        "description": "",
+        "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
         "max": 100,
         "default": 100,
@@ -18070,7 +18134,7 @@
       },
       {
         "name": "Return",
-        "description": "",
+        "description": "Sets the level of the Return 2 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18078,7 +18142,7 @@
       },
       {
         "name": "Send",
-        "description": "",
+        "description": "Sets the level of the Send 2 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18094,7 +18158,7 @@
     "params": [
       {
         "name": "Mix",
-        "description": "",
+        "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
         "max": 100,
         "default": 100,
@@ -18102,7 +18166,7 @@
       },
       {
         "name": "Return",
-        "description": "",
+        "description": "Sets the level of the Return 3 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18110,7 +18174,7 @@
       },
       {
         "name": "Send",
-        "description": "",
+        "description": "Sets the level of the Send 3 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18158,7 +18222,7 @@
     "params": [
       {
         "name": "Mix",
-        "description": "",
+        "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
         "max": 100,
         "default": 100,
@@ -18166,7 +18230,7 @@
       },
       {
         "name": "Return",
-        "description": "",
+        "description": "Sets the level of the Return 4 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -18174,7 +18238,7 @@
       },
       {
         "name": "Send",
-        "description": "",
+        "description": "Sets the level of the Send 4 signal. 0.0 dB is unity gain.",
         "min": -60,
         "max": 6,
         "default": 0,
@@ -20720,7 +20784,7 @@
         "unit": "%"
       },
       {
-        "name": "RampTime",
+        "name": "Ramp Time",
         "description": "Determines how fast the rotary speed changes when Speed is changed from \"Slow\" to \"Fast\" or vice versa.",
         "min": 0,
         "max": 10,

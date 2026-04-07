@@ -1,6 +1,6 @@
 {
-  "count": 801,
-  "generated_at": "2025-12-29T11:26:50.207727+00:00",
+  "count": 811,
+  "generated_at": "2026-04-07T06:11:39.246166+00:00",
   "models": [
     {
       "category": "delay",
@@ -1212,6 +1212,15 @@
       "category": "harness",
       "class": null,
       "dsp": null,
+      "id": 837,
+      "key": "P35_AppCloneHarness",
+      "name": null,
+      "stereo_model": null
+    },
+    {
+      "category": "harness",
+      "class": null,
+      "dsp": null,
       "id": 813,
       "key": "P35_AppFXHarnessLooper",
       "name": null,
@@ -2254,6 +2263,24 @@
     },
     {
       "category": "amp",
+      "class": "Clone",
+      "dsp": "agoura",
+      "id": 836,
+      "key": "VIC_AmpFlexNet",
+      "name": "Amp Clone",
+      "stereo_model": null
+    },
+    {
+      "category": "amp",
+      "class": "Clone",
+      "dsp": "agoura",
+      "id": 838,
+      "key": "VIC_AmpCabFlexNet",
+      "name": "Amp+Cab Clone",
+      "stereo_model": null
+    },
+    {
+      "category": "amp",
       "class": "Bass",
       "dsp": "hd2-legacy",
       "id": 542,
@@ -2496,12 +2523,21 @@
       "stereo_model": null
     },
     {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "xt",
+      "id": 56,
+      "key": "HD2_DL4AutoVolStereo",
+      "name": "Auto-Volume Echo",
+      "stereo_model": null
+    },
+    {
       "category": "filter",
       "class": "Filter",
       "dsp": "hd2",
       "id": 18,
       "key": "HX2_FilterAutoFilterMono",
-      "name": "Auto Filter",
+      "name": "Autofilter",
       "stereo_model": "HX2_FilterAutoFilterStereo"
     },
     {
@@ -2510,17 +2546,8 @@
       "dsp": "hd2",
       "id": 37,
       "key": "HX2_CompressorAutoSwellMono",
-      "name": "Auto Swell",
+      "name": "Autoswell",
       "stereo_model": "HX2_CompressorAutoSwellStereo"
-    },
-    {
-      "category": "delay",
-      "class": "Digital",
-      "dsp": "xt",
-      "id": 56,
-      "key": "HD2_DL4AutoVolStereo",
-      "name": "Auto-Volume Echo",
-      "stereo_model": null
     },
     {
       "category": "amp",
@@ -2911,7 +2938,7 @@
     },
     {
       "category": "modulation",
-      "class": "Tremolo",
+      "class": "Chorus",
       "dsp": "hd2",
       "id": 299,
       "key": "HD2_VibratoBubbleVibratoMono",
@@ -3537,6 +3564,15 @@
       "id": 229,
       "key": "HD2_MM4Dimension",
       "name": "Dimension",
+      "stereo_model": null
+    },
+    {
+      "category": "distortion",
+      "class": "Clone",
+      "dsp": "agoura",
+      "id": 839,
+      "key": "VIC_DistFlexNet",
+      "name": "Distortion Clone",
       "stereo_model": null
     },
     {
@@ -4431,6 +4467,24 @@
       "stereo_model": "HX2_GateHorizonGateStereo"
     },
     {
+      "category": null,
+      "class": null,
+      "dsp": "hd2",
+      "id": null,
+      "key": "C63_InputHost",
+      "name": "Host",
+      "stereo_model": null
+    },
+    {
+      "category": null,
+      "class": null,
+      "dsp": "hd2",
+      "id": null,
+      "key": "C63_OutputHost",
+      "name": "Host",
+      "stereo_model": null
+    },
+    {
       "category": "reverb",
       "class": "Spring",
       "dsp": "hd2",
@@ -4730,6 +4784,15 @@
     {
       "category": "amp",
       "class": "Guitar",
+      "dsp": "agoura",
+      "id": 844,
+      "key": "Agoura_AmpMandarinRockerMk3",
+      "name": "Mandarin Rock 3",
+      "stereo_model": null
+    },
+    {
+      "category": "amp",
+      "class": "Guitar",
       "dsp": "hd2",
       "id": 697,
       "key": "HD2_AmpMandarinRocker",
@@ -4748,7 +4811,16 @@
     {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "agoura",
+      "id": 835,
+      "key": "Agoura_AmpMatchstick30",
+      "name": "Matchstick 30",
+      "stereo_model": null
+    },
+    {
+      "category": "amp",
+      "class": "Guitar",
+      "dsp": "hd2-legacy",
       "id": 616,
       "key": "HD2_AmpMatchstickCh1",
       "name": "Matchstick Ch1",
@@ -4757,7 +4829,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 619,
       "key": "HD2_PreampMatchstickCh1",
       "name": "Matchstick Ch1",
@@ -4766,7 +4838,7 @@
     {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "hd2-legacy",
       "id": 617,
       "key": "HD2_AmpMatchstickCh2",
       "name": "Matchstick Ch2",
@@ -4775,7 +4847,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 620,
       "key": "HD2_PreampMatchstickCh2",
       "name": "Matchstick Ch2",
@@ -4784,7 +4856,7 @@
     {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "hd2-legacy",
       "id": 618,
       "key": "HD2_AmpMatchstickJump",
       "name": "Matchstick Jump",
@@ -4793,7 +4865,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 621,
       "key": "HD2_PreampMatchstickJump",
       "name": "Matchstick Jump",
@@ -5003,6 +5075,15 @@
       "dsp": "hd2",
       "id": null,
       "key": "",
+      "name": "None",
+      "stereo_model": null
+    },
+    {
+      "category": null,
+      "class": null,
+      "dsp": "hd2",
+      "id": null,
+      "key": "C63_InputNone",
       "name": "None",
       "stereo_model": null
     },
@@ -5544,6 +5625,15 @@
       "id": 522,
       "key": "L6SPB_PolyWham",
       "name": "Poly Wham",
+      "stereo_model": null
+    },
+    {
+      "category": "preamp",
+      "class": "Clone",
+      "dsp": "agoura",
+      "id": 840,
+      "key": "VIC_PreampFlexNet",
+      "name": "Preamp Clone",
       "stereo_model": null
     },
     {
@@ -6827,7 +6917,7 @@
     {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "hd2-legacy",
       "id": 737,
       "key": "HD2_AmpUSSuperNorm",
       "name": "US Super Norm",
@@ -6836,7 +6926,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 738,
       "key": "HD2_PreampUSSuperNorm",
       "name": "US Super Norm",
@@ -6845,7 +6935,7 @@
     {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "hd2-legacy",
       "id": 739,
       "key": "HD2_AmpUSSuperVib",
       "name": "US Super Vib",
@@ -6854,7 +6944,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 740,
       "key": "HD2_PreampUSSuperVib",
       "name": "US Super Vib",

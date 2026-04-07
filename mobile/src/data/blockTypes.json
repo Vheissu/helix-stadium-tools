@@ -81712,7 +81712,53 @@
         "key": "HD2_PluginMono1",
         "category": "fxloop",
         "usage": 0.0,
-        "params": []
+        "params": [
+          {
+            "id": 1,
+            "key": "Send",
+            "name": "Send",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Send 1 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 2,
+            "key": "Return",
+            "name": "Return",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Return 1 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 100,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+          }
+        ]
       },
       {
         "id": 262,
@@ -81720,7 +81766,53 @@
         "key": "HD2_PluginStereo1_2",
         "category": "fxloop",
         "usage": 0.0,
-        "params": []
+        "params": [
+          {
+            "id": 1,
+            "key": "Send",
+            "name": "Send",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Send 1/2 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 2,
+            "key": "Return",
+            "name": "Return",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Return 1/2 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 100,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+          }
+        ]
       },
       {
         "id": 419,
@@ -81728,7 +81820,53 @@
         "key": "HD2_PluginMono2",
         "category": "fxloop",
         "usage": 0.0,
-        "params": []
+        "params": [
+          {
+            "id": 1,
+            "key": "Send",
+            "name": "Send",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Send 2 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 2,
+            "key": "Return",
+            "name": "Return",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Return 2 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 100,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+          }
+        ]
       },
       {
         "id": 417,
@@ -81736,7 +81874,53 @@
         "key": "HD2_PluginMono3",
         "category": "fxloop",
         "usage": 0.0,
-        "params": []
+        "params": [
+          {
+            "id": 1,
+            "key": "Send",
+            "name": "Send",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Send 3 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 2,
+            "key": "Return",
+            "name": "Return",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Return 3 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 100,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+          }
+        ]
       },
       {
         "id": 263,
@@ -81744,7 +81928,53 @@
         "key": "HD2_PluginStereo3_4",
         "category": "fxloop",
         "usage": 0.0,
-        "params": []
+        "params": [
+          {
+            "id": 1,
+            "key": "Send",
+            "name": "Send",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Send signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 2,
+            "key": "Return",
+            "name": "Return",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Return signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 100,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+          }
+        ]
       },
       {
         "id": 418,
@@ -81752,7 +81982,53 @@
         "key": "HD2_PluginMono4",
         "category": "fxloop",
         "usage": 0.0,
-        "params": []
+        "params": [
+          {
+            "id": 1,
+            "key": "Send",
+            "name": "Send",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Send 4 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 2,
+            "key": "Return",
+            "name": "Return",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the level of the Return 4 signal. 0.0 dB is unity gain."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 100,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+          }
+        ]
       },
       {
         "id": 273,

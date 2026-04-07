@@ -9,6 +9,7 @@ Outputs three JSON files:
 Data sources are read from the installed Helix Stadium app bundle.
 """
 import argparse
+import copy
 import json
 import os
 import re
@@ -79,6 +80,15 @@ UNIT_OVERRIDES = {
     "percent": "%",
 }
 
+SYNTHETIC_MODEL_FALLBACKS = {
+    "HD2_PluginMono1": {"id": 416, "template_key": "HD2_FXLoopMono1", "usage": 0.0},
+    "HD2_PluginStereo1_2": {"id": 262, "template_key": "HD2_FXLoopStereo1_2", "usage": 0.0},
+    "HD2_PluginMono2": {"id": 419, "template_key": "HD2_FXLoopMono2", "usage": 0.0},
+    "HD2_PluginMono3": {"id": 417, "template_key": "HD2_FXLoopMono3", "usage": 0.0},
+    "HD2_PluginStereo3_4": {"id": 263, "template_key": "HD2_FXLoopStereo3_4", "usage": 0.0},
+    "HD2_PluginMono4": {"id": 418, "template_key": "HD2_FXLoopMono4", "usage": 0.0},
+}
+
 
 def resolve_default_modeldefs_path(app_res: str = DEFAULT_APP_RES, prefix: str = "p35md-") -> str:
     modeldefs_dir = Path(app_res) / "modeldefs"
@@ -107,6 +117,28 @@ def normalise_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.lower())
 
 
+def augment_modeldefs_with_synthetic_entries(modeldefs):
+    if not isinstance(modeldefs, dict):
+        return modeldefs
+    for key, spec in SYNTHETIC_MODEL_FALLBACKS.items():
+        if key in modeldefs:
+            continue
+        template = modeldefs.get(spec["template_key"])
+        if not isinstance(template, dict):
+            continue
+        info = copy.deepcopy(template)
+        info["id"] = spec["id"]
+        info["usage"] = spec.get("usage", info.get("usage"))
+        modeldefs[key] = info
+    return modeldefs
+
+
+def param_meta_has_content(params) -> bool:
+    if not isinstance(params, dict):
+        return False
+    return any(bool(value) for value in params.values())
+
+
 def load_modeldefs(path: str):
     if not os.path.exists(path):
         raise FileNotFoundError(path)
@@ -121,7 +153,7 @@ def load_modeldefs(path: str):
             last = obj
     if not isinstance(last, dict):
         raise ValueError("modeldefs did not yield a dict")
-    return last
+    return augment_modeldefs_with_synthetic_entries(last)
 
 
 def load_uidefs(path: str):
@@ -260,31 +292,39 @@ def load_param_meta(root: str):
 
 
 def get_param_meta_for_model(meta, meta_by_symbol, model_key, category, display_name):
+    def lookup(model_key_value, category_value, display_name_value):
+        symbols = []
+        if model_key_value.startswith("Agoura_"):
+            rest = model_key_value[len("Agoura_"):]
+            if rest.startswith("Amp"):
+                symbols.append("ModelID::k" + rest.replace("Amp", "AmpAgoura", 1))
+            elif rest.startswith("Preamp"):
+                symbols.append("ModelID::k" + rest.replace("Preamp", "PreampAgoura", 1))
+            else:
+                symbols.append("ModelID::k" + rest)
+        else:
+            if "_" in model_key_value:
+                symbols.append("ModelID::k" + model_key_value.split("_", 1)[1])
+            else:
+                symbols.append("ModelID::k" + model_key_value)
+        for sym in symbols:
+            if sym in meta_by_symbol:
+                return meta_by_symbol[sym]["params"]
+        if (category_value, display_name_value) in meta:
+            return meta[(category_value, display_name_value)]
+        for (cat, name), params in meta.items():
+            if name == display_name_value:
+                return params
+        return {}
+
     # Try symbol-based lookup first
-    symbols = []
-    if model_key.startswith("Agoura_"):
-        rest = model_key[len("Agoura_"):]
-        if rest.startswith("Amp"):
-            symbols.append("ModelID::k" + rest.replace("Amp", "AmpAgoura", 1))
-        elif rest.startswith("Preamp"):
-            symbols.append("ModelID::k" + rest.replace("Preamp", "PreampAgoura", 1))
-        else:
-            symbols.append("ModelID::k" + rest)
-    else:
-        if "_" in model_key:
-            symbols.append("ModelID::k" + model_key.split("_", 1)[1])
-        else:
-            symbols.append("ModelID::k" + model_key)
-    for sym in symbols:
-        if sym in meta_by_symbol:
-            return meta_by_symbol[sym]["params"]
-    if (category, display_name) in meta:
-        return meta[(category, display_name)]
-    # fallback: match by display name only
-    for (cat, name), params in meta.items():
-        if name == display_name:
-            return params
-    return {}
+    params = lookup(model_key, category, display_name)
+    if param_meta_has_content(params):
+        return params
+    fallback = SYNTHETIC_MODEL_FALLBACKS.get(model_key)
+    if fallback:
+        return lookup(fallback["template_key"], category, display_name.replace("Plugin", "FX Loop"))
+    return params
 
 
 def find_description(param_meta, candidates):

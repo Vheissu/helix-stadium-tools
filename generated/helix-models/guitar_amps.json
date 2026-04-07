@@ -2270,12 +2270,13 @@
       },
       {
         "name": "Channel",
-        "description": "Selects the amp channel--Rhythm, Rhythm Clip, or Lead.",
+        "description": "Selects the amp channel\u2014Rhythm, Rhythm Clip, Lead, or Lead No Rhythm Clip.",
         "default": "Lead",
         "options": [
           "Rhythm",
-          "RhythClp",
-          "Lead"
+          "Rhythm Clip",
+          "Lead",
+          "Lead No Rhy Clp"
         ]
       },
       {
@@ -12110,6 +12111,111 @@
     ]
   },
   {
+    "name": "Mandarin Rock 3",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": null,
+    "params": [
+      {
+        "name": "Attenuator",
+        "description": "Attenuates the signal between the amp's phase-inverter and power tubes",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Channel",
+        "description": "Selects the amp channel--Normal or Overdrive.",
+        "default": "Overdrive",
+        "options": [
+          "Normal",
+          "Overdrive"
+        ]
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -10,
+        "unit": "dB"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "OD Master",
+        "description": "Controls the Master Volume of the Overdrive channel of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 3.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
     "name": "Mandarin Rocker",
     "type": "Amp",
     "is_agoura": false,
@@ -12273,6 +12379,125 @@
         "min": 0,
         "max": 10,
         "default": 4,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
+    "name": "Matchstick 30",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": null,
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch1 Drive",
+        "description": "Controls the amount of Channel 1 gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch2 Drive",
+        "description": "Controls the amount of Channel 2 gain applied to the signal, which influences the level of distortion and overall tone.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ch2 Tone",
+        "description": "Selects one of 6 settings for varying the width of the tone envelope on Channel 2. Lower values result in thinner sounds; higher values result in thicker sounds.",
+        "default": "0",
+        "options": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      {
+        "name": "Channel",
+        "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between Channel 1 and Channel 2.",
+        "default": "Ch 1",
+        "options": [
+          "Ch 1",
+          "Ch 2",
+          "Jumped"
+        ]
+      },
+      {
+        "name": "High Cut",
+        "description": "Increasing the parameter attenuates high frequencies, effectively reducing the amp's brightness",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -30,
+        "max": 10,
+        "default": -7,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of Channel 1.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
         "unit": "unitless"
       }
     ]

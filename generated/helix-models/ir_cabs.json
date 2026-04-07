@@ -39,7 +39,7 @@
       },
       {
         "name": "Mix",
-        "description": "Controls the blend between the modulation effect and the dry signal.",
+        "description": "Controls the blend between the incoming \u201cdry\u201d signal and the Cab IR-processed \u201cwet\u201d signal. At 0%, no IR is heard; at 100%, no dry signal is heard. Normally, this should be left at 100%.",
         "min": 0,
         "max": 100,
         "default": 100,

@@ -6,6 +6,7 @@ from .discovery import HelixDiscoveryError, HelixService, browse_services, disco
 from .session import (  # noqa: F401
     FACTORY_PRESETS_CID,
     SETLIST_DIRECTORY_CID,
+    SNAPSHOT_COLOR_NAMES,
     USER_PRESETS_CID,
     HelixSession,
     HelixSessionError,

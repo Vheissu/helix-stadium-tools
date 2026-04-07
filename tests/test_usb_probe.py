@@ -7,6 +7,8 @@ from pathlib import Path
 import sys
 import unittest
 
+from helix.osc import build_osc
+
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "helix_usb_probe.py"
 SPEC = importlib.util.spec_from_file_location("helix_usb_probe", SCRIPT_PATH)
@@ -40,6 +42,23 @@ class USBProbeHelpersTest(unittest.TestCase):
         payload = MODULE.build_chunk_frame(bytes.fromhex("aabbcc"))
         self.assertEqual(payload[:6], bytes.fromhex("020300aabbcc"))
         self.assertEqual(len(payload), MODULE.DEFAULT_TRANSFER_SIZE)
+
+    def test_describe_possible_osc_decodes_raw_osc_payload(self):
+        payload = build_osc("/status", "iii", [7, 0, 0])
+        details = MODULE.describe_possible_osc(payload)
+        self.assertEqual(details, ["osc=/status ,iii [7, 0, 0]"])
+
+    def test_collect_read_attempts_runs_multiple_times(self):
+        responses = iter([(0, b"a"), (-7, b""), (0, b"b")])
+        calls: list[int] = []
+
+        def read_once():
+            calls.append(1)
+            return next(responses)
+
+        results = MODULE.collect_read_attempts(read_once, attempts=3, delay_ms=0)
+        self.assertEqual(results, [(0, b"a"), (-7, b""), (0, b"b")])
+        self.assertEqual(len(calls), 3)
 
 
 if __name__ == "__main__":

@@ -420,6 +420,39 @@ class TestSession(unittest.TestCase):
         session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 3]
         self.assertEqual(session.get_active_snapshot_index(), 3)
 
+    def test_get_snapshot_targets_decodes_blob(self):
+        try:
+            import msgpack
+        except Exception:
+            self.skipTest("msgpack not installed")
+
+        payload = msgpack.packb([16, 17, 18], use_bin_type=True)
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 0, payload, 0]
+        self.assertEqual(session.get_snapshot_targets(0), [16, 17, 18])
+
+    def test_get_snapshots_returns_sorted_snapshot_list(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: {
+            "cg__": {
+                "entt": {
+                    "snps": [
+                        {"si__": 2, "name": "Lead", "colr": 2},
+                        {"si__": 0, "name": "Clean", "colr": 6},
+                        {"si__": 1, "name": "Drive", "colr": 3},
+                    ]
+                }
+            }
+        }
+        self.assertEqual(
+            session.get_snapshots(),
+            [
+                {"si__": 0, "name": "Clean", "colr": 6},
+                {"si__": 1, "name": "Drive", "colr": 3},
+                {"si__": 2, "name": "Lead", "colr": 2},
+            ],
+        )
+
     def test_get_content_ref_decodes_blob(self):
         try:
             import msgpack
@@ -483,7 +516,7 @@ class TestSession(unittest.TestCase):
 
     def test_set_snapshot_name_wait_status_true(self):
         session = HelixSession("dummy")
-        session.send_and_wait_status = mock.Mock(return_value=["ok"])
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
         result = session.set_snapshot_name(1, "Name", wait_status=True)
         self.assertEqual(result, ["ok"])
 
@@ -585,6 +618,30 @@ class TestSession(unittest.TestCase):
         session = HelixSession("dummy")
         session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
         result = session.set_content_attrs(508, b"blob", wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_set_content_data_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_content_data(507, b"blob", wait_status=False)
+        session.send.assert_called_once_with("/SetContentData", "iib", [1, 507, b"blob"])
+
+    def test_set_content_data_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_content_data(507, b"blob", wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_set_content_path_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.set_content_path(507, "User/Test", wait_status=False)
+        session.send.assert_called_once_with("/SetContentPath", "iis", [1, 507, "User/Test"])
+
+    def test_set_content_path_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.set_content_path(507, "User/Test", wait_status=True)
         self.assertEqual(result, ["ok"])
 
     def test_rename_content_updates_name_attr(self):

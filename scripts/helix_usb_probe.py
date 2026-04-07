@@ -17,9 +17,19 @@ import argparse
 import ctypes
 import ctypes.util
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+try:
+    from helix.osc import decode_osc_payloads
+except Exception:  # pragma: no cover - local helper import only
+    decode_osc_payloads = None
 
 
 DEFAULT_VID = 0x0E41
@@ -468,6 +478,38 @@ def describe_command_response(command: str, data: bytes) -> list[str]:
     return details
 
 
+def describe_possible_osc(data: bytes) -> list[str]:
+    if not data or decode_osc_payloads is None:
+        return []
+    try:
+        decoded_messages = decode_osc_payloads(data)
+    except Exception:
+        return []
+    details: list[str] = []
+    for decoded in decoded_messages:
+        if not decoded:
+            continue
+        address, typetags, values = decoded
+        if not isinstance(address, str) or not address.startswith("/"):
+            continue
+        detail = f"osc={address}"
+        if typetags:
+            detail += f" {typetags}"
+        detail += f" {values!r}"
+        details.append(detail)
+    return details
+
+
+def collect_read_attempts(read_once, attempts: int, delay_ms: int) -> list[tuple[int, bytes]]:
+    results: list[tuple[int, bytes]] = []
+    total_attempts = max(1, int(attempts))
+    for attempt in range(total_attempts):
+        results.append(read_once())
+        if attempt + 1 < total_attempts and delay_ms > 0:
+            time.sleep(delay_ms / 1000.0)
+    return results
+
+
 def print_device_summary(
     probe: USBProbe,
     device: ctypes.POINTER(LibusbDevice),
@@ -588,6 +630,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--read-size", type=int, default=512, help="Read buffer size for --read-endpoint")
     parser.add_argument(
+        "--read-attempts",
+        type=int,
+        default=1,
+        help="Number of bulk-IN read attempts per read phase (default: 1)",
+    )
+    parser.add_argument(
+        "--read-interval-ms",
+        type=int,
+        default=0,
+        help="Delay between repeated bulk-IN reads in milliseconds (default: 0)",
+    )
+    parser.add_argument(
         "--transfer-size",
         type=int,
         default=DEFAULT_TRANSFER_SIZE,
@@ -672,34 +726,58 @@ def main(argv: list[str] | None = None) -> int:
                             )
                             if write_rc != 0:
                                 continue
-                            read_rc, data = probe.passive_bulk_read(
+                            read_results = collect_read_attempts(
+                                lambda: probe.passive_bulk_read(
+                                    handle,
+                                    args.read_endpoint,
+                                    size=args.read_size,
+                                    timeout_ms=args.timeout_ms,
+                                ),
+                                attempts=args.read_attempts,
+                                delay_ms=args.read_interval_ms,
+                            )
+                            for read_index, (read_rc, data) in enumerate(read_results, start=1):
+                                suffix = (
+                                    f" attempt={read_index}/{len(read_results)}"
+                                    if len(read_results) > 1
+                                    else ""
+                                )
+                                print(
+                                    f"Read response for {label} endpoint=0x{args.read_endpoint:02x}:"
+                                    f" rc={read_rc} bytes={len(data)}{suffix}"
+                                )
+                                if data:
+                                    print(f"  hex={data.hex()}")
+                                    if command_name is not None:
+                                        for detail in describe_command_response(command_name, data):
+                                            print(f"  {detail}")
+                                    for detail in describe_possible_osc(data):
+                                        print(f"  {detail}")
+                    elif args.read_endpoint is not None:
+                        read_results = collect_read_attempts(
+                            lambda: probe.passive_bulk_read(
                                 handle,
                                 args.read_endpoint,
                                 size=args.read_size,
                                 timeout_ms=args.timeout_ms,
+                            ),
+                            attempts=args.read_attempts,
+                            delay_ms=args.read_interval_ms,
+                        )
+                        for read_index, (rc, data) in enumerate(read_results, start=1):
+                            suffix = (
+                                f" attempt={read_index}/{len(read_results)}"
+                                if len(read_results) > 1
+                                else ""
                             )
                             print(
-                                f"Read response for {label} endpoint=0x{args.read_endpoint:02x}:"
-                                f" rc={read_rc} bytes={len(data)}"
+                                f"Passive bulk read endpoint=0x{args.read_endpoint:02x}:"
+                                f" rc={rc} bytes={len(data)}{suffix}"
                             )
                             if data:
                                 print(f"  hex={data.hex()}")
-                                if command_name is not None:
-                                    for detail in describe_command_response(command_name, data):
-                                        print(f"  {detail}")
-                    elif args.read_endpoint is not None:
-                        rc, data = probe.passive_bulk_read(
-                            handle,
-                            args.read_endpoint,
-                            size=args.read_size,
-                            timeout_ms=args.timeout_ms,
-                        )
-                        print(
-                            f"Passive bulk read endpoint=0x{args.read_endpoint:02x}:"
-                            f" rc={rc} bytes={len(data)}"
-                        )
-                        if data:
-                            print(f"  hex={data.hex()}")
+                                for detail in describe_possible_osc(data):
+                                    print(f"  {detail}")
                 finally:
                     release_rc = probe.release_interface(handle, args.claim_interface)
                     print(f"Release interface {args.claim_interface}: rc={release_rc}")

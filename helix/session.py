@@ -16,6 +16,20 @@ from .zmtp import ZMTPStream, zmtp_handshake
 FACTORY_PRESETS_CID = -1
 USER_PRESETS_CID = -2
 SETLIST_DIRECTORY_CID = -5
+SNAPSHOT_COLOR_NAMES = {
+    0: "Auto",
+    1: "White",
+    2: "Red",
+    3: "Dark Orange",
+    4: "Light Orange",
+    5: "Yellow",
+    6: "Green",
+    7: "Turquoise",
+    8: "Blue",
+    9: "Violet",
+    10: "Pink",
+    11: "Off",
+}
 
 
 class HelixSessionError(RuntimeError):
@@ -294,6 +308,30 @@ class HelixSession:
             time.sleep(interval)
         return None
 
+    def _find_first_key(self, value, key: str):
+        queue = [value]
+        seen = set()
+        while queue:
+            current = queue.pop(0)
+            if current is None:
+                continue
+            if isinstance(current, dict):
+                marker = id(current)
+                if marker in seen:
+                    continue
+                seen.add(marker)
+                if key in current:
+                    return current[key]
+                queue.extend(current.values())
+                continue
+            if isinstance(current, list):
+                marker = id(current)
+                if marker in seen:
+                    continue
+                seen.add(marker)
+                queue.extend(current)
+        return None
+
     # High-level APIs
     def get_product_info(self):
         cmd_id = self.next_cmd_id
@@ -423,6 +461,32 @@ class HelixSession:
         except Exception:
             return None
 
+    def get_snapshot_targets(self, index: int):
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id,
+            "/SnapshotTargetsGet",
+            "ii",
+            [cmd_id, int(index)],
+            "/getSnapshotTargets",
+        )
+        decoded = self._decode_blob_response(vals, 2)
+        if decoded is None:
+            return None
+        return normalize_fourcc_map(decoded)
+
+    def get_snapshots(self):
+        state = self.get_edit_buffer_state()
+        if state is None:
+            return None
+        normalized = normalize_fourcc_map(state)
+        snapshots = self._find_first_key(normalized, "snps")
+        if not isinstance(snapshots, list):
+            return None
+        items = [item for item in snapshots if isinstance(item, dict)]
+        items.sort(key=lambda item: int(item.get("si__", -1)))
+        return items
+
     def activate_snapshot(self, index: int, wait_change: bool = True, timeout: float | None = None):
         cmd_id = self.next_cmd_id
         target_index = int(index)
@@ -540,6 +604,23 @@ class HelixSession:
         self.send("/SetContentAttrs", "iib", args)
         return None
 
+    def set_content_data(self, content_id: int, data, wait_status: bool = True):
+        blob = data if isinstance(data, (bytes, bytearray)) else self._encode_msgpack(data)
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(content_id), bytes(blob)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/SetContentData", "iib", args)
+        self.send("/SetContentData", "iib", args)
+        return None
+
+    def set_content_path(self, content_id: int, path: str, wait_status: bool = True):
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(content_id), str(path)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/SetContentPath", "iis", args)
+        self.send("/SetContentPath", "iis", args)
+        return None
+
     def rename_content(self, content_id: int, name: str, wait_status: bool = True):
         blob = self.get_content_ref_blob(content_id)
         if blob is None:
@@ -556,7 +637,7 @@ class HelixSession:
     def set_snapshot_name(self, index: int, name: str, wait_status: bool = True):
         cmd_id = self.next_cmd_id
         if wait_status:
-            return self.send_and_wait_status(cmd_id, "/SetSnapshotName", "iis", [cmd_id, index, name])
+            return self.send_and_wait_status_code(cmd_id, "/SetSnapshotName", "iis", [cmd_id, index, name])
         self.send("/SetSnapshotName", "iis", [cmd_id, index, name])
         return None
 

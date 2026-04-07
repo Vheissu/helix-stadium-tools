@@ -25,6 +25,7 @@ Note: The mobile prototype (see `mobile/`) uses per-model DSP `usage` values fro
   - `based_on_overrides.json` - Official "based on" mappings scraped from Line 6's model list page.
   - `block_map.json` - Optional manual block-to-model mapping for decoding older captures.
 - `docs/TECHNICAL_DETAILS.md` - Protocol details (handshake, framing, OSC messages).
+- `docs/USB_TRANSPORT_NOTES.md` - Current findings on USB-C and Bluetooth transport surfaces.
 - `generated/helix-models/`
   - `guitar_amps.json`
   - `bass_amps.json`
@@ -88,6 +89,72 @@ python3 -m coverage report -m
 python3 -m coverage xml
 ```
 
+## USB transport reconnaissance
+
+The current editor protocol in this repo covers the network path. For USB-C and
+Bluetooth reconnaissance, see [`docs/USB_TRANSPORT_NOTES.md`](docs/USB_TRANSPORT_NOTES.md).
+
+To inspect the live USB descriptor layout of a connected device:
+
+```bash
+python3 scripts/helix_usb_probe.py
+```
+
+To verify that the private vendor interface is claimable and perform a passive
+bulk-IN read:
+
+```bash
+python3 scripts/helix_usb_probe.py --claim-interface 6 --read-endpoint 0x85
+```
+
+To send the same read-only bootstrap commands the desktop app uses on the
+vendor bulk interface:
+
+```bash
+python3 scripts/helix_usb_probe.py \
+  --claim-interface 6 \
+  --write-endpoint 0x04 \
+  --read-endpoint 0x85 \
+  --send-command version \
+  --send-command status \
+  --read-attempts 5 \
+  --read-interval-ms 200
+```
+
+On the device used for validation, `version` returned the 4-byte value
+`0x13010535`. The update-state command `status` initially returned `idle`, and
+after sending `abort` it returned `abort`.
+
+The probe also supports deeper experiments:
+
+```bash
+python3 scripts/helix_usb_probe.py \
+  --claim-interface 6 \
+  --write-endpoint 0x04 \
+  --read-endpoint 0x85 \
+  --send-command-payload size=78563412 \
+  --read-attempts 5 \
+  --read-interval-ms 200
+
+python3 scripts/helix_usb_probe.py \
+  --claim-interface 6 \
+  --write-endpoint 0x04 \
+  --read-endpoint 0x85 \
+  --send-chunk-hex 2f50726f64756374496e666f476574000000002c69000000000001 \
+  --read-attempts 5 \
+  --read-interval-ms 200
+```
+
+The second example sends a type-2 binary frame carrying a read-only OSC
+`/ProductInfoGet` request. In current testing it produced no USB response,
+which suggests the existing vendor interface is still update-oriented rather
+than a hidden OSC edit tunnel.
+
+Additional preset-level USB experiments reached the same conclusion: a type-2
+frame carrying raw `/LoadPresetWithCID` OSC did not change the active preset,
+and wrapping OSC with the 12-byte `0x0108` header used on TCP port `2001`
+likewise produced no USB response or preset change.
+
 ## Protocol overview (observed)
 
 Helix Stadium XL editor traffic uses OSC over TCP with two ports. Both ports are wrapped in a ZeroMQ ZMTP 3.0 handshake and framing layer:
@@ -116,6 +183,9 @@ Common OSC addresses seen in captures:
 - `/BlockEnableSet` (editor -> device)
 - `/setBlockEnable` (device -> editor)
 - `/ModelSet` and `/setModelWithMID` (model change / model ID mapping)
+- `/GetContentRef`, `/GetContainerContents`, `/GetContentData`, and `/GetContentPath` (library/content browsing)
+- `/LoadPresetWithCID`, `/LoadPresetAtContainerPosition`, `/SavePresetWithCID`, and `/SetContentAttrs` (preset/content operations)
+- `/ActiveSnapshotIndexGet`, `/SnapshotCountGet`, `/activateSnapshot`, `/CopySnapshot`, and `/SnapshotColorSet` (snapshot navigation)
 - `/heartbeat` (device -> editor)
 
 Notes:
@@ -254,6 +324,50 @@ python3 scripts/helix_control.py get-product-info
 # Read the edit buffer state (large blob)
 python3 scripts/helix_control.py get-edit-buffer
 
+# Show the active preset content ref
+python3 scripts/helix_control.py get-active-preset
+
+# List visible setlists
+python3 scripts/helix_control.py list-setlists
+
+# List presets from the user preset pool
+python3 scripts/helix_control.py list-presets --root user
+
+# List presets from a specific setlist/container
+python3 scripts/helix_control.py list-presets --container-cid 500
+
+# Load a preset by container position
+python3 scripts/helix_control.py load-preset --container-cid 500 --position 5
+
+# Load a preset directly by content id
+python3 scripts/helix_control.py load-preset --cid 508
+
+# Read snapshot metadata
+python3 scripts/helix_control.py get-snapshot-count
+python3 scripts/helix_control.py get-active-snapshot
+python3 scripts/helix_control.py get-preset-edited
+
+# Activate snapshot 4 (zero-based index)
+python3 scripts/helix_control.py activate-snapshot --index 4
+
+# Copy snapshot 2 onto snapshot 3
+python3 scripts/helix_control.py copy-snapshot --source 1 --target 2
+
+# Set snapshot 1 to color enum 0
+python3 scripts/helix_control.py snapshot-color --index 0 --color 0
+
+# Rename the backing raw preset content
+python3 scripts/helix_control.py rename-content --cid 507 --name "Glory Belongs Test (HB)"
+
+# Save the current active preset back to its backing content slot
+python3 scripts/helix_control.py save-preset
+
+# Show the device content path for a raw preset id
+python3 scripts/helix_control.py get-content-path --cid 507
+
+# Write the raw preset content blob to disk
+python3 scripts/helix_control.py get-content-data --cid 507 --output /tmp/preset-507.bin
+
 # Toggle auto-cab insertion
 python3 scripts/helix_control.py set-autocab --enabled on
 
@@ -300,6 +414,12 @@ Supported action ops:
 
 - `snapshot_name` (`index`, `name`)
 - `rename_snapshot` / `rename-snapshot` (alias of `snapshot_name`)
+- `activate_snapshot` / `activate-snapshot` (`index`, optional `wait`)
+- `copy_snapshot` / `copy-snapshot` (`source`, `target`)
+- `snapshot_color` / `snapshot-color` (`index`, `color`)
+- `load_preset` / `load-preset` (`cid` or `container_cid`/`root` + `position`, optional `wait`)
+- `save_preset` / `save-preset` (optional `cid`, optional `wait`)
+- `rename_content` / `rename-content` (`cid`, `name`)
 - `scribble_label` (`stomp` or `key`, `label`)
 - `property_set` (`key`, `value`, `value_type`, `property_id`)
 - `preset_notes` / `notes` (`text`)

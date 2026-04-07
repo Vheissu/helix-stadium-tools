@@ -109,6 +109,7 @@ type PresetLibraryRoot = 'setlists' | 'user' | 'factory';
 const FACTORY_PRESETS_CID = -1;
 const USER_PRESETS_CID = -2;
 const SETLIST_DIRECTORY_CID = -5;
+const SNAPSHOT_COLOR_OPTIONS = Array.from({ length: 10 }, (_item, index) => index);
 
 const blockCatalog = blockTypes as BlockCatalog;
 
@@ -190,6 +191,12 @@ export default function App() {
   const [snapshotCount, setSnapshotCount] = useState(0);
   const [activeSnapshotIndex, setActiveSnapshotIndex] = useState<number | null>(null);
   const [libraryLoading, setLibraryLoading] = useState(false);
+  const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
+  const [presetRenameText, setPresetRenameText] = useState('');
+  const [setlistRenameText, setSetlistRenameText] = useState('');
+  const [presetFilter, setPresetFilter] = useState('');
+  const [snapshotCopySource, setSnapshotCopySource] = useState<number | null>(null);
+  const [snapshotCopyTarget, setSnapshotCopyTarget] = useState<number | null>(null);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -325,6 +332,19 @@ export default function App() {
     return Math.max(0, remaining);
   }, [pathUsage, targetSlot.path]);
   const activePresetName = activePresetRef?.name ?? 'None';
+  const activeSetlist = useMemo(
+    () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
+    [selectedContainerId, setlists]
+  );
+  const filteredPresetItems = useMemo(() => {
+    const query = presetFilter.trim().toLowerCase();
+    if (!query) return presetItems;
+    return presetItems.filter((item) => {
+      const name = item.name ?? '';
+      const slot = typeof item.posi === 'number' ? String(item.posi + 1) : '';
+      return name.toLowerCase().includes(query) || slot.includes(query) || String(item.cid_ ?? '').includes(query);
+    });
+  }, [presetFilter, presetItems]);
   const isPresetActive = (item: HelixContentRef) => {
     const itemId = typeof item.cid_ === 'number' ? item.cid_ : null;
     if (itemId === null) return false;
@@ -375,7 +395,31 @@ export default function App() {
     setSnapshotCount(0);
     setActiveSnapshotIndex(null);
     setLibraryLoading(false);
+    setPresetEdited(null);
+    setPresetRenameText('');
+    setSetlistRenameText('');
+    setPresetFilter('');
+    setSnapshotCopySource(null);
+    setSnapshotCopyTarget(null);
   };
+
+  useEffect(() => {
+    setPresetRenameText(activePresetRef?.name ?? '');
+  }, [activePresetRef?.name]);
+
+  useEffect(() => {
+    setSetlistRenameText(activeSetlist?.name ?? '');
+  }, [activeSetlist?.name]);
+
+  useEffect(() => {
+    if (activeSnapshotIndex === null || snapshotCount <= 0) return;
+    setSnapshotCopySource((prev) => (prev === null ? activeSnapshotIndex : prev));
+    setSnapshotCopyTarget((prev) => {
+      if (prev !== null && prev < snapshotCount) return prev;
+      if (snapshotCount <= 1) return activeSnapshotIndex;
+      return (activeSnapshotIndex + 1) % snapshotCount;
+    });
+  }, [activeSnapshotIndex, snapshotCount]);
 
   const requireClient = () => {
     if (!clientRef.current) {
@@ -399,11 +443,12 @@ export default function App() {
     if (!client) return;
     setLibraryLoading(true);
     try {
-      const [activeId, snapshotTotal, snapshotIndex, setlistItems] = await Promise.all([
+      const [activeId, snapshotTotal, snapshotIndex, setlistItems, edited] = await Promise.all([
         client.getActivePresetContentId(),
         client.getSnapshotCount(),
         client.getActiveSnapshotIndex(),
         client.getContainerContents(SETLIST_DIRECTORY_CID),
+        client.isPresetEdited(),
       ]);
       const nextSetlists = (setlistItems as HelixContentRef[]) ?? [];
       const activeRef = activeId !== null ? ((await client.getContentRef(activeId)) as HelixContentRef | null) : null;
@@ -412,6 +457,7 @@ export default function App() {
       setActivePresetRef(activeRef);
       setSnapshotCount(snapshotTotal ?? 0);
       setActiveSnapshotIndex(snapshotIndex);
+      setPresetEdited(edited);
 
       if (libraryRoot === 'factory') {
         await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets');

@@ -290,6 +290,24 @@ class TestSession(unittest.TestCase):
         with self.assertRaises(HelixStatusError):
             session.send_and_wait_status(cmd_id, "/SetSnapshotName", "iis", [cmd_id, 0, "Name"])
 
+    def test_send_and_wait_status_code_accepts_non_zero_tail(self):
+        cmd_id = 34
+        status_msg = build_osc("/status", "iii", [cmd_id, 0, 1])
+        stream = StatusRetryStream(status_msg)
+        session = HelixSession("dummy", timeout=0.01, retries=2, retry_delay=0.0)
+        session._stream_2002 = stream
+        result = session.send_and_wait_status_code(cmd_id, "/CopySnapshot", "iii", [cmd_id, 0, 1])
+        self.assertEqual(result, [cmd_id, 0, 1])
+
+    def test_send_and_wait_status_code_raises_on_non_zero_code(self):
+        cmd_id = 35
+        status_msg = build_osc("/status", "iii", [cmd_id, -21, 0])
+        stream = StatusRetryStream(status_msg)
+        session = HelixSession("dummy", timeout=0.01, retries=2, retry_delay=0.0)
+        session._stream_2002 = stream
+        with self.assertRaises(HelixStatusError):
+            session.send_and_wait_status_code(cmd_id, "/SetContentAttrs", "iib", [cmd_id, 508, b""])
+
     def test_recv_update_decodes_wrapped_push_payload(self):
         inner = build_osc("/heartbeat", "i", [1])
         wrapped = b"\x01\x08" + (b"\x00" * 6) + b"\x00\x05" + len(inner).to_bytes(2, "big") + inner

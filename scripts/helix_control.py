@@ -21,6 +21,7 @@ from helix import (  # noqa: E402
     HelixSession,
     HelixSessionError,
     browse_services,
+    decode_msgpack_blob,
     discover_first_service,
 )
 from helix.editbuffer import (  # noqa: E402
@@ -30,6 +31,7 @@ from helix.editbuffer import (  # noqa: E402
     normalize_edit_buffer,
     parse_row,
 )
+from helix.blobs import normalize_fourcc_map  # noqa: E402
 from scripts.generate_helix_model_json import resolve_default_modeldefs_path  # noqa: E402
 
 
@@ -271,6 +273,21 @@ def json_print(value):
     print(json.dumps(json_safe(value), indent=2, sort_keys=True))
 
 
+def print_or_write_content_data(data: bytes | None, output_path: str | None):
+    if data is None:
+        json_print(None)
+        return
+    if output_path:
+        Path(output_path).write_bytes(data)
+        print(output_path)
+        return
+    decoded = decode_msgpack_blob(data)
+    if decoded is not None:
+        json_print(normalize_fourcc_map(decoded))
+        return
+    json_print({"length": len(data)})
+
+
 def json_safe(value):
     if isinstance(value, bytes):
         try:
@@ -308,6 +325,12 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             wait_change = parse_bool(wait_change)
         session.activate_snapshot(int(action["index"]), wait_change=bool(wait_change))
         return cmd_id + 1
+    if op in ("copy_snapshot", "copy-snapshot", "snapshot_copy", "snapshot-copy"):
+        session.copy_snapshot(int(action["source"]), int(action["target"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("snapshot_color", "snapshot-color", "set_snapshot_color", "set-snapshot-color"):
+        session.set_snapshot_color(int(action["index"]), int(action["color"]), wait_status=True)
+        return cmd_id + 1
     if op in ("load_preset", "load-preset"):
         wait_change = action.get("wait", True)
         if isinstance(wait_change, str):
@@ -326,6 +349,20 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             int(action["position"]),
             wait_change=bool(wait_change),
         )
+        return cmd_id + 1
+    if op in ("save_preset", "save-preset"):
+        wait_clean = action.get("wait", False)
+        if isinstance(wait_clean, str):
+            wait_clean = parse_bool(wait_clean)
+        content_id = action.get("cid", action.get("content_id"))
+        if content_id is None:
+            content_id = session.get_active_preset_content_id()
+        if content_id is None:
+            raise SystemExit("save_preset requires cid or an active preset")
+        session.save_preset_with_cid(int(content_id), wait_clean=bool(wait_clean))
+        return cmd_id + 1
+    if op in ("rename_content", "rename-content"):
+        session.rename_content(int(action["cid"]), str(action["name"]), wait_status=True)
         return cmd_id + 1
     if op == "scribble_label":
         if "key" in action:
@@ -553,7 +590,13 @@ def main():
     sub.add_parser("get-active-preset")
     sub.add_parser("get-snapshot-count")
     sub.add_parser("get-active-snapshot")
+    sub.add_parser("get-preset-edited")
     sub.add_parser("list-setlists")
+    get_content_path = sub.add_parser("get-content-path")
+    get_content_path.add_argument("--cid", type=int, required=True)
+    get_content_data = sub.add_parser("get-content-data")
+    get_content_data.add_argument("--cid", type=int, required=True)
+    get_content_data.add_argument("--output", help="Optional path to write the raw content blob")
     list_presets = sub.add_parser("list-presets")
     list_presets.add_argument("--container-cid", type=int, help="Container content id to list")
     list_presets.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
@@ -563,9 +606,21 @@ def main():
     load_preset.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
     load_preset.add_argument("--position", type=int, help="Zero-based container position")
     load_preset.add_argument("--no-wait", action="store_true", help="Do not wait for the active preset to change")
+    save_preset = sub.add_parser("save-preset")
+    save_preset.add_argument("--cid", type=int, help="Content id to save into (defaults to active preset)")
+    save_preset.add_argument("--wait", action="store_true", help="Wait until the preset no longer reports unsaved edits")
+    rename_content = sub.add_parser("rename-content")
+    rename_content.add_argument("--cid", type=int, required=True, help="Content id to rename")
+    rename_content.add_argument("--name", required=True)
     activate_snapshot = sub.add_parser("activate-snapshot")
     activate_snapshot.add_argument("--index", type=int, required=True, help="Zero-based snapshot index")
     activate_snapshot.add_argument("--no-wait", action="store_true", help="Do not wait for the active snapshot to change")
+    copy_snapshot = sub.add_parser("copy-snapshot")
+    copy_snapshot.add_argument("--source", type=int, required=True, help="Zero-based snapshot source index")
+    copy_snapshot.add_argument("--target", type=int, required=True, help="Zero-based snapshot target index")
+    snapshot_color = sub.add_parser("snapshot-color")
+    snapshot_color.add_argument("--index", type=int, required=True, help="Zero-based snapshot index")
+    snapshot_color.add_argument("--color", type=int, required=True, help="Snapshot color enum value")
     set_autocab = sub.add_parser("set-autocab")
     set_autocab.add_argument("--enabled", required=True, help="on/off/true/false/1/0")
 
@@ -691,8 +746,17 @@ def main():
         elif args.cmd == "get-active-snapshot":
             json_print({"active_snapshot_index": session.get_active_snapshot_index()})
             return
+        elif args.cmd == "get-preset-edited":
+            json_print({"preset_edited": session.is_preset_edited()})
+            return
         elif args.cmd == "list-setlists":
             json_print(session.list_setlists())
+            return
+        elif args.cmd == "get-content-path":
+            json_print({"cid": args.cid, "path": session.get_content_path(args.cid)})
+            return
+        elif args.cmd == "get-content-data":
+            print_or_write_content_data(session.get_content_data(args.cid), args.output)
             return
         elif args.cmd == "list-presets":
             if args.container_cid is not None and args.root:
@@ -716,8 +780,19 @@ def main():
                     raise SystemExit("load-preset requires --cid or --container-cid/--root")
                 container_cid = args.container_cid if args.container_cid is not None else resolve_content_root(args.root)
                 session.load_preset_at_container_position(container_cid, args.position, wait_change=not args.no_wait)
+        elif args.cmd == "save-preset":
+            target_cid = args.cid if args.cid is not None else session.get_active_preset_content_id()
+            if target_cid is None:
+                raise SystemExit("save-preset requires --cid or an active preset")
+            session.save_preset_with_cid(target_cid, wait_clean=args.wait)
+        elif args.cmd == "rename-content":
+            session.rename_content(args.cid, args.name, wait_status=True)
         elif args.cmd == "activate-snapshot":
             session.activate_snapshot(args.index, wait_change=not args.no_wait)
+        elif args.cmd == "copy-snapshot":
+            session.copy_snapshot(args.source, args.target, wait_status=True)
+        elif args.cmd == "snapshot-color":
+            session.set_snapshot_color(args.index, args.color, wait_status=True)
         elif args.cmd == "set-autocab":
             session.set_auto_cab(parse_bool(args.enabled), wait_status=True)
         elif args.cmd == "insert-block":

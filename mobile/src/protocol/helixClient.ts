@@ -321,6 +321,18 @@ export class HelixClient {
     return decodeCommandBlob(vals);
   }
 
+  async getContentData(contentId: number) {
+    const vals = await this.request('/GetContentData', 'i', [contentId], '/GetContentData', 3000);
+    const blob = extractFirstBlob(vals);
+    return blob ? Buffer.from(blob) : null;
+  }
+
+  async getContentPath(contentId: number) {
+    const vals = await this.request('/GetContentPath', 'i', [contentId], '/GetContentPath', 2500);
+    if (!Array.isArray(vals) || typeof vals[1] !== 'string') return null;
+    return vals[1];
+  }
+
   async getContainerContents(containerId: number) {
     const vals = await this.request('/GetContainerContents', 'i', [containerId], '/GetContainerContents', 3000);
     const decoded = decodeCommandBlob(vals);
@@ -339,9 +351,25 @@ export class HelixClient {
     return vals[1];
   }
 
+  async isPresetEdited() {
+    const value = await this.getProperty('volatile.preset.edited');
+    if (!value) return null;
+    const raw = value.value ?? (value as any).val_ ?? (value as any).val;
+    const numeric = Number(raw);
+    return Number.isFinite(numeric) ? numeric > 0 : null;
+  }
+
   activateSnapshot(index: number) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/activateSnapshot', 'iii', [cmdId, index, 0]);
+  }
+
+  async copySnapshot(sourceIndex: number, targetIndex: number) {
+    return await this.request('/CopySnapshot', 'ii', [sourceIndex, targetIndex], '/status', 2500);
+  }
+
+  async setSnapshotColor(index: number, color: number) {
+    return await this.request('/SnapshotColorSet', 'ii', [index, color], '/status', 2500);
   }
 
   loadPresetWithCid(contentId: number) {
@@ -352,6 +380,20 @@ export class HelixClient {
   loadPresetAtContainerPosition(containerId: number, position: number) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/LoadPresetAtContainerPosition', 'iii', [cmdId, containerId, position]);
+  }
+
+  savePresetWithCid(contentId: number) {
+    const cmdId = this.nextCmdId();
+    this.sendOsc('/SavePresetWithCID', 'ii', [cmdId, contentId]);
+  }
+
+  async renameContent(contentId: number, name: string) {
+    const content = await this.getContentRef(contentId);
+    if (!content || typeof content !== 'object') {
+      throw new Error(`content ${contentId} is unavailable`);
+    }
+    const blob = Buffer.from(encodeMsgpack({ ...(content as Record<string, any>), name }));
+    return await this.request('/SetContentAttrs', 'ib', [contentId, blob], '/status', 2500);
   }
 
   async getEditBufferState() {

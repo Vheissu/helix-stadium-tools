@@ -106,6 +106,13 @@ def parse_blocks(value: str):
     return [int(p) for p in parts]
 
 
+def parse_content_ids(value: str):
+    parts = [p.strip() for p in str(value).split(",") if p.strip()]
+    if not parts:
+        raise ValueError("at least one content id is required")
+    return [int(part) for part in parts]
+
+
 def resolve_content_root(value: str) -> int:
     key = value.strip().lower()
     mapping = {
@@ -433,6 +440,27 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             raise SystemExit("set_content_data requires input/path")
         session.set_content_data(int(action["cid"]), Path(str(input_path)).read_bytes(), wait_status=True)
         return cmd_id + 1
+    if op in ("add_contents_to_container", "add-contents-to-container"):
+        session.add_contents_to_container(
+            int(action["container_cid"]),
+            parse_content_ids(action["content_ids"]),
+            int(action["position"]),
+            flag_a=action.get("flag_a", False),
+            flag_b=action.get("flag_b", False),
+            wait_status=True,
+        )
+        return cmd_id + 1
+    if op in ("remove_content", "remove-content"):
+        session.remove_content(int(action["container_cid"]), parse_content_ids(action["content_ids"]), wait_status=True)
+        return cmd_id + 1
+    if op in ("reorder_container_content", "reorder-container-content"):
+        session.reorder_container_content(
+            int(action["container_cid"]),
+            parse_content_ids(action["content_ids"]),
+            int(action["position"]),
+            wait_status=True,
+        )
+        return cmd_id + 1
     if op == "scribble_label":
         if "key" in action:
             key = action["key"]
@@ -669,12 +697,32 @@ def main():
     get_content_data = sub.add_parser("get-content-data")
     get_content_data.add_argument("--cid", type=int, required=True)
     get_content_data.add_argument("--output", help="Optional path to write the raw content blob")
+    get_content_info = sub.add_parser("get-content-info")
+    get_content_info.add_argument("--content-type", type=int, required=True)
+    get_content_info.add_argument("--name", required=True)
+    find_content = sub.add_parser("find-content")
+    find_content.add_argument("--content-type", type=int, required=True)
+    find_content.add_argument("--query", required=True)
+    find_content.add_argument("--location", default="")
     set_content_path = sub.add_parser("set-content-path")
     set_content_path.add_argument("--cid", type=int, required=True)
     set_content_path.add_argument("--path", required=True)
     set_content_data = sub.add_parser("set-content-data")
     set_content_data.add_argument("--cid", type=int, required=True)
     set_content_data.add_argument("--input", required=True, help="Path to a raw content blob to send")
+    add_to_container = sub.add_parser("add-to-container")
+    add_to_container.add_argument("--container-cid", type=int, required=True)
+    add_to_container.add_argument("--content-ids", required=True, help="Comma-separated content ids to add")
+    add_to_container.add_argument("--position", type=int, required=True, help="Insertion index within the target container")
+    add_to_container.add_argument("--flag-a", action="store_true", help="Experimental route flag; default 0 is confirmed copy/add behavior")
+    add_to_container.add_argument("--flag-b", action="store_true", help="Experimental route flag; default 0 is confirmed copy/add behavior")
+    remove_content = sub.add_parser("remove-content")
+    remove_content.add_argument("--container-cid", type=int, required=True)
+    remove_content.add_argument("--content-ids", required=True, help="Comma-separated content ids to remove")
+    reorder_content = sub.add_parser("reorder-content")
+    reorder_content.add_argument("--container-cid", type=int, required=True)
+    reorder_content.add_argument("--content-ids", required=True, help="Comma-separated content ids to move")
+    reorder_content.add_argument("--position", type=int, required=True, help="Target insertion index reported by the device route")
     list_presets = sub.add_parser("list-presets")
     list_presets.add_argument("--container-cid", type=int, help="Container content id to list")
     list_presets.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
@@ -850,10 +898,34 @@ def main():
         elif args.cmd == "get-content-data":
             print_or_write_content_data(session.get_content_data(args.cid), args.output)
             return
+        elif args.cmd == "get-content-info":
+            json_print(session.get_content_info(args.content_type, args.name))
+            return
+        elif args.cmd == "find-content":
+            json_print(session.find_content_matches(args.content_type, args.query, args.location))
+            return
         elif args.cmd == "set-content-path":
             session.set_content_path(args.cid, args.path, wait_status=True)
         elif args.cmd == "set-content-data":
             session.set_content_data(args.cid, Path(args.input).read_bytes(), wait_status=True)
+        elif args.cmd == "add-to-container":
+            session.add_contents_to_container(
+                args.container_cid,
+                parse_content_ids(args.content_ids),
+                args.position,
+                flag_a=args.flag_a,
+                flag_b=args.flag_b,
+                wait_status=True,
+            )
+        elif args.cmd == "remove-content":
+            session.remove_content(args.container_cid, parse_content_ids(args.content_ids), wait_status=True)
+        elif args.cmd == "reorder-content":
+            session.reorder_container_content(
+                args.container_cid,
+                parse_content_ids(args.content_ids),
+                args.position,
+                wait_status=True,
+            )
         elif args.cmd == "list-presets":
             if args.container_cid is not None and args.root:
                 raise SystemExit("use either --container-cid or --root, not both")

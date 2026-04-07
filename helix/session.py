@@ -411,6 +411,48 @@ class HelixSession:
         path = vals[1]
         return path if isinstance(path, str) else None
 
+    def get_content_info(self, content_type: int, name: str):
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id,
+            "/GetContentInfo",
+            "iis",
+            [cmd_id, int(content_type), str(name)],
+            "/GetContentInfo",
+        )
+        if not vals or len(vals) < 4:
+            return None
+        return {
+            "content_type": int(vals[1]) if isinstance(vals[1], int) else vals[1],
+            "name": vals[2] if isinstance(vals[2], str) else None,
+            "value": int(vals[3]) if isinstance(vals[3], int) else vals[3],
+            "raw": vals,
+        }
+
+    def find_content_matches(self, content_type: int, query: str, location: str = ""):
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id,
+            "/FindContentMatches",
+            "iiss",
+            [cmd_id, int(content_type), str(query), str(location)],
+            "/FindContentInfo",
+        )
+        if not vals or len(vals) < 6:
+            return None
+        blob = vals[4] if isinstance(vals[4], (bytes, bytearray)) else None
+        decoded = decode_msgpack_blob(blob) if blob is not None else None
+        if isinstance(decoded, (dict, list)):
+            decoded = normalize_fourcc_map(decoded)
+        return {
+            "content_type": int(vals[1]) if isinstance(vals[1], int) else vals[1],
+            "query": vals[2] if isinstance(vals[2], str) else None,
+            "location": vals[3] if isinstance(vals[3], str) else None,
+            "matches": decoded,
+            "value": int(vals[5]) if isinstance(vals[5], int) else vals[5],
+            "raw": vals,
+        }
+
     def list_factory_presets(self):
         items = self.get_container_contents(FACTORY_PRESETS_CID)
         return items if isinstance(items, list) else None
@@ -594,6 +636,54 @@ class HelixSession:
         if result is not None:
             return result
         return self._handle_timeout("/SavePresetWithCID", cmd_id, f"preset {target_id}")
+
+    def add_contents_to_container(
+        self,
+        container_id: int,
+        content_ids,
+        position: int,
+        flag_a: bool | int = False,
+        flag_b: bool | int = False,
+        wait_status: bool = True,
+    ):
+        if isinstance(content_ids, int):
+            content_ids = [content_ids]
+        blob = self._encode_msgpack([int(content_id) for content_id in content_ids])
+        cmd_id = self.next_cmd_id
+        args = [
+            cmd_id,
+            int(container_id),
+            blob,
+            int(position),
+            int(bool(flag_a)),
+            int(bool(flag_b)),
+        ]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/AddContentsToContainer", "iibiii", args)
+        self.send("/AddContentsToContainer", "iibiii", args)
+        return None
+
+    def reorder_container_content(self, container_id: int, content_ids, position: int, wait_status: bool = True):
+        if isinstance(content_ids, int):
+            content_ids = [content_ids]
+        blob = self._encode_msgpack([int(content_id) for content_id in content_ids])
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(container_id), blob, int(position)]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/ReorderContainerContent", "iibi", args)
+        self.send("/ReorderContainerContent", "iibi", args)
+        return None
+
+    def remove_content(self, container_id: int, content_ids, wait_status: bool = True):
+        if isinstance(content_ids, int):
+            content_ids = [content_ids]
+        blob = self._encode_msgpack([int(content_id) for content_id in content_ids])
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, int(container_id), blob]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/RemoveContent", "iib", args)
+        self.send("/RemoveContent", "iib", args)
+        return None
 
     def set_content_attrs(self, content_id: int, attrs, wait_status: bool = True):
         blob = attrs if isinstance(attrs, (bytes, bytearray)) else self._encode_msgpack(attrs)

@@ -47,6 +47,9 @@ npx expo start --dev-client
 - Filter presets by name, slot, or content id inside the mobile library view
 - Recall presets from the mobile app using content ids or container positions
 - Rename the active preset and the selected setlist from the mobile preset tab
+- Add user or factory presets into a selected setlist from the mobile preset tab
+- Reorder setlist entries from the mobile preset tab with explicit up/down controls
+- Remove setlist entries from the mobile preset tab
 - Save the current active preset back to its backing content slot
 - Switch active snapshots from the preset tab with live device names and colors
 - Rename the active snapshot from the preset tab

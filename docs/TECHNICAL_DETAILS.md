@@ -273,13 +273,34 @@ Commands present in the desktop app binary but not accepted by the device during
 - `/SetContentInfo`
 - `/DeleteContentInfo`
 
+Additional live content-management requests:
+
+```
+/GetContentInfo ,iis [cmdId, contentType, name]
+/FindContentMatches ,iiss [cmdId, contentType, query, location]
+/AddContentsToContainer ,iibiii [cmdId, containerId, <msgpack [contentIds...]>, position, flagA, flagB]
+/ReorderContainerContent ,iibi [cmdId, containerId, <msgpack [contentIds...]>, position]
+/RemoveContent ,iib [cmdId, containerId, <msgpack [contentIds...]>]
+```
+
+Observed responses:
+
+```
+/GetContentInfo ,iisi [cmdId, contentType, "<string>", value]
+/FindContentInfo ,iissbi [cmdId, contentType, "<string>", "<string>", <msgpack blob>, value]
+/status ,iii [cmdId, 0, 1]
+```
+
+Practical notes:
+
+- `AddContentsToContainer` with `flagA=0` and `flagB=0` was verified to add a raw preset id to a setlist as a new setlist entry without removing the backing raw preset from the user library.
+- `RemoveContent` with the setlist container id removes those created setlist-entry refs cleanly.
+- `ReorderContainerContent` uses an insertion index, not a final position. For forward moves, appending to the end of a 6-item container required `position=6`, not `position=5`.
+- `GetContentInfo` and `FindContentMatches` now return valid responses from the device, but the higher-level meaning of their string/value fields is still unresolved.
+
 Commands present in the desktop app binary but still unverified or unresolved on the device:
 
-- `/GetContentInfo`
 - `/GetAllContentInfo`
-- `/FindContentMatches`
-- `/AddContentsToContainer`
-- `/ReorderContainerContent`
 
 ## Agenda commands (batch actions)
 

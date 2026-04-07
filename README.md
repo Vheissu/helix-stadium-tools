@@ -184,7 +184,7 @@ Common OSC addresses seen in captures:
 - `/setBlockEnable` (device -> editor)
 - `/ModelSet` and `/setModelWithMID` (model change / model ID mapping)
 - `/GetContentRef`, `/GetContainerContents`, `/GetContentData`, and `/GetContentPath` (library/content browsing)
-- `/LoadPresetWithCID`, `/LoadPresetAtContainerPosition`, `/SavePresetWithCID`, `/SetContentAttrs`, `/SetContentData`, and `/SetContentPath` (preset/content operations)
+- `/LoadPresetWithCID`, `/LoadPresetAtContainerPosition`, `/SavePresetWithCID`, `/SetContentAttrs`, `/SetContentData`, `/SetContentPath`, `/AddContentsToContainer`, `/ReorderContainerContent`, and `/RemoveContent` (preset/content operations)
 - `/ActiveSnapshotIndexGet`, `/SnapshotCountGet`, `/SnapshotTargetsGet`, `/activateSnapshot`, `/CopySnapshot`, `/SnapshotColorSet`, and `/SetSnapshotName` (snapshot navigation)
 - `/heartbeat` (device -> editor)
 
@@ -373,9 +373,20 @@ python3 scripts/helix_control.py get-content-path --cid 507
 # Write the raw preset content blob to disk
 python3 scripts/helix_control.py get-content-data --cid 507 --output /tmp/preset-507.bin
 
+# Probe the device-backed content info/search routes
+python3 scripts/helix_control.py get-content-info --content-type 0 --name "Glory Belongs Test (HB)"
+python3 scripts/helix_control.py find-content --content-type 0 --query "Glory"
+
 # Re-send the current path/blob back to the same raw preset id
 python3 scripts/helix_control.py set-content-path --cid 507 --path ""
 python3 scripts/helix_control.py set-content-data --cid 507 --input /tmp/preset-507.bin
+
+# Add the raw preset 507 to setlist 500 as a new ref, then remove that returned setlist-entry cid again
+python3 scripts/helix_control.py add-to-container --container-cid 500 --content-ids 507 --position 6
+python3 scripts/helix_control.py remove-content --container-cid 500 --content-ids NEW_SETLIST_ENTRY_CID
+
+# Reorder setlist entries by insertion index
+python3 scripts/helix_control.py reorder-content --container-cid 500 --content-ids 508 --position 6
 
 # Toggle auto-cab insertion
 python3 scripts/helix_control.py set-autocab --enabled on
@@ -430,6 +441,9 @@ Supported action ops:
 - `load_preset` / `load-preset` (`cid` or `container_cid`/`root` + `position`, optional `wait`)
 - `save_preset` / `save-preset` (optional `cid`, optional `wait`)
 - `rename_content` / `rename-content` (`cid`, `name`)
+- `add_contents_to_container` / `add-contents-to-container` (`container_cid`, `content_ids`, `position`, optional `flag_a`, optional `flag_b`)
+- `remove_content` / `remove-content` (`container_cid`, `content_ids`)
+- `reorder_container_content` / `reorder-container-content` (`container_cid`, `content_ids`, `position`)
 - `set_content_path` / `set-content-path` (`cid`, `path`)
 - `set_content_data` / `set-content-data` (`cid`, `input` or `path`)
 - `scribble_label` (`stomp` or `key`, `label`)

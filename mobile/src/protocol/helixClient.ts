@@ -339,6 +339,32 @@ export class HelixClient {
     return Array.isArray(decoded) ? decoded : [];
   }
 
+  async getContentInfo(contentType: number, name: string) {
+    const vals = await this.request('/GetContentInfo', 'is', [contentType, name], '/GetContentInfo', 2500);
+    if (!Array.isArray(vals) || vals.length < 4) return null;
+    return {
+      contentType: typeof vals[1] === 'number' ? vals[1] : Number(vals[1] ?? 0),
+      name: typeof vals[2] === 'string' ? vals[2] : null,
+      value: typeof vals[3] === 'number' ? vals[3] : Number(vals[3] ?? 0),
+      raw: vals,
+    };
+  }
+
+  async findContentMatches(contentType: number, query: string, location = '') {
+    const vals = await this.request('/FindContentMatches', 'iss', [contentType, query, location], '/FindContentInfo', 3000);
+    if (!Array.isArray(vals) || vals.length < 6) return null;
+    const blob = Buffer.isBuffer(vals[4]) ? vals[4] : null;
+    const matches = blob ? decodeMsgpackBlob(blob) : null;
+    return {
+      contentType: typeof vals[1] === 'number' ? vals[1] : Number(vals[1] ?? 0),
+      query: typeof vals[2] === 'string' ? vals[2] : null,
+      location: typeof vals[3] === 'string' ? vals[3] : null,
+      matches,
+      value: typeof vals[5] === 'number' ? vals[5] : Number(vals[5] ?? 0),
+      raw: vals,
+    };
+  }
+
   async getSnapshotCount() {
     const vals = await this.request('/SnapshotCountGet', '', [], '/getSnapshotCount', 2000);
     if (!Array.isArray(vals) || typeof vals[1] !== 'number') return null;
@@ -404,6 +430,33 @@ export class HelixClient {
   savePresetWithCid(contentId: number) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/SavePresetWithCID', 'ii', [cmdId, contentId]);
+  }
+
+  async addContentsToContainer(
+    containerId: number,
+    contentIds: number[],
+    position: number,
+    flagA = false,
+    flagB = false
+  ) {
+    const blob = Buffer.from(encodeMsgpack(contentIds.map((value) => Number(value))));
+    return await this.request(
+      '/AddContentsToContainer',
+      'ibiii',
+      [containerId, blob, position, flagA ? 1 : 0, flagB ? 1 : 0],
+      '/status',
+      3000
+    );
+  }
+
+  async removeContent(containerId: number, contentIds: number[]) {
+    const blob = Buffer.from(encodeMsgpack(contentIds.map((value) => Number(value))));
+    return await this.request('/RemoveContent', 'ib', [containerId, blob], '/status', 3000);
+  }
+
+  async reorderContainerContent(containerId: number, contentIds: number[], position: number) {
+    const blob = Buffer.from(encodeMsgpack(contentIds.map((value) => Number(value))));
+    return await this.request('/ReorderContainerContent', 'ibi', [containerId, blob, position], '/status', 3000);
   }
 
   async setContentData(contentId: number, data: Buffer | Uint8Array) {

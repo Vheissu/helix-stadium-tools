@@ -497,6 +497,40 @@ class TestSession(unittest.TestCase):
         session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, "User/Setlist/Test", 0]
         self.assertEqual(session.get_content_path(507), "User/Setlist/Test")
 
+    def test_get_content_info_returns_raw_fields(self):
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 0, "Preset Name", 42]
+        self.assertEqual(
+            session.get_content_info(0, "Preset Name"),
+            {
+                "content_type": 0,
+                "name": "Preset Name",
+                "value": 42,
+                "raw": [1, 0, "Preset Name", 42],
+            },
+        )
+
+    def test_find_content_matches_decodes_blob(self):
+        try:
+            import msgpack
+        except Exception:
+            self.skipTest("msgpack not installed")
+
+        payload = msgpack.packb([{fourcc_int("cid_"): 507, fourcc_int("name"): "Glory"}], use_bin_type=True)
+        session = HelixSession("dummy")
+        session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 0, "Glory", "", payload, 1]
+        self.assertEqual(
+            session.find_content_matches(0, "Glory"),
+            {
+                "content_type": 0,
+                "query": "Glory",
+                "location": "",
+                "matches": [{"cid_": 507, "name": "Glory"}],
+                "value": 1,
+                "raw": [1, 0, "Glory", "", payload, 1],
+            },
+        )
+
     def test_is_preset_edited_reads_property_value(self):
         session = HelixSession("dummy")
         session.get_property = lambda _key: {"val_": 1}
@@ -607,6 +641,45 @@ class TestSession(unittest.TestCase):
         with mock.patch("helix.session.time.sleep"):
             result = session.save_preset_with_cid(508, wait_clean=True, timeout=0.1)
         self.assertFalse(result)
+
+    def test_add_contents_to_container_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.add_contents_to_container(500, [507], 6, wait_status=False)
+        expected_blob = session._encode_msgpack([507])
+        session.send.assert_called_once_with("/AddContentsToContainer", "iibiii", [1, 500, expected_blob, 6, 0, 0])
+
+    def test_add_contents_to_container_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.add_contents_to_container(500, [507], 6, wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_reorder_container_content_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.reorder_container_content(500, [508], 0, wait_status=False)
+        expected_blob = session._encode_msgpack([508])
+        session.send.assert_called_once_with("/ReorderContainerContent", "iibi", [1, 500, expected_blob, 0])
+
+    def test_reorder_container_content_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.reorder_container_content(500, [508], 0, wait_status=True)
+        self.assertEqual(result, ["ok"])
+
+    def test_remove_content_wait_status_false(self):
+        session = HelixSession("dummy")
+        session.send = mock.Mock()
+        session.remove_content(500, [509], wait_status=False)
+        expected_blob = session._encode_msgpack([509])
+        session.send.assert_called_once_with("/RemoveContent", "iib", [1, 500, expected_blob])
+
+    def test_remove_content_wait_status_true(self):
+        session = HelixSession("dummy")
+        session.send_and_wait_status_code = mock.Mock(return_value=["ok"])
+        result = session.remove_content(500, [509], wait_status=True)
+        self.assertEqual(result, ["ok"])
 
     def test_set_content_attrs_wait_status_false(self):
         session = HelixSession("dummy")

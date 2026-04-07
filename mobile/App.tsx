@@ -209,6 +209,7 @@ export default function App() {
   const [setlists, setSetlists] = useState<HelixContentRef[]>([]);
   const [selectedContainerId, setSelectedContainerId] = useState<number | null>(null);
   const [selectedContainerName, setSelectedContainerName] = useState('Setlists');
+  const [targetSetlistId, setTargetSetlistId] = useState<number | null>(null);
   const [presetItems, setPresetItems] = useState<HelixContentRef[]>([]);
   const [activePresetContentId, setActivePresetContentId] = useState<number | null>(null);
   const [activePresetRef, setActivePresetRef] = useState<HelixContentRef | null>(null);
@@ -365,6 +366,10 @@ export default function App() {
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
   );
+  const targetSetlist = useMemo(
+    () => setlists.find((item) => item.cid_ === targetSetlistId) ?? null,
+    [targetSetlistId, setlists]
+  );
   const activeSnapshot = useMemo(
     () => snapshots.find((item) => item.index === activeSnapshotIndex) ?? null,
     [activeSnapshotIndex, snapshots]
@@ -422,6 +427,7 @@ export default function App() {
     setSetlists([]);
     setSelectedContainerId(null);
     setSelectedContainerName('Setlists');
+    setTargetSetlistId(null);
     setPresetItems([]);
     setActivePresetContentId(null);
     setActivePresetRef(null);
@@ -525,6 +531,14 @@ export default function App() {
       const nextSnapshots = (snapshotItems as SnapshotRef[]) ?? [];
       const activeRef = activeId !== null ? ((await client.getContentRef(activeId)) as HelixContentRef | null) : null;
       setSetlists(nextSetlists);
+      setTargetSetlistId((prev) => {
+        if (prev !== null && nextSetlists.some((item) => item.cid_ === prev)) return prev;
+        if (typeof activeRef?.ccid === 'number' && nextSetlists.some((item) => item.cid_ === activeRef.ccid)) {
+          return activeRef.ccid;
+        }
+        const firstSetlist = nextSetlists.find((item) => typeof item.cid_ === 'number');
+        return typeof firstSetlist?.cid_ === 'number' ? firstSetlist.cid_ : null;
+      });
       setActivePresetContentId(activeId);
       setActivePresetRef(activeRef);
       setSnapshotCount(snapshotTotal ?? nextSnapshots.length);
@@ -594,6 +608,7 @@ export default function App() {
 
   const handleSetlistSelect = async (item: HelixContentRef) => {
     if (typeof item.cid_ !== 'number') return;
+    setTargetSetlistId(item.cid_);
     setLibraryLoading(true);
     try {
       await loadPresetContainer(item.cid_, item.name ?? 'Setlist');
@@ -649,6 +664,69 @@ export default function App() {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Rename failed: ${message}`);
+    }
+  };
+
+  const handleAddPresetToSetlist = async (item: HelixContentRef) => {
+    const client = requireClient();
+    if (!client) return;
+    if (typeof item.cid_ !== 'number') {
+      setStatus('Preset is missing a content id');
+      return;
+    }
+    if (typeof targetSetlistId !== 'number') {
+      setStatus('Select a target setlist first');
+      return;
+    }
+    try {
+      const targetItems = (await client.getContainerContents(targetSetlistId)) as HelixContentRef[];
+      const position = Array.isArray(targetItems) ? targetItems.length : 0;
+      await client.addContentsToContainer(targetSetlistId, [item.cid_], position);
+      setStatus(`Added ${item.name ?? 'preset'} to ${targetSetlist?.name ?? 'setlist'}`);
+      await refreshPresetContext();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Add to setlist failed: ${message}`);
+    }
+  };
+
+  const handleRemovePresetFromSetlist = async (item: HelixContentRef) => {
+    const client = requireClient();
+    if (!client) return;
+    if (typeof selectedContainerId !== 'number' || typeof item.cid_ !== 'number') {
+      setStatus('Select a setlist entry first');
+      return;
+    }
+    try {
+      await client.removeContent(selectedContainerId, [item.cid_]);
+      setStatus(`Removed ${item.name ?? 'preset'} from ${selectedContainerName}`);
+      await refreshPresetContext();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Remove failed: ${message}`);
+    }
+  };
+
+  const handleMoveSetlistPreset = async (item: HelixContentRef, delta: -1 | 1) => {
+    const client = requireClient();
+    if (!client) return;
+    if (typeof selectedContainerId !== 'number' || typeof item.cid_ !== 'number' || typeof item.posi !== 'number') {
+      setStatus('Only setlist entries can be reordered');
+      return;
+    }
+    const currentIndex = item.posi;
+    const nextIndex = currentIndex + delta;
+    if (nextIndex < 0 || nextIndex >= presetItems.length) {
+      return;
+    }
+    const insertionIndex = nextIndex > currentIndex ? nextIndex + 1 : nextIndex;
+    try {
+      await client.reorderContainerContent(selectedContainerId, [item.cid_], insertionIndex);
+      setStatus(`Moved ${item.name ?? 'preset'} to slot ${nextIndex + 1}`);
+      await refreshPresetContext();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Reorder failed: ${message}`);
     }
   };
 
@@ -1495,6 +1573,29 @@ export default function App() {
           </View>
         )}
 
+        {libraryRoot !== 'setlists' && setlists.length > 0 && (
+          <View style={styles.inlineLabelRow}>
+            <Text style={styles.label}>Add To Setlist</Text>
+            <Text style={styles.labelHint}>Verified device route uses copy-style add with the default flags.</Text>
+            <View style={styles.libraryPills}>
+              {setlists.map((item) => {
+                const active = item.cid_ === targetSetlistId;
+                return (
+                  <Pressable
+                    key={`target-setlist-${String(item.cid_)}`}
+                    style={[styles.togglePill, active && styles.togglePillActive]}
+                    onPress={() => setTargetSetlistId(item.cid_ ?? null)}
+                  >
+                    <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
+                      {item.name ?? `Setlist ${item.posi ?? '\u2014'}`}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         <TextInput
           style={styles.searchInput}
           value={presetFilter}
@@ -1515,22 +1616,85 @@ export default function App() {
           ) : (
             filteredPresetItems.map((item) => {
               const active = isPresetActive(item);
+              const isSetlistView = libraryRoot === 'setlists' && typeof selectedContainerId === 'number';
+              const canMoveUp = isSetlistView && typeof item.posi === 'number' && item.posi > 0;
+              const canMoveDown =
+                isSetlistView && typeof item.posi === 'number' && item.posi < presetItems.length - 1;
+              const canAddToSetlist =
+                !isSetlistView && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
               return (
-                <Pressable
+                <View
                   key={String(item.cid_ ?? `${selectedContainerId}-${item.posi}`)}
                   style={[styles.libraryRow, active && styles.libraryRowActive]}
-                  onPress={() => {
-                    void handlePresetLoad(item);
-                  }}
                 >
-                  <View style={styles.libraryRowCopy}>
-                    <Text style={styles.sheetListText}>{item.name ?? `Preset ${item.posi ?? '\u2014'}`}</Text>
-                    <Text style={styles.libraryMeta}>
-                      #{typeof item.posi === 'number' ? item.posi + 1 : '\u2014'} \u00b7 CID {item.cid_ ?? '\u2014'}
-                    </Text>
+                  <Pressable
+                    style={styles.libraryRowMain}
+                    onPress={() => {
+                      void handlePresetLoad(item);
+                    }}
+                  >
+                    <View style={styles.libraryRowCopy}>
+                      <Text style={styles.sheetListText}>{item.name ?? `Preset ${item.posi ?? '\u2014'}`}</Text>
+                      <Text style={styles.libraryMeta}>
+                        #{typeof item.posi === 'number' ? item.posi + 1 : '\u2014'} \u00b7 CID {item.cid_ ?? '\u2014'}
+                        {typeof item.rcid === 'number' ? ` \u00b7 Raw ${item.rcid}` : ''}
+                      </Text>
+                    </View>
+                    {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
+                  </Pressable>
+                  <View style={styles.libraryRowActions}>
+                    {canAddToSetlist && (
+                      <Pressable
+                        style={[styles.button, styles.buttonGhost, styles.rowActionButton]}
+                        onPress={() => {
+                          void handleAddPresetToSetlist(item);
+                        }}
+                      >
+                        <Text style={[styles.buttonText, styles.buttonTextGhost]}>Add</Text>
+                      </Pressable>
+                    )}
+                    {isSetlistView && (
+                      <>
+                        <Pressable
+                          style={[
+                            styles.button,
+                            styles.buttonGhost,
+                            styles.rowActionButton,
+                            !canMoveUp && styles.rowActionButtonDisabled,
+                          ]}
+                          disabled={!canMoveUp}
+                          onPress={() => {
+                            void handleMoveSetlistPreset(item, -1);
+                          }}
+                        >
+                          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Up</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[
+                            styles.button,
+                            styles.buttonGhost,
+                            styles.rowActionButton,
+                            !canMoveDown && styles.rowActionButtonDisabled,
+                          ]}
+                          disabled={!canMoveDown}
+                          onPress={() => {
+                            void handleMoveSetlistPreset(item, 1);
+                          }}
+                        >
+                          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Down</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.button, styles.buttonGhost, styles.rowActionButton]}
+                          onPress={() => {
+                            void handleRemovePresetFromSetlist(item);
+                          }}
+                        >
+                          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Remove</Text>
+                        </Pressable>
+                      </>
+                    )}
                   </View>
-                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                </Pressable>
+                </View>
               );
             })
           )}
@@ -2418,11 +2582,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.panelAlt,
   },
   libraryRowActive: { borderColor: COLORS.accentMid, backgroundColor: COLORS.accentDim },
+  libraryRowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   libraryRowCopy: { flex: 1, gap: 4 },
+  libraryRowActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8 },
   libraryActiveBadge: {
     color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11,
     textTransform: 'uppercase', letterSpacing: 1.2,
   },
+  rowActionButton: { minWidth: 70, paddingVertical: 8, paddingHorizontal: 10 },
+  rowActionButtonDisabled: { opacity: 0.45 },
   snapshotDetailCard: {
     gap: 10,
     padding: 14,

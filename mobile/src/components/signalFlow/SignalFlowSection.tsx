@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 16,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     backgroundColor: COLORS.panel,
     borderWidth: 1,
     borderColor: COLORS.stroke,
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
   usageFill: {
     height: '100%',
     backgroundColor: COLORS.accent,
+    borderRadius: 3,
   },
   usageMeta: {
     color: COLORS.muted,

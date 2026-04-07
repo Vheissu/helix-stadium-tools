@@ -1,9 +1,21 @@
 import React, { useRef } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { BlockIcon } from '../../icons/BlockIcons';
 import { getBlockImage } from '../../icons/CategoryImages';
 import { COLORS, FONTS, SIGNAL_FLOW, getBlockColor } from '../../theme/colors';
 import type { BlockCardProps } from '../../types/signalFlow';
+
+const PowerIcon = ({ color, size = 14 }: { color: string; size?: number }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M12 3v6M18.36 7.64a9 9 0 11-12.73 0"
+      stroke={color}
+      strokeWidth={2.2}
+      strokeLinecap="round"
+    />
+  </Svg>
+);
 
 export const BlockCard: React.FC<BlockCardProps> = React.memo(({
   block,
@@ -44,13 +56,19 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
           pressed && styles.cardPressed,
         ]}
       >
+        {/* Power indicator for populated blocks */}
+        {block && (
+          <View style={styles.powerBadge}>
+            <PowerIcon color={COLORS.accent} size={10} />
+          </View>
+        )}
         <Text style={styles.index}>{index + 1}</Text>
         {block ? (
           <>
             {blockImage ? (
               <Image source={blockImage} style={styles.blockImage} resizeMode="contain" />
             ) : (
-              <BlockIcon type={block.kind} size={18} color={getBlockColor(block.kind)} />
+              <BlockIcon type={block.kind} size={20} color={getBlockColor(block.kind)} />
             )}
             <Text style={styles.name} numberOfLines={2}>
               {block.name}
@@ -85,58 +103,74 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.panelAlt,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
+    gap: 4,
   },
   cardEmpty: {
     borderColor: COLORS.stroke,
     borderTopColor: COLORS.stroke,
+    borderStyle: 'dashed',
   },
   cardSelected: {
     borderColor: COLORS.accent,
-    backgroundColor: '#1b2026',
+    backgroundColor: 'rgba(0, 230, 222, 0.06)',
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   cardPressed: {
     opacity: 0.8,
-    transform: [{ scale: 0.97 }],
+    transform: [{ scale: 0.96 }],
+  },
+  powerBadge: {
+    position: 'absolute',
+    top: 4,
+    left: 5,
+    opacity: 0.6,
   },
   index: {
     color: COLORS.muted,
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: 8,
     position: 'absolute',
-    top: 3,
+    top: 4,
     right: 5,
+    opacity: 0.5,
   },
   blockImage: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
   },
   name: {
     color: COLORS.text,
-    fontFamily: FONTS.bodyMedium,
+    fontFamily: FONTS.bodySemi,
     fontSize: 9,
     textAlign: 'center',
-    paddingHorizontal: 3,
+    paddingHorizontal: 4,
     lineHeight: 12,
   },
   emptyIcon: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.stroke,
+    borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyPlus: {
     color: COLORS.muted,
     fontSize: 16,
-    fontWeight: '300',
+    fontWeight: '200',
+    opacity: 0.5,
   },
   emptyLabel: {
     color: COLORS.muted,
     fontFamily: FONTS.body,
     fontSize: 9,
+    opacity: 0.5,
   },
   connector: {
     width: SIGNAL_FLOW.connectorWidth,

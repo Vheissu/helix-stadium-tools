@@ -75,12 +75,13 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
                 <View
                   style={[
                     styles.connDot,
-                    { backgroundColor: connected ? COLORS.success : COLORS.danger },
+                    { backgroundColor: connected ? COLORS.accent : COLORS.danger },
                   ]}
                 />
               )}
             </View>
             <Text style={[styles.label, active && styles.labelActive]}>{label}</Text>
+            {active && <View style={styles.activeBar} />}
           </Pressable>
         );
       })}
@@ -101,19 +102,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
+    position: 'relative',
   },
   iconWrap: {
     position: 'relative',
   },
   label: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    fontFamily: FONTS.bodySemi,
     fontSize: 10,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
   labelActive: {
     color: COLORS.accent,
+  },
+  activeBar: {
+    position: 'absolute',
+    top: -10,
+    width: 28,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: COLORS.accent,
   },
   connDot: {
     position: 'absolute',

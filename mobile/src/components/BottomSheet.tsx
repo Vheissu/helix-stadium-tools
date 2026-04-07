@@ -28,7 +28,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
               <Text style={styles.title}>{title}</Text>
               {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
             </View>
-            <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="Close">
+            <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="Close" style={styles.closeBtn}>
               <Text style={styles.close}>{'\u00d7'}</Text>
             </Pressable>
           </View>
@@ -42,7 +42,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.55)',
     justifyContent: 'flex-end',
   },
   dismiss: {
@@ -50,26 +50,30 @@ const styles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: COLORS.panel,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingBottom: 34,
     maxHeight: '85%',
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: COLORS.stroke,
   },
   handleBar: {
-    width: 36,
+    width: 40,
     height: 4,
     borderRadius: 2,
     backgroundColor: COLORS.stroke,
     alignSelf: 'center',
     marginTop: 12,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   headerText: {
     flex: 1,
@@ -78,17 +82,28 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontFamily: FONTS.display,
     fontSize: 20,
+    letterSpacing: 0.3,
   },
   subtitle: {
     color: COLORS.muted,
     fontFamily: FONTS.mono,
-    fontSize: 12,
+    fontSize: 11,
     marginTop: 4,
+    letterSpacing: 0.3,
+  },
+  closeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.panelAlt,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   close: {
     color: COLORS.muted,
-    fontSize: 28,
-    lineHeight: 28,
-    paddingLeft: 12,
+    fontSize: 20,
+    lineHeight: 22,
   },
 });

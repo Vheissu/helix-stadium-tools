@@ -288,6 +288,18 @@ def print_or_write_content_data(data: bytes | None, output_path: str | None):
     json_print({"length": len(data)})
 
 
+def resolve_active_preset_save_id(session: HelixSession):
+    active_ref = session.get_active_preset_ref()
+    if isinstance(active_ref, dict):
+        raw_id = active_ref.get("rcid")
+        if raw_id is not None:
+            return int(raw_id)
+    active_id = session.get_active_preset_content_id()
+    if active_id is None:
+        return None
+    return int(active_id)
+
+
 def json_safe(value):
     if isinstance(value, bytes):
         try:
@@ -356,7 +368,7 @@ def apply_action(session, cmd_id: int, action: dict) -> int:
             wait_clean = parse_bool(wait_clean)
         content_id = action.get("cid", action.get("content_id"))
         if content_id is None:
-            content_id = session.get_active_preset_content_id()
+            content_id = resolve_active_preset_save_id(session)
         if content_id is None:
             raise SystemExit("save_preset requires cid or an active preset")
         session.save_preset_with_cid(int(content_id), wait_clean=bool(wait_clean))
@@ -781,7 +793,7 @@ def main():
                 container_cid = args.container_cid if args.container_cid is not None else resolve_content_root(args.root)
                 session.load_preset_at_container_position(container_cid, args.position, wait_change=not args.no_wait)
         elif args.cmd == "save-preset":
-            target_cid = args.cid if args.cid is not None else session.get_active_preset_content_id()
+            target_cid = args.cid if args.cid is not None else resolve_active_preset_save_id(session)
             if target_cid is None:
                 raise SystemExit("save-preset requires --cid or an active preset")
             session.save_preset_with_cid(target_cid, wait_clean=args.wait)

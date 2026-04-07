@@ -31,6 +31,16 @@ class USBProbeHelpersTest(unittest.TestCase):
         details = MODULE.describe_command_response("version", bytes.fromhex("01002600"))
         self.assertEqual(details, ["version_le=0x00260001 (2490369)"])
 
+    def test_build_command_with_payload_appends_suffix_after_command(self):
+        payload = MODULE.build_command_with_payload("size", bytes.fromhex("78563412"))
+        self.assertEqual(payload[:11], bytes.fromhex("01040073697a6578563412"))
+        self.assertEqual(len(payload), MODULE.DEFAULT_TRANSFER_SIZE)
+
+    def test_build_chunk_frame_sets_type_and_16bit_length(self):
+        payload = MODULE.build_chunk_frame(bytes.fromhex("aabbcc"))
+        self.assertEqual(payload[:6], bytes.fromhex("020300aabbcc"))
+        self.assertEqual(len(payload), MODULE.DEFAULT_TRANSFER_SIZE)
+
 
 if __name__ == "__main__":
     unittest.main()

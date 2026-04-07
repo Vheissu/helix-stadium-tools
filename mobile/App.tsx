@@ -332,6 +332,8 @@ export default function App() {
     return Math.max(0, remaining);
   }, [pathUsage, targetSlot.path]);
   const activePresetName = activePresetRef?.name ?? 'None';
+  const activePresetStorageId =
+    typeof activePresetRef?.rcid === 'number' ? activePresetRef.rcid : activePresetContentId;
   const activeSetlist = useMemo(
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
@@ -548,6 +550,37 @@ export default function App() {
     scheduleSync(900);
   };
 
+  const handleSavePreset = () => {
+    const client = requireClient();
+    if (!client) return;
+    if (activePresetStorageId === null) {
+      setStatus('No active preset to save');
+      return;
+    }
+    client.savePresetWithCid(activePresetStorageId);
+    setPresetEdited(false);
+    setStatus(`Saving ${activePresetName}...`);
+    scheduleSync(1200);
+  };
+
+  const handleRenameContent = async (contentId: number, name: string, label: string) => {
+    const client = requireClient();
+    if (!client) return;
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setStatus(`A ${label.toLowerCase()} name is required`);
+      return;
+    }
+    try {
+      await client.renameContent(contentId, trimmed);
+      setStatus(`Renamed ${label.toLowerCase()} to ${trimmed}`);
+      await refreshPresetContext();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Rename failed: ${message}`);
+    }
+  };
+
   const handleSnapshotActivate = (index: number) => {
     const client = requireClient();
     if (!client) return;
@@ -555,6 +588,39 @@ export default function App() {
     setActiveSnapshotIndex(index);
     setStatus(`Activating snapshot ${index + 1}`);
     scheduleSync(500);
+  };
+
+  const handleSnapshotCopy = async () => {
+    const client = requireClient();
+    if (!client) return;
+    if (snapshotCopySource === null || snapshotCopyTarget === null) {
+      setStatus('Select both a source and destination snapshot');
+      return;
+    }
+    try {
+      await client.copySnapshot(snapshotCopySource, snapshotCopyTarget);
+      setStatus(`Copied snapshot ${snapshotCopySource + 1} to ${snapshotCopyTarget + 1}`);
+      scheduleSync(900);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Snapshot copy failed: ${message}`);
+    }
+  };
+
+  const handleSnapshotColor = async (color: number) => {
+    const client = requireClient();
+    if (!client) return;
+    if (activeSnapshotIndex === null) {
+      setStatus('No active snapshot selected');
+      return;
+    }
+    try {
+      await client.setSnapshotColor(activeSnapshotIndex, color);
+      setStatus(`Set snapshot ${activeSnapshotIndex + 1} color to enum ${color}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Snapshot color failed: ${message}`);
+    }
   };
 
   const handleNotesToggle = (value: boolean) => {
@@ -1219,11 +1285,48 @@ export default function App() {
                 ? `CID ${activePresetRef.cid_ ?? '\u2014'} \u00b7 Slot ${(typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014')}`
                 : 'No active preset data yet'}
             </Text>
+            <Text style={styles.libraryMeta}>
+              {presetEdited === null ? 'Save state unknown' : presetEdited ? 'Unsaved edits on device' : 'Preset saved'}
+            </Text>
           </View>
-          <Pressable style={[styles.button, styles.buttonGhost, styles.libraryRefresh]} onPress={refreshPresetContext}>
-            <Text style={[styles.buttonText, styles.buttonTextGhost]}>{libraryLoading ? 'Refreshing\u2026' : 'Refresh'}</Text>
-          </Pressable>
+          <View style={styles.libraryActionStack}>
+            <Pressable style={[styles.button, styles.buttonGhost, styles.libraryRefresh]} onPress={refreshPresetContext}>
+              <Text style={[styles.buttonText, styles.buttonTextGhost]}>{libraryLoading ? 'Refreshing\u2026' : 'Refresh'}</Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.button,
+                styles.buttonPrimary,
+                styles.libraryRefresh,
+                (activePresetStorageId === null || presetEdited === false) && styles.buttonDisabled,
+              ]}
+              onPress={handleSavePreset}
+              disabled={activePresetStorageId === null || presetEdited === false}
+            >
+              <Text style={styles.buttonText}>Save</Text>
+            </Pressable>
+          </View>
         </View>
+
+        {activePresetStorageId !== null && (
+          <View style={styles.inlineEditor}>
+            <TextInput
+              style={[styles.input, styles.inlineInput]}
+              value={presetRenameText}
+              onChangeText={setPresetRenameText}
+              placeholder="Rename current preset"
+              placeholderTextColor={COLORS.muted}
+            />
+            <Pressable
+              style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+              onPress={() => {
+                void handleRenameContent(activePresetStorageId, presetRenameText, 'Preset');
+              }}
+            >
+              <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+            </Pressable>
+          </View>
+        )}
 
         <View style={styles.libraryPills}>
           {([
@@ -1267,15 +1370,47 @@ export default function App() {
           </View>
         )}
 
+        {libraryRoot === 'setlists' && activeSetlist && (
+          <View style={styles.inlineEditor}>
+            <TextInput
+              style={[styles.input, styles.inlineInput]}
+              value={setlistRenameText}
+              onChangeText={setSetlistRenameText}
+              placeholder="Rename selected setlist"
+              placeholderTextColor={COLORS.muted}
+            />
+            <Pressable
+              style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+              onPress={() => {
+                if (typeof activeSetlist.cid_ === 'number') {
+                  void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
+                }
+              }}
+            >
+              <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+            </Pressable>
+          </View>
+        )}
+
+        <TextInput
+          style={styles.searchInput}
+          value={presetFilter}
+          onChangeText={setPresetFilter}
+          placeholder="Search presets by name, slot, or cid"
+          placeholderTextColor={COLORS.muted}
+        />
+
         <View style={styles.libraryList}>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{selectedContainerName}</Text>
-            <Text style={styles.libraryMeta}>{presetItems.length} presets</Text>
+            <Text style={styles.libraryMeta}>
+              {filteredPresetItems.length}/{presetItems.length} presets
+            </Text>
           </View>
-          {presetItems.length === 0 ? (
+          {filteredPresetItems.length === 0 ? (
             <Text style={styles.paramHint}>No presets loaded for this container yet.</Text>
           ) : (
-            presetItems.map((item) => {
+            filteredPresetItems.map((item) => {
               const active = isPresetActive(item);
               return (
                 <Pressable
@@ -1311,22 +1446,88 @@ export default function App() {
           </View>
         </View>
         {snapshotCount > 0 ? (
-          <View style={styles.libraryPills}>
-            {Array.from({ length: snapshotCount }, (_item, index) => {
-              const active = activeSnapshotIndex === index;
-              return (
-                <Pressable
-                  key={`snapshot-${index}`}
-                  style={[styles.togglePill, active && styles.togglePillActive]}
-                  onPress={() => handleSnapshotActivate(index)}
-                >
-                  <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
-                    {index + 1}
-                  </Text>
+          <>
+            <View style={styles.libraryPills}>
+              {Array.from({ length: snapshotCount }, (_item, index) => {
+                const active = activeSnapshotIndex === index;
+                return (
+                  <Pressable
+                    key={`snapshot-${index}`}
+                    style={[styles.togglePill, active && styles.togglePillActive]}
+                    onPress={() => handleSnapshotActivate(index)}
+                  >
+                    <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
+                      {index + 1}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {snapshotCount > 1 && (
+              <>
+                <Text style={styles.label}>Copy Snapshot</Text>
+                <Text style={styles.labelHint}>Select a source and destination, then copy.</Text>
+                <View style={styles.inlineLabelRow}>
+                  <Text style={styles.libraryMeta}>Source</Text>
+                  <View style={styles.libraryPills}>
+                    {Array.from({ length: snapshotCount }, (_item, index) => {
+                      const active = snapshotCopySource === index;
+                      return (
+                        <Pressable
+                          key={`copy-source-${index}`}
+                          style={[styles.togglePill, active && styles.togglePillActive]}
+                          onPress={() => setSnapshotCopySource(index)}
+                        >
+                          <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
+                            {index + 1}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+                <View style={styles.inlineLabelRow}>
+                  <Text style={styles.libraryMeta}>Target</Text>
+                  <View style={styles.libraryPills}>
+                    {Array.from({ length: snapshotCount }, (_item, index) => {
+                      const active = snapshotCopyTarget === index;
+                      return (
+                        <Pressable
+                          key={`copy-target-${index}`}
+                          style={[styles.togglePill, active && styles.togglePillActive]}
+                          onPress={() => setSnapshotCopyTarget(index)}
+                        >
+                          <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
+                            {index + 1}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+                <Pressable style={[styles.button, styles.buttonGhost]} onPress={() => void handleSnapshotCopy()}>
+                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Copy Snapshot</Text>
                 </Pressable>
-              );
-            })}
-          </View>
+              </>
+            )}
+
+            <Text style={styles.label}>Snapshot Color</Text>
+            <Text style={styles.labelHint}>Uses the raw desktop-editor color enum for now.</Text>
+            <View style={styles.libraryPills}>
+              {SNAPSHOT_COLOR_OPTIONS.map((color) => (
+                <Pressable
+                  key={`snapshot-color-${color}`}
+                  style={styles.togglePill}
+                  onPress={() => {
+                    void handleSnapshotColor(color);
+                  }}
+                >
+                  <Text style={styles.togglePillText}>{color}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </>
         ) : (
           <Text style={styles.paramHint}>Refresh the preset tab after connecting to load snapshot buttons.</Text>
         )}
@@ -2026,6 +2227,7 @@ const styles = StyleSheet.create({
   button: { paddingVertical: 14, paddingHorizontal: 18, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   buttonPrimary: { backgroundColor: COLORS.accent },
   buttonGhost: { borderWidth: 1, borderColor: COLORS.stroke },
+  buttonDisabled: { opacity: 0.45 },
   buttonFlex: { flex: 1 },
   buttonText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.6 },
   buttonTextGhost: { color: COLORS.text },
@@ -2034,11 +2236,16 @@ const styles = StyleSheet.create({
   label: { color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
   labelHint: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, marginTop: 2, maxWidth: 240 },
   libraryHeader: { flex: 1, gap: 4, paddingRight: 12 },
+  libraryActionStack: { gap: 8 },
   libraryCurrentName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 17 },
   libraryMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, lineHeight: 16 },
   libraryRefresh: { minWidth: 104, paddingVertical: 10, paddingHorizontal: 12 },
   libraryPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   libraryList: { gap: 8 },
+  inlineEditor: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  inlineInput: { flex: 1 },
+  inlineButton: { minWidth: 96 },
+  inlineLabelRow: { gap: 8 },
   libraryRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingVertical: 12, paddingHorizontal: 14,

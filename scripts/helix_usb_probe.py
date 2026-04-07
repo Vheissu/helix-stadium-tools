@@ -31,6 +31,28 @@ def parse_int(value: str) -> int:
     return int(value, 0)
 
 
+def parse_hex_bytes(value: str) -> bytes:
+    normalized = value.strip().replace(" ", "").replace("_", "")
+    if normalized.startswith(("0x", "0X")):
+        normalized = normalized[2:]
+    if len(normalized) % 2:
+        raise argparse.ArgumentTypeError("hex payload must have an even number of nybbles")
+    try:
+        return bytes.fromhex(normalized)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"invalid hex payload: {value!r}") from exc
+
+
+def parse_command_payload(value: str) -> tuple[str, bytes]:
+    if "=" not in value:
+        raise argparse.ArgumentTypeError("expected COMMAND=HEX")
+    command, payload_hex = value.split("=", 1)
+    command = command.strip()
+    if not command:
+        raise argparse.ArgumentTypeError("command name must not be empty")
+    return command, parse_hex_bytes(payload_hex)
+
+
 def candidate_libusb_paths() -> list[Path]:
     candidates = [
         Path("/Applications/Line6/Helix Stadium.app/Contents/Frameworks/libusb-1.0.0.dylib"),
@@ -393,6 +415,41 @@ def build_text_command(command: str, transfer_size: int = DEFAULT_TRANSFER_SIZE)
     return bytes(payload)
 
 
+def build_command_with_payload(
+    command: str,
+    suffix: bytes,
+    transfer_size: int = DEFAULT_TRANSFER_SIZE,
+) -> bytes:
+    encoded = command.encode("ascii")
+    if not encoded:
+        raise ValueError("command must not be empty")
+    if len(encoded) > 0xFF:
+        raise ValueError("command must fit in one byte length field")
+    total_length = len(encoded) + len(suffix) + 3
+    if total_length > transfer_size:
+        raise ValueError(
+            f"command {command!r} with payload needs {total_length} bytes but transfer size is {transfer_size}"
+        )
+    frame = bytearray(transfer_size)
+    frame[0] = 0x01
+    frame[1] = len(encoded)
+    command_end = 3 + len(encoded)
+    frame[3:command_end] = encoded
+    frame[command_end : command_end + len(suffix)] = suffix
+    return bytes(frame)
+
+
+def build_chunk_frame(data: bytes, transfer_size: int = DEFAULT_TRANSFER_SIZE) -> bytes:
+    if len(data) > 0x0FFD:
+        raise ValueError(f"chunk payload too large: {len(data)} bytes")
+    frame = bytearray(transfer_size)
+    frame[0] = 0x02
+    frame[1] = len(data) & 0xFF
+    frame[2] = (len(data) >> 8) & 0xFF
+    frame[3 : 3 + len(data)] = data
+    return bytes(frame)
+
+
 def describe_command_response(command: str, data: bytes) -> list[str]:
     details: list[str] = []
     if not data:
@@ -508,6 +565,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Send an ASCII command over bulk OUT after claiming an interface (repeatable)",
     )
     parser.add_argument(
+        "--send-command-payload",
+        action="append",
+        type=parse_command_payload,
+        help="Send a command frame with raw suffix bytes, formatted as COMMAND=HEX",
+    )
+    parser.add_argument(
+        "--send-chunk-hex",
+        action="append",
+        type=parse_hex_bytes,
+        help="Send a type-2 chunk frame with raw payload bytes encoded as HEX",
+    )
+    parser.add_argument(
         "--write-endpoint",
         type=parse_int,
         help="Bulk-OUT endpoint to use with --send-command (for example 0x04)",
@@ -527,12 +596,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--timeout-ms", type=int, default=250, help="Timeout for --read-endpoint")
     args = parser.parse_args(argv)
 
-    if args.send_command and args.claim_interface is None:
-        parser.error("--send-command requires --claim-interface")
-    if args.send_command and args.write_endpoint is None:
-        parser.error("--send-command requires --write-endpoint")
-    if args.send_command and args.read_endpoint is None:
-        parser.error("--send-command requires --read-endpoint")
+    has_active_send = bool(args.send_command or args.send_command_payload or args.send_chunk_hex)
+    if has_active_send and args.claim_interface is None:
+        parser.error("active send options require --claim-interface")
+    if has_active_send and args.write_endpoint is None:
+        parser.error("active send options require --write-endpoint")
+    if has_active_send and args.read_endpoint is None:
+        parser.error("active send options require --read-endpoint")
 
     lib = load_libusb(args.libusb)
     bind_libusb(lib)
@@ -562,9 +632,34 @@ def main(argv: list[str] | None = None) -> int:
                     return 2
 
                 try:
-                    if args.send_command:
-                        for command in args.send_command:
-                            payload = build_text_command(command, transfer_size=args.transfer_size)
+                    if has_active_send:
+                        send_queue: list[tuple[str, str | None, bytes]] = []
+                        for command in args.send_command or []:
+                            send_queue.append(
+                                (
+                                    f"command {command!r}",
+                                    command,
+                                    build_text_command(command, transfer_size=args.transfer_size),
+                                )
+                            )
+                        for command, suffix in args.send_command_payload or []:
+                            send_queue.append(
+                                (
+                                    f"command {command!r} + {len(suffix)} byte suffix",
+                                    command,
+                                    build_command_with_payload(command, suffix, transfer_size=args.transfer_size),
+                                )
+                            )
+                        for chunk in args.send_chunk_hex or []:
+                            send_queue.append(
+                                (
+                                    f"chunk {len(chunk)} bytes",
+                                    None,
+                                    build_chunk_frame(chunk, transfer_size=args.transfer_size),
+                                )
+                            )
+
+                        for label, command_name, payload in send_queue:
                             write_rc, written = probe.bulk_write(
                                 handle,
                                 args.write_endpoint,
@@ -572,7 +667,7 @@ def main(argv: list[str] | None = None) -> int:
                                 timeout_ms=args.timeout_ms,
                             )
                             print(
-                                f"Send command {command!r} endpoint=0x{args.write_endpoint:02x}:"
+                                f"Send {label} endpoint=0x{args.write_endpoint:02x}:"
                                 f" rc={write_rc} bytes={written}"
                             )
                             if write_rc != 0:
@@ -584,13 +679,14 @@ def main(argv: list[str] | None = None) -> int:
                                 timeout_ms=args.timeout_ms,
                             )
                             print(
-                                f"Read response for {command!r} endpoint=0x{args.read_endpoint:02x}:"
+                                f"Read response for {label} endpoint=0x{args.read_endpoint:02x}:"
                                 f" rc={read_rc} bytes={len(data)}"
                             )
                             if data:
                                 print(f"  hex={data.hex()}")
-                                for detail in describe_command_response(command, data):
-                                    print(f"  {detail}")
+                                if command_name is not None:
+                                    for detail in describe_command_response(command_name, data):
+                                        print(f"  {detail}")
                     elif args.read_endpoint is not None:
                         rc, data = probe.passive_bulk_read(
                             handle,

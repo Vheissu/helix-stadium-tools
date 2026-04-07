@@ -560,7 +560,6 @@ export class HelixClient {
       throw new Error('Source and target paths must differ');
     }
     const state = await this.getEditBufferState();
-    const targetBlocks = getFlowBlockMap(state, targetPath);
     const occupiedTargetPositions = extractPathClipboard(state, targetPath).entries
       .map((entry) => entry.position)
       .filter((position) => CLEARABLE_FLOW_POSITIONS.includes(position));
@@ -573,18 +572,14 @@ export class HelixClient {
         await this.clearBlocks(targetPath, occupiedTargetPositions);
       }
       clipboard.entries.forEach((entry) => {
-        const blockId = targetBlocks[entry.position];
-        if (typeof blockId !== 'number') return;
-        this.setModel(targetPath, blockId, entry.modelId, 0);
+        this.setModel(targetPath, entry.position, entry.modelId, 0);
       });
       clipboard.entries.forEach((entry) => {
-        const blockId = targetBlocks[entry.position];
-        if (typeof blockId !== 'number') return;
-        this.setBlockEnable(targetPath, blockId, entry.enabled);
+        this.setBlockEnable(targetPath, entry.position, entry.enabled);
         entry.params.forEach((param) => {
           const valueType: 'i' | 'f' | 'b' =
             typeof param.value === 'boolean' ? 'b' : Number.isInteger(param.value) ? 'i' : 'f';
-          this.setParamValue(targetPath, blockId, param.paramId, param.value, 0, -1, valueType);
+          this.setParamValue(targetPath, entry.position, param.paramId, param.value, 0, -1, valueType);
         });
       });
     } finally {

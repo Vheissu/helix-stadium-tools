@@ -14,7 +14,6 @@ from .discovery import HelixService, discover_first_service
 from .editbuffer import (
     CLEARABLE_FLOW_POSITIONS,
     extract_flow_clipboard,
-    flow_block_map,
     flow_position_map,
     normalize_edit_buffer,
 )
@@ -974,7 +973,6 @@ class HelixSession:
             return None
         clipboard = extract_flow_clipboard(state, source_flow)
         target_existing = extract_flow_clipboard(state, target_flow)
-        target_blocks = flow_block_map(state, target_flow)
         occupied_positions = sorted(
             int(entry["position"]) for entry in target_existing if int(entry["position"]) in CLEARABLE_FLOW_POSITIONS
         )
@@ -985,28 +983,64 @@ class HelixSession:
             if occupied_positions:
                 self.clear_positions(target_flow, occupied_positions, wait_status=wait_status)
             for entry in clipboard:
-                block_id = target_blocks.get(entry["position"])
-                if not isinstance(block_id, int):
-                    continue
-                self.set_model(target_flow, block_id, int(entry["model_id"]), slot=0, wait_status=wait_status)
+                self.set_model(target_flow, int(entry["position"]), int(entry["model_id"]), slot=0, wait_status=wait_status)
             for entry in clipboard:
-                block_id = target_blocks.get(entry["position"])
-                if not isinstance(block_id, int):
-                    continue
-                self.set_block_enable(target_flow, block_id, int(bool(entry["enabled"])), wait_status=wait_status)
+                position = int(entry["position"])
+                self.set_block_enable(target_flow, position, int(bool(entry["enabled"])), wait_status=False)
                 for param in entry["params"]:
                     value = param["value"]
                     value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
                     self.set_param_value(
                         target_flow,
-                        block_id,
+                        position,
                         int(param["param_id"]),
                         value,
                         slot=0,
                         flags=-1,
-                        wait_status=wait_status,
+                        wait_status=False,
                         value_type=value_type,
                     )
+            if wait_status:
+                expected_entries = [
+                    {
+                        "position": int(entry["position"]),
+                        "model_id": int(entry["model_id"]),
+                        "enabled": bool(entry["enabled"]),
+                        "params": {int(param["param_id"]): param["value"] for param in entry["params"]},
+                    }
+                    for entry in clipboard
+                ]
+
+                def clipboard_matches():
+                    current_state = normalize_edit_buffer(self.get_edit_buffer_state())
+                    if current_state is None:
+                        return None
+                    current_entries = {
+                        int(entry["position"]): entry for entry in extract_flow_clipboard(current_state, target_flow)
+                    }
+                    for expected in expected_entries:
+                        current = current_entries.get(expected["position"])
+                        if not isinstance(current, dict):
+                            return None
+                        if int(current.get("model_id", -1)) != expected["model_id"]:
+                            return None
+                        if bool(current.get("enabled", True)) != expected["enabled"]:
+                            return None
+                        current_params = {int(param["param_id"]): param["value"] for param in current.get("params", [])}
+                        for param_id, expected_value in expected["params"].items():
+                            if param_id not in current_params:
+                                return None
+                            current_value = current_params[param_id]
+                            if isinstance(expected_value, float):
+                                if not isinstance(current_value, (int, float)) or abs(float(current_value) - expected_value) > 1e-6:
+                                    return None
+                            elif current_value != expected_value:
+                                return None
+                    return True
+
+                result = self._poll_until(clipboard_matches)
+                if result is None:
+                    return self._handle_timeout("/copyPath", 0, f"path {source_flow} -> {target_flow}")
         finally:
             if auto_cab:
                 self.set_auto_cab(True, wait_status=wait_status)

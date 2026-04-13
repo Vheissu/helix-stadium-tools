@@ -99915,40 +99915,279 @@
         "name": "A/B",
         "key": "P35_AppDSPSplitAB",
         "category": "split",
-        "usage": 0,
-        "params": []
+        "usage": 1.6,
+        "params": [
+          {
+            "id": 2,
+            "key": "RouteTo",
+            "name": "Route To",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": -100,
+            "display_max": 100,
+            "display_def": 0.5,
+            "unit": "A",
+            "options": null,
+            "description": "Determines the amount of the signal sent to Path A (upper) vs. Path B (lower). When set to \"Even Split,\" the signal is split evenly to each path in stereo. Assign this parameter to a Stomp switch to create an A/B toggle switch."
+          }
+        ]
       },
       {
         "id": 476,
         "name": "Crossover",
         "key": "P35_AppDSPSplitXOver",
         "category": "split",
-        "usage": 0,
-        "params": []
+        "usage": 2.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Frequency",
+            "name": "Frequency",
+            "type": "f",
+            "min": 25,
+            "max": 15000,
+            "def": 500,
+            "display_min": 25,
+            "display_max": 15000,
+            "display_def": 500,
+            "unit": "Hz",
+            "options": null,
+            "description": "Determines the crossover point at which your signal is split into low and high frequencies. Any signal above this frequency is sent to Path A (upper); any signal below this frequency is sent to Path B (lower)."
+          },
+          {
+            "id": 2,
+            "key": "Reverse",
+            "name": "Reverse",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Off",
+              "On"
+            ],
+            "description": "When set to \"On,\" reverses the path assignments. (Any signal above the crossover frequency is sent to Path B, any signal below the crossover frequency is sent to Path A.)"
+          }
+        ]
       },
       {
         "id": 474,
         "name": "Dynamic",
         "key": "P35_AppDSPSplitDyn",
         "category": "split",
-        "usage": 0,
-        "params": []
+        "usage": 2.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Threshold",
+            "name": "Threshold",
+            "type": "f",
+            "min": -60,
+            "max": 0,
+            "def": -15,
+            "display_min": -60,
+            "display_max": 0,
+            "display_def": -15,
+            "unit": "dB",
+            "options": null,
+            "description": "Determines the signal level above which gets routed to Path B. Playing softer (signal below the Threshold) is routed to Path A; playing louder (signal above the Threshold) is routed to Path B."
+          },
+          {
+            "id": 2,
+            "key": "Attack",
+            "name": "Attack",
+            "type": "f",
+            "min": 0.05,
+            "max": 5,
+            "def": 0.86,
+            "display_min": 50,
+            "display_max": 5000,
+            "display_def": 860,
+            "unit": "ms",
+            "options": null,
+            "description": "Determines how fast the signal is routed to Path B once reaching the Threshold."
+          },
+          {
+            "id": 3,
+            "key": "Decay",
+            "name": "Decay",
+            "type": "f",
+            "min": 0.05,
+            "max": 5,
+            "def": 0.86,
+            "display_min": 50,
+            "display_max": 5000,
+            "display_def": 860,
+            "unit": "ms",
+            "options": null,
+            "description": "Determines how fast the signal returns to Path A once it falls below the Threshold."
+          },
+          {
+            "id": 4,
+            "key": "Reverse",
+            "name": "Reverse",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Off",
+              "On"
+            ],
+            "description": "When set to \"On,\" reverses the path assignments. (Any signal above the Threshold is sent to Path B, any signal below the Threshold is sent to Path A.)"
+          }
+        ]
       },
       {
         "id": 478,
         "name": "Mixer",
         "key": "P35_AppDSPJoin",
         "category": "join",
-        "usage": 0,
-        "params": []
+        "usage": 1.5,
+        "params": [
+          {
+            "id": 1,
+            "key": "A Level",
+            "name": "A Level",
+            "type": "f",
+            "min": -60,
+            "max": 12,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Adjusts the output level of stereo Path A (upper)."
+          },
+          {
+            "id": 2,
+            "key": "A Pan",
+            "name": "A Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": -100,
+            "display_max": 100,
+            "display_def": 0.5,
+            "unit": "Left",
+            "options": null,
+            "description": "Adjusts the left/right stereo balance of Path A (upper). When set to L 100, only the left signal is passed through; when set to R 100, only the right signal is passed through."
+          },
+          {
+            "id": 3,
+            "key": "B Level",
+            "name": "B Level",
+            "type": "f",
+            "min": -60,
+            "max": 12,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Adjusts the output level of stereo Path B (lower)."
+          },
+          {
+            "id": 4,
+            "key": "B Pan",
+            "name": "B Pan",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": -100,
+            "display_max": 100,
+            "display_def": 0.5,
+            "unit": "Left",
+            "options": null,
+            "description": "Adjusts the left/right stereo balance of Path B (lower). When set to L 100, only the left signal is passed through; when set to R 100, only the right signal is passed through."
+          },
+          {
+            "id": 5,
+            "key": "B Polarity",
+            "name": "B Polarity",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Normal",
+              "Inverted"
+            ],
+            "description": "Inverts the polarity of Path B. Typically, this should be set to \"Normal.\""
+          },
+          {
+            "id": 6,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -60,
+            "max": 12,
+            "def": 3,
+            "display_min": -60,
+            "display_max": 12,
+            "display_def": 3,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the overall output level of the Merge block."
+          }
+        ]
       },
       {
         "id": 475,
         "name": "Y",
         "key": "P35_AppDSPSplitY",
         "category": "split",
-        "usage": 0,
-        "params": []
+        "usage": 1.5,
+        "params": [
+          {
+            "id": 1,
+            "key": "BalanceA",
+            "name": "Balance A",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": -100,
+            "display_max": 100,
+            "display_def": 0.5,
+            "unit": "Left",
+            "options": null,
+            "description": "Adjusts the left/right stereo balance (pan) of the signal sent to Path A (upper). By default, the signal before the Split > Y block is sent evenly to both Path A and Path B, both in stereo. If you set Balance A to L 100 and Balance B to R 100, the Split > Y block splits the stereo signal into two mono signals--left to Path A and right to Path B."
+          },
+          {
+            "id": 2,
+            "key": "BalanceB",
+            "name": "Balance B",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": -100,
+            "display_max": 100,
+            "display_def": 0.5,
+            "unit": "Left",
+            "options": null,
+            "description": "Adjusts the left/right stereo balance (pan) of the signal sent to Path B (lower). By default, the signal before the Split > Y block is sent evenly to both Path A and Path B, both in stereo. If you set Balance A to L 100 and Balance B to R 100, the Split > Y block splits the stereo signal into two mono signals--left to Path A and right to Path B."
+          }
+        ]
       }
     ]
   }

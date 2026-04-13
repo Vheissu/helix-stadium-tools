@@ -9,11 +9,27 @@ model IDs to human-readable names.
 It also adds join/split routing blocks and any missing IO models.
 """
 
+import copy
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from scripts.generate_helix_model_json import (  # noqa: E402
+    DEFAULT_CONTROLS,
+    DEFAULT_MODELDEFS,
+    DEFAULT_PARAM_META,
+    DEFAULT_UIDEFS,
+    get_param_meta_for_model,
+    load_controls,
+    load_modeldefs,
+    load_param_meta,
+    load_uidefs,
+)
+from scripts.generate_mobile_block_types_json import build_block_param_list  # noqa: E402
+
 BLOCK_TYPES_PATH = ROOT / "mobile" / "src" / "data" / "blockTypes.json"
 IO_MODELS_PATH = ROOT / "mobile" / "src" / "data" / "ioModels.json"
 MODEL_ID_MAP_PATH = ROOT / "generated" / "helix-models" / "model_id_map.json"
@@ -27,11 +43,87 @@ def save_json(path, data):
     Path(path).write_text(json.dumps(data, indent=2, sort_keys=False) + "\n", encoding="utf-8")
 
 
+def build_routing_metadata():
+    modeldefs = load_modeldefs(DEFAULT_MODELDEFS)
+    uidefs = load_uidefs(DEFAULT_UIDEFS)
+    controls = load_controls(DEFAULT_CONTROLS)
+    param_meta_all, param_meta_by_symbol = load_param_meta(DEFAULT_PARAM_META)
+    metadata = {}
+    for model_key, model_info in modeldefs.items():
+        if not isinstance(model_info, dict):
+            continue
+        category = model_info.get("category")
+        if category not in ("split", "join"):
+            continue
+        uidef = uidefs.get(model_key)
+        if not isinstance(uidef, dict):
+            continue
+        display_name = uidef.get("name") or model_key
+        param_meta = get_param_meta_for_model(
+            param_meta_all,
+            param_meta_by_symbol,
+            model_key,
+            category,
+            display_name,
+        )
+        metadata[model_key] = {
+            "name": display_name,
+            "category": category,
+            "usage": float(model_info.get("usage", 0) or 0),
+            "params": build_block_param_list(model_key, model_info, uidef, param_meta, controls),
+        }
+    return metadata
+
+
+def build_routing_model_entry(entry, routing_metadata):
+    key = entry.get("key", "")
+    meta = routing_metadata.get(key, {})
+    return {
+        "id": entry.get("id"),
+        "name": meta.get("name") or entry.get("name") or key,
+        "key": key,
+        "category": meta.get("category") or entry.get("category"),
+        "usage": meta.get("usage", 0),
+        "params": copy.deepcopy(meta.get("params", [])),
+    }
+
+
+def hydrate_existing_routing_models(block_types, routing_metadata):
+    updated = 0
+    for group in block_types.values():
+        models = group.get("models", [])
+        if not isinstance(models, list):
+            continue
+        for model in models:
+            key = model.get("key")
+            meta = routing_metadata.get(key)
+            if not meta:
+                continue
+            next_name = meta.get("name") or model.get("name")
+            next_category = meta.get("category") or model.get("category")
+            next_usage = meta.get("usage", model.get("usage", 0))
+            next_params = copy.deepcopy(meta.get("params", []))
+            changed = (
+                model.get("name") != next_name
+                or model.get("category") != next_category
+                or model.get("usage") != next_usage
+                or model.get("params") != next_params
+            )
+            model["name"] = next_name
+            model["category"] = next_category
+            model["usage"] = next_usage
+            model["params"] = next_params
+            if changed:
+                updated += 1
+    return updated
+
+
 def main():
     block_types = load_json(BLOCK_TYPES_PATH)
     io_models = load_json(IO_MODELS_PATH)
     model_id_map = load_json(MODEL_ID_MAP_PATH)
     catalogue = model_id_map["models"]
+    routing_metadata = build_routing_metadata()
 
     # ---- Build indexes ----
     # All IDs currently in blockTypes
@@ -47,6 +139,8 @@ def main():
     for section in ("inputs", "outputs"):
         for m in io_models.get(section, {}).get("models", []):
             existing_io_ids.add(m["id"])
+
+    hydrated_routing = hydrate_existing_routing_models(block_types, routing_metadata)
 
     # ---- 1. Add missing stereo variants to blockTypes ----
     added_stereo = 0
@@ -85,14 +179,7 @@ def main():
             continue
         if model_id in existing_ids:
             continue
-        routing_models.append({
-            "id": model_id,
-            "name": entry.get("name") or entry.get("key", ""),
-            "key": entry.get("key", ""),
-            "category": cat,
-            "usage": 0,
-            "params": [],
-        })
+        routing_models.append(build_routing_model_entry(entry, routing_metadata))
         existing_ids.add(model_id)
 
     if routing_models:
@@ -126,6 +213,7 @@ def main():
     save_json(IO_MODELS_PATH, io_models)
 
     print(f"Added {added_stereo} stereo variants to blockTypes.json")
+    print(f"Hydrated {hydrated_routing} existing routing blocks in blockTypes.json")
     print(f"Added {len(routing_models)} routing blocks to blockTypes.json")
     print(f"Added {added_io} missing IO models to ioModels.json")
     print(f"Total models in blockTypes.json: {sum(len(g.get('models', [])) for g in block_types.values())}")

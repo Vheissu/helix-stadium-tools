@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate mobile blockTypes.json with param metadata for standard blocks."""
+"""Regenerate mobile blockTypes.json with parameter metadata."""
 
 import argparse
 import json
@@ -89,6 +89,13 @@ def build_block_param_list(model_key, model_info, uidef, param_meta, controls):
     return params
 
 
+def preserve_missing_model_entry(model):
+    if not isinstance(model.get("params"), list):
+        model["params"] = []
+    if model.get("usage") is None:
+        model["usage"] = 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", default=str(DEFAULT_INPUT))
@@ -127,9 +134,9 @@ def main():
             uidef = uidefs.get(model_key)
             if not isinstance(model_info, dict) or not isinstance(uidef, dict):
                 missing_models.append(model_key)
-                model["params"] = []
-                if model.get("usage") is None:
-                    model["usage"] = 0
+                # Preserve inherited metadata for synthetic/stereo clones that do not
+                # have standalone modeldefs entries in the app bundle.
+                preserve_missing_model_entry(model)
                 continue
             model_id = model_info.get("id")
             category = model_info.get("category")

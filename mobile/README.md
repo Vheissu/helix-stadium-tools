@@ -36,7 +36,7 @@ npx expo start --dev-client
   ```bash
   python3 scripts/update_block_types_usage.py
   ```
-- To regenerate the full mobile block catalog, including amp/cab/fx parameter metadata, run:
+- To regenerate the full mobile block catalog, including amp/cab/fx/routing parameter metadata, run:
   ```bash
   python3 scripts/generate_mobile_block_types_json.py
   ```

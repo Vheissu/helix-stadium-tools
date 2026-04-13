@@ -259,6 +259,25 @@ export class HelixClient {
     return await wait.promise;
   }
 
+  private async sendAndWaitStatusCode(address: string, typetags: string, args: Array<any>, timeoutMs = 2500) {
+    const cmdId = this.nextCmdId();
+    const fullArgs = [cmdId, ...args];
+    const wait = this.waitForResponse('/status', cmdId, timeoutMs);
+    this.sendOsc(address, `i${typetags}`, fullArgs);
+    const vals = await wait.promise;
+    if (!vals) {
+      throw new Error(`${address} timed out`);
+    }
+    if (vals.length >= 2) {
+      const statusCode = Number(vals[1]);
+      if (Number.isFinite(statusCode) && statusCode !== 0) {
+        const detail = vals.slice(1).join(', ');
+        throw new Error(`${address} failed (${detail})`);
+      }
+    }
+    return vals;
+  }
+
   setProperty(key: string, value: any, valueType: 's' | 'i' | 'f' | 'b' = 's', propertyId = 0) {
     const cmdId = this.nextCmdId();
     const blob = buildPropertyBlob(key, value, valueType);
@@ -283,9 +302,17 @@ export class HelixClient {
     this.sendOsc('/BlockEnableSet', 'iiii', [cmdId, path, block, enabled ? 1 : 0]);
   }
 
+  async setBlockEnableWait(path: number, block: number, enabled: boolean | number, timeoutMs = 2500) {
+    return await this.sendAndWaitStatusCode('/BlockEnableSet', 'iii', [path, block, enabled ? 1 : 0], timeoutMs);
+  }
+
   setModel(path: number, block: number, modelId: number, slot = 0) {
     const cmdId = this.nextCmdId();
     this.sendOsc('/ModelSet', 'iiiii', [cmdId, path, block, slot, modelId]);
+  }
+
+  async setModelWait(path: number, block: number, modelId: number, slot = 0, timeoutMs = 2500) {
+    return await this.sendAndWaitStatusCode('/ModelSet', 'iiii', [path, block, slot, modelId], timeoutMs);
   }
 
   setParamValue(
@@ -306,6 +333,23 @@ export class HelixClient {
     this.sendOsc('/ParamValueSet', 'iiiiifi', [cmdId, path, block, slot, paramId, numericVal, flags]);
   }
 
+  async setParamValueWait(
+    path: number,
+    block: number,
+    paramId: number,
+    value: number | boolean,
+    slot = 0,
+    flags = -1,
+    valueType: 'i' | 'f' | 'b' = 'f',
+    timeoutMs = 2500
+  ) {
+    const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
+    if (valueType === 'i' || valueType === 'b') {
+      return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiiii', [path, block, slot, paramId, Math.round(numericVal), flags], timeoutMs);
+    }
+    return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiifi', [path, block, slot, paramId, numericVal, flags], timeoutMs);
+  }
+
   doAgenda(commands: Array<any>) {
     const cmdId = this.nextCmdId();
     const blob = Buffer.from(encodeMsgpack(commands));
@@ -317,11 +361,11 @@ export class HelixClient {
   }
 
   async setSplitDestination(flow: number, position: number, linkedFlow: number, linkedPosition: number) {
-    return await this.request('/SplitDestinationSet', 'iiii', [flow, position, linkedFlow, linkedPosition], '/status', 2500);
+    return await this.sendAndWaitStatusCode('/SplitDestinationSet', 'iiii', [flow, position, linkedFlow, linkedPosition], 2500);
   }
 
   async setJoinOrigin(flow: number, position: number, linkedFlow: number, linkedPosition: number) {
-    return await this.request('/JoinOriginSet', 'iiii', [flow, position, linkedFlow, linkedPosition], '/status', 2500);
+    return await this.sendAndWaitStatusCode('/JoinOriginSet', 'iiii', [flow, position, linkedFlow, linkedPosition], 2500);
   }
 
   async clearBlocks(flow: number, positions: number[]) {
@@ -585,9 +629,9 @@ export class HelixClient {
       if (occupiedTargetPositions.length) {
         await this.clearBlocks(targetPath, occupiedTargetPositions);
       }
-      clipboard.entries.forEach((entry) => {
-        this.setModel(targetPath, entry.position, entry.modelId, 0);
-      });
+      for (const entry of clipboard.entries) {
+        await this.setModelWait(targetPath, entry.position, entry.modelId, 0);
+      }
       for (const entry of clipboard.entries) {
         if (typeof entry.linkFlow !== 'number' || typeof entry.linkPosition !== 'number') continue;
         const mappedLinkFlow = entry.linkFlow === clipboard.sourcePath ? targetPath : entry.linkFlow;
@@ -597,14 +641,14 @@ export class HelixClient {
           await this.setJoinOrigin(targetPath, entry.position, mappedLinkFlow, entry.linkPosition);
         }
       }
-      clipboard.entries.forEach((entry) => {
-        this.setBlockEnable(targetPath, entry.position, entry.enabled);
-        entry.params.forEach((param) => {
+      for (const entry of clipboard.entries) {
+        await this.setBlockEnableWait(targetPath, entry.position, entry.enabled);
+        for (const param of entry.params) {
           const valueType: 'i' | 'f' | 'b' =
             typeof param.value === 'boolean' ? 'b' : Number.isInteger(param.value) ? 'i' : 'f';
-          this.setParamValue(targetPath, entry.position, param.paramId, param.value, 0, -1, valueType);
-        });
-      });
+          await this.setParamValueWait(targetPath, entry.position, param.paramId, param.value, 0, -1, valueType);
+        }
+      }
     } finally {
       if (autoCab) {
         this.setAutoCab(true);
@@ -657,6 +701,10 @@ const decodeOsc = (msg: Buffer | Uint8Array, keepBlob = false) => {
       const blob = Buffer.from(buf.subarray(idx, idx + len));
       vals.push(keepBlob ? blob : `<blob:${len}>`);
       idx = align4(idx + len);
+    } else if (ch === 'T') {
+      vals.push(true);
+    } else if (ch === 'F') {
+      vals.push(false);
     } else {
       vals.push(null);
       idx += 4;

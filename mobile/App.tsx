@@ -907,7 +907,7 @@ export default function App() {
     setStatus('Notes sent');
   };
 
-  const insertModel = (modelId: number, name: string, kind: string, usage = 0) => {
+  const insertModel = async (modelId: number, name: string, kind: string, usage = 0) => {
     const client = requireClient();
     if (!client) return;
     const p = targetSlot.path as PathIndex;
@@ -919,7 +919,13 @@ export default function App() {
       return;
     }
     const flow = rowToFlow(p);
-    client.setModel(flow, blockId, modelId, 0);
+    try {
+      await client.setModelWait(flow, blockId, modelId, 0);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Insert failed: ${message}`);
+      return;
+    }
     setStatus(`Inserted ${name} into ${rowLabels[p]}-${b + 1}`);
     setGrid((prev) => {
       const next = cloneGrid(prev);
@@ -1060,7 +1066,7 @@ export default function App() {
         const newBlock = visible[i];
         if (newBlock) {
           const pos = effectBlockIndex(pIdx, i);
-          client.setModel(flow, pos, newBlock.id, 0);
+          await client.setModelWait(flow, pos, newBlock.id, 0);
         }
       }
       for (let i = minIdx; i <= maxIdx; i++) {
@@ -1068,7 +1074,7 @@ export default function App() {
         if (!newBlock) continue;
         const pos = effectBlockIndex(pIdx, i);
         if (newBlock.enabled !== undefined) {
-          client.setBlockEnable(flow, pos, newBlock.enabled);
+          await client.setBlockEnableWait(flow, pos, newBlock.enabled);
         }
         if (newBlock.params) {
           for (const [key, value] of Object.entries(newBlock.params)) {
@@ -1076,7 +1082,7 @@ export default function App() {
             if (isNaN(paramId)) continue;
             const vt: 'i' | 'f' | 'b' =
               typeof value === 'boolean' ? 'b' : Number.isInteger(value as number) ? 'i' : 'f';
-            client.setParamValue(flow, pos, paramId, value, 0, -1, vt);
+            await client.setParamValueWait(flow, pos, paramId, value, 0, -1, vt);
           }
         }
       }
@@ -1088,13 +1094,19 @@ export default function App() {
     scheduleSync(800);
   };
 
-  const setIOModel = (model: IOModel) => {
+  const setIOModel = async (model: IOModel) => {
     const client = requireClient();
     if (!client) return;
     const row = ioPickerRow;
     const blockId = ioBlockIndex(row, ioPickerType);
     const flow = rowToFlow(row);
-    client.setModel(flow, blockId, model.id, 0);
+    try {
+      await client.setModelWait(flow, blockId, model.id, 0);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Set ${ioPickerType} failed: ${message}`);
+      return;
+    }
     const nextParams: Record<string, number | boolean> = {};
     model.params.forEach((param) => {
       if (typeof param.def === 'number' || typeof param.def === 'boolean') {
@@ -1121,7 +1133,7 @@ export default function App() {
     scheduleSync(500);
   };
 
-  const updateIOParam = (param: IOModelParam, value: number | boolean) => {
+  const updateIOParam = async (param: IOModelParam, value: number | boolean) => {
     const client = requireClient();
     if (!client) return;
     const row = ioPickerRow;
@@ -1129,10 +1141,16 @@ export default function App() {
     const blockId = ioBlockIndex(row, ioPickerType);
     const nextValue = clampParamValue(param, value);
     if (nextValue === null) return;
-    if (param.faux && param.property_key) {
-      client.setProperty(param.property_key, nextValue, param.type);
-    } else if (param.id !== null) {
-      client.setParamValue(flow, blockId, param.id, nextValue, 0, -1, param.type);
+    try {
+      if (param.faux && param.property_key) {
+        client.setProperty(param.property_key, nextValue, param.type);
+      } else if (param.id !== null) {
+        await client.setParamValueWait(flow, blockId, param.id, nextValue, 0, -1, param.type);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Update failed: ${message}`);
+      return;
     }
     const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
     setIoGrid((prev) => {
@@ -1159,13 +1177,19 @@ export default function App() {
     scheduleSync(350);
   };
 
-  const updateBlockParam = (param: EditorParam, value: number | boolean) => {
+  const updateBlockParam = async (param: EditorParam, value: number | boolean) => {
     const client = requireClient();
     if (!client || !blockEditorSlot || !activeBlock || param.id === null) return;
     const nextValue = clampParamValue(param, value);
     if (nextValue === null || activeBlock.blockId === undefined) return;
     const row = blockEditorSlot.path;
-    client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+    try {
+      await client.setParamValueWait(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Update failed: ${message}`);
+      return;
+    }
     setGrid((prev) => {
       const next = cloneGrid(prev);
       const block = next[row]?.[blockEditorSlot.block];
@@ -2007,6 +2031,7 @@ export default function App() {
                       value={current}
                       min={0}
                       max={1}
+                      options={labels}
                       type="b"
                       accentColor={blockColor ?? COLORS.accent}
                       onChange={(val) => onChange(param, val)}

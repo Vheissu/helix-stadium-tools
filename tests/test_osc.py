@@ -60,6 +60,15 @@ class TestOsc(unittest.TestCase):
         _addr, _tt, vals = decoded
         self.assertEqual(vals[0], ("?", "x"))
 
+    def test_decode_osc_boolean_true_false_typetags(self):
+        addr = pad4(b"/Bool\x00")
+        tags = pad4(b",TF\x00")
+        msg = addr + tags
+        decoded = decode_osc(msg)
+        self.assertIsNotNone(decoded)
+        _addr, _tt, vals = decoded
+        self.assertEqual(vals, [True, False])
+
     def test_decode_osc_incomplete_int_payload(self):
         addr = pad4(b"/Foo\x00")
         tags = pad4(b",i\x00")

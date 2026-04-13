@@ -147,8 +147,9 @@ export const ParamKnob: React.FC<ParamKnobProps> = React.memo(({
   ).current;
 
   // ── Boolean toggle ─────────────────────────────────────────────
-  if (type === 'b' && !options?.length) {
+  if (type === 'b' && (!options || options.length <= 2)) {
     const isOn = typeof value === 'boolean' ? value : Number(value) > 0;
+    const labels = options && options.length === 2 ? options : ['Off', 'On'];
     const angle = isOn ? END_ANGLE : START_ANGLE;
     const inner = polarToCartesian(CENTER, CENTER, 8, angle);
     const outer = polarToCartesian(CENTER, CENTER, RADIUS - 6, angle);
@@ -168,7 +169,7 @@ export const ParamKnob: React.FC<ParamKnobProps> = React.memo(({
           </Svg>
         </View>
         <Text style={styles.label} numberOfLines={1}>{label}</Text>
-        <Text style={[styles.value, isOn && { color: accentColor }]}>{isOn ? 'On' : 'Off'}</Text>
+        <Text style={[styles.value, isOn && { color: accentColor }]}>{isOn ? labels[1] : labels[0]}</Text>
       </Pressable>
     );
   }

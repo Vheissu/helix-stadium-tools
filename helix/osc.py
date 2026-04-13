@@ -89,6 +89,10 @@ def decode_osc(msg: bytes):
             vals.append(msg[idx:idx+blen])
             idx += blen
             idx += (4 - (idx % 4)) % 4
+        elif ch == "T":
+            vals.append(True)
+        elif ch == "F":
+            vals.append(False)
         else:
             vals.append(("?", ch))
             idx += 4

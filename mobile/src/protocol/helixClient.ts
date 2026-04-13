@@ -325,8 +325,12 @@ export class HelixClient {
     valueType: 'i' | 'f' | 'b' = 'f'
   ) {
     const cmdId = this.nextCmdId();
+    if (valueType === 'b') {
+      this.sendOsc('/ParamValueSet', value ? 'iiiiiTi' : 'iiiiiFi', [cmdId, path, block, slot, paramId, value, flags]);
+      return;
+    }
     const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
-    if (valueType === 'i' || valueType === 'b') {
+    if (valueType === 'i') {
       this.sendOsc('/ParamValueSet', 'iiiiiii', [cmdId, path, block, slot, paramId, Math.round(numericVal), flags]);
       return;
     }
@@ -343,8 +347,11 @@ export class HelixClient {
     valueType: 'i' | 'f' | 'b' = 'f',
     timeoutMs = 2500
   ) {
+    if (valueType === 'b') {
+      return await this.sendAndWaitStatusCode('/ParamValueSet', value ? 'iiiiiTi' : 'iiiiiFi', [path, block, slot, paramId, value, flags], timeoutMs);
+    }
     const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
-    if (valueType === 'i' || valueType === 'b') {
+    if (valueType === 'i') {
       return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiiii', [path, block, slot, paramId, Math.round(numericVal), flags], timeoutMs);
     }
     return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiifi', [path, block, slot, paramId, numericVal, flags], timeoutMs);

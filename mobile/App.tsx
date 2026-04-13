@@ -239,7 +239,7 @@ export default function App() {
   const [ioPickerType, setIoPickerType] = useState<IOType>('input');
   const [ioPickerQuery, setIoPickerQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabKey>('flow');
-  const [screen, setScreen] = useState<'main' | 'editor'>('main');
+  const [screen, setScreen] = useState<'main' | 'editor' | 'performance'>('main');
   const [libraryRoot, setLibraryRoot] = useState<PresetLibraryRoot>('setlists');
   const [setlists, setSetlists] = useState<HelixContentRef[]>([]);
   const [selectedContainerId, setSelectedContainerId] = useState<number | null>(null);
@@ -267,6 +267,12 @@ export default function App() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
   const [flowScrollEnabled, setFlowScrollEnabled] = useState(true);
+  const [liveTempoBpm, setLiveTempoBpm] = useState<number | null>(null);
+  const [globalTempoBpm, setGlobalTempoBpm] = useState<number | null>(null);
+  const [tempoFollow, setTempoFollow] = useState<boolean | null>(null);
+  const [tunerReferencePitch, setTunerReferencePitch] = useState<number | null>(null);
+  const [tunerAlwaysOnPlayView, setTunerAlwaysOnPlayView] = useState<boolean | null>(null);
+  const [tunerTrails, setTunerTrails] = useState<boolean | null>(null);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -432,6 +438,34 @@ export default function App() {
     if (typeof activePresetRef?.rcid === 'number' && activePresetRef.rcid === itemId) return true;
     return false;
   };
+  const activePresetIndexInList = useMemo(
+    () => presetItems.findIndex((item) => isPresetActive(item)),
+    [activePresetContentId, activePresetRef, presetItems]
+  );
+  const performancePresetWindow = useMemo(() => {
+    const windowSize = 8;
+    if (!presetItems.length) return [];
+    if (activePresetIndexInList < 0) return presetItems.slice(0, windowSize);
+    let start = Math.max(0, activePresetIndexInList - 3);
+    let end = Math.min(presetItems.length, start + windowSize);
+    start = Math.max(0, end - windowSize);
+    return presetItems.slice(start, end);
+  }, [activePresetIndexInList, presetItems]);
+  const coerceNumber = (value: unknown): number | null => {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'boolean') return value ? 1 : 0;
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  };
+  const coerceBool = (value: unknown): boolean | null => {
+    if (typeof value === 'boolean') return value;
+    const numeric = coerceNumber(value);
+    if (numeric === null) return null;
+    return numeric !== 0;
+  };
 
   const connect = async () => {
     if (connecting || connected) return;
@@ -482,6 +516,12 @@ export default function App() {
     setSnapshotCopySource(null);
     setSnapshotCopyTarget(null);
     setPathClipboard(null);
+    setLiveTempoBpm(null);
+    setGlobalTempoBpm(null);
+    setTempoFollow(null);
+    setTunerReferencePitch(null);
+    setTunerAlwaysOnPlayView(null);
+    setTunerTrails(null);
   };
 
   useEffect(() => {
@@ -544,6 +584,45 @@ export default function App() {
     return clientRef.current;
   };
 
+  const refreshTransportContext = async (clientArg?: HelixClient | null) => {
+    const client = clientArg ?? requireClient();
+    if (!client) return;
+    try {
+      const [
+        liveTempoProp,
+        presetTempoProp,
+        globalTempoProp,
+        tempoFollowProp,
+        tunerReferenceProp,
+        tunerAlwaysOnProp,
+        tunerTrailsProp,
+      ] = await Promise.all([
+        client.getProperty('volatile.tempo.bpm').catch(() => null),
+        client.getProperty('preset.tempo.bpm').catch(() => null),
+        client.getProperty('global.tempo.bpm').catch(() => null),
+        client.getProperty('global.tempo.follow').catch(() => null),
+        client.getProperty('global.tuner.reference.pitch').catch(() => null),
+        client.getProperty('global.tuner.alwaysonplayview').catch(() => null),
+        client.getProperty('global.tuner.trails').catch(() => null),
+      ]);
+
+      const nextGlobalTempo = coerceNumber(globalTempoProp?.value);
+      const nextLiveTempo =
+        coerceNumber(liveTempoProp?.value) ??
+        coerceNumber(presetTempoProp?.value) ??
+        nextGlobalTempo;
+
+      setLiveTempoBpm(nextLiveTempo);
+      setGlobalTempoBpm(nextGlobalTempo);
+      setTempoFollow(coerceBool(tempoFollowProp?.value));
+      setTunerReferencePitch(coerceNumber(tunerReferenceProp?.value));
+      setTunerAlwaysOnPlayView(coerceBool(tunerAlwaysOnProp?.value));
+      setTunerTrails(coerceBool(tunerTrailsProp?.value));
+    } catch (_err) {
+      // Leave the last known transport state in place if a property fetch fails.
+    }
+  };
+
   const loadPresetContainer = async (containerId: number, label: string) => {
     const client = requireClient();
     if (!client) return;
@@ -584,6 +663,7 @@ export default function App() {
       setActiveSnapshotIndex(snapshotIndex);
       setSnapshots(nextSnapshots);
       setPresetEdited(edited);
+      await refreshTransportContext(client);
 
       if (libraryRoot === 'factory') {
         await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets');
@@ -673,6 +753,74 @@ export default function App() {
     }
     setStatus(`Loading ${item.name ?? 'preset'}...`);
     scheduleSync(900);
+  };
+
+  const handlePerformancePresetStep = (delta: -1 | 1) => {
+    if (activePresetIndexInList < 0) {
+      setStatus('No active preset in this container');
+      return;
+    }
+    const nextItem = presetItems[activePresetIndexInList + delta];
+    if (!nextItem) return;
+    void handlePresetLoad(nextItem);
+  };
+
+  const handleTempoAdjust = (delta: number) => {
+    const client = requireClient();
+    if (!client) return;
+    const base = globalTempoBpm ?? liveTempoBpm ?? 120;
+    const next = Math.max(20, Math.min(300, Math.round(base + delta)));
+    setGlobalTempoBpm(next);
+    setLiveTempoBpm(next);
+    client.setProperty('global.tempo.bpm', next, 'i');
+    setStatus(`Set tempo to ${next} BPM`);
+    scheduleSync(500);
+  };
+
+  const handleTempoFollowToggle = (value: boolean) => {
+    const client = requireClient();
+    if (!client) return;
+    setTempoFollow(value);
+    client.setProperty('global.tempo.follow', value ? 1 : 0, 'i');
+    setStatus(value ? 'Tempo follow enabled' : 'Tempo follow disabled');
+    scheduleSync(500);
+  };
+
+  const handleTapTempo = () => {
+    const client = requireClient();
+    if (!client) return;
+    client.setProperty('volatile.press.taptempo', 1, 'i');
+    setStatus('Tap tempo sent');
+    scheduleSync(700);
+  };
+
+  const handleTunerReferenceAdjust = (delta: number) => {
+    const client = requireClient();
+    if (!client) return;
+    const base = tunerReferencePitch ?? 440;
+    const next = Math.max(400, Math.min(480, Math.round(base + delta)));
+    setTunerReferencePitch(next);
+    client.setProperty('global.tuner.reference.pitch', next, 'i');
+    setStatus(`Set tuner reference to ${next} Hz`);
+    scheduleSync(500);
+  };
+
+  const handleTunerAlwaysOnPlayViewToggle = (value: boolean) => {
+    const client = requireClient();
+    if (!client) return;
+    setTunerAlwaysOnPlayView(value);
+    client.setProperty('global.tuner.alwaysonplayview', value ? 1 : 0, 'i');
+    setStatus(value ? 'Always-on tuner enabled for play view' : 'Always-on tuner disabled for play view');
+    scheduleSync(500);
+  };
+
+  const handleTunerTrailsToggle = (value: boolean) => {
+    const client = requireClient();
+    if (!client) return;
+    setTunerTrails(value);
+    client.setProperty('global.tuner.trails', value ? 1 : 0, 'i');
+    setStatus(value ? 'Tuner trails enabled' : 'Tuner trails disabled');
+    scheduleSync(500);
   };
 
   const handleSavePreset = () => {
@@ -1133,7 +1281,7 @@ export default function App() {
     scheduleSync(500);
   };
 
-  const updateIOParam = async (param: IOModelParam, value: number | boolean) => {
+  const updateIOParam = (param: IOModelParam, value: number | boolean) => {
     const client = requireClient();
     if (!client) return;
     const row = ioPickerRow;
@@ -1141,17 +1289,6 @@ export default function App() {
     const blockId = ioBlockIndex(row, ioPickerType);
     const nextValue = clampParamValue(param, value);
     if (nextValue === null) return;
-    try {
-      if (param.faux && param.property_key) {
-        client.setProperty(param.property_key, nextValue, param.type);
-      } else if (param.id !== null) {
-        await client.setParamValueWait(flow, blockId, param.id, nextValue, 0, -1, param.type);
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Update failed: ${message}`);
-      return;
-    }
     const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
     setIoGrid((prev) => {
       const next = prev.map((item) => ({
@@ -1173,23 +1310,27 @@ export default function App() {
       }
       return next;
     });
-    setStatus(`Updated ${rowLabels[row]} ${ioPickerType} ${param.name}`);
+    try {
+      if (param.faux && param.property_key) {
+        client.setProperty(param.property_key, nextValue, param.type);
+      } else if (param.id !== null) {
+        client.setParamValue(flow, blockId, param.id, nextValue, 0, -1, param.type);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Update failed: ${message}`);
+      scheduleSync(150);
+      return;
+    }
     scheduleSync(350);
   };
 
-  const updateBlockParam = async (param: EditorParam, value: number | boolean) => {
+  const updateBlockParam = (param: EditorParam, value: number | boolean) => {
     const client = requireClient();
     if (!client || !blockEditorSlot || !activeBlock || param.id === null) return;
     const nextValue = clampParamValue(param, value);
     if (nextValue === null || activeBlock.blockId === undefined) return;
     const row = blockEditorSlot.path;
-    try {
-      await client.setParamValueWait(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Update failed: ${message}`);
-      return;
-    }
     setGrid((prev) => {
       const next = cloneGrid(prev);
       const block = next[row]?.[blockEditorSlot.block];
@@ -1201,7 +1342,14 @@ export default function App() {
       }
       return next;
     });
-    setStatus(`Updated ${rowLabels[row]}-${blockEditorSlot.block + 1} ${param.name}`);
+    try {
+      client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Update failed: ${message}`);
+      scheduleSync(150);
+      return;
+    }
     scheduleSync(350);
   };
 
@@ -1956,8 +2104,479 @@ export default function App() {
           <Text style={styles.statusText}>{status}</Text>
         </View>
       </Section>
+
+      <Section title="Tempo">
+        <View style={styles.transportHeroCard}>
+          <Text style={styles.transportHeroValue}>
+            {liveTempoBpm ?? globalTempoBpm ?? '\u2014'}
+            <Text style={styles.transportHeroUnit}> BPM</Text>
+          </Text>
+          <Text style={styles.transportHeroMeta}>
+            {tempoFollow
+              ? 'Following incoming tempo.'
+              : 'Manual tempo control from the mobile app.'}
+          </Text>
+        </View>
+        <View style={styles.transportAdjustRow}>
+          {[
+            { key: 'dev-tempo--5', label: '-5', onPress: () => handleTempoAdjust(-5) },
+            { key: 'dev-tempo--1', label: '-1', onPress: () => handleTempoAdjust(-1) },
+            { key: 'dev-tempo-tap', label: 'Tap Tempo', onPress: handleTapTempo, accent: true },
+            { key: 'dev-tempo-+1', label: '+1', onPress: () => handleTempoAdjust(1) },
+            { key: 'dev-tempo-+5', label: '+5', onPress: () => handleTempoAdjust(5) },
+          ].map((action) => (
+            <Pressable
+              key={action.key}
+              style={[
+                styles.transportAdjustButton,
+                action.accent && styles.transportAdjustButtonAccent,
+              ]}
+              onPress={action.onPress}
+            >
+              <Text
+                style={[
+                  styles.transportAdjustButtonText,
+                  action.accent && styles.transportAdjustButtonTextAccent,
+                ]}
+              >
+                {action.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Follow External Tempo</Text>
+            <Text style={styles.labelHint}>Use the device tempo source instead of setting BPM directly.</Text>
+          </View>
+          <Switch
+            value={Boolean(tempoFollow)}
+            onValueChange={handleTempoFollowToggle}
+          />
+        </View>
+      </Section>
+
+      <Section title="Tuner">
+        <View style={styles.transportHeroCard}>
+          <Text style={styles.transportHeroValue}>
+            {tunerReferencePitch ?? 440}
+            <Text style={styles.transportHeroUnit}> Hz</Text>
+          </Text>
+          <Text style={styles.transportHeroMeta}>
+            Reference pitch plus always-on and trails behavior.
+          </Text>
+        </View>
+        <View style={styles.transportAdjustRow}>
+          <Pressable style={styles.transportAdjustButton} onPress={() => handleTunerReferenceAdjust(-1)}>
+            <Text style={styles.transportAdjustButtonText}>-1 Hz</Text>
+          </Pressable>
+          <Pressable style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]} onPress={() => handleTunerReferenceAdjust(1)}>
+            <Text style={[styles.transportAdjustButtonText, styles.transportAdjustButtonTextAccent]}>+1 Hz</Text>
+          </Pressable>
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Always On In Play View</Text>
+            <Text style={styles.labelHint}>Keep tuner availability ready from the play screen.</Text>
+          </View>
+          <Switch
+            value={Boolean(tunerAlwaysOnPlayView)}
+            onValueChange={handleTunerAlwaysOnPlayViewToggle}
+          />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Tuner Trails</Text>
+            <Text style={styles.labelHint}>Let the tuner transition keep natural decay when supported.</Text>
+          </View>
+          <Switch
+            value={Boolean(tunerTrails)}
+            onValueChange={handleTunerTrailsToggle}
+          />
+        </View>
+      </Section>
     </ScrollView>
   );
+
+  const renderPerformanceMode = () => {
+    const displayedTempo = liveTempoBpm ?? globalTempoBpm;
+    const snapshotSummary =
+      activeSnapshotIndex !== null
+        ? `${activeSnapshotIndex + 1}. ${activeSnapshot?.name ?? `Snapshot ${activeSnapshotIndex + 1}`}`
+        : 'No snapshot active';
+    const canStepBackward = activePresetIndexInList > 0;
+    const canStepForward = activePresetIndexInList >= 0 && activePresetIndexInList < presetItems.length - 1;
+    const quickActions = [
+      {
+        key: 'prev',
+        label: 'Previous Preset',
+        meta: canStepBackward ? 'Step backward in the current container' : 'Start of container',
+        active: false,
+        disabled: !canStepBackward,
+        onPress: () => handlePerformancePresetStep(-1),
+      },
+      {
+        key: 'next',
+        label: 'Next Preset',
+        meta: canStepForward ? 'Step forward in the current container' : 'End of container',
+        active: false,
+        disabled: !canStepForward,
+        onPress: () => handlePerformancePresetStep(1),
+      },
+      {
+        key: 'notes',
+        label: notesVisible ? 'Hide Notes' : 'Show Notes',
+        meta: notesVisible ? 'Preset notes are visible on device' : 'Preset notes are hidden on device',
+        active: notesVisible,
+        disabled: false,
+        onPress: () => handleNotesToggle(!notesVisible),
+      },
+      {
+        key: 'sync',
+        label: presetEdited ? 'Save Preset' : 'Sync Device',
+        meta: presetEdited ? 'Commit current preset changes' : 'Refresh preset and snapshot state',
+        active: presetEdited === true,
+        disabled: presetEdited ? activePresetStorageId === null : false,
+        onPress: () => {
+          if (presetEdited) {
+            handleSavePreset();
+            return;
+          }
+          void handleFullSync();
+        },
+      },
+    ];
+
+    return (
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.performanceSafe} edges={['top', 'left', 'right', 'bottom']}>
+          <View style={styles.performanceBackdrop}>
+            <View style={styles.performanceGlowA} />
+            <View style={styles.performanceGlowB} />
+          </View>
+
+          <View style={styles.performanceHeader}>
+            <View style={styles.performanceHeaderCopy}>
+              <Text style={styles.performanceEyebrow}>Performance Mode</Text>
+              <Text style={styles.performanceHost}>{host}</Text>
+            </View>
+            <Pressable style={styles.performanceExitButton} onPress={() => setScreen('main')}>
+              <Text style={styles.performanceExitText}>Exit</Text>
+            </Pressable>
+          </View>
+
+          <ScrollView
+            style={styles.tabContent}
+            contentContainerStyle={styles.performanceContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.performanceHero}>
+              <View style={styles.performanceHeroAccent} />
+              <Text style={styles.performanceHeroKicker}>
+                {activeSetlist?.name ?? selectedContainerName}
+              </Text>
+              <Text style={styles.performanceHeroTitle} numberOfLines={2}>
+                {activePresetName}
+              </Text>
+              <Text style={styles.performanceHeroMeta} numberOfLines={2}>
+                {typeof activePresetRef?.posi === 'number' ? `Slot ${activePresetRef.posi + 1}` : 'Live Preset'} {'\u00b7'} {snapshotSummary}
+              </Text>
+              <View style={styles.performanceHeroStatus}>
+                <View
+                  style={[
+                    styles.performanceHeroStatusDot,
+                    { backgroundColor: notesVisible ? COLORS.accent : COLORS.muted },
+                  ]}
+                />
+                <Text style={styles.performanceHeroStatusText}>
+                  {notesVisible ? 'Preset notes visible on device' : 'Preset notes hidden on device'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.performanceSection}>
+              <View style={styles.performanceSectionHeader}>
+                <Text style={styles.performanceSectionTitle}>Quick Actions</Text>
+                <Text style={styles.performanceSectionMeta}>
+                  {presetEdited ? 'Unsaved changes' : status}
+                </Text>
+              </View>
+              <View style={styles.performanceActionGrid}>
+                {quickActions.map((action) => (
+                  <Pressable
+                    key={action.key}
+                    style={[
+                      styles.performanceActionCard,
+                      action.active && styles.performanceActionCardActive,
+                      action.disabled && styles.performanceActionCardDisabled,
+                    ]}
+                    disabled={action.disabled}
+                    onPress={action.onPress}
+                  >
+                    <Text
+                      style={[
+                        styles.performanceActionLabel,
+                        action.active && styles.performanceActionLabelActive,
+                      ]}
+                    >
+                      {action.label}
+                    </Text>
+                    <Text style={styles.performanceActionMeta}>{action.meta}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.performanceSection}>
+              <View style={styles.performanceSectionHeader}>
+                <Text style={styles.performanceSectionTitle}>Tempo</Text>
+                <Text style={styles.performanceSectionMeta}>
+                  {tempoFollow ? 'Follow on' : 'Manual'}
+                </Text>
+              </View>
+              <View style={styles.performanceTempoCard}>
+                <Text style={styles.performanceTempoValue}>
+                  {displayedTempo !== null ? `${displayedTempo}` : '\u2014'}
+                </Text>
+                <Text style={styles.performanceTempoUnit}>BPM</Text>
+                <Text style={styles.performanceTempoMeta}>
+                  {tempoFollow
+                    ? 'Device is following incoming tempo.'
+                    : 'Use tap tempo or direct BPM nudges here.'}
+                </Text>
+              </View>
+              <View style={styles.performanceChipRow}>
+                {[
+                  { key: 'tempo--5', label: '-5', onPress: () => handleTempoAdjust(-5) },
+                  { key: 'tempo--1', label: '-1', onPress: () => handleTempoAdjust(-1) },
+                  { key: 'tempo-tap', label: 'Tap', onPress: handleTapTempo, accent: true },
+                  { key: 'tempo-+1', label: '+1', onPress: () => handleTempoAdjust(1) },
+                  { key: 'tempo-+5', label: '+5', onPress: () => handleTempoAdjust(5) },
+                ].map((action) => (
+                  <Pressable
+                    key={action.key}
+                    style={[
+                      styles.performanceChip,
+                      action.accent && styles.performanceChipAccent,
+                    ]}
+                    onPress={action.onPress}
+                  >
+                    <Text
+                      style={[
+                        styles.performanceChipText,
+                        action.accent && styles.performanceChipTextAccent,
+                      ]}
+                    >
+                      {action.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.performanceInlineToggleRow}>
+                <Text style={styles.performanceInlineLabel}>Follow External Tempo</Text>
+                <View style={styles.performanceInlineActions}>
+                  {[
+                    { label: 'Off', value: false },
+                    { label: 'On', value: true },
+                  ].map((option) => {
+                    const active = tempoFollow === option.value;
+                    return (
+                      <Pressable
+                        key={`tempo-follow-${option.label}`}
+                        style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
+                        onPress={() => handleTempoFollowToggle(option.value)}
+                      >
+                        <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
+                          {option.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.performanceSection}>
+              <View style={styles.performanceSectionHeader}>
+                <Text style={styles.performanceSectionTitle}>Tuner</Text>
+                <Text style={styles.performanceSectionMeta}>
+                  {tunerReferencePitch !== null ? `${tunerReferencePitch} Hz` : 'Settings'}
+                </Text>
+              </View>
+              <View style={styles.performanceInlineToggleRow}>
+                <Text style={styles.performanceInlineLabel}>Reference Pitch</Text>
+                <View style={styles.performanceInlineActions}>
+                  {[
+                    { key: 'tuner-ref--1', label: '-1', onPress: () => handleTunerReferenceAdjust(-1) },
+                    { key: 'tuner-ref-value', label: `${tunerReferencePitch ?? 440} Hz`, onPress: () => {} },
+                    { key: 'tuner-ref-+1', label: '+1', onPress: () => handleTunerReferenceAdjust(1) },
+                  ].map((action, index) => (
+                    <Pressable
+                      key={action.key}
+                      style={[
+                        styles.performanceInlinePill,
+                        index === 1 && styles.performanceInlinePillStatic,
+                      ]}
+                      onPress={action.onPress}
+                      disabled={index === 1}
+                    >
+                      <Text
+                        style={[
+                          styles.performanceInlinePillText,
+                          index === 1 && styles.performanceInlinePillTextActive,
+                        ]}
+                      >
+                        {action.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+              {[
+                {
+                  key: 'tuner-playview',
+                  label: 'Always On In Play View',
+                  value: tunerAlwaysOnPlayView,
+                  onChange: handleTunerAlwaysOnPlayViewToggle,
+                },
+                {
+                  key: 'tuner-trails',
+                  label: 'Tuner Trails',
+                  value: tunerTrails,
+                  onChange: handleTunerTrailsToggle,
+                },
+              ].map((item) => (
+                <View key={item.key} style={styles.performanceInlineToggleRow}>
+                  <Text style={styles.performanceInlineLabel}>{item.label}</Text>
+                  <View style={styles.performanceInlineActions}>
+                    {[
+                      { label: 'Off', value: false },
+                      { label: 'On', value: true },
+                    ].map((option) => {
+                      const active = item.value === option.value;
+                      return (
+                        <Pressable
+                          key={`${item.key}-${option.label}`}
+                          style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
+                          onPress={() => item.onChange(option.value)}
+                        >
+                          <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
+                            {option.label}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.performanceSection}>
+              <View style={styles.performanceSectionHeader}>
+                <Text style={styles.performanceSectionTitle}>Snapshots</Text>
+                <Text style={styles.performanceSectionMeta}>
+                  {snapshotCount > 0 ? `${snapshotCount} ready` : 'None loaded'}
+                </Text>
+              </View>
+              {snapshotCount > 0 ? (
+                <View style={styles.performanceSnapshotGrid}>
+                  {Array.from({ length: snapshotCount }, (_item, index) => {
+                    const snapshot = snapshots.find((item) => item.index === index) ?? null;
+                    const active = activeSnapshotIndex === index;
+                    const swatch =
+                      SNAPSHOT_COLOR_OPTIONS.find((option) => option.value === snapshot?.colr)?.swatch ?? COLORS.stroke;
+                    return (
+                      <Pressable
+                        key={`performance-snapshot-${index}`}
+                        style={[
+                          styles.performanceSnapshotCard,
+                          active && styles.performanceSnapshotCardActive,
+                        ]}
+                        onPress={() => handleSnapshotActivate(index)}
+                      >
+                        <View style={[styles.performanceSnapshotSwatch, { backgroundColor: swatch }]} />
+                        <Text
+                          style={[
+                            styles.performanceSnapshotIndex,
+                            active && styles.performanceSnapshotIndexActive,
+                          ]}
+                        >
+                          {index + 1}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.performanceSnapshotName,
+                            active && styles.performanceSnapshotNameActive,
+                          ]}
+                          numberOfLines={2}
+                        >
+                          {snapshot?.name ?? `Snapshot ${index + 1}`}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              ) : (
+                <Text style={styles.performanceEmptyText}>
+                  Sync the preset tab to load snapshot buttons for this preset.
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.performanceSection}>
+              <View style={styles.performanceSectionHeader}>
+                <Text style={styles.performanceSectionTitle}>Preset Window</Text>
+                <Text style={styles.performanceSectionMeta}>
+                  {selectedContainerName}
+                </Text>
+              </View>
+              {performancePresetWindow.length > 0 ? (
+                <View style={styles.performancePresetGrid}>
+                  {performancePresetWindow.map((item) => {
+                    const active = isPresetActive(item);
+                    return (
+                      <Pressable
+                        key={`performance-preset-${String(item.cid_ ?? item.posi ?? item.name)}`}
+                        style={[
+                          styles.performancePresetCard,
+                          active && styles.performancePresetCardActive,
+                        ]}
+                        onPress={() => {
+                          void handlePresetLoad(item);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.performancePresetSlot,
+                            active && styles.performancePresetSlotActive,
+                          ]}
+                        >
+                          {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.performancePresetName,
+                            active && styles.performancePresetNameActive,
+                          ]}
+                          numberOfLines={2}
+                        >
+                          {item.name ?? 'Preset'}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              ) : (
+                <Text style={styles.performanceEmptyText}>
+                  Load a setlist or preset container from the preset tab to populate this live grid.
+                </Text>
+              )}
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    );
+  };
 
   const renderParamFields = (
     params: EditorParam[],
@@ -2026,16 +2645,7 @@ export default function App() {
                 const labels = options && options.length === 2 ? options : ['Off', 'On'];
                 return (
                   <View key={rowKey} style={styles.toggleRow}>
-                    <ParamKnob
-                      label={param.name}
-                      value={current}
-                      min={0}
-                      max={1}
-                      options={labels}
-                      type="b"
-                      accentColor={blockColor ?? COLORS.accent}
-                      onChange={(val) => onChange(param, val)}
-                    />
+                    <Text style={styles.toggleLabel}>{param.name}</Text>
                     <View style={styles.toggleLabels}>
                       {labels.map((lbl, idx) => {
                         const val = idx > 0;
@@ -2045,6 +2655,7 @@ export default function App() {
                             key={`${rowKey}-${idx}`}
                             style={[styles.togglePill, active && styles.togglePillActive]}
                             onPress={() => onChange(param, val)}
+                            hitSlop={6}
                           >
                             <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
                               {lbl}
@@ -2078,6 +2689,7 @@ export default function App() {
                           key={`${rowKey}-${value}`}
                           style={[styles.togglePill, isActive && styles.togglePillActive]}
                           onPress={() => onChange(param, value)}
+                          hitSlop={6}
                         >
                           <Text style={[styles.togglePillText, isActive && styles.togglePillTextActive]}>
                             {optLabel}
@@ -2197,6 +2809,10 @@ export default function App() {
     return renderEditor();
   }
 
+  if (screen === 'performance') {
+    return renderPerformanceMode();
+  }
+
   /* ── Connection gate – must connect before using the app ──────── */
   if (!connected && screen !== 'editor') {
     return (
@@ -2216,10 +2832,15 @@ export default function App() {
         {/* ── App bar ──────────────────────────────────────────── */}
         <View style={styles.appBar}>
           <Text style={styles.appTitle}>Stadium</Text>
-          <Pressable style={styles.statusPill} onPress={() => setActiveTab('device')}>
-            <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.accent : COLORS.danger }]} />
-            <Text style={styles.pillText}>{connected ? host : 'Offline'}</Text>
-          </Pressable>
+          <View style={styles.appBarActions}>
+            <Pressable style={styles.performanceLaunchButton} onPress={() => setScreen('performance')}>
+              <Text style={styles.performanceLaunchText}>Perform</Text>
+            </Pressable>
+            <Pressable style={styles.statusPill} onPress={() => setActiveTab('device')}>
+              <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.accent : COLORS.danger }]} />
+              <Text style={styles.pillText}>{connected ? host : 'Offline'}</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* ── Tab content ──────────────────────────────────────── */}
@@ -2603,6 +3224,26 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   appTitle: { fontSize: 24, color: COLORS.text, fontFamily: FONT_DISPLAY, letterSpacing: 0.8 },
+  appBarActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  performanceLaunchButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    backgroundColor: COLORS.accentDim,
+    borderWidth: 1,
+    borderColor: COLORS.accentMid,
+  },
+  performanceLaunchText: {
+    color: COLORS.accent,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
   statusPill: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20,
@@ -2610,6 +3251,428 @@ const styles = StyleSheet.create({
   },
   pillDot: { width: 8, height: 8, borderRadius: 4 },
   pillText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12 },
+
+  /* ── Performance mode ─────────────────────────────────────────── */
+  performanceSafe: { flex: 1, backgroundColor: '#090b10' },
+  performanceBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  performanceGlowA: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(61,138,247,0.18)',
+    top: -70,
+    right: -40,
+  },
+  performanceGlowB: {
+    position: 'absolute',
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: 'rgba(0,230,222,0.12)',
+    bottom: 90,
+    left: -70,
+  },
+  performanceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingTop: 8,
+    paddingBottom: 10,
+  },
+  performanceHeaderCopy: {
+    gap: 4,
+  },
+  performanceEyebrow: {
+    color: COLORS.accent,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    letterSpacing: 2.2,
+    textTransform: 'uppercase',
+  },
+  performanceHost: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+  },
+  performanceExitButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: 'rgba(17,20,25,0.92)',
+  },
+  performanceExitText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  performanceContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 28,
+    gap: 16,
+  },
+  performanceHero: {
+    position: 'relative',
+    overflow: 'hidden',
+    padding: 20,
+    borderRadius: 26,
+    backgroundColor: 'rgba(17,22,29,0.96)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    gap: 10,
+  },
+  performanceHeroAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    backgroundColor: COLORS.accent,
+  },
+  performanceHeroKicker: {
+    color: COLORS.accent,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    letterSpacing: 1.8,
+    textTransform: 'uppercase',
+  },
+  performanceHeroTitle: {
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 30,
+    lineHeight: 34,
+    letterSpacing: 0.2,
+  },
+  performanceHeroMeta: {
+    color: '#c4cad5',
+    fontFamily: FONT_BODY,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  performanceHeroStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  performanceHeroStatusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  performanceHeroStatusText: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    letterSpacing: 0.3,
+  },
+  performanceSection: {
+    gap: 12,
+    padding: 16,
+    borderRadius: 22,
+    backgroundColor: 'rgba(14,18,24,0.94)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  performanceSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
+  performanceSectionTitle: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 18,
+    letterSpacing: 0.2,
+  },
+  performanceSectionMeta: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  performanceActionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  performanceActionCard: {
+    width: '48%',
+    minHeight: 110,
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+    justifyContent: 'space-between',
+  },
+  performanceActionCardActive: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  performanceActionCardDisabled: {
+    opacity: 0.45,
+  },
+  performanceActionLabel: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  performanceActionLabelActive: {
+    color: COLORS.accent,
+  },
+  performanceActionMeta: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  performanceTempoCard: {
+    gap: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  performanceTempoValue: {
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 36,
+    letterSpacing: 0.4,
+  },
+  performanceTempoUnit: {
+    color: COLORS.accent,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
+  },
+  performanceTempoMeta: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    lineHeight: 16,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  performanceChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  performanceChip: {
+    minWidth: 58,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+    alignItems: 'center',
+  },
+  performanceChipAccent: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  performanceChipText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+  },
+  performanceChipTextAccent: {
+    color: COLORS.accent,
+  },
+  performanceInlineToggleRow: {
+    gap: 10,
+  },
+  performanceInlineLabel: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+  },
+  performanceInlineActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  performanceInlinePill: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  performanceInlinePillActive: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  performanceInlinePillStatic: {
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  performanceInlinePillText: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 12,
+  },
+  performanceInlinePillTextActive: {
+    color: COLORS.accent,
+  },
+  performanceSnapshotGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  performanceSnapshotCard: {
+    width: '23%',
+    minHeight: 112,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+    alignItems: 'center',
+    gap: 8,
+  },
+  performanceSnapshotCardActive: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  performanceSnapshotSwatch: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  performanceSnapshotIndex: {
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 18,
+  },
+  performanceSnapshotIndexActive: {
+    color: COLORS.accent,
+  },
+  performanceSnapshotName: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 11,
+    lineHeight: 15,
+    textAlign: 'center',
+  },
+  performanceSnapshotNameActive: {
+    color: COLORS.text,
+  },
+  performancePresetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  performancePresetCard: {
+    width: '48%',
+    minHeight: 96,
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+    gap: 8,
+  },
+  performancePresetCardActive: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  performancePresetSlot: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  performancePresetSlotActive: {
+    color: COLORS.accent,
+  },
+  performancePresetName: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  performancePresetNameActive: {
+    color: COLORS.accent,
+  },
+  performanceEmptyText: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  transportHeroCard: {
+    gap: 6,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  transportHeroValue: {
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 26,
+    letterSpacing: 0.2,
+  },
+  transportHeroUnit: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 13,
+  },
+  transportHeroMeta: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  transportAdjustRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  transportAdjustButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  transportAdjustButtonAccent: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  transportAdjustButtonText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+  },
+  transportAdjustButtonTextAccent: {
+    color: COLORS.accent,
+  },
 
   /* ── Flow tab ──────────────────────────────────────────────────── */
   tabContent: { flex: 1 },

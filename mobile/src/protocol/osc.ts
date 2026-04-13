@@ -37,6 +37,8 @@ export const buildOsc = (address: string, typetags: string, args: Array<any>) =>
       const len = Buffer.alloc(4);
       len.writeUInt32BE(blob.length, 0);
       payload.push(Buffer.concat([len, blob, Buffer.alloc((4 - (blob.length % 4)) % 4)]));
+    } else if (t === 'T' || t === 'F') {
+      continue;
     } else {
       throw new Error(`Unsupported OSC type: ${t}`);
     }

@@ -128,8 +128,8 @@ export class HelixClient {
     this.stream2002.sendFrame(msg);
   }
 
-  startListener(callback: (event: { addr: string; typetags: string | null; vals: Array<any> }) => void) {
-    this.onEvent = callback;
+  startListener(callback?: (event: { addr: string; typetags: string | null; vals: Array<any> }) => void) {
+    this.onEvent = callback ?? null;
     if (this.listening) return;
     this.listening = true;
     this.listenLoop().catch((err) => console.warn('listen loop error', err));

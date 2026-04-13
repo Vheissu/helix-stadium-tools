@@ -158,7 +158,7 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
           {/* Connection form */}
           <View style={styles.form}>
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>DEVICE HOST</Text>
+              <Text style={styles.inputLabel}>DEVICE ADDRESS</Text>
               <TextInput
                 style={styles.input}
                 value={host}
@@ -205,7 +205,6 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
               Make sure your device is on the same Wi-Fi network{'\n'}
               and Remote Access is enabled
             </Text>
-            <Text style={styles.protocol}>TCP 2001/2002 · ZMTP + OSC</Text>
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -365,11 +364,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     opacity: 0.6,
     marginBottom: 12,
-  },
-  protocol: {
-    color: COLORS.muted,
-    fontFamily: FONTS.mono,
-    fontSize: 11,
-    opacity: 0.35,
   },
 });

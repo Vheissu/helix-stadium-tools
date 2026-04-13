@@ -23,6 +23,7 @@ import type { TabKey } from './src/components/TabBar';
 import { ConnectionGate } from './src/components/ConnectionGate';
 import { BottomSheet } from './src/components/BottomSheet';
 import { ParamKnob } from './src/components/ParamKnob';
+import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
 import { COLORS as THEME_COLORS, BLOCK_COLORS, FONTS } from './src/theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 
@@ -165,6 +166,41 @@ const findFlows = (state: any): any[] | null => {
   return null;
 };
 
+const formatConnectionError = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  const normalized = message.trim().toLowerCase();
+
+  if (!normalized) {
+    return 'Could not connect. Check your device name or IP address and try again.';
+  }
+  if (
+    normalized.includes('enotfound') ||
+    normalized.includes('getaddrinfo') ||
+    normalized.includes('nxdomain') ||
+    normalized.includes('name or service not known')
+  ) {
+    return 'Device not found. Check the device name or IP address and try again.';
+  }
+  if (normalized.includes('refused') || normalized.includes('econnrefused')) {
+    return 'Connection was refused. Make sure Remote Access is enabled on your Helix Stadium.';
+  }
+  if (normalized.includes('timed out') || normalized.includes('timeout')) {
+    return 'Connection timed out. Make sure your Helix Stadium is on the same Wi-Fi network.';
+  }
+  if (
+    normalized.includes('socket') ||
+    normalized.includes('handshake') ||
+    normalized.includes('ready') ||
+    normalized.includes('zmtp') ||
+    normalized.includes('osc') ||
+    normalized.includes('port') ||
+    normalized.includes('reset')
+  ) {
+    return 'Could not finish connecting. Make sure your Helix Stadium is on the same Wi-Fi network and that Remote Access is enabled.';
+  }
+  return 'Could not connect to your Helix Stadium. Check the device name or IP address and try again.';
+};
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
@@ -182,7 +218,6 @@ export default function App() {
   const [autoCab, setAutoCab] = useState(true);
   const [notesText, setNotesText] = useState('');
   const [status, setStatus] = useState('Idle');
-  const [lastEvent, setLastEvent] = useState('\u2014');
   const [selectedSlot, setSelectedSlot] = useState<BlockSlot | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerStep, setPickerStep] = useState<'type' | 'model'>('type');
@@ -231,6 +266,7 @@ export default function App() {
   const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
   const [searchVisible, setSearchVisible] = useState(false);
   const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
+  const [flowScrollEnabled, setFlowScrollEnabled] = useState(true);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -403,17 +439,13 @@ export default function App() {
     try {
       const client = new HelixClient(host.trim());
       await client.connect();
-      client.startListener((evt) => {
-        const summary = `${evt.addr} ${evt.typetags ?? ''} ${JSON.stringify(evt.vals)}`;
-        setLastEvent(summary);
-      });
+      client.startListener();
       clientRef.current = client;
       setConnected(true);
       setStatus('Connected');
       await handleFullSync();
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Connection failed: ${message}`);
+      setStatus(`Connection failed: ${formatConnectionError(err)}`);
     } finally {
       setConnecting(false);
     }
@@ -983,6 +1015,78 @@ export default function App() {
     setSlotMenuOpen(false);
   };
 
+  const moveBlockInPath = async (pIdx: PathIndex, fromDisplay: number, toDisplay: number) => {
+    if (fromDisplay === toDisplay) return;
+    const client = requireClient();
+    if (!client) return;
+
+    const flow = rowToFlow(pIdx);
+    const currentBlocks = grid[pIdx];
+
+    // Splice the visible portion to get new order
+    const lastPop = currentBlocks.reduce((last: number, b: BlockData | null, i: number) => (b ? i : last), -1);
+    const visCount = Math.min(lastPop + 2, 12);
+    const visible = currentBlocks.slice(0, visCount);
+    const [moved] = visible.splice(fromDisplay, 1);
+    visible.splice(toDisplay, 0, moved);
+
+    const minIdx = Math.min(fromDisplay, toDisplay);
+    const maxIdx = Math.max(fromDisplay, toDisplay);
+
+    // Update local grid immediately (optimistic)
+    setGrid((prev) => {
+      const next = cloneGrid(prev);
+      for (let i = 0; i < visCount; i++) {
+        const blk = visible[i];
+        next[pIdx][i] = blk
+          ? { ...blk, blockId: effectBlockIndex(pIdx, i), params: blk.params ? { ...blk.params } : {} }
+          : null;
+      }
+      return next;
+    });
+
+    setStatus(`Reordered block in ${rowLabels[pIdx]}`);
+
+    // Send protocol commands to the device
+    try {
+      for (let i = minIdx; i <= maxIdx; i++) {
+        const oldBlock = currentBlocks[i];
+        if (oldBlock) {
+          await client.clearBlock(flow, effectBlockIndex(pIdx, i));
+        }
+      }
+      for (let i = minIdx; i <= maxIdx; i++) {
+        const newBlock = visible[i];
+        if (newBlock) {
+          const pos = effectBlockIndex(pIdx, i);
+          client.setModel(flow, pos, newBlock.id, 0);
+        }
+      }
+      for (let i = minIdx; i <= maxIdx; i++) {
+        const newBlock = visible[i];
+        if (!newBlock) continue;
+        const pos = effectBlockIndex(pIdx, i);
+        if (newBlock.enabled !== undefined) {
+          client.setBlockEnable(flow, pos, newBlock.enabled);
+        }
+        if (newBlock.params) {
+          for (const [key, value] of Object.entries(newBlock.params)) {
+            const paramId = parseInt(key, 10);
+            if (isNaN(paramId)) continue;
+            const vt: 'i' | 'f' | 'b' =
+              typeof value === 'boolean' ? 'b' : Number.isInteger(value as number) ? 'i' : 'f';
+            client.setParamValue(flow, pos, paramId, value, 0, -1, vt);
+          }
+        }
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setStatus(`Reorder sync failed: ${msg}`);
+    }
+
+    scheduleSync(800);
+  };
+
   const setIOModel = (model: IOModel) => {
     const client = requireClient();
     if (!client) return;
@@ -1169,7 +1273,7 @@ export default function App() {
         } else {
           nextGrid[rowIndex][slotIndex] = {
             id: Number(modelId) || 0,
-            name: modelId !== null ? `ID ${modelId}` : 'Block',
+            name: 'Unknown Block',
             kind: 'fx_loop',
             usage: 0,
             blockId,
@@ -1186,7 +1290,7 @@ export default function App() {
       ) => {
         if (!nextIO[rowIndex]) return;
         const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
-        const name = meta?.name ?? `ID ${modelId ?? '\u2014'}`;
+        const name = meta?.name ?? (modelId === null ? 'None' : 'Unknown I/O');
         const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
         nextIO[rowIndex][ioType] = {
           blockId,
@@ -1327,52 +1431,6 @@ export default function App() {
     return map[kind] ?? kind;
   };
 
-  const renderEffectRow = (pathIndex: PathIndex, slotIndex: number, block: BlockData | null) => {
-    const key = `${pathIndex}-${slotIndex}`;
-    const bi = slotIndex as BlockIndex;
-    if (!block) {
-      return (
-        <Pressable key={key} style={styles.emptyRow} onPress={() => selectSlot({ path: pathIndex, block: bi })}>
-          <View style={styles.emptySlotNum}><Text style={styles.emptySlotNumText}>{slotIndex + 1}</Text></View>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M12 5v14M5 12h14" stroke={COLORS.muted} strokeWidth={1.5} strokeLinecap="round" />
-          </Svg>
-        </Pressable>
-      );
-    }
-
-    const color = BLOCK_COLORS[block.kind] ?? COLORS.muted;
-    const blockImage = BLOCK_IMAGES[block.kind] ?? null;
-    const isSelected = selectedSlot?.path === pathIndex && selectedSlot?.block === bi;
-
-    return (
-      <Pressable
-        key={key}
-        style={[styles.effectRow, isSelected && { backgroundColor: `${color}18`, borderColor: color }]}
-        onPress={() => selectSlot({ path: pathIndex, block: bi })}
-        onLongPress={() => openSlotMenu({ path: pathIndex, block: bi })}
-      >
-        <View style={[styles.effectColorBar, { backgroundColor: color }]} />
-        <View style={[styles.effectIconWrap, { backgroundColor: `${color}20` }]}>
-          {blockImage ? (
-            <Image source={blockImage} style={styles.effectIcon} resizeMode="contain" />
-          ) : (
-            <BlockIcon type={block.kind} size={22} color={color} />
-          )}
-        </View>
-        <View style={styles.effectInfo}>
-          <Text style={styles.effectName}>{block.name}</Text>
-          <Text style={[styles.effectKind, { color }]}>{kindLabel(block.kind)}</Text>
-        </View>
-        <Pressable style={styles.powerBtn} hitSlop={8} onPress={() => selectSlot({ path: pathIndex, block: bi })}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Path d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0" stroke={COLORS.accent} strokeWidth={1.8} strokeLinecap="round" />
-          </Svg>
-        </Pressable>
-      </Pressable>
-    );
-  };
-
   const renderIORow = (rowIndex: PathIndex, ioType: IOType) => {
     const entry = ioGrid[rowIndex]?.[ioType] ?? null;
     const isInput = ioType === 'input';
@@ -1416,9 +1474,6 @@ export default function App() {
     const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
     const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex;
 
-    // Find last populated slot index for compact display
-    const lastA = grid[primary].reduce((last, b, i) => (b ? i : last), -1);
-
     return (
       <View style={styles.pathSection}>
         {/* Path header with DSP bar */}
@@ -1458,24 +1513,17 @@ export default function App() {
         {renderIORow(primary, 'input')}
 
         {/* Effect chain for Row A */}
-        <View style={styles.effectList}>
-          {grid[primary].map((block, i) => {
-            // Show populated blocks and empties up to one past the last populated
-            if (block || i <= lastA + 1) {
-              return renderEffectRow(primary, i, block);
-            }
-            return null;
-          })}
-          {/* "More slots" button if there are hidden empties */}
-          {lastA + 2 < 12 && (
-            <Pressable
-              style={styles.moreSlotsBtn}
-              onPress={() => selectSlot({ path: primary, block: Math.min(lastA + 2, 11) as BlockIndex })}
-            >
-              <Text style={styles.moreSlotsText}>{12 - (lastA + 2)} more slots</Text>
-            </Pressable>
-          )}
-        </View>
+        <DraggableEffectList
+          blocks={grid[primary]}
+          pathIndex={primary}
+          selectedSlot={selectedSlot}
+          onSelectSlot={selectSlot}
+          onOpenSlotMenu={openSlotMenu}
+          onReorder={moveBlockInPath}
+          kindLabel={kindLabel}
+          onDragStart={() => setFlowScrollEnabled(false)}
+          onDragEnd={() => setFlowScrollEnabled(true)}
+        />
 
         {/* Split section */}
         {hasSplit && (
@@ -1486,15 +1534,17 @@ export default function App() {
               <View style={styles.splitLine} />
             </View>
             {renderIORow(split, 'input')}
-            <View style={styles.effectList}>
-              {grid[split].map((block, i) => {
-                const lastB = grid[split].reduce((last, b, idx) => (b ? idx : last), -1);
-                if (block || i <= lastB + 1) {
-                  return renderEffectRow(split, i, block);
-                }
-                return null;
-              })}
-            </View>
+            <DraggableEffectList
+              blocks={grid[split]}
+              pathIndex={split}
+              selectedSlot={selectedSlot}
+              onSelectSlot={selectSlot}
+              onOpenSlotMenu={openSlotMenu}
+              onReorder={moveBlockInPath}
+              kindLabel={kindLabel}
+              onDragStart={() => setFlowScrollEnabled(false)}
+              onDragEnd={() => setFlowScrollEnabled(true)}
+            />
             {renderIORow(split, 'output')}
           </>
         )}
@@ -1510,6 +1560,7 @@ export default function App() {
       style={styles.tabContent}
       contentContainerStyle={styles.flowPadding}
       showsVerticalScrollIndicator={false}
+      scrollEnabled={flowScrollEnabled}
     >
       {/* Sync button */}
       <Pressable style={styles.syncBtn} onPress={handleFullSync}>
@@ -1841,7 +1892,7 @@ export default function App() {
     >
       <View style={styles.deviceHero}>
         <Text style={styles.deviceTitle}>Helix Stadium</Text>
-        <Text style={styles.deviceSubtitle}>Wi-Fi control over ZMTP + OSC</Text>
+        <Text style={styles.deviceSubtitle}>Manage your connection and device status</Text>
       </View>
 
       <Section title="Connection">
@@ -1877,16 +1928,6 @@ export default function App() {
           <Text style={styles.statusText}>{status}</Text>
         </View>
       </Section>
-
-      <Section title="Event Log">
-        <Text style={styles.eventText} selectable>
-          {lastEvent}
-        </Text>
-      </Section>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>TCP 2001/2002 \u00b7 ZMTP + OSC</Text>
-      </View>
     </ScrollView>
   );
 
@@ -2424,7 +2465,6 @@ export default function App() {
                   onPress={() => setIOModel(model)}
                 >
                   <Text style={styles.sheetListText}>{model.name}</Text>
-                  <Text style={styles.sheetListMeta}>ID {model.id}</Text>
                 </Pressable>
               );
             })}
@@ -2829,7 +2869,6 @@ const styles = StyleSheet.create({
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   statusDot: { width: 10, height: 10, borderRadius: 5 },
   statusText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 13 },
-  eventText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12, lineHeight: 18 },
 
   /* ── Device hero ──────────────────────────────────────────────── */
   deviceHero: { alignItems: 'center', paddingVertical: 32, gap: 8 },
@@ -2839,8 +2878,6 @@ const styles = StyleSheet.create({
   /* ── Hints / footer ───────────────────────────────────────────── */
   hint: { marginTop: 24, alignItems: 'center', paddingHorizontal: 16 },
   hintText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, textAlign: 'center', lineHeight: 18, opacity: 0.7 },
-  footer: { marginTop: 32, alignItems: 'center' },
-  footerText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, opacity: 0.5 },
 
   /* ── Bottom sheet: actions ─────────────────────────────────────── */
   sheetActions: { gap: 10 },
@@ -2864,7 +2901,6 @@ const styles = StyleSheet.create({
   sheetListItemDisabled: { opacity: 0.3 },
   sheetListText: { flex: 1, color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
   sheetListTextDim: { color: COLORS.muted },
-  sheetListMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11 },
 
   /* ── Block type picker ─────────────────────────────────────────── */
   typeGrid: { gap: 8 },

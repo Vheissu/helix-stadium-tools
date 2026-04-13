@@ -41,6 +41,12 @@ There is no build system. Use Python scripts directly.
 - JSON output is human‑readable and stable; avoid reordering keys without need.
 - Prefer small, explicit helper functions over large monolithic scripts.
 
+## User-Facing Copy
+
+- Keep app copy focused on user actions and outcomes.
+- Do not expose protocol names, transport layers, port numbers, handshakes, raw event logs, internal IDs, or other implementation details in end-user UI unless they are directly needed for troubleshooting.
+- Prefer plain language such as `device name`, `IP address`, `Wi-Fi`, and `Remote Access`.
+
 ## Testing Guidelines
 
 - Run unit tests with:

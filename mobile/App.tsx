@@ -1013,6 +1013,7 @@ export default function App() {
     }
     setStatus(`Cleared ${rowLabels[slot.path]}-${slot.block + 1}`);
     setSlotMenuOpen(false);
+    scheduleSync(500);
   };
 
   const moveBlockInPath = async (pIdx: PathIndex, fromDisplay: number, toDisplay: number) => {
@@ -1117,6 +1118,7 @@ export default function App() {
       return next;
     });
     setStatus(`Set ${rowLabels[row]} ${ioPickerType} to ${model.name}`);
+    scheduleSync(500);
   };
 
   const updateIOParam = (param: IOModelParam, value: number | boolean) => {
@@ -1154,6 +1156,7 @@ export default function App() {
       return next;
     });
     setStatus(`Updated ${rowLabels[row]} ${ioPickerType} ${param.name}`);
+    scheduleSync(350);
   };
 
   const updateBlockParam = (param: EditorParam, value: number | boolean) => {
@@ -1175,6 +1178,7 @@ export default function App() {
       return next;
     });
     setStatus(`Updated ${rowLabels[row]}-${blockEditorSlot.block + 1} ${param.name}`);
+    scheduleSync(350);
   };
 
   const hydrateFauxParams = async (row: PathIndex, ioType: IOType) => {

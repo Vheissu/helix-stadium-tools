@@ -12,7 +12,7 @@ import {
 import Svg, { Path } from 'react-native-svg';
 import { BlockIcon } from '../../icons/BlockIcons';
 import { BLOCK_IMAGES } from '../../icons/CategoryImages';
-import { BLOCK_COLORS, COLORS, FONTS } from '../../theme/colors';
+import { COLORS, FONTS, colorWithAlpha, getBlockAppearance } from '../../theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, PathIndex } from '../../types/signalFlow';
 
 const FONT_BODY_SEMI = FONTS.bodySemi;
@@ -25,6 +25,7 @@ interface DraggableEffectListProps {
   onSelectSlot: (slot: BlockSlot) => void;
   onOpenSlotMenu: (slot: BlockSlot) => void;
   onReorder: (pathIndex: PathIndex, fromSlot: number, toSlot: number) => void;
+  onToggleEnabled: (slot: BlockSlot) => void;
   kindLabel: (kind: string) => string;
   /** Called when drag starts — parent should disable ScrollView */
   onDragStart?: () => void;
@@ -40,6 +41,7 @@ export const DraggableEffectList: React.FC<DraggableEffectListProps> = React.mem
     onSelectSlot,
     onOpenSlotMenu,
     onReorder,
+    onToggleEnabled,
     kindLabel,
     onDragStart,
     onDragEnd,
@@ -223,6 +225,12 @@ export const DraggableEffectList: React.FC<DraggableEffectListProps> = React.mem
                     selectedSlot?.path === pathIndex &&
                     selectedSlot?.block === realIndex
                   }
+                  onToggleEnabled={() =>
+                    onToggleEnabled({
+                      path: pathIndex,
+                      block: realIndex as BlockIndex,
+                    })
+                  }
                   kindLabel={kindLabel}
                   onPress={() =>
                     onSelectSlot({
@@ -277,6 +285,7 @@ interface EffectRowProps {
   isBeingDragged: boolean;
   isSelected: boolean;
   kindLabel: (kind: string) => string;
+  onToggleEnabled: () => void;
   onPress: () => void;
   onLongPress: (e: GestureResponderEvent) => void;
   onPressOut: () => void;
@@ -289,6 +298,7 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
     isBeingDragged,
     isSelected,
     kindLabel,
+    onToggleEnabled,
     onPress,
     onLongPress,
     onPressOut,
@@ -311,7 +321,8 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
       );
     }
 
-    const color = BLOCK_COLORS[block.kind] ?? COLORS.muted;
+    const enabled = block.enabled !== false;
+    const appearance = getBlockAppearance(block.kind, enabled);
     const blockImage = BLOCK_IMAGES[block.kind] ?? null;
 
     if (isBeingDragged) {
@@ -328,15 +339,26 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
       <Pressable
         style={[
           styles.effectRow,
-          isSelected && { backgroundColor: `${color}18`, borderColor: color },
+          {
+            backgroundColor: isSelected ? appearance.selectedSurface : appearance.surface,
+            borderColor: isSelected ? appearance.selectedBorder : appearance.border,
+          },
         ]}
         onPress={onPress}
         onLongPress={onLongPress}
         onPressOut={onPressOut}
         delayLongPress={350}
       >
-        <View style={[styles.effectColorBar, { backgroundColor: color }]} />
-        <View style={[styles.effectIconWrap, { backgroundColor: `${color}20` }]}>
+        <View style={[styles.effectColorBar, { backgroundColor: appearance.topBar }]} />
+        <View
+          style={[
+            styles.effectIconWrap,
+            {
+              backgroundColor: appearance.iconSurface,
+              borderColor: colorWithAlpha(appearance.accent, enabled ? 0.16 : 0.08),
+            },
+          ]}
+        >
           {blockImage ? (
             <Image
               source={blockImage}
@@ -344,20 +366,33 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
               resizeMode="contain"
             />
           ) : (
-            <BlockIcon type={block.kind} size={22} color={color} />
+            <BlockIcon type={block.kind} size={22} color={appearance.power} />
           )}
         </View>
         <View style={styles.effectInfo}>
-          <Text style={styles.effectName}>{block.name}</Text>
-          <Text style={[styles.effectKind, { color }]}>
-            {kindLabel(block.kind)}
+          <Text style={[styles.effectName, { color: appearance.text }]}>{block.name}</Text>
+          <Text style={[styles.effectKind, { color: appearance.meta }]}>
+            {kindLabel(block.kind)} • {enabled ? 'Active' : 'Bypassed'}
           </Text>
         </View>
-        <Pressable style={styles.powerBtn} hitSlop={8} onPress={onPress}>
+        <Pressable
+          style={[
+            styles.powerBtn,
+            {
+              borderColor: isSelected ? appearance.selectedBorder : appearance.border,
+              backgroundColor: isSelected ? appearance.selectedSurface : appearance.surface,
+            },
+          ]}
+          hitSlop={8}
+          onPress={(event) => {
+            event.stopPropagation?.();
+            onToggleEnabled();
+          }}
+        >
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
-              stroke={COLORS.accent}
+              stroke={appearance.power}
               strokeWidth={1.8}
               strokeLinecap="round"
             />
@@ -373,13 +408,22 @@ const DragOverlayCard: React.FC<{
   block: BlockData;
   kindLabel: (kind: string) => string;
 }> = React.memo(({ block, kindLabel }) => {
-  const color = BLOCK_COLORS[block.kind] ?? COLORS.muted;
+  const enabled = block.enabled !== false;
+  const appearance = getBlockAppearance(block.kind, enabled);
   const blockImage = BLOCK_IMAGES[block.kind] ?? null;
 
   return (
-    <View style={[styles.effectRow, styles.dragCard, { borderColor: color }]}>
-      <View style={[styles.effectColorBar, { backgroundColor: color }]} />
-      <View style={[styles.effectIconWrap, { backgroundColor: `${color}20` }]}>
+    <View style={[styles.effectRow, styles.dragCard, { borderColor: appearance.selectedBorder }]}>
+      <View style={[styles.effectColorBar, { backgroundColor: appearance.topBar }]} />
+      <View
+        style={[
+          styles.effectIconWrap,
+          {
+            backgroundColor: appearance.iconSurface,
+            borderColor: colorWithAlpha(appearance.accent, enabled ? 0.16 : 0.08),
+          },
+        ]}
+      >
         {blockImage ? (
           <Image
             source={blockImage}
@@ -387,12 +431,14 @@ const DragOverlayCard: React.FC<{
             resizeMode="contain"
           />
         ) : (
-          <BlockIcon type={block.kind} size={22} color={color} />
+          <BlockIcon type={block.kind} size={22} color={appearance.power} />
         )}
       </View>
       <View style={styles.effectInfo}>
-        <Text style={styles.effectName}>{block.name}</Text>
-        <Text style={[styles.effectKind, { color }]}>{kindLabel(block.kind)}</Text>
+        <Text style={[styles.effectName, { color: appearance.text }]}>{block.name}</Text>
+        <Text style={[styles.effectKind, { color: appearance.meta }]}>
+          {kindLabel(block.kind)} • {enabled ? 'Active' : 'Bypassed'}
+        </Text>
       </View>
     </View>
   );
@@ -427,6 +473,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },

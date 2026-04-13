@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { HelixClient, type HelixPathClipboard } from './src/protocol/helixClient';
+import { HelixClient, type HelixEvent, type HelixPathClipboard } from './src/protocol/helixClient';
 import blockTypes from './src/data/blockTypes.json';
 import ioModels from './src/data/ioModels.json';
 import { useFonts } from 'expo-font';
@@ -24,7 +24,7 @@ import { ConnectionGate } from './src/components/ConnectionGate';
 import { BottomSheet } from './src/components/BottomSheet';
 import { ParamKnob } from './src/components/ParamKnob';
 import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
-import { COLORS as THEME_COLORS, BLOCK_COLORS, FONTS } from './src/theme/colors';
+import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 
 const COLORS = THEME_COLORS;
@@ -135,6 +135,20 @@ const SNAPSHOT_COLOR_OPTIONS = [
 const SNAPSHOT_COLOR_LABELS = Object.fromEntries(
   SNAPSHOT_COLOR_OPTIONS.map((option) => [option.value, option.label])
 );
+const TUNER_STRING_CONFIG = [
+  { stringNumber: 6, label: 'Low E', shortLabel: 'E' },
+  { stringNumber: 5, label: 'A', shortLabel: 'A' },
+  { stringNumber: 4, label: 'D', shortLabel: 'D' },
+  { stringNumber: 3, label: 'G', shortLabel: 'G' },
+  { stringNumber: 2, label: 'B', shortLabel: 'B' },
+  { stringNumber: 1, label: 'High E', shortLabel: 'E' },
+] as const;
+const EMPTY_TUNER_STRING_OFFSETS = Object.fromEntries(
+  TUNER_STRING_CONFIG.map(({ stringNumber }) => [stringNumber, null])
+) as Record<number, number | null>;
+const TUNER_REMOTE_META =
+  'Open or close the tuner on the Helix from here. Use the Helix display for the live note and needle.';
+const TUNER_REMOTE_NOTE = 'Live pitch, cents, and the tuning needle stay on the Helix display.';
 
 const blockCatalog = blockTypes as BlockCatalog;
 
@@ -239,7 +253,8 @@ export default function App() {
   const [ioPickerType, setIoPickerType] = useState<IOType>('input');
   const [ioPickerQuery, setIoPickerQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabKey>('flow');
-  const [screen, setScreen] = useState<'main' | 'editor' | 'performance'>('main');
+  const [screen, setScreen] = useState<'main' | 'editor' | 'performance' | 'tuner'>('main');
+  const [tunerReturnScreen, setTunerReturnScreen] = useState<'main' | 'performance'>('main');
   const [libraryRoot, setLibraryRoot] = useState<PresetLibraryRoot>('setlists');
   const [setlists, setSetlists] = useState<HelixContentRef[]>([]);
   const [selectedContainerId, setSelectedContainerId] = useState<number | null>(null);
@@ -271,8 +286,14 @@ export default function App() {
   const [globalTempoBpm, setGlobalTempoBpm] = useState<number | null>(null);
   const [tempoFollow, setTempoFollow] = useState<boolean | null>(null);
   const [tunerReferencePitch, setTunerReferencePitch] = useState<number | null>(null);
+  const [tunerAlwaysOnStomp, setTunerAlwaysOnStomp] = useState<boolean | null>(null);
   const [tunerAlwaysOnPlayView, setTunerAlwaysOnPlayView] = useState<boolean | null>(null);
+  const [tunerVolPedalOpens, setTunerVolPedalOpens] = useState<boolean | null>(null);
   const [tunerTrails, setTunerTrails] = useState<boolean | null>(null);
+  const [tunerOffsetsEnabled, setTunerOffsetsEnabled] = useState<boolean | null>(null);
+  const [tunerStringOffsets, setTunerStringOffsets] = useState<Record<number, number | null>>(
+    EMPTY_TUNER_STRING_OFFSETS
+  );
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
@@ -466,6 +487,73 @@ export default function App() {
     if (numeric === null) return null;
     return numeric !== 0;
   };
+  const formatSignedValue = (value: number | null) => {
+    if (value === null) return '\u2014';
+    const rounded = Number.isInteger(value) ? value : Number(value.toFixed(1));
+    return rounded > 0 ? `+${rounded}` : `${rounded}`;
+  };
+  const openTunerScreen = (returnScreen: 'main' | 'performance') => {
+    setTunerReturnScreen(returnScreen);
+    setScreen('tuner');
+  };
+  const closeTunerScreen = () => {
+    setScreen(tunerReturnScreen);
+  };
+
+  const handleClientEvent = (event: HelixEvent) => {
+    const property = event.property;
+    const key = property?.key;
+    if (!key) return;
+
+    if (key === 'global.tempo.bpm') {
+      const value = coerceNumber(property?.value);
+      if (value !== null) {
+        setGlobalTempoBpm(value);
+      }
+      return;
+    }
+    if (key === 'volatile.tempo.bpm' || key === 'preset.tempo.bpm') {
+      const value = coerceNumber(property?.value);
+      if (value !== null) {
+        setLiveTempoBpm(value);
+      }
+      return;
+    }
+    if (key === 'global.tempo.follow') {
+      setTempoFollow(coerceBool(property?.value));
+      return;
+    }
+    if (key === 'global.tuner.reference.pitch') {
+      setTunerReferencePitch(coerceNumber(property?.value));
+      return;
+    }
+    if (key === 'global.tuner.alwaysonstomp') {
+      setTunerAlwaysOnStomp(coerceBool(property?.value));
+      return;
+    }
+    if (key === 'global.tuner.alwaysonplayview') {
+      setTunerAlwaysOnPlayView(coerceBool(property?.value));
+      return;
+    }
+    if (key === 'global.tuner.volpedalopens') {
+      setTunerVolPedalOpens(coerceBool(property?.value));
+      return;
+    }
+    if (key === 'global.tuner.trails') {
+      setTunerTrails(coerceBool(property?.value));
+      return;
+    }
+    if (key === 'global.tuner.offsets') {
+      setTunerOffsetsEnabled(coerceBool(property?.value));
+      return;
+    }
+    const tunerOffsetMatch = key.match(/^global\.tuner\.offset\.string\.(\d)$/);
+    if (tunerOffsetMatch) {
+      const stringNumber = Number(tunerOffsetMatch[1]);
+      const value = coerceNumber(property?.value);
+      setTunerStringOffsets((prev) => ({ ...prev, [stringNumber]: value }));
+    }
+  };
 
   const connect = async () => {
     if (connecting || connected) return;
@@ -473,7 +561,7 @@ export default function App() {
     try {
       const client = new HelixClient(host.trim());
       await client.connect();
-      client.startListener();
+      client.startListener(handleClientEvent);
       clientRef.current = client;
       setConnected(true);
       setStatus('Connected');
@@ -496,6 +584,7 @@ export default function App() {
     setStatus('Idle');
     setActiveTab('flow');
     setScreen('main');
+    setTunerReturnScreen('main');
     setSetlists([]);
     setSelectedContainerId(null);
     setSelectedContainerName('Setlists');
@@ -520,8 +609,12 @@ export default function App() {
     setGlobalTempoBpm(null);
     setTempoFollow(null);
     setTunerReferencePitch(null);
+    setTunerAlwaysOnStomp(null);
     setTunerAlwaysOnPlayView(null);
+    setTunerVolPedalOpens(null);
     setTunerTrails(null);
+    setTunerOffsetsEnabled(null);
+    setTunerStringOffsets(EMPTY_TUNER_STRING_OFFSETS);
   };
 
   useEffect(() => {
@@ -594,16 +687,26 @@ export default function App() {
         globalTempoProp,
         tempoFollowProp,
         tunerReferenceProp,
-        tunerAlwaysOnProp,
+        tunerAlwaysOnStompProp,
+        tunerAlwaysOnPlayProp,
+        tunerVolPedalProp,
         tunerTrailsProp,
+        tunerOffsetsProp,
+        ...tunerOffsetProps
       ] = await Promise.all([
         client.getProperty('volatile.tempo.bpm').catch(() => null),
         client.getProperty('preset.tempo.bpm').catch(() => null),
         client.getProperty('global.tempo.bpm').catch(() => null),
         client.getProperty('global.tempo.follow').catch(() => null),
         client.getProperty('global.tuner.reference.pitch').catch(() => null),
+        client.getProperty('global.tuner.alwaysonstomp').catch(() => null),
         client.getProperty('global.tuner.alwaysonplayview').catch(() => null),
+        client.getProperty('global.tuner.volpedalopens').catch(() => null),
         client.getProperty('global.tuner.trails').catch(() => null),
+        client.getProperty('global.tuner.offsets').catch(() => null),
+        ...TUNER_STRING_CONFIG.map(({ stringNumber }) =>
+          client.getProperty(`global.tuner.offset.string.${stringNumber}`).catch(() => null)
+        ),
       ]);
 
       const nextGlobalTempo = coerceNumber(globalTempoProp?.value);
@@ -616,8 +719,17 @@ export default function App() {
       setGlobalTempoBpm(nextGlobalTempo);
       setTempoFollow(coerceBool(tempoFollowProp?.value));
       setTunerReferencePitch(coerceNumber(tunerReferenceProp?.value));
-      setTunerAlwaysOnPlayView(coerceBool(tunerAlwaysOnProp?.value));
+      setTunerAlwaysOnStomp(coerceBool(tunerAlwaysOnStompProp?.value));
+      setTunerAlwaysOnPlayView(coerceBool(tunerAlwaysOnPlayProp?.value));
+      setTunerVolPedalOpens(coerceBool(tunerVolPedalProp?.value));
       setTunerTrails(coerceBool(tunerTrailsProp?.value));
+      setTunerOffsetsEnabled(coerceBool(tunerOffsetsProp?.value));
+      setTunerStringOffsets(
+        TUNER_STRING_CONFIG.reduce<Record<number, number | null>>((acc, { stringNumber }, index) => {
+          acc[stringNumber] = coerceNumber(tunerOffsetProps[index]?.value);
+          return acc;
+        }, {})
+      );
     } catch (_err) {
       // Leave the last known transport state in place if a property fetch fails.
     }
@@ -765,33 +877,62 @@ export default function App() {
     void handlePresetLoad(nextItem);
   };
 
+  const formatActionError = (label: string, error: unknown) => {
+    const detail = error instanceof Error ? error.message : String(error ?? '');
+    return detail ? `${label} failed: ${detail}` : `${label} failed`;
+  };
+
   const handleTempoAdjust = (delta: number) => {
     const client = requireClient();
     if (!client) return;
     const base = globalTempoBpm ?? liveTempoBpm ?? 120;
     const next = Math.max(20, Math.min(300, Math.round(base + delta)));
+    const previousGlobal = globalTempoBpm;
+    const previousLive = liveTempoBpm;
     setGlobalTempoBpm(next);
     setLiveTempoBpm(next);
-    client.setProperty('global.tempo.bpm', next, 'i');
-    setStatus(`Set tempo to ${next} BPM`);
-    scheduleSync(500);
+    void client
+      .setPropertyWait('global.tempo.bpm', next, 'i')
+      .then(() => {
+        setStatus(`Set tempo to ${next} BPM`);
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setGlobalTempoBpm(previousGlobal);
+        setLiveTempoBpm(previousLive);
+        setStatus(formatActionError('Tempo update', error));
+      });
   };
 
   const handleTempoFollowToggle = (value: boolean) => {
     const client = requireClient();
     if (!client) return;
+    const previous = tempoFollow;
     setTempoFollow(value);
-    client.setProperty('global.tempo.follow', value ? 1 : 0, 'i');
-    setStatus(value ? 'Tempo follow enabled' : 'Tempo follow disabled');
-    scheduleSync(500);
+    void client
+      .setPropertyWait('global.tempo.follow', value ? 1 : 0, 'i')
+      .then(() => {
+        setStatus(value ? 'Tempo follow enabled' : 'Tempo follow disabled');
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTempoFollow(previous);
+        setStatus(formatActionError('Tempo follow update', error));
+      });
   };
 
   const handleTapTempo = () => {
     const client = requireClient();
     if (!client) return;
-    client.setProperty('volatile.press.taptempo', 1, 'i');
-    setStatus('Tap tempo sent');
-    scheduleSync(700);
+    void client
+      .setPropertyWait('volatile.press.taptempo', 1, 'i')
+      .then(() => {
+        setStatus('Tap tempo sent');
+        scheduleSync(700);
+      })
+      .catch((error) => {
+        setStatus(formatActionError('Tap tempo', error));
+      });
   };
 
   const handleTunerReferenceAdjust = (delta: number) => {
@@ -799,28 +940,152 @@ export default function App() {
     if (!client) return;
     const base = tunerReferencePitch ?? 440;
     const next = Math.max(400, Math.min(480, Math.round(base + delta)));
+    const previous = tunerReferencePitch;
     setTunerReferencePitch(next);
-    client.setProperty('global.tuner.reference.pitch', next, 'i');
-    setStatus(`Set tuner reference to ${next} Hz`);
-    scheduleSync(500);
+    void client
+      .setPropertyWait('global.tuner.reference.pitch', next, 'i')
+      .then(() => {
+        setStatus(`Set tuner reference to ${next} Hz`);
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerReferencePitch(previous);
+        setStatus(formatActionError('Tuner reference update', error));
+      });
+  };
+
+  const handleTunerAlwaysOnStompToggle = (value: boolean) => {
+    const client = requireClient();
+    if (!client) return;
+    const previous = tunerAlwaysOnStomp;
+    setTunerAlwaysOnStomp(value);
+    void client
+      .setPropertyWait('global.tuner.alwaysonstomp', value ? 1 : 0, 'i')
+      .then(() => {
+        setStatus(value ? 'Always-on tuner enabled for stomp view' : 'Always-on tuner disabled for stomp view');
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerAlwaysOnStomp(previous);
+        setStatus(formatActionError('Stomp-view tuner update', error));
+      });
   };
 
   const handleTunerAlwaysOnPlayViewToggle = (value: boolean) => {
     const client = requireClient();
     if (!client) return;
+    const previous = tunerAlwaysOnPlayView;
     setTunerAlwaysOnPlayView(value);
-    client.setProperty('global.tuner.alwaysonplayview', value ? 1 : 0, 'i');
-    setStatus(value ? 'Always-on tuner enabled for play view' : 'Always-on tuner disabled for play view');
-    scheduleSync(500);
+    void client
+      .setPropertyWait('global.tuner.alwaysonplayview', value ? 1 : 0, 'i')
+      .then(() => {
+        setStatus(value ? 'Always-on tuner enabled for play view' : 'Always-on tuner disabled for play view');
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerAlwaysOnPlayView(previous);
+        setStatus(formatActionError('Play-view tuner update', error));
+      });
+  };
+
+  const handleTunerVolPedalOpensToggle = (value: boolean) => {
+    const client = requireClient();
+    if (!client) return;
+    const previous = tunerVolPedalOpens;
+    setTunerVolPedalOpens(value);
+    void client
+      .setPropertyWait('global.tuner.volpedalopens', value ? 1 : 0, 'i')
+      .then(() => {
+        setStatus(value ? 'Volume pedal can open the tuner' : 'Volume pedal no longer opens the tuner');
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerVolPedalOpens(previous);
+        setStatus(formatActionError('Volume-pedal tuner update', error));
+      });
   };
 
   const handleTunerTrailsToggle = (value: boolean) => {
     const client = requireClient();
     if (!client) return;
+    const previous = tunerTrails;
     setTunerTrails(value);
-    client.setProperty('global.tuner.trails', value ? 1 : 0, 'i');
-    setStatus(value ? 'Tuner trails enabled' : 'Tuner trails disabled');
-    scheduleSync(500);
+    void client
+      .setPropertyWait('global.tuner.trails', value ? 1 : 0, 'i')
+      .then(() => {
+        setStatus(value ? 'Tuner trails enabled' : 'Tuner trails disabled');
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerTrails(previous);
+        setStatus(formatActionError('Tuner trails update', error));
+      });
+  };
+
+  const handleTunerOffsetsEnabledToggle = (value: boolean) => {
+    const client = requireClient();
+    if (!client) return;
+    const previous = tunerOffsetsEnabled;
+    setTunerOffsetsEnabled(value);
+    void client
+      .setPropertyWait('global.tuner.offsets', value ? 1 : 0, 'i')
+      .then(() => {
+        setStatus(value ? 'Per-string tuner offsets enabled' : 'Per-string tuner offsets disabled');
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerOffsetsEnabled(previous);
+        setStatus(formatActionError('Tuner offset mode update', error));
+      });
+  };
+
+  const handleTunerStringOffsetAdjust = (stringNumber: number, delta: number) => {
+    const client = requireClient();
+    if (!client) return;
+    const previous = tunerStringOffsets[stringNumber];
+    const base = previous ?? 0;
+    const next = Math.max(-50, Math.min(50, Number((base + delta).toFixed(1))));
+    const valueType: 'i' | 'f' = Number.isInteger(base) && Number.isInteger(next) ? 'i' : 'f';
+    setTunerStringOffsets((prev) => ({ ...prev, [stringNumber]: next }));
+    void client
+      .setPropertyWait(`global.tuner.offset.string.${stringNumber}`, next, valueType)
+      .then(() => {
+        setStatus(
+          `${TUNER_STRING_CONFIG.find((item) => item.stringNumber === stringNumber)?.label ?? `String ${stringNumber}`} offset set to ${formatSignedValue(next)}`
+        );
+        scheduleSync(500);
+      })
+      .catch((error) => {
+        setTunerStringOffsets((prev) => ({ ...prev, [stringNumber]: previous ?? null }));
+        setStatus(formatActionError(`String ${stringNumber} offset update`, error));
+      });
+  };
+
+  const handleOpenTuner = (returnScreen: 'main' | 'performance') => {
+    openTunerScreen(returnScreen);
+    const client = requireClient();
+    if (!client) return;
+    void client
+      .setPropertyWait('volatile.held.taptempo', 11, 'i')
+      .then(() => {
+        setStatus('Opened tuner on Helix');
+      })
+      .catch((error) => {
+        setStatus(formatActionError('Open tuner', error));
+      });
+  };
+
+  const handleExitTuner = () => {
+    const client = requireClient();
+    if (!client) return;
+    void client
+      .setPropertyWait('volatile.press.exittuner', 11, 'i')
+      .then(() => {
+        setStatus('Closed tuner on Helix');
+      })
+      .catch((error) => {
+        setStatus(formatActionError('Exit tuner', error));
+      });
   };
 
   const handleSavePreset = () => {
@@ -1083,6 +1348,7 @@ export default function App() {
           name,
           kind,
           usage,
+          enabled: true,
           blockId,
           params: buildParamDefaults(meta?.params ?? []),
         };
@@ -1147,6 +1413,42 @@ export default function App() {
     setIoPickerType(ioType);
     setIoPickerQuery('');
     setIoPickerOpen(true);
+  };
+
+  const setLocalBlockEnabled = (slot: BlockSlot, enabled: boolean) => {
+    setGrid((prev) => {
+      const next = cloneGrid(prev);
+      const block = next[slot.path]?.[slot.block];
+      if (block) {
+        block.enabled = enabled;
+      }
+      return next;
+    });
+  };
+
+  const toggleBlockEnabled = async (slot: BlockSlot) => {
+    const client = requireClient();
+    if (!client) return;
+    const block = grid[slot.path]?.[slot.block] ?? null;
+    if (!block) return;
+
+    const currentEnabled = block.enabled !== false;
+    const nextEnabled = !currentEnabled;
+    const flow = rowToFlow(slot.path);
+    const blockId = block.blockId ?? effectBlockIndex(slot.path, slot.block);
+
+    setLocalBlockEnabled(slot, nextEnabled);
+    setStatus(`${nextEnabled ? 'Enabled' : 'Bypassed'} ${block.name}`);
+
+    try {
+      await client.setBlockEnableWait(flow, blockId, nextEnabled);
+      scheduleSync(350);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setLocalBlockEnabled(slot, currentEnabled);
+      setStatus(`Block toggle failed: ${message}`);
+      scheduleSync(150);
+    }
   };
 
   const clearSlot = async (slot: BlockSlot) => {
@@ -1432,7 +1734,8 @@ export default function App() {
         slotIndex: number,
         modelId: number | null,
         params: Record<string, number | boolean>,
-        blockId: number
+        blockId: number,
+        enabled: boolean
       ) => {
         if (!nextGrid[rowIndex]) return;
         if (slotIndex < 0 || slotIndex >= 12) return;
@@ -1443,6 +1746,7 @@ export default function App() {
             name: info.name,
             kind: info.kind,
             usage: info.usage,
+            enabled,
             blockId,
             params,
           };
@@ -1452,6 +1756,7 @@ export default function App() {
             name: 'Unknown Block',
             kind: 'fx_loop',
             usage: 0,
+            enabled,
             blockId,
             params,
           };
@@ -1503,6 +1808,7 @@ export default function App() {
               params[String(pid)] = param?.valu ?? 0;
             });
           }
+          const enabled = blk?.enbl !== false;
 
           if (pos === 0) {
             assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
@@ -1522,11 +1828,11 @@ export default function App() {
           }
 
           if (pos >= 1 && pos <= 12) {
-            assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos);
+            assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos, enabled);
             return;
           }
           if (pos >= 15 && pos <= 26) {
-            assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos);
+            assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos, enabled);
           }
         };
 
@@ -1696,6 +2002,7 @@ export default function App() {
           onSelectSlot={selectSlot}
           onOpenSlotMenu={openSlotMenu}
           onReorder={moveBlockInPath}
+          onToggleEnabled={toggleBlockEnabled}
           kindLabel={kindLabel}
           onDragStart={() => setFlowScrollEnabled(false)}
           onDragEnd={() => setFlowScrollEnabled(true)}
@@ -1717,6 +2024,7 @@ export default function App() {
               onSelectSlot={selectSlot}
               onOpenSlotMenu={openSlotMenu}
               onReorder={moveBlockInPath}
+              onToggleEnabled={toggleBlockEnabled}
               kindLabel={kindLabel}
               onDragStart={() => setFlowScrollEnabled(false)}
               onDragEnd={() => setFlowScrollEnabled(true)}
@@ -2156,15 +2464,13 @@ export default function App() {
         </View>
       </Section>
 
-      <Section title="Tuner">
+      <Section title="Tuner Remote">
         <View style={styles.transportHeroCard}>
           <Text style={styles.transportHeroValue}>
             {tunerReferencePitch ?? 440}
             <Text style={styles.transportHeroUnit}> Hz</Text>
           </Text>
-          <Text style={styles.transportHeroMeta}>
-            Reference pitch plus always-on and trails behavior.
-          </Text>
+          <Text style={styles.transportHeroMeta}>{TUNER_REMOTE_META}</Text>
         </View>
         <View style={styles.transportAdjustRow}>
           <Pressable style={styles.transportAdjustButton} onPress={() => handleTunerReferenceAdjust(-1)}>
@@ -2173,6 +2479,25 @@ export default function App() {
           <Pressable style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]} onPress={() => handleTunerReferenceAdjust(1)}>
             <Text style={[styles.transportAdjustButtonText, styles.transportAdjustButtonTextAccent]}>+1 Hz</Text>
           </Pressable>
+          <Pressable style={styles.transportAdjustButton} onPress={handleExitTuner}>
+            <Text style={styles.transportAdjustButtonText}>Close On Helix</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]}
+            onPress={() => handleOpenTuner('main')}
+          >
+            <Text style={[styles.transportAdjustButtonText, styles.transportAdjustButtonTextAccent]}>Open On Helix</Text>
+          </Pressable>
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Always On In Stomp View</Text>
+            <Text style={styles.labelHint}>Keep the tuner accessible from stomp mode during performance.</Text>
+          </View>
+          <Switch
+            value={Boolean(tunerAlwaysOnStomp)}
+            onValueChange={handleTunerAlwaysOnStompToggle}
+          />
         </View>
         <View style={styles.rowBetween}>
           <View>
@@ -2186,12 +2511,32 @@ export default function App() {
         </View>
         <View style={styles.rowBetween}>
           <View>
+            <Text style={styles.label}>Volume Pedal Opens Tuner</Text>
+            <Text style={styles.labelHint}>Let the volume pedal gesture jump straight into the tuner.</Text>
+          </View>
+          <Switch
+            value={Boolean(tunerVolPedalOpens)}
+            onValueChange={handleTunerVolPedalOpensToggle}
+          />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
             <Text style={styles.label}>Tuner Trails</Text>
             <Text style={styles.labelHint}>Let the tuner transition keep natural decay when supported.</Text>
           </View>
           <Switch
             value={Boolean(tunerTrails)}
             onValueChange={handleTunerTrailsToggle}
+          />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Per-String Offsets</Text>
+            <Text style={styles.labelHint}>Enable custom offsets when you need a tuned setup for a specific instrument.</Text>
+          </View>
+          <Switch
+            value={Boolean(tunerOffsetsEnabled)}
+            onValueChange={handleTunerOffsetsEnabledToggle}
           />
         </View>
       </Section>
@@ -2230,6 +2575,14 @@ export default function App() {
         active: notesVisible,
         disabled: false,
         onPress: () => handleNotesToggle(!notesVisible),
+      },
+      {
+        key: 'tuner',
+        label: 'Tuner Remote',
+        meta: 'Open tuner on Helix and show the remote settings panel',
+        active: false,
+        disabled: false,
+        onPress: () => handleOpenTuner('performance'),
       },
       {
         key: 'sync',
@@ -2398,11 +2751,36 @@ export default function App() {
 
             <View style={styles.performanceSection}>
               <View style={styles.performanceSectionHeader}>
-                <Text style={styles.performanceSectionTitle}>Tuner</Text>
+                <Text style={styles.performanceSectionTitle}>Tuner Remote</Text>
                 <Text style={styles.performanceSectionMeta}>
-                  {tunerReferencePitch !== null ? `${tunerReferencePitch} Hz` : 'Settings'}
+                  {tunerReferencePitch !== null ? `${tunerReferencePitch} Hz` : 'Helix'}
                 </Text>
               </View>
+              <View style={styles.performanceChipRow}>
+                {[
+                  { key: 'tuner-open', label: 'Open On Helix', onPress: () => handleOpenTuner('performance'), accent: true },
+                  { key: 'tuner-exit', label: 'Close On Helix', onPress: handleExitTuner },
+                ].map((action) => (
+                  <Pressable
+                    key={action.key}
+                    style={[
+                      styles.performanceChip,
+                      action.accent && styles.performanceChipAccent,
+                    ]}
+                    onPress={action.onPress}
+                  >
+                    <Text
+                      style={[
+                        styles.performanceChipText,
+                        action.accent && styles.performanceChipTextAccent,
+                      ]}
+                    >
+                      {action.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text style={styles.performanceTempoMeta}>{TUNER_REMOTE_NOTE}</Text>
               <View style={styles.performanceInlineToggleRow}>
                 <Text style={styles.performanceInlineLabel}>Reference Pitch</Text>
                 <View style={styles.performanceInlineActions}>
@@ -2434,10 +2812,22 @@ export default function App() {
               </View>
               {[
                 {
+                  key: 'tuner-stompview',
+                  label: 'Always On In Stomp View',
+                  value: tunerAlwaysOnStomp,
+                  onChange: handleTunerAlwaysOnStompToggle,
+                },
+                {
                   key: 'tuner-playview',
                   label: 'Always On In Play View',
                   value: tunerAlwaysOnPlayView,
                   onChange: handleTunerAlwaysOnPlayViewToggle,
+                },
+                {
+                  key: 'tuner-volpedal',
+                  label: 'Volume Pedal Opens Tuner',
+                  value: tunerVolPedalOpens,
+                  onChange: handleTunerVolPedalOpensToggle,
                 },
                 {
                   key: 'tuner-trails',
@@ -2724,7 +3114,7 @@ export default function App() {
     if (!activeBlockMeta || !activeBlock) {
       return <Text style={styles.paramHint}>Long-press a populated block to edit its parameters.</Text>;
     }
-    const blockColor = activeBlock.kind ? BLOCK_COLORS[activeBlock.kind] ?? COLORS.accent : COLORS.accent;
+    const blockColor = activeBlock.kind ? getBlockColor(activeBlock.kind) : COLORS.accent;
     return renderParamFields(
       activeBlockMeta.params,
       activeBlock.params,
@@ -2734,10 +3124,206 @@ export default function App() {
     );
   };
 
+  const renderTunerScreen = () => (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.performanceSafe} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={styles.performanceBackdrop}>
+          <View style={styles.performanceGlowA} />
+          <View style={styles.performanceGlowB} />
+        </View>
+
+        <View style={styles.performanceHeader}>
+          <View style={styles.performanceHeaderCopy}>
+            <Text style={styles.performanceEyebrow}>Tuner Remote</Text>
+            <Text style={styles.performanceHost}>Tune on the Helix display</Text>
+          </View>
+          <Pressable style={styles.performanceExitButton} onPress={closeTunerScreen}>
+            <Text style={styles.performanceExitText}>Back</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          style={styles.tabContent}
+          contentContainerStyle={styles.performanceContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.performanceHero}>
+            <View style={[styles.performanceHeroAccent, { backgroundColor: '#f6b93b' }]} />
+            <Text style={styles.performanceHeroKicker}>Helix Tuner</Text>
+            <Text style={styles.performanceHeroTitle}>{tunerReferencePitch ?? 440} Hz</Text>
+            <Text style={styles.performanceHeroMeta}>{TUNER_REMOTE_META}</Text>
+            <View style={styles.performanceHeroStatus}>
+              <View
+                style={[
+                  styles.performanceHeroStatusDot,
+                  { backgroundColor: '#f6b93b' },
+                ]}
+              />
+              <Text style={styles.performanceHeroStatusText}>{TUNER_REMOTE_NOTE}</Text>
+            </View>
+            <View style={styles.performanceChipRow}>
+              {[
+                { key: 'tuner-hero--1', label: '-1 Hz', onPress: () => handleTunerReferenceAdjust(-1) },
+                { key: 'tuner-hero-+1', label: '+1 Hz', onPress: () => handleTunerReferenceAdjust(1), accent: true },
+                { key: 'tuner-hero-open', label: 'Open On Helix', onPress: () => handleOpenTuner(tunerReturnScreen) },
+                { key: 'tuner-hero-exit', label: 'Close On Helix', onPress: handleExitTuner },
+              ].map((action) => (
+                <Pressable
+                  key={action.key}
+                  style={[
+                    styles.performanceChip,
+                    action.accent && styles.performanceChipAccent,
+                  ]}
+                  onPress={action.onPress}
+                >
+                  <Text
+                    style={[
+                      styles.performanceChipText,
+                      action.accent && styles.performanceChipTextAccent,
+                    ]}
+                  >
+                    {action.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.performanceSection}>
+            <View style={styles.performanceSectionHeader}>
+              <Text style={styles.performanceSectionTitle}>Behavior</Text>
+              <Text style={styles.performanceSectionMeta}>Helix Settings</Text>
+            </View>
+            {[
+              {
+                key: 'tuner-screen-stomp',
+                label: 'Always On In Stomp View',
+                value: tunerAlwaysOnStomp,
+                onChange: handleTunerAlwaysOnStompToggle,
+              },
+              {
+                key: 'tuner-screen-play',
+                label: 'Always On In Play View',
+                value: tunerAlwaysOnPlayView,
+                onChange: handleTunerAlwaysOnPlayViewToggle,
+              },
+              {
+                key: 'tuner-screen-volpedal',
+                label: 'Volume Pedal Opens Tuner',
+                value: tunerVolPedalOpens,
+                onChange: handleTunerVolPedalOpensToggle,
+              },
+              {
+                key: 'tuner-screen-trails',
+                label: 'Tuner Trails',
+                value: tunerTrails,
+                onChange: handleTunerTrailsToggle,
+              },
+            ].map((item) => (
+              <View key={item.key} style={styles.performanceInlineToggleRow}>
+                <Text style={styles.performanceInlineLabel}>{item.label}</Text>
+                <View style={styles.performanceInlineActions}>
+                  {[
+                    { label: 'Off', value: false },
+                    { label: 'On', value: true },
+                  ].map((option) => {
+                    const active = item.value === option.value;
+                    return (
+                      <Pressable
+                        key={`${item.key}-${option.label}`}
+                        style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
+                        onPress={() => item.onChange(option.value)}
+                      >
+                        <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
+                          {option.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.performanceSection}>
+            <View style={styles.performanceSectionHeader}>
+              <Text style={styles.performanceSectionTitle}>String Offsets</Text>
+              <Text style={styles.performanceSectionMeta}>
+                {tunerOffsetsEnabled ? 'Enabled' : 'Disabled'}
+              </Text>
+            </View>
+            <View style={styles.performanceInlineToggleRow}>
+              <Text style={styles.performanceInlineLabel}>Per-String Offset Mode</Text>
+              <View style={styles.performanceInlineActions}>
+                {[
+                  { label: 'Off', value: false },
+                  { label: 'On', value: true },
+                ].map((option) => {
+                  const active = tunerOffsetsEnabled === option.value;
+                  return (
+                    <Pressable
+                      key={`tuner-offset-mode-${option.label}`}
+                      style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
+                      onPress={() => handleTunerOffsetsEnabledToggle(option.value)}
+                    >
+                      <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+            <Text style={styles.tunerOffsetHint}>
+              Dial in each string individually when you want the tuner to match a specific setup more closely.
+            </Text>
+            <View style={styles.tunerOffsetGrid}>
+              {TUNER_STRING_CONFIG.map((item) => {
+                const value = tunerStringOffsets[item.stringNumber] ?? null;
+                return (
+                  <View
+                    key={`tuner-offset-${item.stringNumber}`}
+                    style={[
+                      styles.tunerOffsetCard,
+                      tunerOffsetsEnabled !== true && styles.tunerOffsetCardDisabled,
+                    ]}
+                  >
+                    <View style={styles.tunerOffsetHeader}>
+                      <Text style={styles.tunerOffsetLabel}>{item.label}</Text>
+                      <Text style={styles.tunerOffsetShortLabel}>{item.shortLabel}</Text>
+                    </View>
+                    <Text style={styles.tunerOffsetValue}>{formatSignedValue(value)}</Text>
+                    <View style={styles.tunerOffsetAdjustRow}>
+                      <Pressable
+                        style={styles.tunerOffsetAdjustButton}
+                        disabled={tunerOffsetsEnabled !== true}
+                        onPress={() => handleTunerStringOffsetAdjust(item.stringNumber, -1)}
+                      >
+                        <Text style={styles.tunerOffsetAdjustButtonText}>-1</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[styles.tunerOffsetAdjustButton, styles.tunerOffsetAdjustButtonAccent]}
+                        disabled={tunerOffsetsEnabled !== true}
+                        onPress={() => handleTunerStringOffsetAdjust(item.stringNumber, 1)}
+                      >
+                        <Text style={[styles.tunerOffsetAdjustButtonText, styles.tunerOffsetAdjustButtonTextAccent]}>+1</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+
   /* ── Full-screen parameter editor ──────────────────────────────── */
   const renderEditor = () => {
     if (!activeBlock || !activeBlockMeta || !blockEditorSlot) return null;
-    const color = BLOCK_COLORS[activeBlock.kind] ?? COLORS.accent;
+    const appearance = getBlockAppearance(activeBlock.kind, activeBlock.enabled !== false);
+    const color = appearance.accent;
     const blockImage = BLOCK_IMAGES[activeBlock.kind] ?? null;
 
     return (
@@ -2780,14 +3366,50 @@ export default function App() {
 
           {/* Category subtitle + color bar */}
           <View style={styles.editorMeta}>
-            <View style={[styles.editorMetaIcon, { backgroundColor: `${color}20` }]}>
+            <View
+              style={[
+                styles.editorMetaIcon,
+                {
+                  backgroundColor: appearance.iconSurface,
+                  borderColor: colorWithAlpha(color, activeBlock.enabled === false ? 0.08 : 0.18),
+                },
+              ]}
+            >
               {blockImage ? (
                 <Image source={blockImage} style={{ width: 22, height: 22 }} resizeMode="contain" />
               ) : (
-                <BlockIcon type={activeBlock.kind} size={22} color={color} />
+                <BlockIcon type={activeBlock.kind} size={22} color={appearance.power} />
               )}
             </View>
-            <Text style={[styles.editorCategory, { color }]}>{kindLabel(activeBlock.kind).toUpperCase()}</Text>
+            <View style={styles.editorMetaCopy}>
+              <Text style={[styles.editorCategory, { color: appearance.meta }]}>
+                {kindLabel(activeBlock.kind).toUpperCase()}
+              </Text>
+              <Pressable
+                style={[
+                  styles.editorStateButton,
+                  {
+                    borderColor: activeBlock.enabled === false ? appearance.border : appearance.selectedBorder,
+                    backgroundColor: activeBlock.enabled === false ? appearance.surface : appearance.selectedSurface,
+                  },
+                ]}
+                onPress={() => {
+                  void toggleBlockEnabled(blockEditorSlot);
+                }}
+              >
+                <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
+                    stroke={appearance.power}
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                  />
+                </Svg>
+                <Text style={[styles.editorStateButtonText, { color: appearance.text }]}>
+                  {activeBlock.enabled === false ? 'Bypassed' : 'Active'}
+                </Text>
+              </Pressable>
+            </View>
           </View>
           <View style={[styles.editorColorBar, { backgroundColor: color }]} />
 
@@ -2807,6 +3429,10 @@ export default function App() {
   /* ── Full-screen editor takes over when active ─────────────────── */
   if (screen === 'editor' && blockEditorOpen) {
     return renderEditor();
+  }
+
+  if (screen === 'tuner') {
+    return renderTunerScreen();
   }
 
   if (screen === 'performance') {
@@ -3137,7 +3763,7 @@ export default function App() {
               <View style={styles.typeGrid}>
                 {blockTypeOrder.map((typeKey) => {
                   const group = blockCatalog[typeKey];
-                  const color = BLOCK_COLORS[typeKey] ?? COLORS.muted;
+                  const color = getBlockColor(typeKey);
                   return (
                     <Pressable key={typeKey} style={styles.typeCard} onPress={() => selectBlockType(typeKey)}>
                       <View style={[styles.typeAccent, { backgroundColor: color }]} />
@@ -3181,7 +3807,7 @@ export default function App() {
                 {pickerModels.map((item) => {
                   const required = item.usage ?? 0;
                   const canInsert = required <= availableUsage;
-                  const color = BLOCK_COLORS[pickerType ?? ''] ?? COLORS.muted;
+                  const color = getBlockColor(pickerType ?? '');
                   return (
                     <Pressable
                       key={item.id}
@@ -3533,6 +4159,78 @@ const styles = StyleSheet.create({
   performanceInlinePillTextActive: {
     color: COLORS.accent,
   },
+  tunerOffsetHint: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  tunerOffsetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  tunerOffsetCard: {
+    width: '48%',
+    minHeight: 126,
+    padding: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+    gap: 10,
+  },
+  tunerOffsetCardDisabled: {
+    opacity: 0.5,
+  },
+  tunerOffsetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  tunerOffsetLabel: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+  },
+  tunerOffsetShortLabel: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  tunerOffsetValue: {
+    color: COLORS.accent,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 26,
+    letterSpacing: 0.2,
+  },
+  tunerOffsetAdjustRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  tunerOffsetAdjustButton: {
+    flex: 1,
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panel,
+    alignItems: 'center',
+  },
+  tunerOffsetAdjustButtonAccent: {
+    borderColor: COLORS.accentMid,
+    backgroundColor: COLORS.accentDim,
+  },
+  tunerOffsetAdjustButtonText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 12,
+  },
+  tunerOffsetAdjustButtonTextAccent: {
+    color: COLORS.accent,
+  },
   performanceSnapshotGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -3808,9 +4506,30 @@ const styles = StyleSheet.create({
   },
   editorMetaIcon: {
     width: 32, height: 32, borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
     alignItems: 'center', justifyContent: 'center',
   },
+  editorMetaCopy: {
+    flex: 1,
+    gap: 8,
+  },
   editorCategory: { fontFamily: FONT_MONO, fontSize: 12, letterSpacing: 2 },
+  editorStateButton: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  editorStateButtonText: {
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 12,
+    letterSpacing: 0.2,
+  },
   editorColorBar: { height: 3, marginHorizontal: 20, borderRadius: 1.5, marginBottom: 8 },
   editorParamPad: { padding: 16, paddingBottom: 40 },
 

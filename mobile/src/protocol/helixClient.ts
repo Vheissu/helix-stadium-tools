@@ -76,6 +76,19 @@ export type HelixPathClipboard = {
   entries: HelixPathClipboardEntry[];
 };
 
+export type HelixPropertyValue = {
+  key: string | null;
+  type: string | null;
+  value: any;
+};
+
+export type HelixEvent = {
+  addr: string;
+  typetags: string | null;
+  vals: Array<any>;
+  property?: HelixPropertyValue | null;
+};
+
 const ROUTING_MODEL_IDS = new Set([474, 475, 476, 477, 478]);
 const SPLIT_MODEL_IDS = new Set([474, 475, 476, 477]);
 const JOIN_MODEL_IDS = new Set([478]);
@@ -88,7 +101,7 @@ export class HelixClient {
   private stream2002 = new ZmtpSocket();
   private cmdId = 1;
   private listening = false;
-  private onEvent: ((event: { addr: string; typetags: string | null; vals: Array<any> }) => void) | null = null;
+  private onEvent: ((event: HelixEvent) => void) | null = null;
   private listening2002 = false;
   private pendingResponses = new Map<string, (vals: Array<any>) => void>();
   private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
@@ -128,7 +141,7 @@ export class HelixClient {
     this.stream2002.sendFrame(msg);
   }
 
-  startListener(callback?: (event: { addr: string; typetags: string | null; vals: Array<any> }) => void) {
+  startListener(callback?: (event: HelixEvent) => void) {
     this.onEvent = callback ?? null;
     if (this.listening) return;
     this.listening = true;
@@ -195,7 +208,9 @@ export class HelixClient {
       this.lastEditBufferResponse = { vals: event.vals ?? [], receivedAt: Date.now() };
     }
     this.resolvePending(event.addr, event.vals);
-    this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []) });
+    const propertyBlob = event.addr === '/setPropertyValue' ? extractFirstBlob(event.vals) : null;
+    const property = propertyBlob ? decodePropertyBlob(propertyBlob) : null;
+    this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []), property });
   }
 
   private resolvePending(addr: string, vals: Array<any>) {
@@ -282,6 +297,17 @@ export class HelixClient {
     const cmdId = this.nextCmdId();
     const blob = buildPropertyBlob(key, value, valueType);
     this.sendOsc('/PropertyValueSet', 'iib', [cmdId, propertyId, blob]);
+  }
+
+  async setPropertyWait(
+    key: string,
+    value: any,
+    valueType: 's' | 'i' | 'f' | 'b' = 's',
+    propertyId = 0,
+    timeoutMs = 2500
+  ) {
+    const blob = buildPropertyBlob(key, value, valueType);
+    return await this.sendAndWaitStatusCode('/PropertyValueSet', 'ib', [propertyId, blob], timeoutMs);
   }
 
   setNotes(text: string) {
@@ -386,6 +412,30 @@ export class HelixClient {
     const blob = extractFirstBlob(vals);
     if (!blob) return null;
     return decodePropertyBlob(blob);
+  }
+
+  async getPropertyDefinitionWithKey(key: string) {
+    const vals = await this.request('/PropertyDefWithKeyGet', 's', [key], '/keyPropertyDefinition', 2500);
+    const blob = extractFirstBlob(vals);
+    return blob ? decodeMsgpackBlob(blob) : null;
+  }
+
+  async getMatchingPropertyDefinitions(query: string) {
+    const vals = await this.request('/MatchingPropertyDefinitionsGet', 's', [query], '/getMatchingPropertyDefinitions', 3000);
+    const blob = extractFirstBlob(vals);
+    const decoded = blob ? decodeMsgpackBlob(blob) : null;
+    if (!decoded || typeof decoded !== 'object') return [];
+    const defs = (decoded as any).defs;
+    return Array.isArray(defs) ? defs : [];
+  }
+
+  async getMatchingPropertyValues(query: string) {
+    const vals = await this.request('/MatchingPropertyValuesGet', 's', [query], '/getMatchingPropertyValues', 3000);
+    const blob = extractFirstBlob(vals);
+    const decoded = blob ? decodeMsgpackBlob(blob) : null;
+    if (!decoded || typeof decoded !== 'object') return [];
+    const values = (decoded as any).vals;
+    return Array.isArray(values) ? values : [];
   }
 
   async getActivePresetContentId() {

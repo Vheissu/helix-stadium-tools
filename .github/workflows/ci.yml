@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  python:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,3 +41,22 @@ jobs:
           echo "```" >> "$GITHUB_STEP_SUMMARY"
           cat coverage.txt >> "$GITHUB_STEP_SUMMARY"
           echo "```" >> "$GITHUB_STEP_SUMMARY"
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Run focused mobile tests
+        run: npm test

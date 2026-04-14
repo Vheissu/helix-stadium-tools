@@ -8,7 +8,6 @@ import {
   View,
   Pressable,
   Switch,
-  Platform,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -26,6 +25,8 @@ import { ParamKnob } from './src/components/ParamKnob';
 import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
+import { buildConnectionFailureStatus } from './src/utils/connection';
+import { findFlows } from './src/utils/helixState';
 
 const COLORS = THEME_COLORS;
 
@@ -158,62 +159,6 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
     <View style={styles.sectionBody}>{children}</View>
   </View>
 );
-
-const findFlows = (state: any): any[] | null => {
-  if (!state || typeof state !== 'object') return null;
-  const seen = new Set<any>();
-  const queue: any[] = [state];
-  while (queue.length) {
-    const current = queue.shift();
-    if (!current || typeof current !== 'object') continue;
-    if (seen.has(current)) continue;
-    seen.add(current);
-    const sfg = current.sfg_;
-    if (sfg && typeof sfg === 'object' && Array.isArray(sfg.flow)) return sfg.flow;
-    if (Array.isArray(current.flow)) return current.flow;
-    if (Array.isArray(current)) {
-      current.forEach((item) => queue.push(item));
-    } else {
-      Object.values(current).forEach((value) => queue.push(value));
-    }
-  }
-  return null;
-};
-
-const formatConnectionError = (error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error ?? '');
-  const normalized = message.trim().toLowerCase();
-
-  if (!normalized) {
-    return 'Could not connect. Check your device name or IP address and try again.';
-  }
-  if (
-    normalized.includes('enotfound') ||
-    normalized.includes('getaddrinfo') ||
-    normalized.includes('nxdomain') ||
-    normalized.includes('name or service not known')
-  ) {
-    return 'Device not found. Check the device name or IP address and try again.';
-  }
-  if (normalized.includes('refused') || normalized.includes('econnrefused')) {
-    return 'Connection was refused. Make sure Remote Access is enabled on your Helix Stadium.';
-  }
-  if (normalized.includes('timed out') || normalized.includes('timeout')) {
-    return 'Connection timed out. Make sure your Helix Stadium is on the same Wi-Fi network.';
-  }
-  if (
-    normalized.includes('socket') ||
-    normalized.includes('handshake') ||
-    normalized.includes('ready') ||
-    normalized.includes('zmtp') ||
-    normalized.includes('osc') ||
-    normalized.includes('port') ||
-    normalized.includes('reset')
-  ) {
-    return 'Could not finish connecting. Make sure your Helix Stadium is on the same Wi-Fi network and that Remote Access is enabled.';
-  }
-  return 'Could not connect to your Helix Stadium. Check the device name or IP address and try again.';
-};
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -567,7 +512,7 @@ export default function App() {
       setStatus('Connected');
       await handleFullSync();
     } catch (err) {
-      setStatus(`Connection failed: ${formatConnectionError(err)}`);
+      setStatus(buildConnectionFailureStatus(err));
     } finally {
       setConnecting(false);
     }

@@ -12,10 +12,7 @@ def coerce_numeric_keys(obj):
         for key, val in obj.items():
             new_key = key
             if isinstance(key, str) and key.isdigit():
-                try:
-                    new_key = int(key)
-                except Exception:
-                    new_key = key
+                new_key = int(key)
             out[new_key] = coerce_numeric_keys(val)
         return out
     if isinstance(obj, list):

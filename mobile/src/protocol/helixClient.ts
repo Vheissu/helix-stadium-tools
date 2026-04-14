@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
 import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake } from './zmtp';
+import { extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
 
 const fourcc = (text: string) => {
   if (text.length !== 4) throw new Error('fourcc must be 4 chars');
@@ -169,7 +170,7 @@ export class HelixClient {
 
   private async listenLoop2002() {
     while (this.listening2002) {
-      const data = await this.readMultipart2002(1000);
+      const data = await this.readMultipart2002();
       if (!data) continue;
       if (data.length === 0) continue;
       if (data[0] === 0x2f) {
@@ -184,8 +185,7 @@ export class HelixClient {
     }
   }
 
-  private async readMultipart2002(timeoutMs: number) {
-    void timeoutMs;
+  private async readMultipart2002() {
     const first = await this.stream2002.readFrame();
     if (!first) return null;
     let { flags } = first;
@@ -240,14 +240,9 @@ export class HelixClient {
 
   private waitForResponse(expectAddr: string, cmdId: number, timeoutMs: number) {
     const key = buildRequestKey(expectAddr, cmdId);
-    let resolved = false;
-    let result: Array<any> | null = null;
     let timer: ReturnType<typeof setTimeout> | null = null;
-    const promise = new Promise<Array<any> | null>((resolve) => {
+    return new Promise<Array<any> | null>((resolve) => {
       const resolver = (vals: Array<any>) => {
-        if (resolved) return;
-        resolved = true;
-        result = vals;
         if (timer) clearTimeout(timer);
         resolve(vals);
       };
@@ -256,14 +251,9 @@ export class HelixClient {
         if (this.pendingResponses.get(key) === resolver) {
           this.pendingResponses.delete(key);
         }
-        if (!resolved) resolve(null);
+        resolve(null);
       }, timeoutMs);
     });
-    return {
-      promise,
-      isResolved: () => resolved,
-      getResult: () => result,
-    };
   }
 
   private async request(address: string, typetags: string, args: Array<any>, expectAddr: string, timeoutMs = 2000) {
@@ -271,7 +261,7 @@ export class HelixClient {
     const fullArgs = [cmdId, ...args];
     const wait = this.waitForResponse(expectAddr, cmdId, timeoutMs);
     this.sendOsc(address, `i${typetags}`, fullArgs);
-    return await wait.promise;
+    return await wait;
   }
 
   private async sendAndWaitStatusCode(address: string, typetags: string, args: Array<any>, timeoutMs = 2500) {
@@ -279,7 +269,7 @@ export class HelixClient {
     const fullArgs = [cmdId, ...args];
     const wait = this.waitForResponse('/status', cmdId, timeoutMs);
     this.sendOsc(address, `i${typetags}`, fullArgs);
-    const vals = await wait.promise;
+    const vals = await wait;
     if (!vals) {
       throw new Error(`${address} timed out`);
     }
@@ -886,14 +876,6 @@ const decodeCommandBlob = (vals: Array<any> | null | undefined) => {
   return decodeMsgpackBlob(blob);
 };
 
-const hasFlowState = (decoded: any) => {
-  if (!decoded || typeof decoded !== 'object') return false;
-  const sfg = (decoded as any).sfg_;
-  if (sfg && typeof sfg === 'object' && Array.isArray((sfg as any).flow)) return true;
-  if (Array.isArray((decoded as any).flow)) return true;
-  return false;
-};
-
 const decodeStateFromBlobs = (vals: Array<any> | null | undefined) => {
   const blobs = extractBlobs(vals);
   if (!blobs.length) return null;
@@ -911,59 +893,12 @@ const decodeStateFromBlobs = (vals: Array<any> | null | undefined) => {
   return fallback;
 };
 
-const findFirstKey = (value: any, targetKey: string) => {
-  const queue = [value];
-  const seen = new Set<any>();
-  while (queue.length) {
-    const current = queue.shift();
-    if (!current || typeof current !== 'object') continue;
-    if (seen.has(current)) continue;
-    seen.add(current);
-    if (!Array.isArray(current) && Object.prototype.hasOwnProperty.call(current, targetKey)) {
-      return (current as Record<string, any>)[targetKey];
-    }
-    if (Array.isArray(current)) {
-      queue.push(...current);
-    } else {
-      queue.push(...Object.values(current));
-    }
-  }
-  return null;
-};
-
-const extractSnapshots = (state: any) => {
-  const snapshots = findFirstKey(state, 'snps');
-  if (!Array.isArray(snapshots)) return [];
-  return snapshots
-    .filter((item) => item && typeof item === 'object')
-    .map((item: any) => {
-      const index = Number(item.si__);
-      return {
-        ...item,
-        index: Number.isFinite(index) ? index : -1,
-      };
-    })
-    .filter((item) => item.index >= 0)
-    .sort((left, right) => left.index - right.index);
-};
-
 const COPYABLE_FLOW_POSITIONS = [0, ...Array.from({ length: 12 }, (_value, index) => index + 1), 13, ...Array.from({ length: 12 }, (_value, index) => index + 15), 27];
 const CLEARABLE_FLOW_POSITIONS = [...Array.from({ length: 12 }, (_value, index) => index + 1), ...Array.from({ length: 12 }, (_value, index) => index + 15)];
 
-const getFlows = (state: any) => {
-  const sfg = state?.sfg_;
-  if (sfg && typeof sfg === 'object' && Array.isArray((sfg as any).flow)) {
-    return (sfg as any).flow as any[];
-  }
-  if (Array.isArray(state?.flow)) {
-    return state.flow as any[];
-  }
-  return [];
-};
-
 const getFlow = (state: any, flowIndex: number) => {
-  const flows = getFlows(state);
-  if (!Array.isArray(flows) || flowIndex < 0 || flowIndex >= flows.length) return null;
+  const flows = findFlows(state);
+  if (!flows || flowIndex < 0 || flowIndex >= flows.length) return null;
   const flow = flows[flowIndex];
   return flow && typeof flow === 'object' ? flow : null;
 };

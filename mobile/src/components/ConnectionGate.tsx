@@ -13,6 +13,7 @@ import {
 import Svg, { Circle, Path } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { COLORS, FONTS } from '../theme/colors';
+import { getConnectionErrorMessage } from '../utils/connection';
 
 interface ConnectionGateProps {
   host: string;
@@ -127,7 +128,7 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
   connecting,
   status,
 }) => {
-  const hasError = status.startsWith('Connection failed');
+  const errorMessage = getConnectionErrorMessage(status);
 
   return (
     <SafeAreaProvider>
@@ -189,12 +190,10 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
             </Pressable>
 
             {/* Status message */}
-            {hasError && (
+            {errorMessage && (
               <View style={styles.errorRow}>
                 <View style={styles.errorDot} />
-                <Text style={styles.errorText}>
-                  {status.replace('Connection failed: ', '')}
-                </Text>
+                <Text style={styles.errorText}>{errorMessage}</Text>
               </View>
             )}
           </View>

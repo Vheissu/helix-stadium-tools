@@ -180,7 +180,7 @@ class HelixSession:
         for value in vals[1:3]:
             try:
                 status_values.append(int(value))
-            except Exception:
+            except (TypeError, ValueError):
                 return
         if any(status_values):
             raise HelixStatusError(address, cmd_id, status_values)
@@ -368,7 +368,7 @@ class HelixSession:
             raw = value.get("val")
         try:
             return int(raw)
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
     def get_content_ref(self, content_id: int):
@@ -526,7 +526,7 @@ class HelixSession:
             raw = value.get("val")
         try:
             return bool(int(raw))
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
     def get_auto_cab_enabled(self):
@@ -538,7 +538,7 @@ class HelixSession:
             raw = value.get("val")
         try:
             return bool(int(raw))
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
     def get_active_preset_ref(self):
@@ -554,7 +554,7 @@ class HelixSession:
             return None
         try:
             return int(vals[1])
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
     def get_active_snapshot_index(self):
@@ -564,7 +564,7 @@ class HelixSession:
             return None
         try:
             return int(vals[1])
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
     def get_snapshot_targets(self, index: int):
@@ -888,7 +888,7 @@ class HelixSession:
         """Send a /doAgenda batch command (msgpack list of command dicts)."""
         try:
             import msgpack  # type: ignore
-        except Exception as exc:
+        except ImportError as exc:
             raise SystemExit(f"msgpack is required: {exc}")
         cmd_id = self.next_cmd_id
         blob = msgpack.packb(commands, use_bin_type=True)

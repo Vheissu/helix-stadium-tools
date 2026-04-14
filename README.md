@@ -1,18 +1,42 @@
-# Helix Stadium XL Editor Protocol + Model Extractor
+# Helix Stadium Tools
 
 [![codecov](https://codecov.io/gh/Vheissu/helix-stadium-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/Vheissu/helix-stadium-tools)
 
-This repo contains tools and data extraction scripts for understanding the Helix Stadium XL editor protocol and generating structured model metadata suitable for AI-driven preset builders.
+Python tooling and an Expo-based mobile companion for exploring the Helix Stadium editor protocol, controlling a device over Wi-Fi, and generating structured model metadata from the official app bundles.
 
 > **Disclaimer:** This is an unofficial, independent open-source project and is not affiliated with, endorsed by, or associated with Yamaha Guitar Group, Line 6, or any of their subsidiaries. All trademarks, logos, and brand names (including but not limited to "Helix", "Line 6", and "Yamaha") are the property of their respective owners and are used here solely for identification purposes. Use of these names does not imply any affiliation or endorsement.
 
-All paths assume the macOS editor app is installed at:
+Most examples assume the macOS editor app is installed at `/Applications/Line6/Helix Stadium.app`.
 
-- `/Applications/Line6/Helix Stadium.app`
+## What’s in this repo
 
-Note: The mobile prototype (see `mobile/`) uses per-model DSP `usage` values from the modeldefs bundle and applies a conservative **70 usage** cap per path for meters/grey-out.
+- `helix/` exposes the reusable Python client pieces: discovery, ZMTP, OSC, edit-buffer helpers, and the session API.
+- `scripts/` contains the CLI entry points for capture analysis, device control, and data extraction.
+- `generated/helix-models/` contains the generated JSON catalogs used by downstream tools.
+- `mobile/` contains the Expo mobile app for connecting to a Helix Stadium over Wi-Fi.
+- `docs/` contains the deeper protocol and transport notes.
 
-## Repo layout
+## Quick start
+
+Python tools:
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+python3 -m unittest discover -s tests
+python3 scripts/helix_control.py discover
+```
+
+Mobile app:
+
+```bash
+cd mobile
+npm install
+npm run typecheck
+npm test
+npm run ios
+```
+
+## Repository layout
 
 - `scripts/`
   - `osc_pcap_dump.py` - Parse OSC-over-TCP traffic captured in a pcap.
@@ -34,12 +58,15 @@ Note: The mobile prototype (see `mobile/`) uses per-model DSP `usage` values fro
   - `bass_cabs.json`
   - `ir_cabs.json`
   - `all_models.json`
+- `mobile/README.md` - App-specific setup, commands, and feature notes.
+- `CONTRIBUTING.md` - Contributor workflow and review expectations.
 
 ## Requirements
 
 - Python 3.10+ recommended
 - `msgpack` (required for modeldefs parsing)
 - Standard library only for everything else
+- Node.js 20+ for the Expo app
 
 Install msgpack:
 
@@ -51,6 +78,13 @@ Install dev dependencies:
 
 ```bash
 python3 -m pip install -r requirements-dev.txt
+```
+
+Install mobile dependencies:
+
+```bash
+cd mobile
+npm install
 ```
 
 ## Quick library example
@@ -75,19 +109,34 @@ with HelixSession(
 
 ## Testing
 
-Run unit tests:
+Python:
 
 ```bash
 python3 -m unittest discover -s tests
 ```
 
-Run tests with coverage:
+Python with coverage:
 
 ```bash
 python3 -m coverage run -m unittest discover -s tests
 python3 -m coverage report -m
 python3 -m coverage xml
 ```
+
+Mobile:
+
+```bash
+cd mobile
+npm run typecheck
+npm test
+```
+
+## Contributor notes
+
+- Use a spare preset when testing live write operations against hardware.
+- Keep end-user copy plain and action-focused; avoid exposing protocol internals in the UI unless they help with troubleshooting.
+- Prefer focused tests around protocol decoding, state transforms, and user-facing helpers over coverage-padding tests.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor workflow.
 
 ## USB transport reconnaissance
 

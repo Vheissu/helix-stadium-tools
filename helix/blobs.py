@@ -23,7 +23,7 @@ def fourcc_str(value: int):
 def decode_msgpack_blob(blob: bytes):
     try:
         import msgpack  # type: ignore
-    except Exception:
+    except ImportError:
         return None
     for offset in (0, 4, 8, 12, 16):
         try:
@@ -56,7 +56,7 @@ def decode_property_blob(blob: bytes):
 def build_property_blob(key: str, value, value_type: str = "s") -> bytes:
     try:
         import msgpack  # type: ignore
-    except Exception as exc:
+    except ImportError as exc:
         raise SystemExit(f"msgpack is required: {exc}")
     payload = {
         fourcc_int("key_"): key,

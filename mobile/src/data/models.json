@@ -3,840 +3,980 @@
     {
       "id": 628,
       "name": "2204 Mod",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine62204Mod",
       "category": "amp"
     },
     {
       "id": 612,
       "name": "A30 Fawn Brt",
+      "based_on": "Vox AC-30 Fawn (Bright channel)",
       "key": "HD2_AmpA30FawnBrt",
       "category": "amp"
     },
     {
       "id": 613,
       "name": "A30 Fawn Nrm",
+      "based_on": "Vox AC-30 Fawn (Normal channel)",
       "key": "HD2_AmpA30FawnNrm",
       "category": "amp"
     },
     {
       "id": 610,
       "name": "ANGL Meteor",
+      "based_on": "ENGL Fireball 100",
       "key": "HD2_AmpANGLMeteor",
       "category": "amp"
     },
     {
       "id": 663,
       "name": "Agua 51",
+      "based_on": "Aguilar DB51",
       "key": "HD2_AmpAgua51",
       "category": "amp"
     },
     {
       "id": 809,
       "name": "Agua 751",
+      "based_on": "Aguilar DB751",
       "key": "Agoura_AmpAgua751",
       "category": "amp"
     },
     {
       "id": 726,
       "name": "Agua Sledge",
+      "based_on": "Aguilar Tone Hammer",
       "key": "HD2_AmpAguaSledge",
       "category": "amp"
     },
     {
       "id": 542,
       "name": "Ampeg B-15NF",
+      "based_on": "Ampeg B-15NF Portaflex",
       "key": "HD2_AmpTucknGo",
       "category": "amp"
     },
     {
       "id": 759,
       "name": "Ampeg B15NF 66",
+      "based_on": "Ampeg B-15NF Portaflex",
       "key": "Agoura_AmpAmpegB15NF66",
       "category": "amp"
     },
     {
       "id": 805,
       "name": "Ampeg SVT 50th",
+      "based_on": "Ampeg Heritage\u00e2\u0084\u00a2 50th Anniversary SVT (Ch 1 Normal, Ch1 Bright, Ch2 Normal, Ch2 Bright & Jumped channels)",
       "key": "Agoura_AmpAmpegSVT",
       "category": "amp"
     },
     {
       "id": 554,
       "name": "Ampeg SVT Brt",
+      "based_on": "Ampeg SVT (bright channel)",
       "key": "HD2_AmpSVBeastBrt",
       "category": "amp"
     },
     {
       "id": 555,
       "name": "Ampeg SVT Nrm",
+      "based_on": "Ampeg SVT (Normal channel)",
       "key": "HD2_AmpSVBeastNrm",
       "category": "amp"
     },
     {
       "id": 673,
       "name": "Ampeg SVT-4 PRO",
+      "based_on": "Ampeg SVT-4 PRO",
       "key": "HD2_AmpSVT4Pro",
       "category": "amp"
     },
     {
       "id": 637,
       "name": "Archetype Clean",
+      "based_on": "Paul Reed Smith Archon (Clean channel)",
       "key": "HD2_AmpArchetypeClean",
       "category": "amp"
     },
     {
       "id": 635,
       "name": "Archetype Lead",
+      "based_on": "Paul Reed Smith Archon (Lead channel)",
       "key": "HD2_AmpArchetypeLead",
       "category": "amp"
     },
     {
       "id": 713,
       "name": "Aristocrat",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Aristocrat",
       "category": "amp"
     },
     {
       "id": 643,
       "name": "Badonk",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Badonk",
       "category": "amp"
     },
     {
       "id": 735,
       "name": "Brit 2203",
+      "based_on": "Marshall JCM-800, 2203, 100W",
       "key": "HD2_AmpBrit2203",
       "category": "amp"
     },
     {
       "id": 758,
       "name": "Brit 2203MV",
+      "based_on": "Marshall JCM-800, 100W, 2203 (Low and High inputs)",
       "key": "Agoura_AmpBrit2203MV",
       "category": "amp"
     },
     {
       "id": 608,
       "name": "Brit 2204",
+      "based_on": "Marshall JCM-800, 2204, 50W",
       "key": "HD2_AmpBrit2204",
       "category": "amp"
     },
     {
       "id": 604,
       "name": "Brit J45 Brt",
+      "based_on": "Marshall JTM-45 (Bright channel)",
       "key": "HD2_AmpBritJ45Brt",
       "category": "amp"
     },
     {
       "id": 605,
       "name": "Brit J45 Nrm",
+      "based_on": "Marshall JTM-45 (Normal channel)",
       "key": "HD2_AmpBritJ45Nrm",
       "category": "amp"
     },
     {
       "id": 834,
       "name": "Brit Jujube",
+      "based_on": "Marshall Silver Jubilee (Rhythm, Rhythm Clip, & Lead channels)",
       "key": "Agoura_AmpBritJujube",
       "category": "amp"
     },
     {
       "id": 757,
       "name": "Brit MegaBass",
+      "based_on": "Marshall Super Bass 1992 (Normal, Bright & Jumped channels)",
       "key": "Agoura_AmpBritMegaBass",
       "category": "amp"
     },
     {
       "id": 600,
       "name": "Brit P75 Brt",
+      "based_on": "Park 75 (Bright channel)",
       "key": "HD2_AmpBritP75Brt",
       "category": "amp"
     },
     {
       "id": 601,
       "name": "Brit P75 Nrm",
+      "based_on": "Park 75 (Normal channel)",
       "key": "HD2_AmpBritP75Nrm",
       "category": "amp"
     },
     {
       "id": 756,
       "name": "Brit Plexi",
+      "based_on": "Marshall Super Lead 100 (Normal, Bright & Jumped channels)",
       "key": "Agoura_AmpBritPlexi",
       "category": "amp"
     },
     {
       "id": 594,
       "name": "Brit Plexi Brt",
+      "based_on": "Marshall Super Lead 100 (Bright channel)",
       "key": "HD2_AmpBritPlexiBrt",
       "category": "amp"
     },
     {
       "id": 595,
       "name": "Brit Plexi Jump",
+      "based_on": "Marshall Super Lead 100 (Normal channel)",
       "key": "HD2_AmpBritPlexiJump",
       "category": "amp"
     },
     {
       "id": 596,
       "name": "Brit Plexi Nrm",
+      "based_on": "Marshall Super Lead 100 (Normal channel)",
       "key": "HD2_AmpBritPlexiNrm",
       "category": "amp"
     },
     {
       "id": 657,
       "name": "Brit Trem Brt",
+      "based_on": "Marshall JTM-50 (Bright channel)",
       "key": "HD2_AmpBritTremBrt",
       "category": "amp"
     },
     {
       "id": 658,
       "name": "Brit Trem Jump",
+      "based_on": "Marshall JTM-50 (Jumped channels)",
       "key": "HD2_AmpBritTremJump",
       "category": "amp"
     },
     {
       "id": 659,
       "name": "Brit Trem Nrm",
+      "based_on": "Marshall JTM-50 (Normal channel)",
       "key": "HD2_AmpBritTremNrm",
       "category": "amp"
     },
     {
       "id": 649,
       "name": "Busy One Ch1",
+      "based_on": "Pearce BC-1 preamp (Channel 1)",
       "key": "HD2_AmpBusyOneCh1",
       "category": "amp"
     },
     {
       "id": 647,
       "name": "Busy One Ch2",
+      "based_on": "Pearce BC-1 preamp (Channel 2)",
       "key": "HD2_AmpBusyOneCh2",
       "category": "amp"
     },
     {
       "id": 645,
       "name": "Busy One Jump",
+      "based_on": "Pearce BC-1 preamp (Jumped channels)",
       "key": "HD2_AmpBusyOneJump",
       "category": "amp"
     },
     {
       "id": 832,
       "name": "Cali 2C+",
+      "based_on": "Mesa/Boogie Mark IIC (Normal & Lead channels, all switches)",
       "key": "Agoura_AmpCali2CPlus",
       "category": "amp"
     },
     {
       "id": 590,
       "name": "Cali 400 Ch1",
+      "based_on": "MESA/Boogie Bass 400+ (channel 1)",
       "key": "HD2_AmpCali400Ch1",
       "category": "amp"
     },
     {
       "id": 591,
       "name": "Cali 400 Ch2",
+      "based_on": "MESA/Boogie Bass 400+ (channel 2)",
       "key": "HD2_AmpCali400Ch2",
       "category": "amp"
     },
     {
       "id": 588,
       "name": "Cali Bass",
+      "based_on": "MESA/Boogie M9 Carbine",
       "key": "HD2_AmpCaliBass",
       "category": "amp"
     },
     {
       "id": 626,
       "name": "Cali IV Lead",
+      "based_on": "MESA/Boogie Mark IV (Lead channel)",
       "key": "HD2_AmpCaliIVLead",
       "category": "amp"
     },
     {
       "id": 622,
       "name": "Cali IV Rhythm 1",
+      "based_on": "MESA/Boogie Mark IV (Channel I)",
       "key": "HD2_AmpCaliIVR1",
       "category": "amp"
     },
     {
       "id": 623,
       "name": "Cali IV Rhythm 2",
+      "based_on": "MESA/Boogie Mark IV (Channel II)",
       "key": "HD2_AmpCaliIVR2",
       "category": "amp"
     },
     {
       "id": 586,
       "name": "Cali Rectifire",
+      "based_on": "MESA/Boogie Dual Rectifier",
       "key": "HD2_AmpCaliRectifire",
       "category": "amp"
     },
     {
       "id": 671,
       "name": "Cali Texas Ch1",
+      "based_on": "MESA/Boogie Lone Star (Clean channel)",
       "key": "HD2_AmpCaliTexasCh1",
       "category": "amp"
     },
     {
       "id": 667,
       "name": "Cali Texas Ch2",
+      "based_on": "MESA/Boogie Lone Star (Drive channel)",
       "key": "HD2_AmpCaliTexasCh2",
       "category": "amp"
     },
     {
       "id": 712,
       "name": "Carillon",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Carillon",
       "category": "amp"
     },
     {
       "id": 655,
       "name": "Cartographer",
+      "based_on": "Ben Adrian Cartographer",
       "key": "HD2_AmpCartographer",
       "category": "amp"
     },
     {
       "id": 710,
       "name": "Clarity",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Clarity",
       "category": "amp"
     },
     {
       "id": 693,
       "name": "Das Benzin Lead",
+      "based_on": "Diezel VH4 (Lead channel)",
       "key": "HD2_AmpDasBenzinLead",
       "category": "amp"
     },
     {
       "id": 695,
       "name": "Das Benzin Mega",
+      "based_on": "Diezel VH4 (Mega channel)",
       "key": "HD2_AmpDasBenzinMega",
       "category": "amp"
     },
     {
       "id": 639,
       "name": "Del Sol 300",
+      "based_on": "Sunn Coliseum 300",
       "key": "HD2_AmpDelSol300",
       "category": "amp"
     },
     {
       "id": 651,
       "name": "Derailed Ingrid",
+      "based_on": "Trainwreck Circuits Express",
       "key": "HD2_AmpDerailedIngrid",
       "category": "amp"
     },
     {
       "id": 584,
       "name": "Divided Duo",
+      "based_on": "\u00c3\u00b713 JRT 9/15",
       "key": "HD2_AmpDividedDuo",
       "category": "amp"
     },
     {
       "id": 568,
       "name": "Doom",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Doom",
       "category": "amp"
     },
     {
       "id": 811,
       "name": "EV Panama Blue",
+      "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
       "key": "Agoura_AmpEVPanamaBlue",
       "category": "amp"
     },
     {
       "id": 746,
       "name": "EV Panama Blue",
+      "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
       "key": "HD2_AmpEVPanamaBlue",
       "category": "amp"
     },
     {
       "id": 823,
       "name": "EV Panama Red",
+      "based_on": "EVH 5150III 100, 6L6 (Red channel)",
       "key": "Agoura_AmpEVPanamaRed",
       "category": "amp"
     },
     {
       "id": 745,
       "name": "EV Panama Red",
+      "based_on": "EVH 5150III 100, 6L6 (Red channel)",
       "key": "HD2_AmpEVPanamaRed",
       "category": "amp"
     },
     {
       "id": 566,
       "name": "Elektrik",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Elektrik",
       "category": "amp"
     },
     {
       "id": 725,
       "name": "Elmsley",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Elmsley",
       "category": "amp"
     },
     {
       "id": 564,
       "name": "Epic",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Epic",
       "category": "amp"
     },
     {
       "id": 582,
       "name": "Essex A15",
+      "based_on": "Vox AC-15",
       "key": "HD2_AmpEssexA15",
       "category": "amp"
     },
     {
       "id": 580,
       "name": "Essex A30",
+      "based_on": "Vox AC-30 with Top Boost",
       "key": "HD2_AmpEssexA30",
       "category": "amp"
     },
     {
       "id": 810,
       "name": "Essex TB30CC",
+      "based_on": "Vox AC-30CC (Normal and Top Boost channels)",
       "key": "Agoura_AmpEssexTB30CC",
       "category": "amp"
     },
     {
       "id": 630,
       "name": "Fatality",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Fatality",
       "category": "amp"
     },
     {
       "id": 682,
       "name": "Fullerton Brt",
+      "based_on": "Fender Tweed Deluxe 5C3 (Bright channel)",
       "key": "HD2_AmpFullertonBrt",
       "category": "amp"
     },
     {
       "id": 683,
       "name": "Fullerton Jump",
+      "based_on": "Fender Tweed Deluxe 5C3 (Jumped channels)",
       "key": "HD2_AmpFullertonJump",
       "category": "amp"
     },
     {
       "id": 684,
       "name": "Fullerton Nrm",
+      "based_on": "Fender Tweed Deluxe 5C3 (Normal channel)",
       "key": "HD2_AmpFullertonNrm",
       "category": "amp"
     },
     {
       "id": 578,
       "name": "G Cougar 800",
+      "based_on": "Gallien-Krueger GK 800RB",
       "key": "HD2_AmpGCougar800",
       "category": "amp"
     },
     {
       "id": 576,
       "name": "German Mahadeva",
+      "based_on": "Bogner Shiva",
       "key": "HD2_AmpGermanMahadeva",
       "category": "amp"
     },
     {
       "id": 574,
       "name": "German Ubersonic",
+      "based_on": "Bogner \u00c3\u009cerschall",
       "key": "HD2_AmpGermanUbersonic",
       "category": "amp"
     },
     {
       "id": 818,
       "name": "German Xtra Blue",
+      "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
       "key": "Agoura_AmpGermanXtraBlue",
       "category": "amp"
     },
     {
       "id": 741,
       "name": "German Xtra Blue",
+      "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
       "key": "HD2_AmpGermanXtraBlue",
       "category": "amp"
     },
     {
       "id": 819,
       "name": "German Xtra Red",
+      "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
       "key": "Agoura_AmpGermanXtraRed",
       "category": "amp"
     },
     {
       "id": 742,
       "name": "German Xtra Red",
+      "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
       "key": "HD2_AmpGermanXtraRed",
       "category": "amp"
     },
     {
       "id": 731,
       "name": "Grammatico GSG",
+      "based_on": "Grammatico GSG100",
       "key": "HD2_AmpGSG100",
       "category": "amp"
     },
     {
       "id": 676,
       "name": "GrammaticoLG Brt",
+      "based_on": "Grammatico LaGrange (Bright channel)",
       "key": "HD2_AmpGrammaticoBrt",
       "category": "amp"
     },
     {
       "id": 677,
       "name": "GrammaticoLG Jmp",
+      "based_on": "Grammatico LaGrange (Jumped channels)",
       "key": "HD2_AmpGrammaticoJump",
       "category": "amp"
     },
     {
       "id": 678,
       "name": "GrammaticoLG Nrm",
+      "based_on": "Grammatico LaGrange (Normal channel)",
       "key": "HD2_AmpGrammaticoNrm",
       "category": "amp"
     },
     {
       "id": 572,
       "name": "Interstate Zed",
+      "based_on": "Dr Z Route 66",
       "key": "HD2_AmpInterstateZed",
       "category": "amp"
     },
     {
       "id": 570,
       "name": "Jazz Rivet 120",
+      "based_on": "Roland JC-120 Jazz Chorus",
       "key": "HD2_AmpJazzRivet120",
       "category": "amp"
     },
     {
       "id": 711,
       "name": "Kinetic",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Kinetic",
       "category": "amp"
     },
     {
       "id": 633,
       "name": "Litigator",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Litigator",
       "category": "amp"
     },
     {
       "id": 562,
       "name": "Mail Order Twin",
+      "based_on": "Silvertone 1484",
       "key": "HD2_AmpMailOrderTwin",
       "category": "amp"
     },
     {
       "id": 560,
       "name": "Mandarin 80",
+      "based_on": "Orange OR80",
       "key": "HD2_AmpMandarin80",
       "category": "amp"
     },
     {
       "id": 733,
       "name": "Mandarin Bass 200",
+      "based_on": "Orange AD200 MkIII",
       "key": "HD2_AmpMandarinBass200",
       "category": "amp"
     },
     {
       "id": 754,
       "name": "Mandarin Plus 200",
+      "based_on": "Orange AD200 MkIII (Passive & Active inputs)",
       "key": "Agoura_AmpMandarinPlus200",
       "category": "amp"
     },
     {
       "id": 697,
       "name": "Mandarin Rocker",
+      "based_on": "Orange Rockerverb 100 MkIII (dirty channel)",
       "key": "HD2_AmpMandarinRocker",
       "category": "amp"
     },
     {
       "id": 616,
       "name": "Matchstick Ch1",
+      "based_on": "Matchless DC30 (Channel 1)",
       "key": "HD2_AmpMatchstickCh1",
       "category": "amp"
     },
     {
       "id": 617,
       "name": "Matchstick Ch2",
+      "based_on": "Matchless DC30 (Channel 2)",
       "key": "HD2_AmpMatchstickCh2",
       "category": "amp"
     },
     {
       "id": 618,
       "name": "Matchstick Jump",
+      "based_on": "Matchless DC30 (Jumped channels)",
       "key": "HD2_AmpMatchstickJump",
       "category": "amp"
     },
     {
       "id": 703,
       "name": "Moo)))n Brt",
+      "based_on": "Sunn Model T (Bright channel)",
       "key": "HD2_AmpMoonBrt",
       "category": "amp"
     },
     {
       "id": 702,
       "name": "Moo)))n Jump",
+      "based_on": "Sunn Model T (Jumped channels)",
       "key": "HD2_AmpMoonJump",
       "category": "amp"
     },
     {
       "id": 701,
       "name": "Moo)))n Nrm",
+      "based_on": "Sunn Model T (Normal channel)",
       "key": "HD2_AmpMoonNrm",
       "category": "amp"
     },
     {
       "id": 714,
       "name": "Oblivion",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Oblivion",
       "category": "amp"
     },
     {
       "id": 558,
       "name": "PV Panama",
+      "based_on": "Peavey 5150",
       "key": "HD2_AmpPVPanama",
       "category": "amp"
     },
     {
       "id": 723,
       "name": "PV Vitriol Clean",
+      "based_on": "Peavey Invective (Clean channel)",
       "key": "HD2_AmpPVVitriolClean",
       "category": "amp"
     },
     {
       "id": 708,
       "name": "PV Vitriol Crunch",
+      "based_on": "Peavey Invective (Crunch channel)",
       "key": "HD2_AmpPVVitriolCrunch",
       "category": "amp"
     },
     {
       "id": 707,
       "name": "PV Vitriol Lead",
+      "based_on": "Peavey Invective (Lead channel)",
       "key": "HD2_AmpPVVitriolLead",
       "category": "amp"
     },
     {
       "id": 669,
       "name": "Placater Clean",
+      "based_on": "Friedman BE-100 (clean channel)",
       "key": "HD2_AmpPlacaterClean",
       "category": "amp"
     },
     {
       "id": 665,
       "name": "Placater Dirty",
+      "based_on": "Friedman BE-100 (BE/HBE channel)",
       "key": "HD2_AmpPlacaterDirty",
       "category": "amp"
     },
     {
       "id": 817,
       "name": "Revv 120 Purple",
+      "based_on": "Revv Generator 120 (Purple/Gain Channel 3)",
       "key": "Agoura_AmpRevvCh3Purple",
       "category": "amp"
     },
     {
       "id": 806,
       "name": "Revv 120 Red",
+      "based_on": "Revv Generator 120 (Red/High Gain Channel 4)",
       "key": "Agoura_AmpRevvCh4Red",
       "category": "amp"
     },
     {
       "id": 689,
       "name": "Revv Gen Purple",
+      "based_on": "Revv Generator 120 (Purple/Gain Ch. 3)",
       "key": "HD2_AmpRevvGenPurple",
       "category": "amp"
     },
     {
       "id": 675,
       "name": "Revv Gen Red",
+      "based_on": "Revv Generator 120 (Red/High Gain Ch. 4)",
       "key": "HD2_AmpRevvGenRed",
       "category": "amp"
     },
     {
       "id": 753,
       "name": "Solid 100",
+      "based_on": "Soldano SLO-100 (Normal & Overdrive channels)",
       "key": "Agoura_AmpSolid100",
       "category": "amp"
     },
     {
       "id": 550,
       "name": "Solo Lead Clean",
+      "based_on": "Soldano SLO-100 (Clean channel)",
       "key": "HD2_AmpSoloLeadClean",
       "category": "amp"
     },
     {
       "id": 551,
       "name": "Solo Lead Crunch",
+      "based_on": "Soldano SLO-100 (Crunch channel)",
       "key": "HD2_AmpSoloLeadCrunch",
       "category": "amp"
     },
     {
       "id": 548,
       "name": "Solo Lead OD",
+      "based_on": "Soldano SLO-100 (Overdrive channel)",
       "key": "HD2_AmpSoloLeadOD",
       "category": "amp"
     },
     {
       "id": 546,
       "name": "Soup Pro",
+      "based_on": "Supro S6616",
       "key": "HD2_AmpSoupPro",
       "category": "amp"
     },
     {
       "id": 544,
       "name": "Stone Age 185",
+      "based_on": "Gibson EH-185",
       "key": "HD2_AmpStoneAge185",
       "category": "amp"
     },
     {
       "id": 538,
       "name": "Tweed Blues Brt",
+      "based_on": "Fender Bassman (Bright channel)",
       "key": "HD2_AmpTweedBluesBrt",
       "category": "amp"
     },
     {
       "id": 539,
       "name": "Tweed Blues Nrm",
+      "based_on": "Fender Bassman (Normal channel)",
       "key": "HD2_AmpTweedBluesNrm",
       "category": "amp"
     },
     {
       "id": 752,
       "name": "US 5W Tweed",
+      "based_on": "Fender Champ 5F1 (Low & High inputs)",
       "key": "Agoura_AmpUS5WTweed",
       "category": "amp"
     },
     {
       "id": 536,
       "name": "US Deluxe Nrm",
+      "based_on": "Fender Deluxe Reverb (Normal channel)",
       "key": "HD2_AmpUSDeluxeNrm",
       "category": "amp"
     },
     {
       "id": 534,
       "name": "US Deluxe Vib",
+      "based_on": "Fender Deluxe Reverb (Vibrato channel)",
       "key": "HD2_AmpUSDeluxeVib",
       "category": "amp"
     },
     {
       "id": 807,
       "name": "US Double Black",
+      "based_on": "Fender Twin Reverb AB763 (Normal & Vibrato channels)",
       "key": "Agoura_AmpUSDoubleBlack",
       "category": "amp"
     },
     {
       "id": 532,
       "name": "US Double Nrm",
+      "based_on": "Fender Twin Reverb (Normal channel)",
       "key": "HD2_AmpUSDoubleNrm",
       "category": "amp"
     },
     {
       "id": 530,
       "name": "US Double Vib",
+      "based_on": "Fender Twin Reverb (Vibrato channel)",
       "key": "HD2_AmpUSDoubleVib",
       "category": "amp"
     },
     {
       "id": 812,
       "name": "US Drip Bass",
+      "based_on": "Fender Bassman Silverface (Bass, Normal, & Jumped channels)",
       "key": "Agoura_AmpUSDripBass",
       "category": "amp"
     },
     {
       "id": 729,
       "name": "US Dripman Norm",
+      "based_on": "Marshall JCM-800 (2203)",
       "key": "HD2_AmpUSDripmanNorm",
       "category": "amp"
     },
     {
       "id": 751,
       "name": "US Luxe Black",
+      "based_on": "Fender Deluxe Reverb AB763 (Normal & Vibrato channels)",
       "key": "Agoura_AmpUSLuxeBlack",
       "category": "amp"
     },
     {
       "id": 691,
       "name": "US Princess",
+      "based_on": "Fender Princeton Reverb",
       "key": "HD2_AmpUSPrincess",
       "category": "amp"
     },
     {
       "id": 750,
       "name": "US Princess 76",
+      "based_on": "Fender Princeton Reverb AA1164",
       "key": "Agoura_AmpUSPrincess76",
       "category": "amp"
     },
     {
       "id": 528,
       "name": "US Small Tweed",
+      "based_on": "Fender Champ",
       "key": "HD2_AmpUSSmallTweed",
       "category": "amp"
     },
     {
       "id": 833,
       "name": "US Super Black",
+      "based_on": "Fender Super Reverb (Normal & Vibrato channels)",
       "key": "Agoura_AmpUSSuperBlack",
       "category": "amp"
     },
     {
       "id": 737,
       "name": "US Super Norm",
+      "based_on": "Fender Super Reverb (Normal channel)",
       "key": "HD2_AmpUSSuperNorm",
       "category": "amp"
     },
     {
       "id": 739,
       "name": "US Super Vib",
+      "based_on": "Fender Super Reverb (Vibrato channel)",
       "key": "HD2_AmpUSSuperVib",
       "category": "amp"
     },
     {
       "id": 749,
       "name": "US Tweedman",
+      "based_on": "Fender Bassman 5F6A (Normal, Bright, & Jumped channels)",
       "key": "Agoura_AmpUSTweedman",
       "category": "amp"
     },
     {
       "id": 700,
       "name": "Ventoux",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Ventoux",
       "category": "amp"
     },
     {
       "id": 709,
       "name": "Voltage",
+      "based_on": "Line 6 Original",
       "key": "HD2_AmpLine6Voltage",
       "category": "amp"
     },
     {
       "id": 653,
       "name": "Voltage Queen",
+      "based_on": "Victoria Electro King",
       "key": "HD2_AmpVoltageQueen",
       "category": "amp"
     },
     {
       "id": 526,
       "name": "WhoWatt 100",
+      "based_on": "Hiwatt DR-103 (Brilliant channel)",
       "key": "HD2_AmpWhoWatt100",
       "category": "amp"
     },
     {
       "id": 808,
       "name": "WhoWatt 103",
+      "based_on": "Hiwatt DR-103 (Normal, Bright, & Jumped channels)",
       "key": "Agoura_AmpWhoWatt103",
       "category": "amp"
     },
     {
       "id": 641,
       "name": "Woody Blue",
+      "based_on": "Acoustic 360",
       "key": "HD2_AmpWoodyBlue",
       "category": "amp"
     },
     {
       "id": 835,
       "name": "Matchstick 30",
+      "based_on": "Matchless DC30",
       "key": "Agoura_AmpMatchstick30",
       "category": "amp"
     },
     {
       "id": 844,
       "name": "Mandarin Rock 3",
+      "based_on": "Orange Rockerverb 100MKIII",
       "key": "Agoura_AmpMandarinRockerMk3",
       "category": "amp"
     },
     {
       "id": 836,
       "name": "Amp Clone",
+      "based_on": null,
       "key": "VIC_AmpFlexNet",
       "category": "amp"
     },
     {
       "id": 838,
       "name": "Amp+Cab Clone",
+      "based_on": null,
       "key": "VIC_AmpCabFlexNet",
       "category": "amp"
     }
@@ -845,678 +985,791 @@
     {
       "id": 632,
       "name": "2204 Mod",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine62204ModV2",
       "category": "preamp"
     },
     {
       "id": 614,
       "name": "A30 Fawn Brt",
+      "based_on": "Vox AC-30 Fawn (Bright channel)",
       "key": "HD2_PreampA30FawnBrt",
       "category": "preamp"
     },
     {
       "id": 615,
       "name": "A30 Fawn Nrm",
+      "based_on": "Vox AC-30 Fawn (Normal channel)",
       "key": "HD2_PreampA30FawnNrm",
       "category": "preamp"
     },
     {
       "id": 611,
       "name": "ANGL Meteor",
+      "based_on": "ENGL Fireball 100",
       "key": "HD2_PreampANGLMeteor",
       "category": "preamp"
     },
     {
       "id": 664,
       "name": "Agua 51",
+      "based_on": "Aguilar DB51",
       "key": "HD2_PreampAgua51",
       "category": "preamp"
     },
     {
       "id": 727,
       "name": "Agua Sledge",
+      "based_on": "Aguilar Tone Hammer",
       "key": "HD2_PreampAguaSledge",
       "category": "preamp"
     },
     {
       "id": 543,
       "name": "Ampeg B-15NF",
+      "based_on": "Ampeg B-15NF Portaflex",
       "key": "HD2_PreampTucknGo",
       "category": "preamp"
     },
     {
       "id": 556,
       "name": "Ampeg SVT Brt",
+      "based_on": "Ampeg SVT (bright channel)",
       "key": "HD2_PreampSVBeastBrt",
       "category": "preamp"
     },
     {
       "id": 557,
       "name": "Ampeg SVT Nrm",
+      "based_on": "Ampeg SVT (Normal channel)",
       "key": "HD2_PreampSVBeastNrm",
       "category": "preamp"
     },
     {
       "id": 674,
       "name": "Ampeg SVT-4 PRO",
+      "based_on": "Ampeg SVT-4 PRO",
       "key": "HD2_PreampSVT4Pro",
       "category": "preamp"
     },
     {
       "id": 638,
       "name": "Archetype Clean",
+      "based_on": "Paul Reed Smith Archon (Clean channel)",
       "key": "HD2_PreampArchetypeClean",
       "category": "preamp"
     },
     {
       "id": 636,
       "name": "Archetype Lead",
+      "based_on": "Paul Reed Smith Archon (Lead channel)",
       "key": "HD2_PreampArchetypeLead",
       "category": "preamp"
     },
     {
       "id": 717,
       "name": "Aristocrat",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Aristocrat",
       "category": "preamp"
     },
     {
       "id": 644,
       "name": "Badonk",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Badonk",
       "category": "preamp"
     },
     {
       "id": 736,
       "name": "Brit 2203",
+      "based_on": "Marshall JCM-800, 2203, 100W",
       "key": "HD2_PreampBrit2203",
       "category": "preamp"
     },
     {
       "id": 609,
       "name": "Brit 2204",
+      "based_on": "Marshall JCM-800, 2204, 50W",
       "key": "HD2_PreampBrit2204",
       "category": "preamp"
     },
     {
       "id": 606,
       "name": "Brit J45 Brt",
+      "based_on": "Marshall JTM-45 (Bright channel)",
       "key": "HD2_PreampBritJ45Brt",
       "category": "preamp"
     },
     {
       "id": 607,
       "name": "Brit J45 Nrm",
+      "based_on": "Marshall JTM-45 (Normal channel)",
       "key": "HD2_PreampBritJ45Nrm",
       "category": "preamp"
     },
     {
       "id": 602,
       "name": "Brit P75 Brt",
+      "based_on": "Park 75 (Bright channel)",
       "key": "HD2_PreampBritP75Brt",
       "category": "preamp"
     },
     {
       "id": 603,
       "name": "Brit P75 Nrm",
+      "based_on": "Park 75 (Normal channel)",
       "key": "HD2_PreampBritP75Nrm",
       "category": "preamp"
     },
     {
       "id": 597,
       "name": "Brit Plexi Brt",
+      "based_on": "Marshall Super Lead 100 (Bright channel)",
       "key": "HD2_PreampBritPlexiBrt",
       "category": "preamp"
     },
     {
       "id": 598,
       "name": "Brit Plexi Jump",
+      "based_on": "Marshall Super Lead 100 (Normal channel)",
       "key": "HD2_PreampBritPlexiJump",
       "category": "preamp"
     },
     {
       "id": 599,
       "name": "Brit Plexi Nrm",
+      "based_on": "Marshall Super Lead 100 (Normal channel)",
       "key": "HD2_PreampBritPlexiNrm",
       "category": "preamp"
     },
     {
       "id": 660,
       "name": "Brit Trem Brt",
+      "based_on": "Marshall JTM-50 (Bright channel)",
       "key": "HD2_PreampBritTremBrt",
       "category": "preamp"
     },
     {
       "id": 661,
       "name": "Brit Trem Jump",
+      "based_on": "Marshall JTM-50 (Jumped channels)",
       "key": "HD2_PreampBritTremJump",
       "category": "preamp"
     },
     {
       "id": 662,
       "name": "Brit Trem Nrm",
+      "based_on": "Marshall JTM-50 (Normal channel)",
       "key": "HD2_PreampBritTremNrm",
       "category": "preamp"
     },
     {
       "id": 650,
       "name": "Busy One Ch1",
+      "based_on": "Pearce BC-1 preamp (Channel 1)",
       "key": "HD2_PreampBusyOneCh1",
       "category": "preamp"
     },
     {
       "id": 648,
       "name": "Busy One Ch2",
+      "based_on": "Pearce BC-1 preamp (Channel 2)",
       "key": "HD2_PreampBusyOneCh2",
       "category": "preamp"
     },
     {
       "id": 646,
       "name": "Busy One Jump",
+      "based_on": "Pearce BC-1 preamp (Jumped channels)",
       "key": "HD2_PreampBusyOneJump",
       "category": "preamp"
     },
     {
       "id": 592,
       "name": "Cali 400 Ch1",
+      "based_on": "MESA/Boogie Bass 400+ (channel 1)",
       "key": "HD2_PreampCali400Ch1",
       "category": "preamp"
     },
     {
       "id": 593,
       "name": "Cali 400 Ch2",
+      "based_on": "MESA/Boogie Bass 400+ (channel 2)",
       "key": "HD2_PreampCali400Ch2",
       "category": "preamp"
     },
     {
       "id": 589,
       "name": "Cali Bass",
+      "based_on": "MESA/Boogie M9 Carbine",
       "key": "HD2_PreampCaliBass",
       "category": "preamp"
     },
     {
       "id": 627,
       "name": "Cali IV Lead",
+      "based_on": "MESA/Boogie Mark IV (Lead channel)",
       "key": "HD2_PreampCaliIVLead",
       "category": "preamp"
     },
     {
       "id": 624,
       "name": "Cali IV Rhythm 1",
+      "based_on": "MESA/Boogie Mark IV (Channel I)",
       "key": "HD2_PreampCaliIVR1",
       "category": "preamp"
     },
     {
       "id": 625,
       "name": "Cali IV Rhythm 2",
+      "based_on": "MESA/Boogie Mark IV (Channel II)",
       "key": "HD2_PreampCaliIVR2",
       "category": "preamp"
     },
     {
       "id": 587,
       "name": "Cali Rectifire",
+      "based_on": "MESA/Boogie Dual Rectifier",
       "key": "HD2_PreampCaliRectifire",
       "category": "preamp"
     },
     {
       "id": 672,
       "name": "Cali Texas Ch1",
+      "based_on": "MESA/Boogie Lone Star (Clean channel)",
       "key": "HD2_PreampCaliTexasCh1",
       "category": "preamp"
     },
     {
       "id": 668,
       "name": "Cali Texas Ch2",
+      "based_on": "MESA/Boogie Lone Star (Drive channel)",
       "key": "HD2_PreampCaliTexasCh2",
       "category": "preamp"
     },
     {
       "id": 718,
       "name": "Carillon",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Carillon",
       "category": "preamp"
     },
     {
       "id": 656,
       "name": "Cartographer",
+      "based_on": "Ben Adrian Cartographer",
       "key": "HD2_PreampCartographer",
       "category": "preamp"
     },
     {
       "id": 719,
       "name": "Clarity",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Clarity",
       "category": "preamp"
     },
     {
       "id": 694,
       "name": "Das Benzin Lead",
+      "based_on": "Diezel VH4 (Lead channel)",
       "key": "HD2_PreampDasBenzinLead",
       "category": "preamp"
     },
     {
       "id": 696,
       "name": "Das Benzin Mega",
+      "based_on": "Diezel VH4 (Mega channel)",
       "key": "HD2_PreampDasBenzinMega",
       "category": "preamp"
     },
     {
       "id": 640,
       "name": "Del Sol 300",
+      "based_on": "Sunn Coliseum 300",
       "key": "HD2_PreampDelSol300",
       "category": "preamp"
     },
     {
       "id": 652,
       "name": "Derailed Ingrid",
+      "based_on": "Trainwreck Circuits Express",
       "key": "HD2_PreampDerailedIngrid",
       "category": "preamp"
     },
     {
       "id": 585,
       "name": "Divided Duo",
+      "based_on": "\u00c3\u00b713 JRT 9/15",
       "key": "HD2_PreampDividedDuo",
       "category": "preamp"
     },
     {
       "id": 569,
       "name": "Doom",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Doom",
       "category": "preamp"
     },
     {
       "id": 747,
       "name": "EV Panama Blue",
+      "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
       "key": "HD2_PreampEVPanamaBlue",
       "category": "preamp"
     },
     {
       "id": 748,
       "name": "EV Panama Red",
+      "based_on": "EVH 5150III 100, 6L6 (Red channel)",
       "key": "HD2_PreampEVPanamaRed",
       "category": "preamp"
     },
     {
       "id": 567,
       "name": "Elektrik",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Elektrik",
       "category": "preamp"
     },
     {
       "id": 724,
       "name": "Elmsley",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Elmsley",
       "category": "preamp"
     },
     {
       "id": 565,
       "name": "Epic",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Epic",
       "category": "preamp"
     },
     {
       "id": 583,
       "name": "Essex A15",
+      "based_on": "Vox AC-15",
       "key": "HD2_PreampEssexA15",
       "category": "preamp"
     },
     {
       "id": 581,
       "name": "Essex A30",
+      "based_on": "Vox AC-30 with Top Boost",
       "key": "HD2_PreampEssexA30",
       "category": "preamp"
     },
     {
       "id": 631,
       "name": "Fatality",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Fatality",
       "category": "preamp"
     },
     {
       "id": 685,
       "name": "Fullerton Brt",
+      "based_on": "Fender Tweed Deluxe 5C3 (Bright channel)",
       "key": "HD2_PreampFullertonBrt",
       "category": "preamp"
     },
     {
       "id": 686,
       "name": "Fullerton Jump",
+      "based_on": "Fender Tweed Deluxe 5C3 (Jumped channels)",
       "key": "HD2_PreampFullertonJump",
       "category": "preamp"
     },
     {
       "id": 687,
       "name": "Fullerton Nrm",
+      "based_on": "Fender Tweed Deluxe 5C3 (Normal channel)",
       "key": "HD2_PreampFullertonNrm",
       "category": "preamp"
     },
     {
       "id": 579,
       "name": "G Cougar 800",
+      "based_on": "Gallien-Krueger GK 800RB",
       "key": "HD2_PreampGCougar800",
       "category": "preamp"
     },
     {
       "id": 577,
       "name": "German Mahadeva",
+      "based_on": "Bogner Shiva",
       "key": "HD2_PreampGermanMahadeva",
       "category": "preamp"
     },
     {
       "id": 575,
       "name": "German Ubersonic",
+      "based_on": "Bogner \u00c3\u009cerschall",
       "key": "HD2_PreampGermanUbersonic",
       "category": "preamp"
     },
     {
       "id": 744,
       "name": "German Xtra Blue",
+      "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
       "key": "HD2_PreampGermanXtraBlue",
       "category": "preamp"
     },
     {
       "id": 743,
       "name": "German Xtra Red",
+      "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
       "key": "HD2_PreampGermanXtraRed",
       "category": "preamp"
     },
     {
       "id": 732,
       "name": "Grammatico GSG",
+      "based_on": "Grammatico GSG100",
       "key": "HD2_PreampGSG100",
       "category": "preamp"
     },
     {
       "id": 679,
       "name": "GrammaticoLG Brt",
+      "based_on": "Grammatico LaGrange (Bright channel)",
       "key": "HD2_PreampGrammaticoBrt",
       "category": "preamp"
     },
     {
       "id": 680,
       "name": "GrammaticoLG Jmp",
+      "based_on": "Grammatico LaGrange (Jumped channels)",
       "key": "HD2_PreampGrammaticoJump",
       "category": "preamp"
     },
     {
       "id": 681,
       "name": "GrammaticoLG Nrm",
+      "based_on": "Grammatico LaGrange (Normal channel)",
       "key": "HD2_PreampGrammaticoNrm",
       "category": "preamp"
     },
     {
       "id": 573,
       "name": "Interstate Zed",
+      "based_on": "Dr Z Route 66",
       "key": "HD2_PreampInterstateZed",
       "category": "preamp"
     },
     {
       "id": 571,
       "name": "Jazz Rivet 120",
+      "based_on": "Roland JC-120 Jazz Chorus",
       "key": "HD2_PreampJazzRivet120",
       "category": "preamp"
     },
     {
       "id": 716,
       "name": "Kinetic",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Kinetic",
       "category": "preamp"
     },
     {
       "id": 634,
       "name": "Litigator",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Litigator",
       "category": "preamp"
     },
     {
       "id": 563,
       "name": "Mail Order Twin",
+      "based_on": "Silvertone 1484",
       "key": "HD2_PreampMailOrderTwin",
       "category": "preamp"
     },
     {
       "id": 561,
       "name": "Mandarin 80",
+      "based_on": "Orange OR80",
       "key": "HD2_PreampMandarin80",
       "category": "preamp"
     },
     {
       "id": 734,
       "name": "Mandarin Bass 200",
+      "based_on": "Orange AD200 MkIII",
       "key": "HD2_PreampMandarinBass200",
       "category": "preamp"
     },
     {
       "id": 698,
       "name": "Mandarin Rocker",
+      "based_on": "Orange Rockerverb 100 MkIII (dirty channel)",
       "key": "HD2_PreampMandarinRocker",
       "category": "preamp"
     },
     {
       "id": 619,
       "name": "Matchstick Ch1",
+      "based_on": "Matchless DC30 (Channel 1)",
       "key": "HD2_PreampMatchstickCh1",
       "category": "preamp"
     },
     {
       "id": 620,
       "name": "Matchstick Ch2",
+      "based_on": "Matchless DC30 (Channel 2)",
       "key": "HD2_PreampMatchstickCh2",
       "category": "preamp"
     },
     {
       "id": 621,
       "name": "Matchstick Jump",
+      "based_on": "Matchless DC30 (Jumped channels)",
       "key": "HD2_PreampMatchstickJump",
       "category": "preamp"
     },
     {
       "id": 706,
       "name": "Moo)))n Brt",
+      "based_on": "Sunn Model T (Bright channel)",
       "key": "HD2_PreampMoonBrt",
       "category": "preamp"
     },
     {
       "id": 705,
       "name": "Moo)))n Jump",
+      "based_on": "Sunn Model T (Jumped channels)",
       "key": "HD2_PreampMoonJump",
       "category": "preamp"
     },
     {
       "id": 704,
       "name": "Moo)))n Nrm",
+      "based_on": "Sunn Model T (Normal channel)",
       "key": "HD2_PreampMoonNrm",
       "category": "preamp"
     },
     {
       "id": 715,
       "name": "Oblivion",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Oblivion",
       "category": "preamp"
     },
     {
       "id": 559,
       "name": "PV Panama",
+      "based_on": "Peavey 5150",
       "key": "HD2_PreampPVPanama",
       "category": "preamp"
     },
     {
       "id": 728,
       "name": "PV Vitriol Clean",
+      "based_on": "Peavey Invective (Clean channel)",
       "key": "HD2_PreampPVVitriolClean",
       "category": "preamp"
     },
     {
       "id": 722,
       "name": "PV Vitriol Crunch",
+      "based_on": "Peavey Invective (Crunch channel)",
       "key": "HD2_PreampPVVitriolCrunch",
       "category": "preamp"
     },
     {
       "id": 721,
       "name": "PV Vitriol Lead",
+      "based_on": "Peavey Invective (Lead channel)",
       "key": "HD2_PreampPVVitriolLead",
       "category": "preamp"
     },
     {
       "id": 670,
       "name": "Placater Clean",
+      "based_on": "Friedman BE-100 (clean channel)",
       "key": "HD2_PreampPlacaterClean",
       "category": "preamp"
     },
     {
       "id": 666,
       "name": "Placater Dirty",
+      "based_on": "Friedman BE-100 (BE/HBE channel)",
       "key": "HD2_PreampPlacaterDirty",
       "category": "preamp"
     },
     {
       "id": 690,
       "name": "Revv Gen Purple",
+      "based_on": "Revv Generator 120 (Purple/Gain Ch. 3)",
       "key": "HD2_PreampRevvGenPurple",
       "category": "preamp"
     },
     {
       "id": 688,
       "name": "Revv Gen Red",
+      "based_on": "Revv Generator 120 (Red/High Gain Ch. 4)",
       "key": "HD2_PreampRevvGenRed",
       "category": "preamp"
     },
     {
       "id": 552,
       "name": "Solo Lead Clean",
+      "based_on": "Soldano SLO-100 (Clean channel)",
       "key": "HD2_PreampSoloLeadClean",
       "category": "preamp"
     },
     {
       "id": 553,
       "name": "Solo Lead Crunch",
+      "based_on": "Soldano SLO-100 (Crunch channel)",
       "key": "HD2_PreampSoloLeadCrunch",
       "category": "preamp"
     },
     {
       "id": 549,
       "name": "Solo Lead OD",
+      "based_on": "Soldano SLO-100 (Overdrive channel)",
       "key": "HD2_PreampSoloLeadOD",
       "category": "preamp"
     },
     {
       "id": 547,
       "name": "Soup Pro",
+      "based_on": "Supro S6616",
       "key": "HD2_PreampSoupPro",
       "category": "preamp"
     },
     {
       "id": 545,
       "name": "Stone Age 185",
+      "based_on": "Gibson EH-185",
       "key": "HD2_PreampStoneAge185",
       "category": "preamp"
     },
     {
       "id": 525,
       "name": "Studio Tube Pre",
+      "based_on": "Requisite Y7",
       "key": "HD2_PreampVintagePre",
       "category": "preamp"
     },
     {
       "id": 540,
       "name": "Tweed Blues Brt",
+      "based_on": "Fender Bassman (Bright channel)",
       "key": "HD2_PreampTweedBluesBrt",
       "category": "preamp"
     },
     {
       "id": 541,
       "name": "Tweed Blues Nrm",
+      "based_on": "Fender Bassman (Normal channel)",
       "key": "HD2_PreampTweedBluesNrm",
       "category": "preamp"
     },
     {
       "id": 537,
       "name": "US Deluxe Nrm",
+      "based_on": "Fender Deluxe Reverb (Normal channel)",
       "key": "HD2_PreampUSDeluxeNrm",
       "category": "preamp"
     },
     {
       "id": 535,
       "name": "US Deluxe Vib",
+      "based_on": "Fender Deluxe Reverb (Vibrato channel)",
       "key": "HD2_PreampUSDeluxeVib",
       "category": "preamp"
     },
     {
       "id": 533,
       "name": "US Double Nrm",
+      "based_on": "Fender Twin Reverb (Normal channel)",
       "key": "HD2_PreampUSDoubleNrm",
       "category": "preamp"
     },
     {
       "id": 531,
       "name": "US Double Vib",
+      "based_on": "Fender Twin Reverb (Vibrato channel)",
       "key": "HD2_PreampUSDoubleVib",
       "category": "preamp"
     },
     {
       "id": 730,
       "name": "US Dripman Norm",
+      "based_on": "Marshall JCM-800 (2203)",
       "key": "HD2_PreampUSDripmanNorm",
       "category": "preamp"
     },
     {
       "id": 692,
       "name": "US Princess",
+      "based_on": "Fender Princeton Reverb",
       "key": "HD2_PreampUSPrincess",
       "category": "preamp"
     },
     {
       "id": 529,
       "name": "US Small Tweed",
+      "based_on": "Fender Champ",
       "key": "HD2_PreampUSSmallTweed",
       "category": "preamp"
     },
     {
       "id": 738,
       "name": "US Super Norm",
+      "based_on": "Fender Super Reverb (Normal channel)",
       "key": "HD2_PreampUSSuperNorm",
       "category": "preamp"
     },
     {
       "id": 740,
       "name": "US Super Vib",
+      "based_on": "Fender Super Reverb (Vibrato channel)",
       "key": "HD2_PreampUSSuperVib",
       "category": "preamp"
     },
     {
       "id": 699,
       "name": "Ventoux",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Ventoux",
       "category": "preamp"
     },
     {
       "id": 720,
       "name": "Voltage",
+      "based_on": "Line 6 Original",
       "key": "HD2_PreampLine6Voltage",
       "category": "preamp"
     },
     {
       "id": 654,
       "name": "Voltage Queen",
+      "based_on": "Victoria Electro King",
       "key": "HD2_PreampVoltageQueen",
       "category": "preamp"
     },
     {
       "id": 527,
       "name": "WhoWatt 100",
+      "based_on": "Hiwatt DR-103 (Brilliant channel)",
       "key": "HD2_PreampWhoWatt100",
       "category": "preamp"
     },
     {
       "id": 642,
       "name": "Woody Blue",
+      "based_on": "Acoustic 360",
       "key": "HD2_PreampWoodyBlue",
       "category": "preamp"
     },
     {
       "id": 840,
       "name": "Preamp Clone",
+      "based_on": null,
       "key": "VIC_PreampFlexNet",
       "category": "preamp"
     }
@@ -1525,288 +1778,336 @@
     {
       "id": 434,
       "name": "1x10 US Princess",
+      "based_on": "8x10\" Ampeg SVT 810AV Heritage",
       "key": "HD2_CabMicIr_1x10USPrincessWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 453,
       "name": "1x12 Blue Bell",
+      "based_on": "1x12\" Vox AC-15 Blue Alnico",
       "key": "HD2_CabMicIr_1x12BlueBellWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 448,
       "name": "1x12 Cali EXT",
+      "based_on": "Custom 1x12\" open-back cab EVM12L",
       "key": "HD2_CabMicIr_1x12CaliEXTWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 458,
       "name": "1x12 Cali IV",
+      "based_on": "1x8\" Fender Tweed Champ",
       "key": "HD2_CabMicIr_1x12CaliIVWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 450,
       "name": "1x12 Epicenter",
+      "based_on": "2x12\" Matchless DC-30 custom G12M-25",
       "key": "HD2_CabMicIr_1x12EpicenterWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 460,
       "name": "1x12 Fullerton",
+      "based_on": "4x12\" Hiwatt Fane",
       "key": "HD2_CabMicIr_1x12FullertonWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 430,
       "name": "1x12 Grammatico",
+      "based_on": "4x12\" Marshall 1960A T75",
       "key": "HD2_CabMicIr_1x12GrammaticoWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 454,
       "name": "1x12 Open Cast",
+      "based_on": "1x12\" Fender Tweed Deluxe",
       "key": "HD2_CabMicIr_1x12OpenCastWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 455,
       "name": "1x12 Open Cream",
+      "based_on": "4x12\" Marshall \"Basketweave\" Fill This In",
       "key": "HD2_CabMicIr_1x12OpenCreamWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 428,
       "name": "1x12 US Deluxe",
+      "based_on": "1x10\" Fender Princeton Reverb",
       "key": "HD2_CabMicIr_1x12USDeluxeWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 426,
       "name": "1x15 Ampeg B-15",
+      "based_on": "4x12\" Park 75 G12H-30",
       "key": "HD2_CabMicIr_1x15AmpegB15WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 464,
       "name": "1x8 Small Tweed",
+      "based_on": "4x12\" Soldano Eminence",
       "key": "HD2_CabMicIr_1x8SmallTweedWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 429,
       "name": "2x12 Blue Bell",
+      "based_on": "4x12\" MESA/Boogie 4FB V30",
       "key": "HD2_CabMicIr_2x12BlueBellWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 437,
       "name": "2x12 Double C12N",
+      "based_on": "2x12\" Roland JC-120",
       "key": "HD2_CabMicIr_2x12DoubleC12NWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 459,
       "name": "2x12 Interstate",
+      "based_on": "1 6x9\" Supro S6616",
       "key": "HD2_CabMicIr_2x12InterstateWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 443,
       "name": "2x12 Jazz Rivet",
+      "based_on": "2x12\" Vox AC-30 Silver Alnico",
       "key": "HD2_CabMicIr_2x12JazzRivetWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 445,
       "name": "2x12 Mail C12Q",
+      "based_on": "4x12\" Marshall \"Basketweave\" G12M-20",
       "key": "HD2_CabMicIr_2x12MailC12QWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 447,
       "name": "2x12 Mandarin 30",
+      "based_on": "1x12\" Vox AC-15 Blue Alnico",
       "key": "HD2_CabMicIr_2x12MandarinWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 456,
       "name": "2x12 Match G25",
+      "based_on": "2x15\" Fender Silverface Bassman",
       "key": "HD2_CabMicIr_2x12MatchG25WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 457,
       "name": "2x12 Match H30",
+      "based_on": "6x10\" MESA/Boogie",
       "key": "HD2_CabMicIr_2x12MatchH30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 449,
       "name": "2x12 Silver Bell",
+      "based_on": "Custom 1x12\" open-back cab G12M-65",
       "key": "HD2_CabMicIr_2x12SilverBellWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 425,
       "name": "2x15 Brute",
+      "based_on": "4x12\" Marshall 1960AV V30",
       "key": "HD2_CabMicIr_2x15BruteWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 462,
       "name": "2x15 US Dripman",
+      "based_on": "Cab IR",
       "key": "HD2_CabMicIr_2x15USDripmanWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 452,
       "name": "4x10 Ampeg Pro",
+      "based_on": "1x12\" MESA/Boogie Mark IV",
       "key": "HD2_CabMicIr_4x10AmpegProWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 444,
       "name": "4x10 Garden",
+      "based_on": "1x12\" Epifani Ultralight series",
       "key": "HD2_CabMicIr_4x10GardenWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 442,
       "name": "4x10 Tweed P10R",
+      "based_on": "1x12\" MESA/Boogie Extension Cab",
       "key": "HD2_CabMicIr_4x10TweedP10RWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 469,
       "name": "4x10 US Super",
+      "based_on": "4x10\" Fender Super Reverb",
       "key": "HD2_CabMicIr_4x10USSuperWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 436,
       "name": "4x12 1960A T75",
+      "based_on": "4x10\" Fender Bassman P10R",
       "key": "HD2_CabMicIr_4x121960AT75WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 432,
       "name": "4x12 Blackback H30",
+      "based_on": "4x12\" Sunn G75T",
       "key": "HD2_CabMicIr_4x12BlackbackH30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 431,
       "name": "4x12 Brit V30",
+      "based_on": "2x12\" Fender Twin",
       "key": "HD2_CabMicIr_4x12BritV30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 435,
       "name": "4x12 Cali V30",
+      "based_on": "4x12\" Marshall \"Basketweave\" G12M-25",
       "key": "HD2_CabMicIr_4x12CaliV30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 471,
       "name": "4x12 Cartog C90",
+      "based_on": "4x12\" Cartographer Mesa C90 Black Shadow",
       "key": "HD2_CabMicIr_4x12CartogC90WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 472,
       "name": "4x12 Cartog Guv",
+      "based_on": "4x12\" Cartographer Eminence Governor",
       "key": "HD2_CabMicIr_4x12CartogGuvWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 451,
       "name": "4x12 Greenback 20",
+      "based_on": "2x12\" Matchless DC-30 custom G12H-30",
       "key": "HD2_CabMicIr_4x12Greenback20WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 441,
       "name": "4x12 Greenback 25",
+      "based_on": "2x12\" Orange PPC212 V30",
       "key": "HD2_CabMicIr_4x12Greenback25WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 461,
       "name": "4x12 Greenback 30",
+      "based_on": "4x12\" Marshall \"Basketweave\" Fill This In",
       "key": "HD2_CabMicIr_4x12Greenback30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 438,
       "name": "4x12 MOO)))N T75",
+      "based_on": "4x10\" Eden D410XLT",
       "key": "HD2_CabMicIr_4x12MOONT75WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 433,
       "name": "4x12 Mandarin EM",
+      "based_on": "4x12\" Bogner Uberkab T75",
       "key": "HD2_CabMicIr_4x12MandarinWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 470,
       "name": "4x12 SoloLead EM",
+      "based_on": "4x12\" Soldano Eminence",
       "key": "HD2_CabMicIr_4x12SoloLeadEMWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 439,
       "name": "4x12 Uber T75",
+      "based_on": "2x12\" Silvertone 1481",
       "key": "HD2_CabMicIr_4x12UberT75WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 446,
       "name": "4x12 Uber V30",
+      "based_on": "4x10\" Ampeg PR-410HLF",
       "key": "HD2_CabMicIr_4x12UberV30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 466,
       "name": "4x12 WhoWatt 100",
+      "based_on": "4x12\" Cartographer Eminence Governor",
       "key": "HD2_CabMicIr_4x12WhoWatt100WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 427,
       "name": "4x12 XXL V30",
+      "based_on": "4x12\" Orange Eminence",
       "key": "HD2_CabMicIr_4x12XXLV30WithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 463,
       "name": "6x10 Cali Power",
+      "based_on": "4x10\" Fender Super Reverb",
       "key": "HD2_CabMicIr_6x10CaliPowerWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 440,
       "name": "8x10 SVT AV",
+      "based_on": "4x12\" Bogner Uberkab V30",
       "key": "HD2_CabMicIr_8x10SVTAVWithPan",
       "category": "cab_ir_interp"
     },
     {
       "id": 468,
       "name": "IR",
+      "based_on": null,
       "key": "HX2_ImpulseResponseWithPan",
       "category": "ir"
     },
     {
       "id": 467,
       "name": "No Cab",
+      "based_on": null,
       "key": "HD2_CabMicIr_NoCab",
       "category": "cab_ir_interp"
     },
     {
       "id": 465,
       "name": "Soup Pro Ellipse",
+      "based_on": "4x12\" Cartographer Mesa C90 Black Shadow",
       "key": "HD2_CabMicIr_SoupProEllipseWithPan",
       "category": "cab_ir_interp"
     }

@@ -25,6 +25,60 @@
       "category": "amp"
     },
     {
+      "id": 663,
+      "name": "Agua 51",
+      "key": "HD2_AmpAgua51",
+      "category": "amp"
+    },
+    {
+      "id": 809,
+      "name": "Agua 751",
+      "key": "Agoura_AmpAgua751",
+      "category": "amp"
+    },
+    {
+      "id": 726,
+      "name": "Agua Sledge",
+      "key": "HD2_AmpAguaSledge",
+      "category": "amp"
+    },
+    {
+      "id": 542,
+      "name": "Ampeg B-15NF",
+      "key": "HD2_AmpTucknGo",
+      "category": "amp"
+    },
+    {
+      "id": 759,
+      "name": "Ampeg B15NF 66",
+      "key": "Agoura_AmpAmpegB15NF66",
+      "category": "amp"
+    },
+    {
+      "id": 805,
+      "name": "Ampeg SVT 50th",
+      "key": "Agoura_AmpAmpegSVT",
+      "category": "amp"
+    },
+    {
+      "id": 554,
+      "name": "Ampeg SVT Brt",
+      "key": "HD2_AmpSVBeastBrt",
+      "category": "amp"
+    },
+    {
+      "id": 555,
+      "name": "Ampeg SVT Nrm",
+      "key": "HD2_AmpSVBeastNrm",
+      "category": "amp"
+    },
+    {
+      "id": 673,
+      "name": "Ampeg SVT-4 PRO",
+      "key": "HD2_AmpSVT4Pro",
+      "category": "amp"
+    },
+    {
       "id": 637,
       "name": "Archetype Clean",
       "key": "HD2_AmpArchetypeClean",
@@ -85,6 +139,12 @@
       "category": "amp"
     },
     {
+      "id": 757,
+      "name": "Brit MegaBass",
+      "key": "Agoura_AmpBritMegaBass",
+      "category": "amp"
+    },
+    {
       "id": 600,
       "name": "Brit P75 Brt",
       "key": "HD2_AmpBritP75Brt",
@@ -139,9 +199,45 @@
       "category": "amp"
     },
     {
+      "id": 649,
+      "name": "Busy One Ch1",
+      "key": "HD2_AmpBusyOneCh1",
+      "category": "amp"
+    },
+    {
+      "id": 647,
+      "name": "Busy One Ch2",
+      "key": "HD2_AmpBusyOneCh2",
+      "category": "amp"
+    },
+    {
+      "id": 645,
+      "name": "Busy One Jump",
+      "key": "HD2_AmpBusyOneJump",
+      "category": "amp"
+    },
+    {
       "id": 832,
       "name": "Cali 2C+",
       "key": "Agoura_AmpCali2CPlus",
+      "category": "amp"
+    },
+    {
+      "id": 590,
+      "name": "Cali 400 Ch1",
+      "key": "HD2_AmpCali400Ch1",
+      "category": "amp"
+    },
+    {
+      "id": 591,
+      "name": "Cali 400 Ch2",
+      "key": "HD2_AmpCali400Ch2",
+      "category": "amp"
+    },
+    {
+      "id": 588,
+      "name": "Cali Bass",
+      "key": "HD2_AmpCaliBass",
       "category": "amp"
     },
     {
@@ -208,6 +304,12 @@
       "id": 695,
       "name": "Das Benzin Mega",
       "key": "HD2_AmpDasBenzinMega",
+      "category": "amp"
+    },
+    {
+      "id": 639,
+      "name": "Del Sol 300",
+      "key": "HD2_AmpDelSol300",
       "category": "amp"
     },
     {
@@ -313,6 +415,12 @@
       "category": "amp"
     },
     {
+      "id": 578,
+      "name": "G Cougar 800",
+      "key": "HD2_AmpGCougar800",
+      "category": "amp"
+    },
+    {
       "id": 576,
       "name": "German Mahadeva",
       "key": "HD2_AmpGermanMahadeva",
@@ -406,6 +514,18 @@
       "id": 560,
       "name": "Mandarin 80",
       "key": "HD2_AmpMandarin80",
+      "category": "amp"
+    },
+    {
+      "id": 733,
+      "name": "Mandarin Bass 200",
+      "key": "HD2_AmpMandarinBass200",
+      "category": "amp"
+    },
+    {
+      "id": 754,
+      "name": "Mandarin Plus 200",
+      "key": "Agoura_AmpMandarinPlus200",
       "category": "amp"
     },
     {
@@ -601,6 +721,18 @@
       "category": "amp"
     },
     {
+      "id": 812,
+      "name": "US Drip Bass",
+      "key": "Agoura_AmpUSDripBass",
+      "category": "amp"
+    },
+    {
+      "id": 729,
+      "name": "US Dripman Norm",
+      "key": "HD2_AmpUSDripmanNorm",
+      "category": "amp"
+    },
+    {
       "id": 751,
       "name": "US Luxe Black",
       "key": "Agoura_AmpUSLuxeBlack",
@@ -677,6 +809,36 @@
       "name": "WhoWatt 103",
       "key": "Agoura_AmpWhoWatt103",
       "category": "amp"
+    },
+    {
+      "id": 641,
+      "name": "Woody Blue",
+      "key": "HD2_AmpWoodyBlue",
+      "category": "amp"
+    },
+    {
+      "id": 835,
+      "name": "Matchstick 30",
+      "key": "Agoura_AmpMatchstick30",
+      "category": "amp"
+    },
+    {
+      "id": 844,
+      "name": "Mandarin Rock 3",
+      "key": "Agoura_AmpMandarinRockerMk3",
+      "category": "amp"
+    },
+    {
+      "id": 836,
+      "name": "Amp Clone",
+      "key": "VIC_AmpFlexNet",
+      "category": "amp"
+    },
+    {
+      "id": 838,
+      "name": "Amp+Cab Clone",
+      "key": "VIC_AmpCabFlexNet",
+      "category": "amp"
     }
   ],
   "preamps": [
@@ -702,6 +864,42 @@
       "id": 611,
       "name": "ANGL Meteor",
       "key": "HD2_PreampANGLMeteor",
+      "category": "preamp"
+    },
+    {
+      "id": 664,
+      "name": "Agua 51",
+      "key": "HD2_PreampAgua51",
+      "category": "preamp"
+    },
+    {
+      "id": 727,
+      "name": "Agua Sledge",
+      "key": "HD2_PreampAguaSledge",
+      "category": "preamp"
+    },
+    {
+      "id": 543,
+      "name": "Ampeg B-15NF",
+      "key": "HD2_PreampTucknGo",
+      "category": "preamp"
+    },
+    {
+      "id": 556,
+      "name": "Ampeg SVT Brt",
+      "key": "HD2_PreampSVBeastBrt",
+      "category": "preamp"
+    },
+    {
+      "id": 557,
+      "name": "Ampeg SVT Nrm",
+      "key": "HD2_PreampSVBeastNrm",
+      "category": "preamp"
+    },
+    {
+      "id": 674,
+      "name": "Ampeg SVT-4 PRO",
+      "key": "HD2_PreampSVT4Pro",
       "category": "preamp"
     },
     {
@@ -801,6 +999,42 @@
       "category": "preamp"
     },
     {
+      "id": 650,
+      "name": "Busy One Ch1",
+      "key": "HD2_PreampBusyOneCh1",
+      "category": "preamp"
+    },
+    {
+      "id": 648,
+      "name": "Busy One Ch2",
+      "key": "HD2_PreampBusyOneCh2",
+      "category": "preamp"
+    },
+    {
+      "id": 646,
+      "name": "Busy One Jump",
+      "key": "HD2_PreampBusyOneJump",
+      "category": "preamp"
+    },
+    {
+      "id": 592,
+      "name": "Cali 400 Ch1",
+      "key": "HD2_PreampCali400Ch1",
+      "category": "preamp"
+    },
+    {
+      "id": 593,
+      "name": "Cali 400 Ch2",
+      "key": "HD2_PreampCali400Ch2",
+      "category": "preamp"
+    },
+    {
+      "id": 589,
+      "name": "Cali Bass",
+      "key": "HD2_PreampCaliBass",
+      "category": "preamp"
+    },
+    {
       "id": 627,
       "name": "Cali IV Lead",
       "key": "HD2_PreampCaliIVLead",
@@ -864,6 +1098,12 @@
       "id": 696,
       "name": "Das Benzin Mega",
       "key": "HD2_PreampDasBenzinMega",
+      "category": "preamp"
+    },
+    {
+      "id": 640,
+      "name": "Del Sol 300",
+      "key": "HD2_PreampDelSol300",
       "category": "preamp"
     },
     {
@@ -951,6 +1191,12 @@
       "category": "preamp"
     },
     {
+      "id": 579,
+      "name": "G Cougar 800",
+      "key": "HD2_PreampGCougar800",
+      "category": "preamp"
+    },
+    {
       "id": 577,
       "name": "German Mahadeva",
       "key": "HD2_PreampGermanMahadeva",
@@ -1032,6 +1278,12 @@
       "id": 561,
       "name": "Mandarin 80",
       "key": "HD2_PreampMandarin80",
+      "category": "preamp"
+    },
+    {
+      "id": 734,
+      "name": "Mandarin Bass 200",
+      "key": "HD2_PreampMandarinBass200",
       "category": "preamp"
     },
     {
@@ -1161,6 +1413,12 @@
       "category": "preamp"
     },
     {
+      "id": 525,
+      "name": "Studio Tube Pre",
+      "key": "HD2_PreampVintagePre",
+      "category": "preamp"
+    },
+    {
       "id": 540,
       "name": "Tweed Blues Brt",
       "key": "HD2_PreampTweedBluesBrt",
@@ -1194,6 +1452,12 @@
       "id": 531,
       "name": "US Double Vib",
       "key": "HD2_PreampUSDoubleVib",
+      "category": "preamp"
+    },
+    {
+      "id": 730,
+      "name": "US Dripman Norm",
+      "key": "HD2_PreampUSDripmanNorm",
       "category": "preamp"
     },
     {
@@ -1243,6 +1507,18 @@
       "name": "WhoWatt 100",
       "key": "HD2_PreampWhoWatt100",
       "category": "preamp"
+    },
+    {
+      "id": 642,
+      "name": "Woody Blue",
+      "key": "HD2_PreampWoodyBlue",
+      "category": "preamp"
+    },
+    {
+      "id": 840,
+      "name": "Preamp Clone",
+      "key": "VIC_PreampFlexNet",
+      "category": "preamp"
     }
   ],
   "cabs": [
@@ -1268,6 +1544,12 @@
       "id": 458,
       "name": "1x12 Cali IV",
       "key": "HD2_CabMicIr_1x12CaliIVWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 450,
+      "name": "1x12 Epicenter",
+      "key": "HD2_CabMicIr_1x12EpicenterWithPan",
       "category": "cab_ir_interp"
     },
     {
@@ -1298,6 +1580,12 @@
       "id": 428,
       "name": "1x12 US Deluxe",
       "key": "HD2_CabMicIr_1x12USDeluxeWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 426,
+      "name": "1x15 Ampeg B-15",
+      "key": "HD2_CabMicIr_1x15AmpegB15WithPan",
       "category": "cab_ir_interp"
     },
     {
@@ -1358,6 +1646,30 @@
       "id": 449,
       "name": "2x12 Silver Bell",
       "key": "HD2_CabMicIr_2x12SilverBellWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 425,
+      "name": "2x15 Brute",
+      "key": "HD2_CabMicIr_2x15BruteWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 462,
+      "name": "2x15 US Dripman",
+      "key": "HD2_CabMicIr_2x15USDripmanWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 452,
+      "name": "4x10 Ampeg Pro",
+      "key": "HD2_CabMicIr_4x10AmpegProWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 444,
+      "name": "4x10 Garden",
+      "key": "HD2_CabMicIr_4x10GardenWithPan",
       "category": "cab_ir_interp"
     },
     {
@@ -1466,6 +1778,30 @@
       "id": 427,
       "name": "4x12 XXL V30",
       "key": "HD2_CabMicIr_4x12XXLV30WithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 463,
+      "name": "6x10 Cali Power",
+      "key": "HD2_CabMicIr_6x10CaliPowerWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 440,
+      "name": "8x10 SVT AV",
+      "key": "HD2_CabMicIr_8x10SVTAVWithPan",
+      "category": "cab_ir_interp"
+    },
+    {
+      "id": 468,
+      "name": "IR",
+      "key": "HX2_ImpulseResponseWithPan",
+      "category": "ir"
+    },
+    {
+      "id": 467,
+      "name": "No Cab",
+      "key": "HD2_CabMicIr_NoCab",
       "category": "cab_ir_interp"
     },
     {

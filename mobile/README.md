@@ -43,6 +43,34 @@ Start the Expo dev server:
 npx expo start --dev-client
 ```
 
+## Sideload builds
+
+Fresh sideload artifacts are kept in `build-artifacts/`:
+
+- `build-artifacts/android/stadium-remote-1.0.0-android-release.apk`
+- `build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa`
+
+Verify the downloaded file against its adjacent `.sha256` file before
+installing it.
+
+Android build command used for the current APK:
+
+```bash
+CI=1 npx expo prebuild --platform android
+ANDROID_HOME="$HOME/Library/Android/sdk" \
+ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
+JAVA_HOME="$(/usr/libexec/java_home -v 21)" \
+  ./android/gradlew -p android assembleRelease
+```
+
+The Android APK is debug-key signed by the generated native project, so it is
+fine for sideload testing but is not a Play Store release build.
+
+iOS sideloading requires signing on the installer's machine or a valid Apple
+Development provisioning profile for `com.beggars.stadium-remote`. The checked
+in IPA is unsigned, so tools such as Xcode, Apple Configurator, or a sideloading
+tool must sign it before a device will install it.
+
 ## App notes
 
 - Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address.
@@ -52,16 +80,15 @@ npx expo start --dev-client
 
 ## Refresh generated app data
 
-Refresh DSP usage values:
+Regenerate the app data from the installed Helix Stadium editor:
 
 ```bash
-python3 scripts/update_block_types_usage.py
-```
-
-Regenerate the mobile block catalog:
-
-```bash
+cd ..
+python3 scripts/generate_model_id_map.py
+python3 scripts/generate_io_models_json.py
 python3 scripts/generate_mobile_block_types_json.py
+python3 scripts/add_missing_mobile_models.py
+python3 scripts/generate_mobile_models_json.py
 ```
 
 ## Current feature set

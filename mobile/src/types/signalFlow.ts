@@ -20,6 +20,9 @@ export type BlockKind =
 export interface BlockData {
   id: number;
   name: string;
+  modelName?: string;
+  realName?: string | null;
+  customName?: string | null;
   kind: string;
   blockId?: number;
   enabled?: boolean;

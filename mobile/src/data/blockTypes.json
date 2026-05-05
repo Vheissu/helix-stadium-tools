@@ -1489,7 +1489,7 @@
             "display_def": 10,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 8,
@@ -1821,7 +1821,7 @@
             "display_def": 5,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 19,
@@ -3725,7 +3725,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 12,
@@ -4501,7 +4501,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 13,
@@ -4709,7 +4709,7 @@
             "display_def": 10,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 13,
@@ -5295,7 +5295,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 13,
@@ -7524,7 +7524,7 @@
             "display_def": 3.3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 25,
@@ -11293,7 +11293,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 11,
@@ -11656,7 +11656,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 11,
@@ -12997,7 +12997,7 @@
             "display_def": 10,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 12,
@@ -14514,7 +14514,7 @@
             "display_def": 10,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 16,
@@ -15064,7 +15064,7 @@
             "display_def": 3.52,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 16,
@@ -17678,7 +17678,7 @@
             "display_def": 10,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 11,
@@ -20795,7 +20795,7 @@
             "display_def": 3.1,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 17,
@@ -21068,7 +21068,7 @@
             "display_def": 3.1,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 17,
@@ -21734,7 +21734,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 14,
@@ -23192,7 +23192,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 8,
@@ -23780,7 +23780,7 @@
             "display_def": 3.3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 12,
@@ -24402,7 +24402,7 @@
             "display_def": 10,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 15,
@@ -24756,7 +24756,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 10,
@@ -25074,7 +25074,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 8,
@@ -25473,7 +25473,7 @@
             "display_def": 3.3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 12,
@@ -26095,7 +26095,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 13,
@@ -27047,7 +27047,7 @@
             "display_def": 3,
             "unit": "unitless",
             "options": null,
-            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp."
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
           },
           {
             "id": 13,
@@ -27261,6 +27261,641 @@
             "unit": "unitless",
             "options": null,
             "description": "Controls the fine tuning of the Tuning Fork's reference tone."
+          }
+        ]
+      },
+      {
+        "id": 835,
+        "name": "Matchstick 30",
+        "key": "Agoura_AmpMatchstick30",
+        "category": "amp",
+        "usage": 25.5,
+        "params": [
+          {
+            "id": 1,
+            "key": "Channel",
+            "name": "Channel",
+            "type": "i",
+            "min": 0,
+            "max": 2,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 2,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": [
+              "Ch 1",
+              "Ch 2",
+              "Jumped"
+            ],
+            "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between Channel 1 and Channel 2."
+          },
+          {
+            "id": 2,
+            "key": "Ch1Drv",
+            "name": "Ch1 Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of Channel 1 gain applied to the signal, which influences the level of distortion."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of Channel 1."
+          },
+          {
+            "id": 4,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of Channel 1."
+          },
+          {
+            "id": 5,
+            "key": "Ch2Drv",
+            "name": "Ch2 Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of Channel 2 gain applied to the signal, which influences the level of distortion and overall tone."
+          },
+          {
+            "id": 6,
+            "key": "Ch2Tone",
+            "name": "Ch2 Tone",
+            "type": "i",
+            "min": 0,
+            "max": 5,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 5,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "description": "Selects one of 6 settings for varying the width of the tone envelope on Channel 2. Lower values result in thinner sounds; higher values result in thicker sounds."
+          },
+          {
+            "id": 7,
+            "key": "HighCut",
+            "name": "High Cut",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": null,
+            "description": "Increasing the parameter attenuates high frequencies, effectively reducing the amp's brightness"
+          },
+          {
+            "id": 8,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -30,
+            "max": 10,
+            "def": -7,
+            "display_min": -30,
+            "display_max": 10,
+            "display_def": -7,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
+          },
+          {
+            "id": 9,
+            "key": "Master",
+            "name": "Master",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the Master Volume of the amplifier."
+          },
+          {
+            "id": 10,
+            "key": "Sag",
+            "name": "Sag",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel."
+          },
+          {
+            "id": 11,
+            "key": "Ripple",
+            "name": "Ripple",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings."
+          },
+          {
+            "id": 12,
+            "key": "ZPrePost",
+            "name": "Z PrePost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
+          },
+          {
+            "id": 13,
+            "key": "Hype",
+            "name": "Hype",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Off",
+            "options": null,
+            "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
+          }
+        ]
+      },
+      {
+        "id": 844,
+        "name": "Mandarin Rock 3",
+        "key": "Agoura_AmpMandarinRockerMk3",
+        "category": "amp",
+        "usage": 27.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Channel",
+            "name": "Channel",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": true,
+            "display_min": false,
+            "display_max": true,
+            "display_def": true,
+            "unit": "unitless",
+            "options": [
+              "Normal",
+              "Overdrive"
+            ],
+            "description": "Selects the amp channel--Normal or Overdrive."
+          },
+          {
+            "id": 2,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain applied to the signal, which influences the level of distortion."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of the tonestack."
+          },
+          {
+            "id": 4,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the midrange frequency EQ of the tonestack."
+          },
+          {
+            "id": 5,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of the tonestack."
+          },
+          {
+            "id": 6,
+            "key": "ODMaster",
+            "name": "OD Master",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the Master Volume of the Overdrive channel of the amplifier."
+          },
+          {
+            "id": 7,
+            "key": "Attenuator",
+            "name": "Attenuator",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": null,
+            "description": "Attenuates the signal between the amp's phase-inverter and power tubes"
+          },
+          {
+            "id": 8,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": -10,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": -10,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
+          },
+          {
+            "id": 9,
+            "key": "Sag",
+            "name": "Sag",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel."
+          },
+          {
+            "id": 10,
+            "key": "Ripple",
+            "name": "Ripple",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings."
+          },
+          {
+            "id": 11,
+            "key": "ZPrePost",
+            "name": "Z PrePost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.35,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 3.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
+          },
+          {
+            "id": 12,
+            "key": "Hype",
+            "name": "Hype",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Off",
+            "options": null,
+            "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
+          }
+        ]
+      },
+      {
+        "id": 836,
+        "name": "Amp Clone",
+        "key": "VIC_AmpFlexNet",
+        "category": "amp",
+        "usage": 25.3,
+        "params": [
+          {
+            "id": 1,
+            "key": "PreGain",
+            "name": "Pre Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 3,
+            "key": "LowCut",
+            "name": "Low Cut",
+            "type": "f",
+            "min": 19.9,
+            "max": 1000,
+            "def": 19.9,
+            "display_min": 19.9,
+            "display_max": 1000,
+            "display_def": 19.9,
+            "unit": "Off",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 4,
+            "key": "Low",
+            "name": "Low",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 5,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 6,
+            "key": "High",
+            "name": "High",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 7,
+            "key": "HighCut",
+            "name": "High Cut",
+            "type": "f",
+            "min": 1000,
+            "max": 20100,
+            "def": 20100,
+            "display_min": 1000,
+            "display_max": 20100,
+            "display_def": 20100,
+            "unit": "Hz",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 8,
+            "key": "PostGain",
+            "name": "Post Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          }
+        ]
+      },
+      {
+        "id": 838,
+        "name": "Amp+Cab Clone",
+        "key": "VIC_AmpCabFlexNet",
+        "category": "amp",
+        "usage": 25.3,
+        "params": [
+          {
+            "id": 1,
+            "key": "PreGain",
+            "name": "Pre Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 3,
+            "key": "LowCut",
+            "name": "Low Cut",
+            "type": "f",
+            "min": 19.9,
+            "max": 1000,
+            "def": 19.9,
+            "display_min": 19.9,
+            "display_max": 1000,
+            "display_def": 19.9,
+            "unit": "Off",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 4,
+            "key": "Low",
+            "name": "Low",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 5,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 6,
+            "key": "High",
+            "name": "High",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 7,
+            "key": "HighCut",
+            "name": "High Cut",
+            "type": "f",
+            "min": 1000,
+            "max": 20100,
+            "def": 20100,
+            "display_min": 1000,
+            "display_max": 20100,
+            "display_def": 20100,
+            "unit": "Hz",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 8,
+            "key": "PostGain",
+            "name": "Post Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
           }
         ]
       }
@@ -43356,6 +43991,120 @@
             "unit": "unitless",
             "options": null,
             "description": "Controls the fine tuning of the Tuning Fork's reference tone."
+          }
+        ]
+      },
+      {
+        "id": 840,
+        "name": "Preamp Clone",
+        "key": "VIC_PreampFlexNet",
+        "category": "preamp",
+        "usage": 25.3,
+        "params": [
+          {
+            "id": 1,
+            "key": "PreGain",
+            "name": "Pre Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 3,
+            "key": "LowCut",
+            "name": "Low Cut",
+            "type": "f",
+            "min": 19.9,
+            "max": 1000,
+            "def": 19.9,
+            "display_min": 19.9,
+            "display_max": 1000,
+            "display_def": 19.9,
+            "unit": "Off",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 4,
+            "key": "Low",
+            "name": "Low",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 5,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 6,
+            "key": "High",
+            "name": "High",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 7,
+            "key": "HighCut",
+            "name": "High Cut",
+            "type": "f",
+            "min": 1000,
+            "max": 20100,
+            "def": 20100,
+            "display_min": 1000,
+            "display_max": 20100,
+            "display_def": 20100,
+            "unit": "Hz",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 8,
+            "key": "PostGain",
+            "name": "Post Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
           }
         ]
       }
@@ -59502,6 +60251,120 @@
             "unit": "unitless",
             "options": null,
             "description": "Sets the overall level of the block."
+          }
+        ]
+      },
+      {
+        "id": 839,
+        "name": "Distortion Clone",
+        "key": "VIC_DistFlexNet",
+        "category": "distortion",
+        "usage": 25.3,
+        "params": [
+          {
+            "id": 1,
+            "key": "PreGain",
+            "name": "Pre Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 3,
+            "key": "LowCut",
+            "name": "Low Cut",
+            "type": "f",
+            "min": 19.9,
+            "max": 1000,
+            "def": 19.9,
+            "display_min": 19.9,
+            "display_max": 1000,
+            "display_def": 19.9,
+            "unit": "Off",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 4,
+            "key": "Low",
+            "name": "Low",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 5,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 6,
+            "key": "High",
+            "name": "High",
+            "type": "f",
+            "min": -12,
+            "max": 12,
+            "def": 0,
+            "display_min": -12,
+            "display_max": 12,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 7,
+            "key": "HighCut",
+            "name": "High Cut",
+            "type": "f",
+            "min": 1000,
+            "max": 20100,
+            "def": 20100,
+            "display_min": 1000,
+            "display_max": 20100,
+            "display_def": 20100,
+            "unit": "Hz",
+            "options": null,
+            "description": ""
+          },
+          {
+            "id": 8,
+            "key": "PostGain",
+            "name": "Post Gain",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": 0,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": ""
           }
         ]
       }

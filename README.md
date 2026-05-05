@@ -45,7 +45,9 @@ npm run ios
   - `helix_control.py` - Programmatic control tool (batch actions, snapshot names, scribble labels, etc.).
   - `helix_usb_probe.py` - Inspect the connected device's USB interfaces and endpoints via libusb.
   - `set_scribble_label.py` - Set a footswitch scribble-strip label via PropertyValueSet.
-  - `generate_helix_model_json.py` - Build JSON model catalogs (amps/bass/effects/cabs).
+  - `generate_helix_model_json.py` - Build JSON model catalogues (amps/bass/effects/cabs).
+  - `generate_mobile_block_types_json.py` - Refresh mobile block picker data from the app bundle.
+  - `generate_mobile_models_json.py` - Refresh the compact mobile amp, preamp, and cab list.
   - `based_on_overrides.json` - Official "based on" mappings scraped from Line 6's model list page.
   - `block_map.json` - Optional manual block-to-model mapping for decoding older captures.
 - `docs/TECHNICAL_DETAILS.md` - Protocol details (handshake, framing, OSC messages).
@@ -582,6 +584,39 @@ Run:
 python3 scripts/generate_model_id_map.py
 ```
 
+### scripts/generate_helix_gpt_knowledge.py
+
+Generates upload-ready Markdown knowledge files for a Custom GPT. The output is aimed at retrieval-friendly upload files and includes model keys, model IDs, DSP usage, parameter descriptions, raw ranges, display ranges, defaults, and discrete valid values.
+
+Output:
+
+- `generated/helix-gpt-knowledge/`
+
+Run:
+
+```bash
+python3 scripts/generate_helix_gpt_knowledge.py
+```
+
+Recommended usage:
+
+- Paste `generated/helix-gpt-knowledge/custom-gpt-instructions.md` into the Custom GPT instructions field.
+- Paste `generated/helix-gpt-knowledge/project-instructions.md` into a ChatGPT Project instructions field if you decide to use a Project instead of a Custom GPT.
+- Upload the files inside `generated/helix-gpt-knowledge/upload-ready/` as knowledge files.
+- Use `generated/helix-gpt-knowledge/upload-plan.md` for the exact upload checklist.
+- If the GPT builder throws a save error, try the smaller fallback pack in `generated/helix-gpt-knowledge/minimal-upload-ready/`.
+- Regenerate the folder whenever the desktop app bundle changes.
+
+### scripts/build_gpt_knowledge_pdf.py
+
+Builds one searchable PDF by bundling the Markdown files in `generated/helix-gpt-knowledge/upload-ready/`. This is useful for testing whether the GPT builder accepts a single knowledge file more reliably than a multi-file upload.
+
+Run:
+
+```bash
+python3 scripts/build_gpt_knowledge_pdf.py
+```
+
 ### Output schema
 
 Each block entry looks like:
@@ -657,10 +692,15 @@ When the editor app updates, these files may change:
 - `P35Controls.json`
 - `ModelMetadataStore.sqlite3`
 
-Update the paths if the versioned `modeldefs` filename changes, then regenerate:
+The scripts auto-select the newest `p35md-*` modeldefs file in the installed app bundle. Regenerate the shared catalogues first, then refresh the mobile app data:
 
 ```bash
 python3 scripts/generate_helix_model_json.py
+python3 scripts/generate_model_id_map.py
+python3 scripts/generate_io_models_json.py
+python3 scripts/generate_mobile_block_types_json.py
+python3 scripts/add_missing_mobile_models.py
+python3 scripts/generate_mobile_models_json.py
 ```
 
 ## Notes and caution

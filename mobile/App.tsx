@@ -35,7 +35,9 @@ const FONT_BODY_MEDIUM = FONTS.bodyMedium;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 const FONT_DISPLAY = FONTS.display;
-const DSP_CAP = 70;
+const STANDARD_DSP_CAP = 70;
+const EXTENDED_DSP_CAP = 82;
+const AUTO_SYNC_INTERVAL_MS = 4500;
 
 type HelixParamType = 'i' | 'f' | 'b';
 
@@ -61,6 +63,7 @@ type BlockModel = {
   id: number;
   key: string;
   name: string;
+  based_on?: string | null;
   category: string;
   usage?: number;
   params: EditorParam[];
@@ -170,11 +173,19 @@ export default function App() {
 
   const clientRef = useRef<HelixClient | null>(null);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flowSyncInFlightRef = useRef(false);
+  const scheduledSyncOptionsRef = useRef<{ full: boolean; silent: boolean }>({ full: true, silent: false });
   const [host, setHost] = useState('p35x1.local');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
   const [notesVisible, setNotesVisible] = useState(false);
   const [autoCab, setAutoCab] = useState(true);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [extendedDspEnabled, setExtendedDspEnabled] = useState(false);
+  const [showRealBlockNames, setShowRealBlockNames] = useState(false);
+  const [blockLabelMode, setBlockLabelMode] = useState(false);
+  const [blockLabelDraft, setBlockLabelDraft] = useState('');
+  const [blockLabelOverrides, setBlockLabelOverrides] = useState<Record<string, string>>({});
   const [notesText, setNotesText] = useState('');
   const [status, setStatus] = useState('Idle');
   const [selectedSlot, setSelectedSlot] = useState<BlockSlot | null>(null);
@@ -224,7 +235,6 @@ export default function App() {
   const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
   const [targetSetlistPickerOpen, setTargetSetlistPickerOpen] = useState(false);
   const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
-  const [searchVisible, setSearchVisible] = useState(false);
   const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
   const [flowScrollEnabled, setFlowScrollEnabled] = useState(true);
   const [liveTempoBpm, setLiveTempoBpm] = useState<number | null>(null);
@@ -241,11 +251,12 @@ export default function App() {
   );
 
   const modelLookup = useMemo(() => {
-    const map = new Map<number, { name: string; kind: string; usage: number; params: EditorParam[] }>();
+    const map = new Map<number, { name: string; realName: string | null; kind: string; usage: number; params: EditorParam[] }>();
     Object.entries(blockCatalog).forEach(([key, group]) => {
       group.models.forEach((item) => {
         map.set(item.id, {
           name: item.name,
+          realName: item.based_on ?? null,
           kind: key,
           usage: item.usage ?? 0,
           params: item.params ?? [],
@@ -353,7 +364,9 @@ export default function App() {
     const items = blockCatalog[pickerType].models;
     if (!pickerQuery.trim()) return items;
     const q = pickerQuery.trim().toLowerCase();
-    return items.filter((item) => item.name.toLowerCase().includes(q));
+    return items.filter((item) =>
+      item.name.toLowerCase().includes(q) || (item.based_on ?? '').toLowerCase().includes(q)
+    );
   }, [pickerType, pickerQuery]);
   const ioPickerModels = useMemo(() => {
     const items = ioPickerType === 'input' ? ioData.inputs.models : ioData.outputs.models;
@@ -369,13 +382,34 @@ export default function App() {
     ? grid[blockEditorSlot.path]?.[blockEditorSlot.block] ?? null
     : null;
   const activeBlockMeta = activeBlock?.id ? modelLookup.get(activeBlock.id) ?? null : null;
-  const availableUsage = useMemo(() => {
-    const remaining = targetSlot.path < 2 ? DSP_CAP - pathUsage.path1 : DSP_CAP - pathUsage.path2;
-    return Math.max(0, remaining);
-  }, [pathUsage, targetSlot.path]);
   const activePresetName = activePresetRef?.name ?? 'None';
   const activePresetStorageId =
     typeof activePresetRef?.rcid === 'number' ? activePresetRef.rcid : activePresetContentId;
+  const dspLimit = extendedDspEnabled ? EXTENDED_DSP_CAP : STANDARD_DSP_CAP;
+  const isUsefulRealName = (realName?: string | null) =>
+    Boolean(realName && realName.trim() && realName.trim().toLowerCase() !== 'line 6 original');
+  const getBlockLabelOverrideKey = (path: number, blockId: number | undefined, modelId: number) =>
+    `${activePresetStorageId ?? 'live'}:${path}:${blockId ?? 'slot'}:${modelId}`;
+  const getBlockDisplayName = (block: BlockData | null) => {
+    if (!block) return '';
+    const customName = block.customName?.trim();
+    if (blockLabelMode && customName) return customName;
+    if (showRealBlockNames && isUsefulRealName(block.realName)) return block.realName!.trim();
+    return block.modelName ?? block.name;
+  };
+  const getBlockMetaName = (block: BlockData | null) => {
+    if (!block) return '';
+    const modelName = block.modelName ?? block.name;
+    if (blockLabelMode && block.customName?.trim()) return modelName;
+    if (showRealBlockNames && isUsefulRealName(block.realName)) return modelName;
+    return block.realName ?? '';
+  };
+  const decorateDisplayBlocks = (row: Array<BlockData | null>) =>
+    row.map((block) => (block ? { ...block, name: getBlockDisplayName(block) } : null));
+  const availableUsage = useMemo(() => {
+    const remaining = targetSlot.path < 2 ? dspLimit - pathUsage.path1 : dspLimit - pathUsage.path2;
+    return Math.max(0, remaining);
+  }, [dspLimit, pathUsage, targetSlot.path]);
   const activeSetlist = useMemo(
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
@@ -446,9 +480,22 @@ export default function App() {
   };
 
   const handleClientEvent = (event: HelixEvent) => {
+    const addr = event.addr.toLowerCase();
     const property = event.property;
     const key = property?.key;
-    if (!key) return;
+    if (!key) {
+      if (
+        addr === '/setmodelwithmid' ||
+        addr === '/setparamvalue' ||
+        addr === '/setblockenable' ||
+        addr === '/clrb' ||
+        addr === '/clrblock' ||
+        addr === '/setsnapshotname'
+      ) {
+        scheduleSync(700, { full: false, silent: true });
+      }
+      return;
+    }
 
     if (key === 'global.tempo.bpm') {
       const value = coerceNumber(property?.value);
@@ -492,11 +539,38 @@ export default function App() {
       setTunerOffsetsEnabled(coerceBool(property?.value));
       return;
     }
+    if (key === 'global.modelselect.addcabblock') {
+      const value = coerceBool(property?.value);
+      if (value !== null) {
+        setAutoCab(value);
+      }
+      return;
+    }
+    if (key === 'server.active.preset.id') {
+      const value = coerceNumber(property?.value);
+      if (value !== null) {
+        setActivePresetContentId(value);
+      }
+      scheduleSync(900, { full: true, silent: true });
+      return;
+    }
+    if (key === 'volatile.preset.edited') {
+      setPresetEdited(coerceBool(property?.value));
+      return;
+    }
+    if (key === 'preset.meta.info') {
+      setNotesText(typeof property.value === 'string' ? property.value : '');
+      return;
+    }
     const tunerOffsetMatch = key.match(/^global\.tuner\.offset\.string\.(\d)$/);
     if (tunerOffsetMatch) {
       const stringNumber = Number(tunerOffsetMatch[1]);
       const value = coerceNumber(property?.value);
       setTunerStringOffsets((prev) => ({ ...prev, [stringNumber]: value }));
+      return;
+    }
+    if (addr === '/setpropertyvalue' && key.startsWith('preset.')) {
+      scheduleSync(900, { full: true, silent: true });
     }
   };
 
@@ -579,6 +653,10 @@ export default function App() {
   }, [activeSnapshot]);
 
   useEffect(() => {
+    setBlockLabelDraft(activeBlock?.customName ?? '');
+  }, [activeBlock?.customName, blockEditorSlot?.block, blockEditorSlot?.path]);
+
+  useEffect(() => {
     if (activeSnapshotIndex === null || snapshotCount <= 0) return;
     setSnapshotCopySource((prev) => (prev === null ? activeSnapshotIndex : prev));
     setSnapshotCopyTarget((prev) => {
@@ -637,6 +715,7 @@ export default function App() {
         tunerVolPedalProp,
         tunerTrailsProp,
         tunerOffsetsProp,
+        autoCabProp,
         ...tunerOffsetProps
       ] = await Promise.all([
         client.getProperty('volatile.tempo.bpm').catch(() => null),
@@ -649,6 +728,7 @@ export default function App() {
         client.getProperty('global.tuner.volpedalopens').catch(() => null),
         client.getProperty('global.tuner.trails').catch(() => null),
         client.getProperty('global.tuner.offsets').catch(() => null),
+        client.getProperty('global.modelselect.addcabblock').catch(() => null),
         ...TUNER_STRING_CONFIG.map(({ stringNumber }) =>
           client.getProperty(`global.tuner.offset.string.${stringNumber}`).catch(() => null)
         ),
@@ -669,6 +749,7 @@ export default function App() {
       setTunerVolPedalOpens(coerceBool(tunerVolPedalProp?.value));
       setTunerTrails(coerceBool(tunerTrailsProp?.value));
       setTunerOffsetsEnabled(coerceBool(tunerOffsetsProp?.value));
+      setAutoCab(coerceBool(autoCabProp?.value) ?? true);
       setTunerStringOffsets(
         TUNER_STRING_CONFIG.reduce<Record<number, number | null>>((acc, { stringNumber }, index) => {
           acc[stringNumber] = coerceNumber(tunerOffsetProps[index]?.value);
@@ -1273,7 +1354,7 @@ export default function App() {
     const blockId = effectBlockIndex(p, b);
     const meta = modelLookup.get(modelId);
     if (usage > availableUsage) {
-      setStatus('DSP cap reached (70 per path)');
+      setStatus(`DSP budget reached (${dspLimit} per path)`);
       return;
     }
     const flow = rowToFlow(p);
@@ -1291,6 +1372,8 @@ export default function App() {
         next[p][b] = {
           id: modelId,
           name,
+          modelName: name,
+          realName: meta?.realName ?? null,
           kind,
           usage,
           enabled: true,
@@ -1400,7 +1483,17 @@ export default function App() {
     const client = requireClient();
     if (!client) return;
     const position = effectBlockIndex(slot.path, slot.block);
+    const existingBlock = grid[slot.path]?.[slot.block] ?? null;
     await client.clearBlocks(rowToFlow(slot.path), [position]);
+    if (existingBlock) {
+      const overrideKey = getBlockLabelOverrideKey(slot.path, existingBlock.blockId, existingBlock.id);
+      setBlockLabelOverrides((prev) => {
+        if (!prev[overrideKey]) return prev;
+        const next = { ...prev };
+        delete next[overrideKey];
+        return next;
+      });
+    }
     setGrid((prev) => {
       const next = cloneGrid(prev);
       if (next[slot.path] && next[slot.path][slot.block] !== undefined) {
@@ -1600,6 +1693,30 @@ export default function App() {
     scheduleSync(350);
   };
 
+  const handleBlockLabelApply = () => {
+    if (!blockEditorSlot || !activeBlock) return;
+    const trimmed = blockLabelDraft.trim();
+    const overrideKey = getBlockLabelOverrideKey(blockEditorSlot.path, activeBlock.blockId, activeBlock.id);
+    setBlockLabelOverrides((prev) => {
+      const next = { ...prev };
+      if (trimmed) {
+        next[overrideKey] = trimmed;
+      } else {
+        delete next[overrideKey];
+      }
+      return next;
+    });
+    setGrid((prev) => {
+      const next = cloneGrid(prev);
+      const block = next[blockEditorSlot.path]?.[blockEditorSlot.block];
+      if (block) {
+        block.customName = trimmed || null;
+      }
+      return next;
+    });
+    setStatus(trimmed ? `Labelled ${activeBlock.modelName ?? activeBlock.name} as ${trimmed}` : `Cleared label for ${activeBlock.modelName ?? activeBlock.name}`);
+  };
+
   const hydrateFauxParams = async (row: PathIndex, ioType: IOType) => {
     const client = clientRef.current;
     if (!client) return;
@@ -1651,29 +1768,42 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ioPickerOpen, ioPickerRow, ioPickerType]);
 
-  const handleSync = async () => {
+  const handleSync = async (silent = false) => {
     const client = requireClient();
-    if (!client) return;
-    setStatus('Syncing from device...');
+    if (!client) return false;
+    if (flowSyncInFlightRef.current) return false;
+    flowSyncInFlightRef.current = true;
+    if (!silent) {
+      setStatus('Syncing from device...');
+    }
     try {
       const state = await client.getEditBufferState();
       if (!state) {
-        setStatus('Sync failed: no response');
-        return;
+        if (!silent) setStatus('Sync failed: no response');
+        return false;
       }
       const flows = findFlows(state);
       if (!Array.isArray(flows)) {
-        setStatus('Sync failed: no flow data');
-        return;
+        if (!silent) setStatus('Sync failed: no flow data');
+        return false;
       }
       if (!flows.length) {
-        setStatus('Sync failed: empty flow data');
-        return;
+        if (!silent) setStatus('Sync failed: empty flow data');
+        return false;
       }
       const nextGrid: SignalFlowGrid = Array.from({ length: 4 }, () =>
         Array.from({ length: 12 }, () => null)
       );
       const nextIO: IOGrid = Array.from({ length: 4 }, () => ({ input: null, output: null }));
+      const previousCustomLabels = new Map<string, string>();
+      grid.forEach((row, rowIndex) => {
+        row.forEach((block) => {
+          const customName = block?.customName?.trim();
+          if (block && customName) {
+            previousCustomLabels.set(`${rowIndex}:${block.id}`, customName);
+          }
+        });
+      });
       const assignSlot = (
         rowIndex: number,
         slotIndex: number,
@@ -1686,9 +1816,13 @@ export default function App() {
         if (slotIndex < 0 || slotIndex >= 12) return;
         if (typeof modelId === 'number' && modelLookup.has(modelId)) {
           const info = modelLookup.get(modelId)!;
+          const overrideKey = getBlockLabelOverrideKey(rowIndex, blockId, modelId);
           nextGrid[rowIndex][slotIndex] = {
             id: modelId,
             name: info.name,
+            modelName: info.name,
+            realName: info.realName,
+            customName: blockLabelOverrides[overrideKey] ?? previousCustomLabels.get(`${rowIndex}:${modelId}`) ?? null,
             kind: info.kind,
             usage: info.usage,
             enabled,
@@ -1699,6 +1833,8 @@ export default function App() {
           nextGrid[rowIndex][slotIndex] = {
             id: Number(modelId) || 0,
             name: 'Unknown Block',
+            modelName: 'Unknown Block',
+            realName: null,
             kind: 'fx_loop',
             usage: 0,
             enabled,
@@ -1819,32 +1955,60 @@ export default function App() {
       } catch (_err) {
         // Ignore notes sync failures; block sync succeeded.
       }
-      setStatus('Synced');
+      if (!silent) {
+        setStatus('Synced');
+      }
+      return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Sync failed: ${message}`);
+      if (!silent) {
+        setStatus(`Sync failed: ${message}`);
+      }
+      return false;
+    } finally {
+      flowSyncInFlightRef.current = false;
     }
   };
 
-  const handleFullSync = async () => {
-    await handleSync();
+  const handleFullSync = async (silent = false) => {
+    const synced = await handleSync(silent);
+    if (!synced) return;
     try {
       await refreshPresetContext();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Preset sync failed: ${message}`);
+      if (!silent) {
+        setStatus(`Preset sync failed: ${message}`);
+      }
     }
   };
 
-  const scheduleSync = (delayMs = 350) => {
+  const scheduleSync = (delayMs = 350, options: { full?: boolean; silent?: boolean } = {}) => {
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
     }
+    scheduledSyncOptionsRef.current = {
+      full: options.full ?? true,
+      silent: options.silent ?? false,
+    };
     syncTimerRef.current = setTimeout(() => {
       syncTimerRef.current = null;
-      handleFullSync();
+      const scheduled = scheduledSyncOptionsRef.current;
+      if (scheduled.full) {
+        void handleFullSync(scheduled.silent);
+      } else {
+        void handleSync(scheduled.silent);
+      }
     }, delayMs);
   };
+
+  useEffect(() => {
+    if (!connected || !autoSyncEnabled) return;
+    const interval = setInterval(() => {
+      scheduleSync(0, { full: false, silent: true });
+    }, AUTO_SYNC_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [autoSyncEnabled, connected]);
 
   /* ── Render helpers ─────────────────────────────────────────────── */
 
@@ -1896,8 +2060,8 @@ export default function App() {
     const flowIndex = pathNum - 1;
     const usage = pathNum === 1 ? pathUsage.path1 : pathUsage.path2;
     const hasSplit = pathNum === 1 ? hasSplit1 : hasSplit2;
-    const ratio = Math.min(usage / DSP_CAP, 1);
-    const dspColor = usage > DSP_CAP ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
+    const ratio = Math.min(usage / dspLimit, 1);
+    const dspColor = usage > dspLimit ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
     const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
     const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex;
 
@@ -1909,7 +2073,7 @@ export default function App() {
             <Text style={styles.pathTitle}>Path {pathNum}</Text>
             {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied</Text>}
           </View>
-          <Text style={[styles.pathDsp, { color: dspColor }]}>{usage.toFixed(1)}/{DSP_CAP}</Text>
+          <Text style={[styles.pathDsp, { color: dspColor }]}>{usage.toFixed(1)}/{dspLimit}</Text>
         </View>
         <View style={styles.dspTrack}>
           <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
@@ -1941,7 +2105,7 @@ export default function App() {
 
         {/* Effect chain for Row A */}
         <DraggableEffectList
-          blocks={grid[primary]}
+          blocks={decorateDisplayBlocks(grid[primary])}
           pathIndex={primary}
           selectedSlot={selectedSlot}
           onSelectSlot={selectSlot}
@@ -1963,7 +2127,7 @@ export default function App() {
             </View>
             {renderIORow(split, 'input')}
             <DraggableEffectList
-              blocks={grid[split]}
+              blocks={decorateDisplayBlocks(grid[split])}
               pathIndex={split}
               selectedSlot={selectedSlot}
               onSelectSlot={selectSlot}
@@ -2088,28 +2252,32 @@ export default function App() {
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{selectedContainerName}</Text>
             <View style={styles.listHeaderRight}>
-              <Pressable hitSlop={8} onPress={() => setSearchVisible((v) => !v)}>
-                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={searchVisible ? COLORS.accent : COLORS.muted} strokeWidth={2} strokeLinecap="round" />
-                </Svg>
-              </Pressable>
               <Text style={styles.libraryMeta}>
                 {filteredPresetItems.length}/{presetItems.length}
               </Text>
             </View>
           </View>
-          {searchVisible && (
+          <View style={styles.searchRow}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
+            </Svg>
             <TextInput
-              style={styles.searchInput}
+              style={styles.searchInputInline}
               value={presetFilter}
               onChangeText={setPresetFilter}
               placeholder="Search presets..."
               placeholderTextColor={COLORS.muted}
-              autoFocus
             />
-          )}
+            {presetFilter.trim().length > 0 && (
+              <Pressable onPress={() => setPresetFilter('')} hitSlop={8}>
+                <Text style={styles.searchClearText}>Clear</Text>
+              </Pressable>
+            )}
+          </View>
           {filteredPresetItems.length === 0 ? (
-            <Text style={styles.paramHint}>No presets loaded for this container yet.</Text>
+            <Text style={styles.paramHint}>
+              {presetItems.length > 0 ? 'No presets match that search.' : 'No presets loaded for this container yet.'}
+            </Text>
           ) : (
             filteredPresetItems.map((item) => {
               const active = isPresetActive(item);
@@ -2302,6 +2470,34 @@ export default function App() {
             <Text style={styles.labelHint}>Automatically assign cab when inserting an amp</Text>
           </View>
           <Switch value={autoCab} onValueChange={handleAutoCab} />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Background Sync</Text>
+            <Text style={styles.labelHint}>Refresh flow changes made on the device or desktop editor</Text>
+          </View>
+          <Switch value={autoSyncEnabled} onValueChange={setAutoSyncEnabled} />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Extended DSP Budget</Text>
+            <Text style={styles.labelHint}>Allow block picking up to {EXTENDED_DSP_CAP} per path</Text>
+          </View>
+          <Switch value={extendedDspEnabled} onValueChange={setExtendedDspEnabled} />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Source Model Names</Text>
+            <Text style={styles.labelHint}>Show the original amp, cab, and pedal names where known</Text>
+          </View>
+          <Switch value={showRealBlockNames} onValueChange={setShowRealBlockNames} />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Block Labels</Text>
+            <Text style={styles.labelHint}>Use custom labels while editing blocks in this app</Text>
+          </View>
+          <Switch value={blockLabelMode} onValueChange={setBlockLabelMode} />
         </View>
       </Section>
 
@@ -3270,6 +3466,8 @@ export default function App() {
     const appearance = getBlockAppearance(activeBlock.kind, activeBlock.enabled !== false);
     const color = appearance.accent;
     const blockImage = BLOCK_IMAGES[activeBlock.kind] ?? null;
+    const displayName = getBlockDisplayName(activeBlock);
+    const metaName = getBlockMetaName(activeBlock);
 
     return (
       <SafeAreaProvider>
@@ -3281,7 +3479,7 @@ export default function App() {
                 <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </Pressable>
-            <Text style={styles.editorTitle}>{activeBlock.name}</Text>
+            <Text style={styles.editorTitle}>{displayName}</Text>
             <View style={styles.editorActions}>
               <Pressable
                 style={styles.editorActionBtn}
@@ -3330,6 +3528,7 @@ export default function App() {
               <Text style={[styles.editorCategory, { color: appearance.meta }]}>
                 {kindLabel(activeBlock.kind).toUpperCase()}
               </Text>
+              {metaName && <Text style={styles.editorModelName}>{metaName}</Text>}
               <Pressable
                 style={[
                   styles.editorStateButton,
@@ -3364,6 +3563,30 @@ export default function App() {
             contentContainerStyle={styles.editorParamPad}
             showsVerticalScrollIndicator={false}
           >
+            {blockLabelMode && (
+              <View style={styles.blockLabelEditor}>
+                <Text style={styles.paramSectionTitle}>Block Label</Text>
+                <View style={styles.inlineEditor}>
+                  <TextInput
+                    style={[styles.input, styles.inlineInput]}
+                    value={blockLabelDraft}
+                    onChangeText={setBlockLabelDraft}
+                    placeholder={activeBlock.modelName ?? activeBlock.name}
+                    placeholderTextColor={COLORS.muted}
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                  />
+                  <Pressable
+                    style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                    onPress={handleBlockLabelApply}
+                  >
+                    <Text style={[styles.buttonText, styles.buttonTextGhost]}>
+                      {blockLabelDraft.trim() ? 'Apply' : 'Clear'}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
             {renderBlockParams()}
           </ScrollView>
         </SafeAreaView>
@@ -3701,7 +3924,7 @@ export default function App() {
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
           title={pickerStep === 'type' ? 'Add Block' : blockCatalog[pickerType ?? 'amp']?.label}
-          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${DSP_CAP}`}
+          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${dspLimit}`}
         >
           {pickerStep === 'type' ? (
             <ScrollView style={styles.sheetList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
@@ -3753,6 +3976,9 @@ export default function App() {
                   const required = item.usage ?? 0;
                   const canInsert = required <= availableUsage;
                   const color = getBlockColor(pickerType ?? '');
+                  const sourceName = isUsefulRealName(item.based_on) ? item.based_on!.trim() : null;
+                  const primaryName = showRealBlockNames && sourceName ? sourceName : item.name;
+                  const secondaryName = showRealBlockNames && sourceName ? item.name : sourceName;
                   return (
                     <Pressable
                       key={item.id}
@@ -3762,7 +3988,10 @@ export default function App() {
                     >
                       <View style={[styles.modelDot, { backgroundColor: color }]} />
                       <View style={styles.modelInfo}>
-                        <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>{item.name}</Text>
+                        <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>{primaryName}</Text>
+                        {secondaryName && (
+                          <Text style={styles.modelMetaText} numberOfLines={1}>{secondaryName}</Text>
+                        )}
                       </View>
                       <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>
                         <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>{required.toFixed(1)}</Text>
@@ -4460,6 +4689,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   editorCategory: { fontFamily: FONT_MONO, fontSize: 12, letterSpacing: 2 },
+  editorModelName: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 13,
+    lineHeight: 18,
+  },
   editorStateButton: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
@@ -4505,6 +4740,29 @@ const styles = StyleSheet.create({
     padding: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke,
     color: COLORS.text, fontFamily: FONT_MONO, fontSize: 14,
     backgroundColor: COLORS.panelAlt, marginBottom: 12,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  searchInputInline: {
+    flex: 1,
+    color: COLORS.text,
+    fontFamily: FONT_MONO,
+    fontSize: 14,
+    paddingVertical: 0,
+  },
+  searchClearText: {
+    color: COLORS.accent,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 12,
   },
 
   /* ── Buttons ──────────────────────────────────────────────────── */
@@ -4675,6 +4933,12 @@ const styles = StyleSheet.create({
   /* ── Model picker ──────────────────────────────────────────────── */
   modelDot: { width: 10, height: 10, borderRadius: 5 },
   modelInfo: { flex: 1 },
+  modelMetaText: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11,
+    marginTop: 3,
+  },
   dspBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: COLORS.panelAlt, borderWidth: 1, borderColor: COLORS.stroke },
   dspBadgeText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11 },
   pickerNav: { marginBottom: 12 },
@@ -4687,6 +4951,13 @@ const styles = StyleSheet.create({
 
   /* ── Parameter editor: knob grid ───────────────────────────────── */
   paramContainer: { gap: 20 },
+  blockLabelEditor: {
+    gap: 8,
+    paddingBottom: 16,
+    marginBottom: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.stroke,
+  },
   knobGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 8, paddingVertical: 8 },
   toggleSection: { gap: 12, paddingTop: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },

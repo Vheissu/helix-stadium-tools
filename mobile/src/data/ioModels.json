@@ -9,250 +9,6 @@
         "params": []
       },
       {
-        "id": 769,
-        "key": "P35_InputInst1_2",
-        "name": "Instrument 1+2",
-        "params": [
-          {
-            "id": null,
-            "key": "preset.inst1.z",
-            "name": "Inst 1 Z",
-            "type": "i",
-            "min": 0,
-            "max": 9,
-            "def": 1,
-            "display_tag": [
-              "First Block",
-              "First Enabled",
-              "10K Ohm",
-              "22K Ohm",
-              "32K Ohm",
-              "70K Ohm",
-              "90K Ohm",
-              "136K Ohm",
-              "230K Ohm",
-              "1M Ohm"
-            ],
-            "options": [
-              "First Block",
-              "First Enabled",
-              "10K Ohm",
-              "22K Ohm",
-              "32K Ohm",
-              "70K Ohm",
-              "90K Ohm",
-              "136K Ohm",
-              "230K Ohm",
-              "1M Ohm"
-            ],
-            "faux": true,
-            "property_key": "preset.inst1.z"
-          },
-          {
-            "id": 2,
-            "key": "Pad.1",
-            "name": "Inst 1 Pad",
-            "type": "i",
-            "min": 1,
-            "max": 2,
-            "def": 1,
-            "display_tag": "inst_pad",
-            "options": [
-              "Off/Inst",
-              "On/Line"
-            ],
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 3,
-            "key": "Trim.1",
-            "name": "Inst 1 Trim",
-            "type": "f",
-            "min": -24,
-            "max": 6,
-            "def": 0,
-            "display_tag": "volume",
-            "options": null,
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 4,
-            "key": "noiseGate.1",
-            "name": "Inst 1 Gate",
-            "type": "b",
-            "min": false,
-            "max": true,
-            "def": false,
-            "display_tag": [
-              "Off",
-              "On"
-            ],
-            "options": [
-              "Off",
-              "On"
-            ],
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 5,
-            "key": "threshold.1",
-            "name": "Inst 1 Thresh",
-            "type": "f",
-            "min": -96,
-            "max": 0,
-            "def": -48,
-            "display_tag": "volume",
-            "options": null,
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 6,
-            "key": "decay.1",
-            "name": "Inst 1 Decay",
-            "type": "f",
-            "min": 0.01,
-            "max": 1,
-            "def": 0.1,
-            "display_tag": "time_ms",
-            "options": null,
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 10,
-            "key": "StereoLink",
-            "name": "StereoLink",
-            "type": "b",
-            "min": false,
-            "max": true,
-            "def": false,
-            "display_tag": [
-              "Off",
-              "On"
-            ],
-            "options": [
-              "Off",
-              "On"
-            ],
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": null,
-            "key": "preset.inst2.z",
-            "name": "Inst 2 Z",
-            "type": "i",
-            "min": 0,
-            "max": 9,
-            "def": 1,
-            "display_tag": [
-              "First Block",
-              "First Enabled",
-              "10K Ohm",
-              "22K Ohm",
-              "32K Ohm",
-              "70K Ohm",
-              "90K Ohm",
-              "136K Ohm",
-              "230K Ohm",
-              "1M Ohm"
-            ],
-            "options": [
-              "First Block",
-              "First Enabled",
-              "10K Ohm",
-              "22K Ohm",
-              "32K Ohm",
-              "70K Ohm",
-              "90K Ohm",
-              "136K Ohm",
-              "230K Ohm",
-              "1M Ohm"
-            ],
-            "faux": true,
-            "property_key": "preset.inst2.z"
-          },
-          {
-            "id": 22,
-            "key": "Pad.2",
-            "name": "Inst 2 Pad",
-            "type": "i",
-            "min": 1,
-            "max": 2,
-            "def": 1,
-            "display_tag": "inst_pad",
-            "options": [
-              "Off/Inst",
-              "On/Line"
-            ],
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 23,
-            "key": "Trim.2",
-            "name": "Inst 2 Trim",
-            "type": "f",
-            "min": -24,
-            "max": 6,
-            "def": 0,
-            "display_tag": "volume",
-            "options": null,
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 24,
-            "key": "noiseGate.2",
-            "name": "Inst 2 Gate",
-            "type": "b",
-            "min": false,
-            "max": true,
-            "def": false,
-            "display_tag": [
-              "Off",
-              "On"
-            ],
-            "options": [
-              "Off",
-              "On"
-            ],
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 25,
-            "key": "threshold.2",
-            "name": "Inst 2 Thresh",
-            "type": "f",
-            "min": -96,
-            "max": 0,
-            "def": -48,
-            "display_tag": "volume",
-            "options": null,
-            "faux": false,
-            "property_key": null
-          },
-          {
-            "id": 26,
-            "key": "decay.2",
-            "name": "Inst 2 Decay",
-            "type": "f",
-            "min": 0.01,
-            "max": 1,
-            "def": 0.1,
-            "display_tag": "time_ms",
-            "options": null,
-            "faux": false,
-            "property_key": null
-          }
-        ]
-      },
-      {
         "id": 770,
         "key": "P35_InputInst1",
         "name": "Instrument 1",
@@ -260,7 +16,7 @@
           {
             "id": null,
             "key": "preset.inst1.z",
-            "name": "Inst 1 Z",
+            "name": "Input Z",
             "type": "i",
             "min": 0,
             "max": 9,
@@ -376,7 +132,7 @@
           {
             "id": null,
             "key": "preset.inst2.z",
-            "name": "Inst 2 Z",
+            "name": "Input Z",
             "type": "i",
             "min": 0,
             "max": 9,
@@ -473,6 +229,250 @@
             "id": 6,
             "key": "decay",
             "name": "Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null,
+            "faux": false,
+            "property_key": null
+          }
+        ]
+      },
+      {
+        "id": 769,
+        "key": "P35_InputInst1_2",
+        "name": "Instrument 1+2",
+        "params": [
+          {
+            "id": null,
+            "key": "preset.inst1.z",
+            "name": "Inst 1 In-Z",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 1,
+            "display_tag": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "options": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "faux": true,
+            "property_key": "preset.inst1.z"
+          },
+          {
+            "id": 2,
+            "key": "Pad.1",
+            "name": "Inst 1 Pad",
+            "type": "i",
+            "min": 1,
+            "max": 2,
+            "def": 1,
+            "display_tag": "inst_pad",
+            "options": [
+              "Off/Inst",
+              "On/Line"
+            ],
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 3,
+            "key": "Trim.1",
+            "name": "Inst 1 Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null,
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 4,
+            "key": "noiseGate.1",
+            "name": "Inst 1 Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ],
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 5,
+            "key": "threshold.1",
+            "name": "Inst 1 Thresh",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null,
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 6,
+            "key": "decay.1",
+            "name": "Inst 1 Decay",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.1,
+            "display_tag": "time_ms",
+            "options": null,
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 10,
+            "key": "StereoLink",
+            "name": "Stereo Link",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ],
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": null,
+            "key": "preset.inst2.z",
+            "name": "Inst 2 In-Z",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 1,
+            "display_tag": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "options": [
+              "First Block",
+              "First Enabled",
+              "10K Ohm",
+              "22K Ohm",
+              "32K Ohm",
+              "70K Ohm",
+              "90K Ohm",
+              "136K Ohm",
+              "230K Ohm",
+              "1M Ohm"
+            ],
+            "faux": true,
+            "property_key": "preset.inst2.z"
+          },
+          {
+            "id": 22,
+            "key": "Pad.2",
+            "name": "Inst 2 Pad",
+            "type": "i",
+            "min": 1,
+            "max": 2,
+            "def": 1,
+            "display_tag": "inst_pad",
+            "options": [
+              "Off/Inst",
+              "On/Line"
+            ],
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 23,
+            "key": "Trim.2",
+            "name": "Inst 2 Trim",
+            "type": "f",
+            "min": -24,
+            "max": 6,
+            "def": 0,
+            "display_tag": "volume",
+            "options": null,
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 24,
+            "key": "noiseGate.2",
+            "name": "Inst 2 Gate",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_tag": [
+              "Off",
+              "On"
+            ],
+            "options": [
+              "Off",
+              "On"
+            ],
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 25,
+            "key": "threshold.2",
+            "name": "Inst 2 Thresh",
+            "type": "f",
+            "min": -96,
+            "max": 0,
+            "def": -48,
+            "display_tag": "volume",
+            "options": null,
+            "faux": false,
+            "property_key": null
+          },
+          {
+            "id": 26,
+            "key": "decay.2",
+            "name": "Inst 2 Decay",
             "type": "f",
             "min": 0.01,
             "max": 1,

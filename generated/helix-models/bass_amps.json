@@ -623,7 +623,7 @@
       },
       {
         "name": "Z PrePost",
-        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
         "min": 0,
         "max": 10,
         "default": 10,
@@ -793,7 +793,7 @@
       },
       {
         "name": "Z PrePost",
-        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
         "min": 0,
         "max": 10,
         "default": 5,
@@ -1643,7 +1643,7 @@
       },
       {
         "name": "Z PrePost",
-        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
         "min": 0,
         "max": 10,
         "default": 10,
@@ -3512,7 +3512,7 @@
       },
       {
         "name": "Z PrePost",
-        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
         "min": 0,
         "max": 10,
         "default": 10,
@@ -3628,7 +3628,7 @@
       },
       {
         "name": "Z PrePost",
-        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre). \"Stock\" represents the stock location, which changes from amp to amp.",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
         "min": 0,
         "max": 10,
         "default": 10,

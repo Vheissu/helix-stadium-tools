@@ -26,6 +26,7 @@ import { DraggableEffectList } from './src/components/signalFlow/DraggableEffect
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 import { buildConnectionFailureStatus } from './src/utils/connection';
+import { formatTempoBpm } from './src/utils/format';
 import { findFlows } from './src/utils/helixState';
 
 const COLORS = THEME_COLORS;
@@ -2557,7 +2558,7 @@ export default function App() {
       <Section title="Tempo">
         <View style={styles.transportHeroCard}>
           <Text style={styles.transportHeroValue}>
-            {liveTempoBpm ?? globalTempoBpm ?? '\u2014'}
+            {formatTempoBpm(liveTempoBpm ?? globalTempoBpm)}
             <Text style={styles.transportHeroUnit}> BPM</Text>
           </Text>
           <Text style={styles.transportHeroMeta}>
@@ -2685,7 +2686,7 @@ export default function App() {
   );
 
   const renderPerformanceMode = () => {
-    const displayedTempo = liveTempoBpm ?? globalTempoBpm;
+    const displayedTempo = formatTempoBpm(liveTempoBpm ?? globalTempoBpm);
     const snapshotSummary =
       activeSnapshotIndex !== null
         ? `${activeSnapshotIndex + 1}. ${activeSnapshot?.name ?? `Snapshot ${activeSnapshotIndex + 1}`}`
@@ -2830,7 +2831,7 @@ export default function App() {
               </View>
               <View style={styles.performanceTempoCard}>
                 <Text style={styles.performanceTempoValue}>
-                  {displayedTempo !== null ? `${displayedTempo}` : '\u2014'}
+                  {displayedTempo}
                 </Text>
                 <Text style={styles.performanceTempoUnit}>BPM</Text>
                 <Text style={styles.performanceTempoMeta}>

@@ -453,6 +453,67 @@ def infer_unit(display_tag, controls):
     return "unitless"
 
 
+def resolve_options(display_tag, control, param_type: str):
+    if isinstance(display_tag, list):
+        return [str(item) for item in display_tag]
+    if isinstance(control, dict) and control.get("isDiscrete") and isinstance(control.get("format"), list):
+        options = control.get("format")
+        if all(isinstance(item, str) for item in options):
+            return list(options)
+    if param_type == "b":
+        return ["Off", "On"]
+    return None
+
+
+def build_detailed_param_list(model_key, model_info, uidef, param_meta, controls):
+    del model_key  # kept for call-site symmetry with other generators
+    params = []
+    model_params = model_info.get("params") or {}
+    if not isinstance(model_params, dict):
+        return params
+    if not isinstance(uidef, dict):
+        return params
+    for item in uidef.get("params", []):
+        if not isinstance(item, dict):
+            continue
+        param_key = item.get("id")
+        if not param_key:
+            continue
+        info = model_params.get(param_key)
+        if not isinstance(info, dict):
+            continue
+        param_type = str(info.get("type") or "f")
+        display_tag = item.get("display_tag")
+        control_key = display_tag if isinstance(display_tag, str) else None
+        control = controls.get(control_key) if control_key else None
+        raw_min = info.get("min")
+        raw_max = info.get("max")
+        raw_default = info.get("def")
+        display_min, display_max = compute_display_range(raw_min, raw_max, control_key, controls)
+        display_default = compute_display_value(raw_default, control_key, controls)
+        options = resolve_options(display_tag, control, param_type)
+        desc_key = item.get("desc_key") or param_key
+        desc = find_description(param_meta, [desc_key, param_key, item.get("name")])
+        params.append(
+            {
+                "id": info.get("id"),
+                "key": param_key,
+                "name": item.get("name") or param_key,
+                "type": param_type,
+                "min": clean_number(raw_min),
+                "max": clean_number(raw_max),
+                "def": clean_number(raw_default),
+                "display_min": clean_number(display_min if display_min is not None else raw_min),
+                "display_max": clean_number(display_max if display_max is not None else raw_max),
+                "display_def": clean_number(display_default if display_default is not None else raw_default),
+                "unit": infer_unit(control_key, controls),
+                "options": options,
+                "description": desc or "",
+            }
+        )
+    return params
+
+
 def build_param_list(model_key, model_info, uidef, param_meta, controls):
     params = []
     model_params = model_info.get("params") or {}
@@ -567,7 +628,7 @@ def main():
         based_on = resolve_based_on(name, model_id, based_on_overrides, based_on_by_id, based_on_by_name)
 
         if category in ("amp", "preamp"):
-            if model_class == "Guitar":
+            if model_class in ("Guitar", "Clone"):
                 group = guitar_amps
             elif model_class == "Bass":
                 group = bass_amps

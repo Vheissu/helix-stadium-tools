@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -119,10 +120,15 @@ type SnapshotRef = {
 };
 
 type PresetLibraryRoot = 'setlists' | 'user' | 'factory';
+type SetlistAddSource = 'user' | 'factory';
 
 const FACTORY_PRESETS_CID = -1;
 const USER_PRESETS_CID = -2;
 const SETLIST_DIRECTORY_CID = -5;
+const SETLIST_ADD_SOURCES: Array<{ key: SetlistAddSource; label: string; containerId: number }> = [
+  { key: 'user', label: 'User', containerId: USER_PRESETS_CID },
+  { key: 'factory', label: 'Factory', containerId: FACTORY_PRESETS_CID },
+];
 const SNAPSHOT_COLOR_OPTIONS = [
   { value: 0, label: 'Auto', swatch: '#A9AFBA' },
   { value: 1, label: 'White', swatch: '#F3F1E7' },
@@ -234,6 +240,12 @@ export default function App() {
   const [pathClipboard, setPathClipboard] = useState<HelixPathClipboard | null>(null);
   const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
   const [targetSetlistPickerOpen, setTargetSetlistPickerOpen] = useState(false);
+  const [setlistAddSheetOpen, setSetlistAddSheetOpen] = useState(false);
+  const [setlistAddSource, setSetlistAddSource] = useState<SetlistAddSource>('user');
+  const [setlistAddItems, setSetlistAddItems] = useState<HelixContentRef[]>([]);
+  const [setlistAddSearch, setSetlistAddSearch] = useState('');
+  const [setlistAddLoading, setSetlistAddLoading] = useState(false);
+  const [selectedSetlistAddIds, setSelectedSetlistAddIds] = useState<number[]>([]);
   const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
   const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
   const [flowScrollEnabled, setFlowScrollEnabled] = useState(true);
@@ -431,6 +443,22 @@ export default function App() {
       return name.toLowerCase().includes(query) || slot.includes(query) || String(item.cid_ ?? '').includes(query);
     });
   }, [presetFilter, presetItems]);
+  const filteredSetlistAddItems = useMemo(() => {
+    const query = setlistAddSearch.trim().toLowerCase();
+    if (!query) return setlistAddItems;
+    return setlistAddItems.filter((item) => {
+      const name = item.name ?? '';
+      const slot = typeof item.posi === 'number' ? String(item.posi + 1) : '';
+      return name.toLowerCase().includes(query) || slot.includes(query) || String(item.cid_ ?? '').includes(query);
+    });
+  }, [setlistAddItems, setlistAddSearch]);
+  const visibleSetlistAddIds = useMemo(
+    () =>
+      filteredSetlistAddItems
+        .map((item) => item.cid_)
+        .filter((contentId): contentId is number => typeof contentId === 'number'),
+    [filteredSetlistAddItems]
+  );
   const isPresetActive = (item: HelixContentRef) => {
     const itemId = typeof item.cid_ === 'number' ? item.cid_ : null;
     if (itemId === null) return false;
@@ -627,6 +655,12 @@ export default function App() {
     setPathClipboard(null);
     setSetlistPickerOpen(false);
     setTargetSetlistPickerOpen(false);
+    setSetlistAddSheetOpen(false);
+    setSetlistAddSource('user');
+    setSetlistAddItems([]);
+    setSetlistAddSearch('');
+    setSetlistAddLoading(false);
+    setSelectedSetlistAddIds([]);
     setPresetActionTarget(null);
     setLiveTempoBpm(null);
     setGlobalTempoBpm(null);
@@ -1175,6 +1209,78 @@ export default function App() {
       const position = Array.isArray(targetItems) ? targetItems.length : 0;
       await client.addContentsToContainer(targetSetlistId, [item.cid_], position);
       setStatus(`Added ${item.name ?? 'preset'} to ${targetSetlist?.name ?? 'setlist'}`);
+      await refreshPresetContext();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Add to setlist failed: ${message}`);
+    }
+  };
+
+  const loadSetlistAddSource = async (source: SetlistAddSource) => {
+    const client = requireClient();
+    if (!client) return;
+    const sourceInfo = SETLIST_ADD_SOURCES.find((item) => item.key === source);
+    if (!sourceInfo) return;
+    setSetlistAddLoading(true);
+    try {
+      const items = (await client.getContainerContents(sourceInfo.containerId)) as HelixContentRef[];
+      setSetlistAddItems(items);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus(`Preset search failed: ${message}`);
+      setSetlistAddItems([]);
+    } finally {
+      setSetlistAddLoading(false);
+    }
+  };
+
+  const handleOpenSetlistAddSheet = () => {
+    if (typeof selectedContainerId !== 'number') {
+      setStatus('Select a setlist first');
+      return;
+    }
+    setSetlistAddSearch('');
+    setSelectedSetlistAddIds([]);
+    setSetlistAddSheetOpen(true);
+    void loadSetlistAddSource(setlistAddSource);
+  };
+
+  const handleSetlistAddSourceChange = (source: SetlistAddSource) => {
+    setSetlistAddSource(source);
+    setSetlistAddSearch('');
+    setSelectedSetlistAddIds([]);
+    void loadSetlistAddSource(source);
+  };
+
+  const handleSetlistAddToggle = (contentId: number) => {
+    setSelectedSetlistAddIds((prev) =>
+      prev.includes(contentId) ? prev.filter((item) => item !== contentId) : [...prev, contentId]
+    );
+  };
+
+  const handleSelectVisibleSetlistAddItems = () => {
+    setSelectedSetlistAddIds((prev) => Array.from(new Set([...prev, ...visibleSetlistAddIds])));
+  };
+
+  const handleAddSelectedPresetsToSetlist = async () => {
+    const client = requireClient();
+    if (!client) return;
+    if (typeof selectedContainerId !== 'number') {
+      setStatus('Select a setlist first');
+      return;
+    }
+    if (!selectedSetlistAddIds.length) {
+      setStatus('Select presets to add');
+      return;
+    }
+    try {
+      const targetItems = (await client.getContainerContents(selectedContainerId)) as HelixContentRef[];
+      const position = Array.isArray(targetItems) ? targetItems.length : 0;
+      await client.addContentsToContainer(selectedContainerId, selectedSetlistAddIds, position);
+      const count = selectedSetlistAddIds.length;
+      setStatus(`Added ${count} preset${count === 1 ? '' : 's'} to ${activeSetlist?.name ?? selectedContainerName}`);
+      setSetlistAddSheetOpen(false);
+      setSelectedSetlistAddIds([]);
       await refreshPresetContext();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -2515,6 +2621,12 @@ export default function App() {
                 <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
               </Pressable>
             </View>
+            <Pressable
+              style={[styles.button, styles.buttonPrimary]}
+              onPress={handleOpenSetlistAddSheet}
+            >
+              <Text style={styles.buttonText}>Add Presets</Text>
+            </Pressable>
           </>
         ) : (
           <Text style={styles.paramHint}>Sync after connecting to load setlists.</Text>
@@ -3865,6 +3977,118 @@ export default function App() {
           </ScrollView>
         </BottomSheet>
 
+        {/* ── Bottom Sheet: Add Presets to Setlist ─────────────── */}
+        <BottomSheet
+          visible={setlistAddSheetOpen}
+          onClose={() => setSetlistAddSheetOpen(false)}
+          title="Add Presets"
+          subtitle={activeSetlist?.name ?? selectedContainerName}
+        >
+          <View style={styles.segmentedControl}>
+            {SETLIST_ADD_SOURCES.map((source, idx) => {
+              const active = source.key === setlistAddSource;
+              return (
+                <Pressable
+                  key={`setlist-add-source-${source.key}`}
+                  style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
+                  onPress={() => handleSetlistAddSourceChange(source.key)}
+                >
+                  <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{source.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View style={styles.searchRow}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
+            </Svg>
+            <TextInput
+              style={styles.searchInputInline}
+              value={setlistAddSearch}
+              onChangeText={setSetlistAddSearch}
+              placeholder="Find presets..."
+              placeholderTextColor={COLORS.muted}
+            />
+            {setlistAddSearch.trim().length > 0 && (
+              <Pressable onPress={() => setSetlistAddSearch('')} hitSlop={8}>
+                <Text style={styles.searchClearText}>Clear</Text>
+              </Pressable>
+            )}
+          </View>
+          <View style={styles.setlistAddToolRow}>
+            <Text style={styles.libraryMeta}>
+              {selectedSetlistAddIds.length} selected
+            </Text>
+            <View style={styles.setlistAddToolActions}>
+              <Pressable onPress={handleSelectVisibleSetlistAddItems} hitSlop={8}>
+                <Text style={styles.searchClearText}>Select visible</Text>
+              </Pressable>
+              <Pressable onPress={() => setSelectedSetlistAddIds([])} hitSlop={8}>
+                <Text style={styles.searchClearText}>Clear</Text>
+              </Pressable>
+            </View>
+          </View>
+          {setlistAddLoading ? (
+            <Text style={styles.paramHint}>Loading presets...</Text>
+          ) : (
+            <FlatList
+              style={styles.sheetModelList}
+              data={filteredSetlistAddItems}
+              keyExtractor={(item, index) => `setlist-add-${String(item.cid_ ?? index)}-${String(item.posi ?? index)}`}
+              nestedScrollEnabled
+              ListEmptyComponent={
+                <Text style={styles.paramHint}>
+                  {setlistAddItems.length > 0 ? 'No presets match that search.' : 'No presets loaded.'}
+                </Text>
+              }
+              renderItem={({ item }) => {
+                const contentId = typeof item.cid_ === 'number' ? item.cid_ : null;
+                const selected = contentId !== null && selectedSetlistAddIds.includes(contentId);
+                return (
+                  <Pressable
+                    style={[styles.sheetListItem, selected && styles.sheetListItemActive, contentId === null && styles.sheetListItemDisabled]}
+                    disabled={contentId === null}
+                    onPress={() => {
+                      if (contentId !== null) handleSetlistAddToggle(contentId);
+                    }}
+                  >
+                    <View style={[styles.selectionDot, selected && styles.selectionDotActive]}>
+                      {selected && <Text style={styles.selectionDotText}>✓</Text>}
+                    </View>
+                    <View style={styles.libraryRowCopy}>
+                      <Text style={styles.sheetListText} numberOfLines={1}>
+                        {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
+                      </Text>
+                      <Text style={styles.libraryMeta}>
+                        {typeof item.posi === 'number' ? `Slot ${item.posi + 1}` : 'Preset'}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              }}
+            />
+          )}
+          <View style={styles.setlistAddFooter}>
+            <View style={styles.setlistAddFooterCopy}>
+              <Text style={styles.label}>Add to {activeSetlist?.name ?? selectedContainerName}</Text>
+              <Text style={styles.libraryMeta}>
+                Appends selected presets to the end of the setlist.
+              </Text>
+            </View>
+            <Pressable
+              style={[styles.button, styles.buttonPrimary, !selectedSetlistAddIds.length && styles.buttonDisabled]}
+              disabled={!selectedSetlistAddIds.length}
+              onPress={() => {
+                void handleAddSelectedPresetsToSetlist();
+              }}
+            >
+              <Text style={styles.buttonText}>
+                {selectedSetlistAddIds.length ? `Add ${selectedSetlistAddIds.length}` : 'Add'}
+              </Text>
+            </Pressable>
+          </View>
+        </BottomSheet>
+
         {/* ── Bottom Sheet: Preset Actions ─────────────────────── */}
         <BottomSheet
           visible={presetActionTarget !== null}
@@ -5008,6 +5232,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   setlistAddButtonText: { color: COLORS.accent, fontFamily: FONT_BODY_SEMI, fontSize: 12 },
+  setlistAddToolRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginTop: 10,
+    marginBottom: 8,
+  },
+  setlistAddToolActions: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  setlistAddFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 14,
+    paddingTop: 14,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.stroke,
+  },
+  setlistAddFooterCopy: { flex: 1, gap: 4 },
+  selectionDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.panel,
+  },
+  selectionDotActive: { borderColor: COLORS.accentMid, backgroundColor: COLORS.accentDim },
+  selectionDotText: { color: COLORS.accent, fontFamily: FONT_BODY_SEMI, fontSize: 13 },
 
   /* ── Snapshot dot ─────────────────────────────────────── */
   snapshotDot: {

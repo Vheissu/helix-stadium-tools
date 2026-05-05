@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Rect, Circle } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { COLORS, FONTS } from '../theme/colors';
 import { getConnectionErrorMessage } from '../utils/connection';
@@ -23,77 +23,48 @@ interface ConnectionGateProps {
   status: string;
 }
 
-const PulseRing = ({ delay, size }: { delay: number; size: number }) => {
-  const scale = useRef(new Animated.Value(0.6)).current;
-  const opacity = useRef(new Animated.Value(0.5)).current;
+const DeviceMark = ({ pulse }: { pulse: boolean }) => {
+  const opacity = useRef(new Animated.Value(pulse ? 0.45 : 1)).current;
 
   useEffect(() => {
+    if (!pulse) {
+      opacity.setValue(1);
+      return;
+    }
     const anim = Animated.loop(
       Animated.sequence([
-        Animated.delay(delay),
-        Animated.parallel([
-          Animated.timing(scale, {
-            toValue: 1,
-            duration: 2400,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacity, {
-            toValue: 0,
-            duration: 2400,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.parallel([
-          Animated.timing(scale, { toValue: 0.6, duration: 0, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 0.5, duration: 0, useNativeDriver: true }),
-        ]),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 900,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.45,
+          duration: 900,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
       ])
     );
     anim.start();
     return () => anim.stop();
-  }, [delay, scale, opacity]);
+  }, [pulse, opacity]);
 
   return (
-    <Animated.View
-      style={[
-        styles.pulseRing,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          transform: [{ scale }],
-          opacity,
-        },
-      ]}
-    />
+    <View style={styles.deviceMark}>
+      <Svg width={120} height={48} viewBox="0 0 120 48">
+        <Rect x="2" y="6" width="116" height="36" rx="6" stroke={COLORS.stroke} strokeWidth={1} fill={COLORS.panel} />
+        <Rect x="14" y="14" width="44" height="20" rx="3" fill={COLORS.bg} stroke={COLORS.stroke} strokeWidth={0.75} />
+        <Circle cx="74" cy="24" r="3" fill={COLORS.muted} />
+        <Circle cx="86" cy="24" r="3" fill={COLORS.muted} />
+        <Circle cx="98" cy="24" r="3" fill={COLORS.muted} />
+        <Circle cx="110" cy="24" r="3" fill={COLORS.muted} />
+      </Svg>
+      <Animated.View style={[styles.deviceDot, { opacity }]} />
+    </View>
   );
 };
-
-const WifiIcon = ({ size, color }: { size: number; color: string }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M2 8.82a15 15 0 0120 0"
-      stroke={color}
-      strokeWidth={1.6}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M5 12.86a11 11 0 0114 0"
-      stroke={color}
-      strokeWidth={1.6}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M8.5 16.43a6 6 0 017 0"
-      stroke={color}
-      strokeWidth={1.6}
-      strokeLinecap="round"
-    />
-    <Circle cx="12" cy="20" r="1.5" fill={color} />
-  </Svg>
-);
 
 const SpinnerDot = () => {
   const rotation = useRef(new Animated.Value(0)).current;
@@ -137,29 +108,18 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          {/* Top spacer */}
           <View style={styles.spacer} />
 
-          {/* Icon area with pulse rings */}
-          <View style={styles.iconArea}>
-            <PulseRing delay={0} size={160} />
-            <PulseRing delay={800} size={160} />
-            <PulseRing delay={1600} size={160} />
-            <View style={styles.iconCircle}>
-              <WifiIcon size={36} color={COLORS.accent} />
-            </View>
-          </View>
+          <DeviceMark pulse={!connecting} />
 
-          {/* Branding */}
           <Text style={styles.title}>Helix Stadium</Text>
           <Text style={styles.subtitle}>
             Edit and control your device over Wi-Fi.
           </Text>
 
-          {/* Connection form */}
           <View style={styles.form}>
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>DEVICE ADDRESS</Text>
+              <Text style={styles.inputLabel}>Device address</Text>
               <TextInput
                 style={styles.input}
                 value={host}
@@ -189,7 +149,6 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
               )}
             </Pressable>
 
-            {/* Status message */}
             {errorMessage && (
               <View style={styles.errorRow}>
                 <View style={styles.errorDot} />
@@ -198,7 +157,6 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
             )}
           </View>
 
-          {/* Bottom info */}
           <View style={styles.bottomInfo}>
             <Text style={styles.hint}>
               Same Wi-Fi network. Remote Access on.
@@ -226,64 +184,55 @@ const styles = StyleSheet.create({
     minHeight: 20,
   },
 
-  /* Icon area */
-  iconArea: {
-    width: 160,
-    height: 160,
+  deviceMark: {
+    width: 120,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
+    marginBottom: 36,
+    position: 'relative',
   },
-  pulseRing: {
+  deviceDot: {
     position: 'absolute',
-    borderWidth: 1,
-    borderColor: COLORS.accent,
-  },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.accentDim,
-    borderWidth: 1,
-    borderColor: COLORS.accentMid,
-    alignItems: 'center',
-    justifyContent: 'center',
+    top: 14,
+    right: 30,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.accent,
   },
 
-  /* Branding */
   title: {
-    fontSize: 28,
+    fontSize: 26,
     color: COLORS.text,
     fontFamily: FONTS.display,
-    letterSpacing: 1,
-    marginBottom: 10,
+    letterSpacing: 0.1,
+    marginBottom: 6,
   },
   subtitle: {
     color: COLORS.muted,
     fontFamily: FONTS.body,
-    fontSize: 15,
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 40,
+    lineHeight: 20,
+    marginBottom: 36,
   },
 
-  /* Form */
   form: {
     width: '100%',
-    gap: 16,
+    gap: 14,
   },
   inputWrap: {
-    gap: 8,
+    gap: 6,
   },
   inputLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
-    fontSize: 10,
-    letterSpacing: 2,
+    fontFamily: FONTS.body,
+    fontSize: 13,
   },
   input: {
-    padding: 16,
-    borderRadius: 14,
+    padding: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     color: COLORS.text,
@@ -292,8 +241,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.panel,
   },
   connectBtn: {
-    paddingVertical: 18,
-    borderRadius: 14,
+    paddingVertical: 16,
+    borderRadius: 12,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
@@ -303,10 +252,9 @@ const styles = StyleSheet.create({
   },
   connectBtnText: {
     color: COLORS.bg,
-    fontFamily: FONTS.display,
+    fontFamily: FONTS.bodySemi,
     fontSize: 16,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    letterSpacing: 0.1,
   },
   connectingRow: {
     flexDirection: 'row',
@@ -314,10 +262,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  /* Spinner */
   spinner: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
   },
   spinnerDot: {
     width: 6,
@@ -326,27 +273,27 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bg,
   },
 
-  /* Error */
   errorRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8,
     paddingHorizontal: 4,
   },
   errorDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: COLORS.danger,
+    marginTop: 6,
   },
   errorText: {
     color: COLORS.danger,
-    fontFamily: FONTS.mono,
+    fontFamily: FONTS.body,
     fontSize: 13,
+    lineHeight: 18,
     flex: 1,
   },
 
-  /* Bottom info */
   bottomInfo: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -360,7 +307,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
     lineHeight: 20,
-    opacity: 0.6,
     marginBottom: 12,
   },
 });

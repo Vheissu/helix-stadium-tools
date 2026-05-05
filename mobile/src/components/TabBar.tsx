@@ -4,7 +4,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS } from '../theme/colors';
 
-export type TabKey = 'flow' | 'preset' | 'device';
+export type TabKey = 'flow' | 'preset' | 'setlists' | 'settings';
 
 interface TabBarProps {
   activeTab: TabKey;
@@ -36,6 +36,20 @@ const PresetIcon = ({ color, size }: { color: string; size: number }) => (
   </Svg>
 );
 
+const SetlistsIcon = ({ color, size }: { color: string; size: number }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M7 6h14M7 12h14M7 18h14"
+      stroke={color}
+      strokeWidth={1.8}
+      strokeLinecap="round"
+    />
+    <Circle cx="3.5" cy="6" r="1.1" fill={color} />
+    <Circle cx="3.5" cy="12" r="1.1" fill={color} />
+    <Circle cx="3.5" cy="18" r="1.1" fill={color} />
+  </Svg>
+);
+
 const DeviceIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path
@@ -57,7 +71,8 @@ const DeviceIcon = ({ color, size }: { color: string; size: number }) => (
 const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
   { key: 'flow', label: 'Flow', Icon: FlowIcon },
   { key: 'preset', label: 'Preset', Icon: PresetIcon },
-  { key: 'device', label: 'Device', Icon: DeviceIcon },
+  { key: 'setlists', label: 'Setlists', Icon: SetlistsIcon },
+  { key: 'settings', label: 'Settings', Icon: DeviceIcon },
 ];
 
 export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connected }) => {
@@ -71,7 +86,7 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
           <Pressable key={key} style={styles.tab} onPress={() => onTabChange(key)}>
             <View style={styles.iconWrap}>
               <Icon color={color} size={22} />
-              {key === 'device' && (
+              {key === 'settings' && (
                 <View
                   style={[
                     styles.connDot,

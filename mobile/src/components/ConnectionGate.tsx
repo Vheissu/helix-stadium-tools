@@ -151,9 +151,9 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
           </View>
 
           {/* Branding */}
-          <Text style={styles.title}>Stadium Remote</Text>
+          <Text style={styles.title}>Helix Stadium</Text>
           <Text style={styles.subtitle}>
-            Connect to your Helix Stadium to get started
+            Edit and control your device over Wi-Fi.
           </Text>
 
           {/* Connection form */}
@@ -201,8 +201,7 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
           {/* Bottom info */}
           <View style={styles.bottomInfo}>
             <Text style={styles.hint}>
-              Make sure your device is on the same Wi-Fi network{'\n'}
-              and Remote Access is enabled
+              Same Wi-Fi network. Remote Access on.
             </Text>
           </View>
         </KeyboardAvoidingView>

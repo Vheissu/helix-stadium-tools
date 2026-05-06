@@ -32,7 +32,7 @@ interface ParamSliderProps {
   rowHeight?: number;
 }
 
-const DEFAULT_ROW_HEIGHT = 56;
+const DEFAULT_TRACK_HEIGHT = 36;
 const TRACK_PAD_H = 14;
 const MARKER_WIDTH = 10;
 
@@ -62,7 +62,9 @@ export const ParamSlider: React.FC<ParamSliderProps> = React.memo(({
   helpAdornment,
   rowHeight: rowHeightProp,
 }) => {
-  const rowHeight = rowHeightProp ?? DEFAULT_ROW_HEIGHT;
+  // The "row height" prop now controls the track (bar) height. The header row
+  // (label + value + help) sits above the bar at its own intrinsic height.
+  const trackHeight = rowHeightProp ?? DEFAULT_TRACK_HEIGHT;
   const [trackWidth, setTrackWidth] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState('');
@@ -197,20 +199,39 @@ export const ParamSlider: React.FC<ParamSliderProps> = React.memo(({
   return (
     <>
       <View style={styles.row}>
+        {/* Header row: label (left, expands), value + help (right). The value
+            can grow to fit any option-list label without squeezing the bar. */}
+        <View style={styles.header}>
+          <Text style={styles.label} numberOfLines={1}>
+            {label}
+          </Text>
+          <View style={styles.headerRight}>
+            <Pressable
+              onPress={openEditModal}
+              disabled={isOptionList}
+              hitSlop={6}
+              style={styles.valueWrap}
+            >
+              <Text style={[styles.value, { color: COLORS.text }]} numberOfLines={1}>
+                {valueText}
+              </Text>
+            </Pressable>
+            {helpAdornment ? <View style={styles.helpWrap}>{helpAdornment}</View> : null}
+          </View>
+        </View>
+        {/* Slider track — full width, no overlaid text. */}
         <View
           style={[
             styles.track,
-            { height: rowHeight, backgroundColor: trackBackground, borderColor: COLORS.stroke },
+            { height: trackHeight, backgroundColor: trackBackground, borderColor: COLORS.stroke },
           ]}
           onLayout={onTrackLayout}
           {...panResponder.panHandlers}
         >
-          {/* Fill */}
           <View
             pointerEvents="none"
             style={[styles.fill, { width: TRACK_PAD_H + fillWidth, backgroundColor: fillColor }]}
           />
-          {/* Discrete option ticks */}
           {tickPositions.length > 0 && trackWidth > 0 && tickPositions.map((t, i) => {
             const cx = TRACK_PAD_H + t * (trackWidth - TRACK_PAD_H * 2);
             return (
@@ -221,7 +242,6 @@ export const ParamSlider: React.FC<ParamSliderProps> = React.memo(({
               />
             );
           })}
-          {/* Marker */}
           {trackWidth > 0 && (
             <View
               pointerEvents="none"
@@ -235,26 +255,7 @@ export const ParamSlider: React.FC<ParamSliderProps> = React.memo(({
               ]}
             />
           )}
-          {/* Label + optional help icon */}
-          <View style={styles.labelWrap} pointerEvents="box-none">
-            <Text style={styles.label} numberOfLines={1}>
-              {label}
-            </Text>
-            {helpAdornment ? <View style={styles.helpInline}>{helpAdornment}</View> : null}
-          </View>
         </View>
-        {/* Value lives outside the track so it has its own touch target — tap
-            to open the precise edit modal (numerics only). */}
-        <Pressable
-          onPress={openEditModal}
-          disabled={isOptionList}
-          hitSlop={6}
-          style={[styles.valueWrap, { height: rowHeight }]}
-        >
-          <Text style={[styles.value, { color: COLORS.text }]} numberOfLines={1}>
-            {valueText}
-          </Text>
-        </Pressable>
       </View>
 
       {!isOptionList && (
@@ -301,12 +302,22 @@ const styles = StyleSheet.create({
   row: {
     width: '100%',
     paddingVertical: 4,
+    gap: 6,
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 0,
+    paddingHorizontal: 4,
+    gap: 8,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
   },
   track: {
-    flex: 1,
+    width: '100%',
     borderRadius: 12,
     borderWidth: 1,
     overflow: 'hidden',
@@ -335,31 +346,19 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
-  labelWrap: {
-    position: 'absolute',
-    left: TRACK_PAD_H,
-    top: 0,
-    bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    maxWidth: '70%',
-  },
   label: {
+    flex: 1,
     color: COLORS.text,
     fontFamily: FONTS.bodySemi,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.2,
   },
-  helpInline: {
-    marginLeft: 2,
+  helpWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   valueWrap: {
-    // Fixed width so longer option names (e.g. "Inverse Sine") don't squeeze
-    // the track and make the bar appear to shift.
-    width: 96,
-    paddingLeft: 12,
-    paddingRight: 4,
+    paddingVertical: 4,
     alignItems: 'flex-end',
     justifyContent: 'center',
   },

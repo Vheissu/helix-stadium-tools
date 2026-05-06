@@ -287,21 +287,26 @@ export const ParamKnob: React.FC<ParamKnobProps> = React.memo(({
 
   return (
     <>
-      <View style={styles.container} {...panResponder.panHandlers}>
-        <View style={styles.knobWrap}>
-          <KnobBody norm={normalized} accent={accent} active={isOn} />
-          {helpAdornment ? <View style={styles.helpAdornment}>{helpAdornment}</View> : null}
+      {/* Outer wrapper has no responder, so the help button (a sibling of the
+          responder-bearing View below) gets touch events without fighting the
+          knob's PanResponder. */}
+      <View style={styles.outer}>
+        <View style={styles.container} {...panResponder.panHandlers}>
+          <View style={styles.knobWrap}>
+            <KnobBody norm={normalized} accent={accent} active={isOn} />
+          </View>
+          <Text style={styles.label} numberOfLines={1}>{label}</Text>
+          <Text
+            style={[
+              styles.value,
+              { color: isBooleanToggle && !isOn ? COLORS.muted : colorWithAlpha(accentColor, 0.95) },
+            ]}
+            numberOfLines={1}
+          >
+            {displayText}
+          </Text>
         </View>
-        <Text style={styles.label} numberOfLines={1}>{label}</Text>
-        <Text
-          style={[
-            styles.value,
-            { color: isBooleanToggle && !isOn ? COLORS.muted : colorWithAlpha(accentColor, 0.95) },
-          ]}
-          numberOfLines={1}
-        >
-          {displayText}
-        </Text>
+        {helpAdornment ? <View style={styles.helpAdornment}>{helpAdornment}</View> : null}
       </View>
 
       {/* Precise edit modal — only relevant for continuous knobs */}
@@ -338,6 +343,10 @@ export const ParamKnob: React.FC<ParamKnobProps> = React.memo(({
 });
 
 const styles = StyleSheet.create({
+  outer: {
+    width: 78,
+    position: 'relative',
+  },
   container: {
     alignItems: 'center',
     width: 78,
@@ -352,8 +361,9 @@ const styles = StyleSheet.create({
   },
   helpAdornment: {
     position: 'absolute',
-    top: -4,
-    right: -4,
+    top: -2,
+    right: -2,
+    zIndex: 2,
   },
   label: {
     color: COLORS.muted,

@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
 import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake } from './zmtp';
-import { extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
+import { coerceHelixBoolean, extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
 
 const fourcc = (text: string) => {
   if (text.length !== 4) throw new Error('fourcc must be 4 chars');
@@ -976,7 +976,7 @@ const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard
     entries.push({
       position,
       modelId,
-      enabled: Boolean((block as any).enbl ?? true),
+      enabled: coerceHelixBoolean((block as any).enbl, true),
       params,
       ...(Number.isInteger((block as any).bflw) && Number.isInteger((block as any).bblk)
         ? {

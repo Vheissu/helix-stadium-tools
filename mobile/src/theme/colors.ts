@@ -1,19 +1,29 @@
 import { Platform } from 'react-native';
 
-// Base app colors — dark theme with cyan/teal accent
+// Base app colors — Helix-chassis dark theme.
+// Design intent: black anodized chassis with silk-screened bone-white labels.
+// `accent` is bone-white (NOT cyan) — primary actions and "active" UI lean on
+// neutral white instead of competing with the per-block category colors that
+// already do all the content-coloring. The teal that used to be `accent` is
+// preserved as `signal` for actual live-signal indicators (connection state).
 export const COLORS = {
-  bg: '#0c0e12',
-  panel: '#161a21',
-  panelAlt: '#111419',
-  stroke: '#252a33',
-  text: '#eeeee8',
-  muted: '#6e7787',
-  accent: '#00e6de',
-  accentDim: 'rgba(0, 230, 222, 0.12)',
-  accentMid: 'rgba(0, 230, 222, 0.30)',
-  danger: '#e46b61',
-  success: '#00e6de',
-  warn: '#e6b000',
+  bg: '#0a0a0c',
+  panel: '#131318',
+  panelAlt: '#0e0e12',
+  stroke: '#22232a',
+  hairline: '#1a1b21',
+  text: '#ece9e1',
+  muted: '#7c7d86',
+  // Bone-white — used for primary actions, active states, focus borders
+  accent: '#ece9e1',
+  accentDim: 'rgba(236, 233, 225, 0.06)',
+  accentMid: 'rgba(236, 233, 225, 0.18)',
+  // Live-signal teal — connection/active path indicators only
+  signal: '#3ad6c5',
+  signalDim: 'rgba(58, 214, 197, 0.12)',
+  danger: '#e36859',
+  success: '#3ad6c5',
+  warn: '#e8b432',
 };
 
 const clampColorByte = (value: number) => Math.max(0, Math.min(255, Math.round(value)));

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -9,6 +9,7 @@ import {
   View,
   Pressable,
   Switch,
+  useWindowDimensions,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -23,12 +24,17 @@ import type { TabKey } from './src/components/TabBar';
 import { ConnectionGate } from './src/components/ConnectionGate';
 import { BottomSheet } from './src/components/BottomSheet';
 import { ParamKnob } from './src/components/ParamKnob';
+import { ParamSlider } from './src/components/ParamSlider';
+import { ParamHelpButton } from './src/components/ParamHelpButton';
 import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
+import { PathChainStrip } from './src/components/signalFlow/PathChainStrip';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { lookupParamHelp } from './src/utils/paramHelp';
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 import { buildConnectionFailureStatus } from './src/utils/connection';
 import { formatTempoBpm } from './src/utils/format';
-import { findFlows } from './src/utils/helixState';
+import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
 
 const COLORS = THEME_COLORS;
 
@@ -162,6 +168,9 @@ const TUNER_REMOTE_NOTE = 'Note and needle stay on the Helix display';
 
 const blockCatalog = blockTypes as BlockCatalog;
 
+type ControlStyle = 'sliders' | 'knobs';
+const CONTROL_STYLE_KEY = 'helix.controlStyle';
+
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <View style={styles.section}>
     <Text style={styles.sectionTitle}>{title}</Text>
@@ -181,6 +190,13 @@ export default function App() {
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flowSyncInFlightRef = useRef(false);
   const scheduledSyncOptionsRef = useRef<{ full: boolean; silent: boolean }>({ full: true, silent: false });
+  // Tracks param values edited locally within the last ~1.5s so a sync that
+  // races the device acknowledgement does not snap UI back to the stale
+  // server-side value. Keyed by `path:blockId:paramId`.
+  const recentParamEditsRef = useRef<Map<string, { value: number | boolean; ts: number }>>(new Map());
+  // Suspend incoming flow syncs while the user is actively dragging a knob.
+  const knobDraggingRef = useRef(false);
+  const [editorScrollEnabled, setEditorScrollEnabled] = useState(true);
   const [host, setHost] = useState('p35x1.local');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -190,6 +206,32 @@ export default function App() {
   const [extendedDspEnabled, setExtendedDspEnabled] = useState(false);
   const [showRealBlockNames, setShowRealBlockNames] = useState(false);
   const [blockLabelMode, setBlockLabelMode] = useState(false);
+  const [controlStyle, setControlStyleState] = useState<ControlStyle>('sliders');
+  const windowDims = useWindowDimensions();
+  // Phones are usually <= 480px logical width; we treat >=720 as a tablet
+  // for layout decisions (larger block tiles, wider sliders, more padding).
+  const isTablet = Math.min(windowDims.width, windowDims.height) >= 600;
+  // Per-parameter help sheet state. The sheet is shown when the user taps the
+  // (?) glyph next to a parameter label.
+  const [paramHelp, setParamHelp] = useState<{ title: string; subtitle?: string; body: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(CONTROL_STYLE_KEY)
+      .then((raw) => {
+        if (cancelled) return;
+        if (raw === 'knobs' || raw === 'sliders') setControlStyleState(raw);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const setControlStyle = useCallback((next: ControlStyle) => {
+    setControlStyleState(next);
+    AsyncStorage.setItem(CONTROL_STYLE_KEY, next).catch(() => {});
+  }, []);
   const [blockLabelDraft, setBlockLabelDraft] = useState('');
   const [blockLabelOverrides, setBlockLabelOverrides] = useState<Record<string, string>>({});
   const [notesText, setNotesText] = useState('');
@@ -1527,6 +1569,8 @@ export default function App() {
     setScreen('main');
     setBlockEditorOpen(false);
     setBlockEditorSlot(null);
+    knobDraggingRef.current = false;
+    setEditorScrollEnabled(true);
   };
 
   const openSlotMenu = (slot: BlockSlot) => {
@@ -1802,6 +1846,13 @@ export default function App() {
       }
       return next;
     });
+    // Remember this edit so an in-flight sync can't undo it before the device
+    // has acknowledged. Keyed by (row, blockId, paramId) — blockId may stay
+    // stable across syncs even when slot positions shift.
+    recentParamEditsRef.current.set(
+      `${row}:${activeBlock.blockId}:${param.id}`,
+      { value: nextValue, ts: Date.now() }
+    );
     try {
       client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
     } catch (err) {
@@ -1810,7 +1861,7 @@ export default function App() {
       scheduleSync(150);
       return;
     }
-    scheduleSync(350);
+    scheduleSync(450);
   };
 
   const handleBlockLabelApply = () => {
@@ -2009,7 +2060,7 @@ export default function App() {
               params[String(pid)] = param?.valu ?? 0;
             });
           }
-          const enabled = blk?.enbl !== false;
+          const enabled = coerceHelixBoolean(blk?.enbl, true);
 
           if (pos === 0) {
             assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
@@ -2062,6 +2113,39 @@ export default function App() {
           });
         }
       });
+
+      // Preserve param values the user has just touched — the device may not
+      // have echoed them back yet, so the freshly-fetched state can be stale
+      // for a few hundred ms after a write.
+      const RECENT_EDIT_HOLD_MS = 1500;
+      const editsMap = recentParamEditsRef.current;
+      if (editsMap.size) {
+        const cutoff = Date.now() - RECENT_EDIT_HOLD_MS;
+        for (const [key, entry] of Array.from(editsMap.entries())) {
+          if (entry.ts < cutoff) {
+            editsMap.delete(key);
+            continue;
+          }
+          const [rowStr, blockIdStr, paramIdStr] = key.split(':');
+          const rowIdx = Number(rowStr);
+          const blockId = Number(blockIdStr);
+          if (!Number.isFinite(rowIdx) || !Number.isFinite(blockId)) continue;
+          const row = nextGrid[rowIdx];
+          if (!row) continue;
+          for (const block of row) {
+            if (block && block.blockId === blockId) {
+              block.params = { ...(block.params ?? {}), [paramIdStr]: entry.value };
+              break;
+            }
+          }
+        }
+      }
+
+      // Skip clobbering local state while the user is dragging a knob — the
+      // optimistic value is what they're seeing and should not flicker.
+      if (knobDraggingRef.current) {
+        return true;
+      }
 
       setGrid(nextGrid);
       setIoGrid(nextIO);
@@ -2187,43 +2271,54 @@ export default function App() {
 
     return (
       <View style={styles.pathSection}>
-        {/* Path header with DSP bar */}
+        {/* Path header — title + numeric DSP readout */}
         <View style={styles.pathHeader}>
           <View style={styles.pathHeaderCopy}>
             <Text style={styles.pathTitle}>Path {pathNum}</Text>
-            {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied</Text>}
+            {clipboardMatches && <Text style={styles.pathClipboardBadge}>copied</Text>}
           </View>
-          <Text style={[styles.pathDsp, { color: dspColor }]}>{usage.toFixed(1)}/{dspLimit}</Text>
+          <View style={styles.pathHeaderRight}>
+            <Text style={[styles.pathDspNumber, { color: dspColor }]}>{usage.toFixed(1)}</Text>
+            <Text style={styles.pathDspLimit}>/{dspLimit}</Text>
+          </View>
         </View>
+        {/* Hairline DSP meter */}
         <View style={styles.dspTrack}>
           <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
         </View>
+        {/* Inline text actions — no pill shapes */}
         <View style={styles.pathActionRow}>
-          <Pressable style={[styles.button, styles.buttonGhost, styles.pathActionButton]} onPress={() => { void handleCopyPath(pathNum); }}>
-            <Text style={[styles.buttonText, styles.buttonTextGhost]}>Copy</Text>
+          <Pressable hitSlop={6} onPress={() => { void handleCopyPath(pathNum); }}>
+            <Text style={styles.pathActionText}>Copy</Text>
           </Pressable>
+          <View style={styles.pathActionDivider} />
           <Pressable
-            style={[
-              styles.button,
-              styles.buttonGhost,
-              styles.pathActionButton,
-              !canPasteClipboard && styles.rowActionButtonDisabled,
-            ]}
+            hitSlop={6}
             disabled={!canPasteClipboard}
-            onPress={() => {
-              void handlePastePath(pathNum);
-            }}
+            onPress={() => { void handlePastePath(pathNum); }}
           >
-            <Text style={[styles.buttonText, styles.buttonTextGhost]}>
+            <Text style={[styles.pathActionText, !canPasteClipboard && styles.pathActionTextDisabled]}>
               {pathClipboard ? `Paste Path ${pathClipboard.sourcePath + 1}` : 'Paste'}
             </Text>
           </Pressable>
         </View>
 
-        {/* Input */}
-        {renderIORow(primary, 'input')}
+        {/* Helix-Editor-style horizontal chain strip — primary visual */}
+        <PathChainStrip
+          rowLabel={`${pathNum}A`}
+          blocks={decorateDisplayBlocks(grid[primary])}
+          pathIndex={primary}
+          selectedSlot={selectedSlot}
+          onSelectSlot={selectSlot}
+          onOpenSlotMenu={openSlotMenu}
+          ioInputName={ioGrid[primary]?.input?.name ?? null}
+          ioOutputName={ioGrid[primary]?.output?.name ?? null}
+          onSelectInput={() => selectIO(primary, 'input')}
+          onSelectOutput={() => selectIO(primary, 'output')}
+          tileSize={isTablet ? 76 : 56}
+        />
 
-        {/* Effect chain for Row A */}
+        {/* Detail list — drag-to-reorder, power toggles, names */}
         <DraggableEffectList
           blocks={decorateDisplayBlocks(grid[primary])}
           pathIndex={primary}
@@ -2237,15 +2332,32 @@ export default function App() {
           onDragEnd={() => setFlowScrollEnabled(true)}
         />
 
+        {/* Input/output endpoints for primary row */}
+        {renderIORow(primary, 'input')}
+        {renderIORow(primary, 'output')}
+
         {/* Split section */}
         {hasSplit && (
           <>
             <View style={styles.splitDivider}>
               <View style={styles.splitLine} />
-              <Text style={styles.splitLabel}>SPLIT</Text>
+              <Text style={styles.splitLabel}>Split path</Text>
               <View style={styles.splitLine} />
             </View>
-            {renderIORow(split, 'input')}
+            <PathChainStrip
+              rowLabel={`${pathNum}B`}
+              blocks={decorateDisplayBlocks(grid[split])}
+              pathIndex={split}
+              selectedSlot={selectedSlot}
+              onSelectSlot={selectSlot}
+              onOpenSlotMenu={openSlotMenu}
+              ioInputName={ioGrid[split]?.input?.name ?? null}
+              ioOutputName={ioGrid[split]?.output?.name ?? null}
+              onSelectInput={() => selectIO(split, 'input')}
+              onSelectOutput={() => selectIO(split, 'output')}
+              inputDisabled
+              tileSize={isTablet ? 76 : 56}
+            />
             <DraggableEffectList
               blocks={decorateDisplayBlocks(grid[split])}
               pathIndex={split}
@@ -2258,12 +2370,10 @@ export default function App() {
               onDragStart={() => setFlowScrollEnabled(false)}
               onDragEnd={() => setFlowScrollEnabled(true)}
             />
+            {renderIORow(split, 'input')}
             {renderIORow(split, 'output')}
           </>
         )}
-
-        {/* Output */}
-        {renderIORow(primary, 'output')}
       </View>
     );
   };
@@ -2275,15 +2385,6 @@ export default function App() {
       showsVerticalScrollIndicator={false}
       scrollEnabled={flowScrollEnabled}
     >
-      {/* Sync button */}
-      <Pressable style={styles.syncBtn} onPress={() => void handleFullSync()}>
-        <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-          <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-        </Svg>
-        <Text style={styles.syncBtnText}>Sync</Text>
-      </Pressable>
-
       {renderPathSection(1)}
       {renderPathSection(2)}
     </ScrollView>
@@ -2814,6 +2915,16 @@ export default function App() {
             <Text style={styles.labelHint}>Custom labels stay in the app</Text>
           </View>
           <Switch value={blockLabelMode} onValueChange={setBlockLabelMode} />
+        </View>
+        <View style={styles.rowBetween}>
+          <View style={styles.rowBetweenInfo}>
+            <Text style={styles.label}>Knob Controls</Text>
+            <Text style={styles.labelHint}>Use rotary knobs instead of sliders for parameters</Text>
+          </View>
+          <Switch
+            value={controlStyle === 'knobs'}
+            onValueChange={(value) => setControlStyle(value ? 'knobs' : 'sliders')}
+          />
         </View>
       </Section>
 
@@ -3370,18 +3481,41 @@ export default function App() {
     );
   };
 
+  // Lock the parent ScrollView while a knob is being dragged so vertical drag
+  // never doubles as page scroll. Also tracked by `knobDraggingRef` so an
+  // in-flight sync doesn't race with the user's gesture.
+  const handleKnobDragChange = useCallback((dragging: boolean) => {
+    knobDraggingRef.current = dragging;
+    setEditorScrollEnabled(!dragging);
+  }, []);
+
+  const openParamHelp = useCallback(
+    (param: EditorParam, modelId: number | null, modelName: string | null) => {
+      const body = lookupParamHelp(modelId, param.name);
+      setParamHelp({
+        title: param.name,
+        subtitle: modelName ?? undefined,
+        body: body ?? 'No help text is available for this parameter.',
+      });
+    },
+    [],
+  );
+
   const renderParamFields = (
     params: EditorParam[],
     values: Record<string, number | boolean> | undefined,
     onChange: (param: EditorParam, value: number | boolean) => void,
     emptyHint: string,
-    blockColor?: string
+    blockColor?: string,
+    modelId: number | null = null,
+    modelName: string | null = null,
   ) => {
     if (!params.length) {
       return <Text style={styles.paramHint}>{emptyHint}</Text>;
     }
-    // Separate knob-friendly params from option/toggle params
-    const knobParams: Array<{ param: EditorParam; index: number }> = [];
+    // Booleans and short option lists always render as pills regardless of
+    // control style — sliders don't make sense for hard "stop" values.
+    const mainParams: Array<{ param: EditorParam; index: number }> = [];
     const toggleParams: Array<{ param: EditorParam; index: number }> = [];
     params.forEach((param, index) => {
       const options = param.options ?? null;
@@ -3390,20 +3524,53 @@ export default function App() {
       } else if (options && options.length > 0 && options.length <= 3) {
         toggleParams.push({ param, index });
       } else {
-        knobParams.push({ param, index });
+        mainParams.push({ param, index });
       }
     });
 
+    const accent = blockColor ?? COLORS.accent;
+    const useSliders = controlStyle === 'sliders';
+
+    const renderHelpButton = (param: EditorParam, color: string) =>
+      lookupParamHelp(modelId, param.name) ? (
+        <ParamHelpButton
+          accentColor={color}
+          onPress={() => openParamHelp(param, modelId, modelName)}
+        />
+      ) : null;
+
     return (
       <View style={styles.paramContainer}>
-        {/* Knob grid — 4 columns like the delay editor screenshot */}
-        {knobParams.length > 0 && (
-          <View style={styles.knobGrid}>
-            {knobParams.map(({ param, index: paramIndex }) => {
+        {/* Continuous numerics + long option lists */}
+        {mainParams.length > 0 && (
+          <View style={useSliders ? styles.sliderStack : styles.knobGrid}>
+            {mainParams.map(({ param, index: paramIndex }) => {
               const paramKey =
                 param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
               const rowKey = `${paramKey}-${paramIndex}`;
               const current = values?.[paramKey] ?? param.def ?? 0;
+              const helpAdornment = renderHelpButton(param, useSliders ? COLORS.muted : accent);
+              if (useSliders) {
+                return (
+                  <ParamSlider
+                    key={rowKey}
+                    label={param.name}
+                    value={current}
+                    min={param.min}
+                    max={param.max}
+                    unit={param.unit}
+                    displayMin={param.display_min}
+                    displayMax={param.display_max}
+                    options={param.options}
+                    type={param.type}
+                    accentColor={accent}
+                    onChange={(val) => onChange(param, val)}
+                    onDragChange={handleKnobDragChange}
+                    helpAdornment={helpAdornment}
+                    rowHeight={isTablet ? 64 : 56}
+                  />
+                );
+              }
               return (
                 <ParamKnob
                   key={rowKey}
@@ -3416,14 +3583,16 @@ export default function App() {
                   displayMax={param.display_max}
                   options={param.options}
                   type={param.type}
-                  accentColor={blockColor ?? COLORS.accent}
+                  accentColor={accent}
                   onChange={(val) => onChange(param, val)}
+                  onDragChange={handleKnobDragChange}
+                  helpAdornment={helpAdornment}
                 />
               );
             })}
           </View>
         )}
-        {/* Toggle/option params rendered as styled pills below the knobs */}
+        {/* Toggle / short option pills */}
         {toggleParams.length > 0 && (
           <View style={styles.toggleSection}>
             {toggleParams.map(({ param, index: paramIndex }) => {
@@ -3432,12 +3601,16 @@ export default function App() {
               const rowKey = `${paramKey}-${paramIndex}`;
               const current = values?.[paramKey] ?? param.def ?? 0;
               const options = param.options ?? null;
+              const helpAdornment = renderHelpButton(param, COLORS.muted);
               if (param.type === 'b' && (!options || options.length <= 2)) {
                 const isOn = typeof current === 'boolean' ? current : Number(current) > 0;
                 const labels = options && options.length === 2 ? options : ['Off', 'On'];
                 return (
                   <View key={rowKey} style={styles.toggleRow}>
-                    <Text style={styles.toggleLabel}>{param.name}</Text>
+                    <View style={styles.toggleLabelWrap}>
+                      <Text style={styles.toggleLabel}>{param.name}</Text>
+                      {helpAdornment}
+                    </View>
                     <View style={styles.toggleLabels}>
                       {labels.map((lbl, idx) => {
                         const val = idx > 0;
@@ -3464,7 +3637,10 @@ export default function App() {
               const max = typeof param.max === 'number' ? param.max : min + (options?.length ?? 1) - 1;
               return (
                 <View key={rowKey} style={styles.toggleRow}>
-                  <Text style={styles.toggleLabel}>{param.name}</Text>
+                  <View style={styles.toggleLabelWrap}>
+                    <Text style={styles.toggleLabel}>{param.name}</Text>
+                    {helpAdornment}
+                  </View>
                   <View style={styles.toggleLabels}>
                     {(options ?? []).map((optLabel, idx) => {
                       let value: number | boolean = idx;
@@ -3508,7 +3684,9 @@ export default function App() {
       activeIOModel?.params,
       updateIOParam,
       'Pick a model to edit its parameters.',
-      COLORS.accent
+      COLORS.accent,
+      activeIOModel?.modelId ?? null,
+      activeIOModelMeta.name ?? null,
     );
   };
 
@@ -3522,7 +3700,9 @@ export default function App() {
       activeBlock.params,
       updateBlockParam,
       'This block has no editable parameters.',
-      blockColor
+      blockColor,
+      activeBlock.id ?? null,
+      activeBlockMeta.name ?? null,
     );
   };
 
@@ -3730,17 +3910,23 @@ export default function App() {
     const displayName = getBlockDisplayName(activeBlock);
     const metaName = getBlockMetaName(activeBlock);
 
+    const isEnabled = activeBlock.enabled !== false;
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-          {/* Editor header */}
+          {/* Editor header — back, title row, action icons */}
           <View style={styles.editorHeader}>
             <Pressable style={styles.editorBack} onPress={closeEditor} hitSlop={12}>
               <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
                 <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </Pressable>
-            <Text style={styles.editorTitle}>{displayName}</Text>
+            <View style={styles.editorTitleStack}>
+              <Text style={[styles.editorEyebrow, { color: appearance.meta }]}>
+                {kindLabel(activeBlock.kind).toUpperCase()}
+              </Text>
+              <Text style={styles.editorTitle} numberOfLines={1}>{displayName}</Text>
+            </View>
             <View style={styles.editorActions}>
               <Pressable
                 style={styles.editorActionBtn}
@@ -3768,61 +3954,78 @@ export default function App() {
             </View>
           </View>
 
-          {/* Category subtitle + color bar */}
-          <View style={styles.editorMeta}>
+          {/* Block plate — icon, model name, power state in one composed row */}
+          <View style={styles.editorPlate}>
             <View
               style={[
-                styles.editorMetaIcon,
+                styles.editorPlateIcon,
                 {
                   backgroundColor: appearance.iconSurface,
-                  borderColor: colorWithAlpha(color, activeBlock.enabled === false ? 0.08 : 0.18),
+                  borderColor: colorWithAlpha(color, isEnabled ? 0.32 : 0.12),
                 },
               ]}
             >
               {blockImage ? (
-                <Image source={blockImage} style={{ width: 22, height: 22 }} resizeMode="contain" />
+                <Image source={blockImage} style={{ width: 26, height: 26 }} resizeMode="contain" />
               ) : (
-                <BlockIcon type={activeBlock.kind} size={22} color={appearance.power} />
+                <BlockIcon type={activeBlock.kind} size={26} color={appearance.power} />
               )}
             </View>
-            <View style={styles.editorMetaCopy}>
-              <Text style={[styles.editorCategory, { color: appearance.meta }]}>
-                {kindLabel(activeBlock.kind).toUpperCase()}
-              </Text>
-              {metaName && <Text style={styles.editorModelName}>{metaName}</Text>}
-              <Pressable
-                style={[
-                  styles.editorStateButton,
-                  {
-                    borderColor: activeBlock.enabled === false ? appearance.border : appearance.selectedBorder,
-                    backgroundColor: activeBlock.enabled === false ? appearance.surface : appearance.selectedSurface,
-                  },
-                ]}
-                onPress={() => {
-                  void toggleBlockEnabled(blockEditorSlot);
-                }}
-              >
-                <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                  <Path
-                    d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
-                    stroke={appearance.power}
-                    strokeWidth={1.8}
-                    strokeLinecap="round"
-                  />
-                </Svg>
-                <Text style={[styles.editorStateButtonText, { color: appearance.text }]}>
-                  {activeBlock.enabled === false ? 'Bypassed' : 'Active'}
+            <View style={styles.editorPlateCopy}>
+              {metaName ? (
+                <Text style={styles.editorPlateModel} numberOfLines={1}>{metaName}</Text>
+              ) : (
+                <Text style={[styles.editorPlateModel, { color: COLORS.muted }]} numberOfLines={1}>
+                  No model selected
                 </Text>
-              </Pressable>
+              )}
+              <Text
+                style={[
+                  styles.editorPlateStatus,
+                  { color: isEnabled ? appearance.meta : COLORS.muted },
+                ]}
+                numberOfLines={1}
+              >
+                {isEnabled ? 'Active' : 'Bypassed'}
+              </Text>
             </View>
+            <Pressable
+              style={[
+                styles.editorPower,
+                {
+                  borderColor: isEnabled ? appearance.selectedBorder : appearance.border,
+                  backgroundColor: isEnabled ? appearance.selectedSurface : appearance.surface,
+                },
+              ]}
+              onPress={() => {
+                void toggleBlockEnabled(blockEditorSlot);
+              }}
+              hitSlop={8}
+            >
+              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
+                  stroke={appearance.power}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                />
+              </Svg>
+            </Pressable>
           </View>
-          <View style={[styles.editorColorBar, { backgroundColor: color }]} />
+
+          {/* Hairline accent — colored when active, muted when bypassed */}
+          <View style={styles.editorRule}>
+            <View style={styles.editorRuleTrack} />
+            <View style={[styles.editorRuleAccent, { backgroundColor: isEnabled ? color : COLORS.stroke }]} />
+          </View>
 
           {/* Parameters */}
           <ScrollView
             style={styles.tabContent}
             contentContainerStyle={styles.editorParamPad}
             showsVerticalScrollIndicator={false}
+            scrollEnabled={editorScrollEnabled}
+            keyboardShouldPersistTaps="handled"
           >
             {blockLabelMode && (
               <View style={styles.blockLabelEditor}>
@@ -3888,11 +4091,22 @@ export default function App() {
         <View style={styles.appBar}>
           <Text style={styles.appTitle}>Stadium</Text>
           <View style={styles.appBarActions}>
+            <Pressable
+              style={styles.appBarIconBtn}
+              onPress={() => void handleFullSync()}
+              hitSlop={8}
+              accessibilityLabel="Sync"
+            >
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </Pressable>
             <Pressable style={styles.performanceLaunchButton} onPress={() => setScreen('performance')}>
               <Text style={styles.performanceLaunchText}>Perform</Text>
             </Pressable>
             <Pressable style={styles.statusPill} onPress={() => handleTabChange('settings')}>
-              <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.accent : COLORS.danger }]} />
+              <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
               <Text style={styles.pillText}>{connected ? host : 'Offline'}</Text>
             </Pressable>
           </View>
@@ -4377,6 +4591,18 @@ export default function App() {
           )}
         </BottomSheet>
 
+        {/* ── Bottom Sheet: Parameter help ─────────────────────── */}
+        <BottomSheet
+          visible={paramHelp !== null}
+          onClose={() => setParamHelp(null)}
+          title={paramHelp?.title}
+          subtitle={paramHelp?.subtitle}
+        >
+          <View style={styles.helpSheetBody}>
+            <Text style={styles.helpSheetText}>{paramHelp?.body}</Text>
+          </View>
+        </BottomSheet>
+
         {/* ── Tab bar ──────────────────────────────────────────── */}
         <TabBar activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />
       </SafeAreaView>
@@ -4396,58 +4622,50 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 10,
   },
-  appTitle: { fontSize: 22, color: COLORS.text, fontFamily: FONT_DISPLAY, letterSpacing: 0.1 },
+  appTitle: {
+    fontSize: 24,
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    letterSpacing: -0.4,
+  },
   appBarActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   performanceLaunchButton: {
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: COLORS.accentDim,
-    borderWidth: 1,
-    borderColor: COLORS.accentMid,
+    borderRadius: 4,
+    backgroundColor: COLORS.text,
   },
   performanceLaunchText: {
-    color: COLORS.accent,
+    color: COLORS.bg,
     fontFamily: FONT_BODY_SEMI,
-    fontSize: 13,
-    letterSpacing: 0.1,
+    fontSize: 12.5,
+    letterSpacing: 0.2,
   },
   statusPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20,
-    backgroundColor: COLORS.panel, borderWidth: 1, borderColor: COLORS.stroke,
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+    paddingVertical: 7, paddingHorizontal: 12,
+    backgroundColor: 'transparent',
   },
-  pillDot: { width: 8, height: 8, borderRadius: 4 },
-  pillText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12 },
+  pillDot: { width: 6, height: 6, borderRadius: 3 },
+  pillText: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 11.5,
+    letterSpacing: -0.1,
+  },
 
   /* ── Performance mode ─────────────────────────────────────────── */
-  performanceSafe: { flex: 1, backgroundColor: '#090b10' },
+  performanceSafe: { flex: 1, backgroundColor: COLORS.bg },
   performanceBackdrop: {
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
   },
-  performanceGlowA: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(61,138,247,0.18)',
-    top: -70,
-    right: -40,
-  },
-  performanceGlowB: {
-    position: 'absolute',
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(0,230,222,0.12)',
-    bottom: 90,
-    left: -70,
-  },
+  performanceGlowA: { width: 0, height: 0 },
+  performanceGlowB: { width: 0, height: 0 },
   performanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -4460,15 +4678,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   performanceEyebrow: {
-    color: COLORS.accent,
-    fontFamily: FONT_MONO,
+    color: COLORS.muted,
+    fontFamily: FONT_BODY_SEMI,
     fontSize: 11,
-    letterSpacing: 2.2,
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   performanceHost: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
+    fontFamily: FONT_BODY,
     fontSize: 12,
   },
   performanceExitButton: {
@@ -4491,39 +4709,29 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   performanceHero: {
-    position: 'relative',
-    overflow: 'hidden',
-    padding: 20,
-    borderRadius: 26,
-    backgroundColor: 'rgba(17,22,29,0.96)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    paddingTop: 8,
+    paddingBottom: 18,
     gap: 10,
   },
   performanceHeroAccent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: COLORS.accent,
+    width: 0, height: 0,
   },
   performanceHeroKicker: {
-    color: COLORS.accent,
-    fontFamily: FONT_MONO,
+    color: COLORS.muted,
+    fontFamily: FONT_BODY_SEMI,
     fontSize: 11,
-    letterSpacing: 1.8,
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   performanceHeroTitle: {
     color: COLORS.text,
     fontFamily: FONT_DISPLAY,
-    fontSize: 30,
-    lineHeight: 34,
-    letterSpacing: 0.2,
+    fontSize: 32,
+    lineHeight: 36,
+    letterSpacing: -0.4,
   },
   performanceHeroMeta: {
-    color: '#c4cad5',
+    color: COLORS.muted,
     fontFamily: FONT_BODY,
     fontSize: 14,
     lineHeight: 20,
@@ -4535,23 +4743,22 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   performanceHeroStatusDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   performanceHeroStatusText: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
-    letterSpacing: 0.3,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    letterSpacing: 0.1,
   },
   performanceSection: {
-    gap: 12,
-    padding: 16,
-    borderRadius: 22,
-    backgroundColor: 'rgba(14,18,24,0.94)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    gap: 14,
+    paddingTop: 18,
+    paddingBottom: 6,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.stroke,
   },
   performanceSectionHeader: {
     flexDirection: 'row',
@@ -4561,16 +4768,15 @@ const styles = StyleSheet.create({
   },
   performanceSectionTitle: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 18,
-    letterSpacing: 0.2,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 16,
+    letterSpacing: -0.2,
   },
   performanceSectionMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    letterSpacing: 0.1,
   },
   performanceActionGrid: {
     flexDirection: 'row',
@@ -4581,15 +4787,15 @@ const styles = StyleSheet.create({
     width: '48%',
     minHeight: 110,
     padding: 14,
-    borderRadius: 18,
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panelAlt,
     justifyContent: 'space-between',
   },
   performanceActionCardActive: {
-    borderColor: COLORS.accentMid,
-    backgroundColor: COLORS.accentDim,
+    borderColor: COLORS.text,
+    backgroundColor: COLORS.panel,
   },
   performanceActionCardDisabled: {
     opacity: 0.45,
@@ -4597,16 +4803,17 @@ const styles = StyleSheet.create({
   performanceActionLabel: {
     color: COLORS.text,
     fontFamily: FONT_BODY_SEMI,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 20,
+    letterSpacing: 0.1,
   },
   performanceActionLabelActive: {
-    color: COLORS.accent,
+    color: COLORS.text,
   },
   performanceActionMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
     lineHeight: 16,
   },
   performanceTempoCard: {
@@ -4615,7 +4822,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     paddingHorizontal: 14,
-    borderRadius: 18,
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panelAlt,
@@ -4623,20 +4830,20 @@ const styles = StyleSheet.create({
   performanceTempoValue: {
     color: COLORS.text,
     fontFamily: FONT_DISPLAY,
-    fontSize: 36,
-    letterSpacing: 0.4,
+    fontSize: 40,
+    letterSpacing: -0.6,
   },
   performanceTempoUnit: {
-    color: COLORS.accent,
-    fontFamily: FONT_MONO,
-    fontSize: 12,
-    letterSpacing: 1.6,
+    color: COLORS.muted,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 11,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
   performanceTempoMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
     lineHeight: 16,
     textAlign: 'center',
     marginTop: 4,
@@ -4706,9 +4913,9 @@ const styles = StyleSheet.create({
   },
   tunerOffsetHint: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
-    lineHeight: 16,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    lineHeight: 18,
   },
   tunerOffsetGrid: {
     flexDirection: 'row',
@@ -4740,9 +4947,9 @@ const styles = StyleSheet.create({
   },
   tunerOffsetShortLabel: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
+    fontFamily: FONT_BODY_SEMI,
     fontSize: 10,
-    letterSpacing: 0.8,
+    letterSpacing: 1,
     textTransform: 'uppercase',
   },
   tunerOffsetValue: {
@@ -4845,8 +5052,7 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
     fontFamily: FONT_MONO,
     fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
+    letterSpacing: 0.1,
   },
   performancePresetSlotActive: {
     color: COLORS.accent,
@@ -4862,33 +5068,31 @@ const styles = StyleSheet.create({
   },
   performanceEmptyText: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 12,
+    fontFamily: FONT_BODY,
+    fontSize: 13,
     lineHeight: 18,
   },
   transportHeroCard: {
     gap: 6,
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    paddingVertical: 12,
   },
   transportHeroValue: {
     color: COLORS.text,
     fontFamily: FONT_DISPLAY,
-    fontSize: 26,
-    letterSpacing: 0.2,
+    fontSize: 32,
+    letterSpacing: -0.4,
   },
   transportHeroUnit: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 13,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 12,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
   },
   transportHeroMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
     lineHeight: 16,
   },
   transportAdjustRow: {
@@ -4899,14 +5103,14 @@ const styles = StyleSheet.create({
   transportAdjustButton: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panelAlt,
   },
   transportAdjustButtonAccent: {
-    borderColor: COLORS.accentMid,
-    backgroundColor: COLORS.accentDim,
+    borderColor: COLORS.text,
+    backgroundColor: COLORS.panel,
   },
   transportAdjustButtonText: {
     color: COLORS.text,
@@ -4920,196 +5124,232 @@ const styles = StyleSheet.create({
   /* ── Flow tab ──────────────────────────────────────────────────── */
   tabContent: { flex: 1 },
   tabPadding: { padding: 16, paddingBottom: 24 },
-  flowPadding: { paddingHorizontal: 16, paddingBottom: 32 },
+  flowPadding: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32 },
 
-  syncBtn: {
-    flexDirection: 'row', alignSelf: 'flex-end', alignItems: 'center', gap: 6,
-    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10,
-    backgroundColor: COLORS.panel, borderWidth: 1, borderColor: COLORS.stroke,
-    marginBottom: 16, marginTop: 4,
+  appBarIconBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.panelAlt,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
   },
-  syncBtnText: { color: COLORS.accent, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.4 },
 
   /* ── Path section ──────────────────────────────────────────────── */
+  /* Path section — content block, NOT a card. Sits on the page bg. */
   pathSection: {
-    marginBottom: 24, borderRadius: 16, backgroundColor: COLORS.panel,
-    borderWidth: 1, borderColor: COLORS.stroke, overflow: 'hidden',
+    marginBottom: 32,
   },
   pathHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline',
+    paddingTop: 4, paddingBottom: 6,
   },
   pathHeaderCopy: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    alignItems: 'baseline',
+    gap: 10,
   },
-  pathTitle: { color: COLORS.text, fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: 0.5 },
+  pathTitle: {
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 22,
+    letterSpacing: -0.2,
+  },
   pathClipboardBadge: {
-    color: COLORS.accent,
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  pathHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  pathDspNumber: {
     fontFamily: FONT_MONO,
-    fontSize: 10,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    fontSize: 15,
+    letterSpacing: -0.2,
   },
-  pathDsp: { fontFamily: FONT_MONO, fontSize: 13 },
+  pathDspLimit: {
+    color: COLORS.muted,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+    letterSpacing: -0.2,
+  },
+  /* Thin DSP meter — like a chassis level meter, not a "progress bar" */
   dspTrack: {
-    height: 4, borderRadius: 2, backgroundColor: COLORS.panelAlt,
-    marginHorizontal: 16, marginBottom: 12, overflow: 'hidden',
+    height: 2,
+    backgroundColor: COLORS.hairline,
+    marginBottom: 12,
+    overflow: 'hidden',
   },
-  dspFill: { height: '100%', borderRadius: 2 },
+  dspFill: { height: '100%' },
   pathActionRow: {
     flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    alignItems: 'center',
+    gap: 12,
+    paddingBottom: 14,
   },
-  pathActionButton: {
-    minWidth: 108,
+  pathActionText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+    letterSpacing: 0.1,
   },
-
-  /* ── Effect row (populated block) ──────────────────────────────── */
-  effectList: { gap: 2 },
-  effectRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 14, paddingHorizontal: 16,
-    borderWidth: 1, borderColor: 'transparent',
-    borderRadius: 0,
+  pathActionTextDisabled: {
+    color: COLORS.muted,
+    opacity: 0.5,
   },
-  effectColorBar: {
-    width: 3, height: 36, borderRadius: 1.5,
-  },
-  effectIconWrap: {
-    width: 40, height: 40, borderRadius: 10,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  effectIcon: { width: 24, height: 24 },
-  effectInfo: { flex: 1, gap: 2 },
-  effectName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
-  effectKind: { fontFamily: FONT_MONO, fontSize: 11, letterSpacing: 0.3 },
-  powerBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    borderWidth: 1, borderColor: COLORS.stroke,
-    alignItems: 'center', justifyContent: 'center',
+  pathActionDivider: {
+    width: StyleSheet.hairlineWidth,
+    height: 12,
+    backgroundColor: COLORS.stroke,
   },
 
-  /* ── Empty slot row ────────────────────────────────────────────── */
-  emptyRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingVertical: 8, paddingHorizontal: 16, opacity: 0.4,
-  },
-  emptySlotNum: {
-    width: 24, height: 24, borderRadius: 12,
-    borderWidth: 1, borderColor: COLORS.stroke, borderStyle: 'dashed',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  emptySlotNumText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 10 },
-  moreSlotsBtn: {
-    paddingVertical: 10, paddingHorizontal: 16, alignItems: 'center',
-  },
-  moreSlotsText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, opacity: 0.6 },
-
-  /* ── IO row ────────────────────────────────────────────────────── */
+  /* ── IO row — input/output endpoints, sit between path actions and chain */
   ioRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 12, paddingHorizontal: 16,
-    borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke,
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    paddingVertical: 12, paddingHorizontal: 0,
+    borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.hairline,
   },
   ioIconWrap: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: COLORS.panelAlt, borderWidth: 1, borderColor: COLORS.stroke,
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: 'transparent',
     alignItems: 'center', justifyContent: 'center',
   },
-  ioInfo: { flex: 1, gap: 1 },
-  ioLabel: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.8 },
-  ioName: { color: COLORS.text, fontFamily: FONT_BODY, fontSize: 14 },
+  ioInfo: { flex: 1, gap: 2 },
+  ioLabel: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 11.5,
+    letterSpacing: 0.1,
+  },
+  ioName: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 14,
+    letterSpacing: 0.1,
+  },
 
   /* ── Split divider ─────────────────────────────────────────────── */
   splitDivider: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingHorizontal: 16, paddingVertical: 10,
+    paddingHorizontal: 0, paddingVertical: 14,
   },
   splitLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: COLORS.stroke },
-  splitLabel: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 10, letterSpacing: 2 },
+  splitLabel: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 11, letterSpacing: 0.4 },
 
   /* ── Full-screen editor ────────────────────────────────────────── */
   editorHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12,
+    paddingHorizontal: 16, paddingTop: 6, paddingBottom: 10,
   },
   editorBack: { padding: 4 },
-  editorTitle: { flex: 1, color: COLORS.text, fontFamily: FONT_DISPLAY, fontSize: 20, letterSpacing: 0.3 },
+  editorTitleStack: { flex: 1, gap: 2 },
+  editorEyebrow: {
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 10,
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
+  },
+  editorTitle: {
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 22,
+    letterSpacing: 0.1,
+    lineHeight: 26,
+  },
   editorActions: { flexDirection: 'row', gap: 8 },
   editorActionBtn: {
     width: 36, height: 36, borderRadius: 10,
     backgroundColor: COLORS.panel, borderWidth: 1, borderColor: COLORS.stroke,
     alignItems: 'center', justifyContent: 'center',
   },
-  editorMeta: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingHorizontal: 20, paddingBottom: 12,
+
+  /* Block plate — composed icon + model name + power, sits below the title */
+  editorPlate: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingHorizontal: 16, paddingBottom: 14,
   },
-  editorMetaIcon: {
-    width: 32, height: 32, borderRadius: 8,
+  editorPlateIcon: {
+    width: 44, height: 44, borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'transparent',
     alignItems: 'center', justifyContent: 'center',
   },
-  editorMetaCopy: {
-    flex: 1,
-    gap: 8,
-  },
-  editorCategory: { fontFamily: FONT_MONO, fontSize: 12, letterSpacing: 2 },
-  editorModelName: {
-    color: COLORS.muted,
-    fontFamily: FONT_BODY,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  editorStateButton: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  editorStateButtonText: {
+  editorPlateCopy: { flex: 1, gap: 2 },
+  editorPlateModel: {
+    color: COLORS.text,
     fontFamily: FONT_BODY_SEMI,
-    fontSize: 12,
-    letterSpacing: 0.2,
+    fontSize: 14,
+    letterSpacing: 0.1,
   },
-  editorColorBar: { height: 3, marginHorizontal: 20, borderRadius: 1.5, marginBottom: 8 },
-  editorParamPad: { padding: 16, paddingBottom: 40 },
+  editorPlateStatus: {
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 10.5,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+  },
+  editorPower: {
+    width: 42, height: 42, borderRadius: 21,
+    borderWidth: 1.5,
+    alignItems: 'center', justifyContent: 'center',
+  },
+
+  /* Hairline rule under the plate — accent line over a muted track */
+  editorRule: {
+    height: 1,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    position: 'relative',
+  },
+  editorRuleTrack: {
+    position: 'absolute',
+    left: 0, right: 0, top: 0, bottom: 0,
+    backgroundColor: COLORS.stroke,
+    opacity: 0.6,
+  },
+  editorRuleAccent: {
+    position: 'absolute',
+    left: 0, top: 0, bottom: 0,
+    width: 56,
+    borderRadius: 1,
+  },
+  editorParamPad: { padding: 18, paddingTop: 12, paddingBottom: 48 },
 
   /* ── Sections (preset/device tabs) ─────────────────────────────── */
   section: {
-    marginTop: 16, padding: 16, borderRadius: 14,
-    backgroundColor: COLORS.panel, borderWidth: 1, borderColor: COLORS.stroke,
+    marginTop: 24,
+    paddingTop: 18,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.stroke,
   },
   sectionTitle: {
-    color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11,
-    letterSpacing: 2, textTransform: 'uppercase', marginBottom: 14,
+    color: COLORS.text,
+    fontFamily: FONT_DISPLAY,
+    fontSize: 16,
+    letterSpacing: -0.2,
+    marginBottom: 14,
   },
   sectionBody: { gap: 14 },
   row: { flexDirection: 'row', gap: 12, alignItems: 'center' },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  rowBetweenInfo: { flex: 1, paddingRight: 12 },
 
   /* ── Inputs ───────────────────────────────────────────────────── */
   input: {
-    padding: 14, borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke,
-    color: COLORS.text, fontFamily: FONT_MONO, fontSize: 15, backgroundColor: COLORS.panelAlt,
+    padding: 14, borderRadius: 4, borderWidth: 1, borderColor: COLORS.stroke,
+    color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15, backgroundColor: COLORS.panelAlt,
   },
   textArea: {
-    minHeight: 180, textAlignVertical: 'top', padding: 14, borderRadius: 12,
+    minHeight: 180, textAlignVertical: 'top', padding: 14, borderRadius: 4,
     borderWidth: 1, borderColor: COLORS.stroke, color: COLORS.text,
-    fontFamily: FONT_MONO, fontSize: 14, backgroundColor: COLORS.panelAlt,
+    fontFamily: FONT_BODY, fontSize: 14, backgroundColor: COLORS.panelAlt,
   },
   searchInput: {
-    padding: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke,
-    color: COLORS.text, fontFamily: FONT_MONO, fontSize: 14,
+    padding: 12, borderRadius: 4, borderWidth: 1, borderColor: COLORS.stroke,
+    color: COLORS.text, fontFamily: FONT_BODY, fontSize: 14,
     backgroundColor: COLORS.panelAlt, marginBottom: 12,
   },
   searchRow: {
@@ -5118,7 +5358,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panelAlt,
@@ -5126,28 +5366,28 @@ const styles = StyleSheet.create({
   searchInputInline: {
     flex: 1,
     color: COLORS.text,
-    fontFamily: FONT_MONO,
+    fontFamily: FONT_BODY,
     fontSize: 14,
     paddingVertical: 0,
   },
   searchClearText: {
-    color: COLORS.accent,
+    color: COLORS.text,
     fontFamily: FONT_BODY_SEMI,
     fontSize: 12,
   },
 
   /* ── Buttons ──────────────────────────────────────────────────── */
-  button: { paddingVertical: 14, paddingHorizontal: 18, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  buttonPrimary: { backgroundColor: COLORS.accent },
-  buttonGhost: { borderWidth: 1, borderColor: COLORS.stroke },
+  button: { paddingVertical: 12, paddingHorizontal: 16, borderRadius: 4, alignItems: 'center', justifyContent: 'center' },
+  buttonPrimary: { backgroundColor: COLORS.text },
+  buttonGhost: { borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: 'transparent' },
   buttonDisabled: { opacity: 0.45 },
   buttonFlex: { flex: 1 },
-  buttonText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 15, letterSpacing: 0.1 },
+  buttonText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 14, letterSpacing: 0.1 },
   buttonTextGhost: { color: COLORS.text },
 
   /* ── Labels ───────────────────────────────────────────────────── */
   label: { color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
-  labelHint: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, marginTop: 2, maxWidth: 240 },
+  labelHint: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, marginTop: 4, maxWidth: 240, lineHeight: 16 },
   /* ── Active preset bar ─────────────────────────────────── */
   activePresetBar: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
@@ -5159,8 +5399,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.stroke,
   },
   compactSaveBtn: {
-    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10,
-    backgroundColor: COLORS.accent,
+    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 4,
+    backgroundColor: COLORS.text,
   },
   compactSaveBtnText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.1 },
   listHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -5175,25 +5415,25 @@ const styles = StyleSheet.create({
 
   /* ── Segmented control ────────────────────────────────── */
   segmentedControl: {
-    flexDirection: 'row', borderRadius: 12, borderWidth: 1,
+    flexDirection: 'row', borderRadius: 4, borderWidth: 1,
     borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt, overflow: 'hidden',
   },
   segment: {
     flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center',
   },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: COLORS.stroke },
-  segmentActive: { backgroundColor: COLORS.accentDim },
-  segmentText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.3 },
-  segmentTextActive: { color: COLORS.accent },
+  segmentActive: { backgroundColor: COLORS.panel },
+  segmentText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.1 },
+  segmentTextActive: { color: COLORS.text },
 
   /* ── Dropdown button ──────────────────────────────────── */
   dropdownButton: {
     flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 14,
-    borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt,
+    borderRadius: 4, borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt,
   },
   dropdownContent: { flex: 1, gap: 2 },
   dropdownLabel: {
-    color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 10,
+    color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 10,
     textTransform: 'uppercase', letterSpacing: 1,
   },
   dropdownValue: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
@@ -5286,7 +5526,7 @@ const styles = StyleSheet.create({
   libraryRowCopy: { flex: 1, gap: 4 },
   libraryRowActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8 },
   libraryActiveBadge: {
-    color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11,
+    color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 10,
     textTransform: 'uppercase', letterSpacing: 1.2,
   },
   rowActionButton: { minWidth: 70, paddingVertical: 8, paddingHorizontal: 10 },
@@ -5311,17 +5551,17 @@ const styles = StyleSheet.create({
 
   /* ── Status / events ──────────────────────────────────────────── */
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  statusDot: { width: 10, height: 10, borderRadius: 5 },
-  statusText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 13 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusText: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 13 },
 
   /* ── Device hero ──────────────────────────────────────────────── */
-  deviceHero: { alignItems: 'center', paddingVertical: 32, gap: 8 },
-  deviceTitle: { fontSize: 28, color: COLORS.text, fontFamily: FONT_DISPLAY, letterSpacing: 0.1 },
-  deviceSubtitle: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12 },
+  deviceHero: { paddingTop: 12, paddingBottom: 8, gap: 6 },
+  deviceTitle: { fontSize: 28, color: COLORS.text, fontFamily: FONT_DISPLAY, letterSpacing: -0.4 },
+  deviceSubtitle: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 13, lineHeight: 18 },
 
   /* ── Hints / footer ───────────────────────────────────────────── */
   hint: { marginTop: 24, alignItems: 'center', paddingHorizontal: 16 },
-  hintText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, textAlign: 'center', lineHeight: 18, opacity: 0.7 },
+  hintText: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, textAlign: 'center', lineHeight: 18, opacity: 0.85 },
 
   /* ── Bottom sheet: actions ─────────────────────────────────────── */
   sheetActions: { gap: 10 },
@@ -5358,15 +5598,15 @@ const styles = StyleSheet.create({
   typeIcon: { width: 28, height: 28 },
   typeInfo: { flex: 1 },
   typeLabel: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
-  typeMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 10, marginTop: 2 },
+  typeMeta: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, marginTop: 2 },
 
   /* ── Model picker ──────────────────────────────────────────────── */
   modelDot: { width: 10, height: 10, borderRadius: 5 },
   modelInfo: { flex: 1 },
   modelMetaText: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 11,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
     marginTop: 3,
   },
   dspBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: COLORS.panelAlt, borderWidth: 1, borderColor: COLORS.stroke },
@@ -5388,15 +5628,58 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: COLORS.stroke,
   },
-  knobGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 8, paddingVertical: 8 },
-  toggleSection: { gap: 12, paddingTop: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke },
+  knobGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    columnGap: 12,
+    rowGap: 22,
+    paddingVertical: 12,
+  },
+  sliderStack: {
+    gap: 10,
+    paddingVertical: 4,
+  },
+  toggleLabelWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    width: 110,
+  },
+  toggleSection: {
+    gap: 14,
+    paddingTop: 18,
+    marginTop: 6,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.stroke,
+  },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  toggleLabel: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, width: 80 },
+  toggleLabel: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 10.5,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+  },
   toggleLabels: { flexDirection: 'row', gap: 6, flex: 1, flexWrap: 'wrap' },
-  togglePill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt },
+  togglePill: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
   togglePillActive: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
-  togglePillText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13 },
+  togglePillText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 12.5 },
   togglePillTextActive: { color: COLORS.accent },
+  helpSheetBody: { paddingTop: 4, paddingBottom: 18 },
+  helpSheetText: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY,
+    fontSize: 14,
+    lineHeight: 22,
+  },
   snapshotColorPill: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   snapshotColorSwatch: {
     width: 10,
@@ -5407,7 +5690,15 @@ const styles = StyleSheet.create({
   },
 
   /* ── IO parameters ─────────────────────────────────────────────── */
-  paramSectionTitle: { color: COLORS.accent, fontFamily: FONT_MONO, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 16, marginBottom: 8 },
+  paramSectionTitle: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 11,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginTop: 16,
+    marginBottom: 8,
+  },
   paramList: { maxHeight: 340 },
-  paramHint: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12, textAlign: 'center', paddingVertical: 20, opacity: 0.7 },
+  paramHint: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 13, textAlign: 'center', paddingVertical: 20, lineHeight: 18 },
 });

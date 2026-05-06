@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { extractSnapshots, findFirstKey, findFlows, hasFlowState } from './helixState';
+import { coerceHelixBoolean, extractSnapshots, findFirstKey, findFlows, hasFlowState } from './helixState';
 
 test('findFlows returns the first nested flow array', () => {
   const state = {
@@ -26,6 +26,17 @@ test('findFirstKey walks nested arrays and objects', () => {
   };
 
   assert.deepEqual(findFirstKey(state, 'snps'), ['a', 'b']);
+});
+
+test('coerceHelixBoolean handles numeric and boolean device flags', () => {
+  assert.equal(coerceHelixBoolean(1), true);
+  assert.equal(coerceHelixBoolean(0), false);
+  assert.equal(coerceHelixBoolean(true), true);
+  assert.equal(coerceHelixBoolean(false), false);
+  assert.equal(coerceHelixBoolean(undefined), true);
+  assert.equal(coerceHelixBoolean(null, false), false);
+  assert.equal(coerceHelixBoolean('0'), false);
+  assert.equal(coerceHelixBoolean('enabled'), true);
 });
 
 test('extractSnapshots filters invalid entries and sorts by index', () => {

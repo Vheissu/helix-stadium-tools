@@ -78,10 +78,10 @@ const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
 export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connected }) => {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 6) }]}>
       {TABS.map(({ key, label, Icon }) => {
         const active = activeTab === key;
-        const color = active ? COLORS.accent : COLORS.muted;
+        const color = active ? COLORS.text : COLORS.muted;
         return (
           <Pressable key={key} style={styles.tab} onPress={() => onTabChange(key)}>
             <View style={styles.iconWrap}>
@@ -90,13 +90,12 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
                 <View
                   style={[
                     styles.connDot,
-                    { backgroundColor: connected ? COLORS.accent : COLORS.danger },
+                    { backgroundColor: connected ? COLORS.signal : COLORS.danger },
                   ]}
                 />
               )}
             </View>
             <Text style={[styles.label, active && styles.labelActive]}>{label}</Text>
-            {active && <View style={styles.activeBar} />}
           </Pressable>
         );
       })}
@@ -107,8 +106,8 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: COLORS.panel,
-    borderTopWidth: 1,
+    backgroundColor: COLORS.bg,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: COLORS.stroke,
     paddingTop: 10,
   },
@@ -118,27 +117,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     position: 'relative',
+    paddingBottom: 2,
   },
   iconWrap: {
     position: 'relative',
   },
   label: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
-    fontSize: 10,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    fontFamily: FONTS.body,
+    fontSize: 11,
+    letterSpacing: 0.1,
   },
   labelActive: {
-    color: COLORS.accent,
-  },
-  activeBar: {
-    position: 'absolute',
-    top: -10,
-    width: 28,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: COLORS.accent,
+    color: COLORS.text,
+    fontFamily: FONTS.bodySemi,
   },
   connDot: {
     position: 'absolute',
@@ -148,6 +140,6 @@ const styles = StyleSheet.create({
     height: 7,
     borderRadius: 3.5,
     borderWidth: 1.5,
-    borderColor: COLORS.panel,
+    borderColor: COLORS.bg,
   },
 });

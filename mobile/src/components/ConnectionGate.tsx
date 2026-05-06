@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.signal,
   },
 
   title: {
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     color: COLORS.text,
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   connectBtn: {
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',

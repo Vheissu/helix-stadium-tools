@@ -72,6 +72,21 @@ export const findFlows = (state: unknown): unknown[] | null => {
 
 export const hasFlowState = (state: unknown) => findFlows(state) !== null;
 
+export const coerceHelixBoolean = (value: unknown, fallback = true): boolean => {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return fallback;
+    if (['0', 'false', 'off', 'disabled'].includes(normalized)) return false;
+    if (['1', 'true', 'on', 'enabled'].includes(normalized)) return true;
+    const numeric = Number(normalized);
+    return Number.isFinite(numeric) ? numeric !== 0 : fallback;
+  }
+  return fallback;
+};
+
 export type SnapshotRef = HelixStateNode & {
   index: number;
 };

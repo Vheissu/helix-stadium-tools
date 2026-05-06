@@ -15,6 +15,7 @@ import { BLOCK_IMAGES } from '../../icons/CategoryImages';
 import { COLORS, FONTS, colorWithAlpha, getBlockAppearance } from '../../theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, PathIndex } from '../../types/signalFlow';
 
+const FONT_BODY = FONTS.body;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 
@@ -355,7 +356,7 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
             styles.effectIconWrap,
             {
               backgroundColor: appearance.iconSurface,
-              borderColor: colorWithAlpha(appearance.accent, enabled ? 0.16 : 0.08),
+              borderColor: colorWithAlpha(appearance.accent, enabled ? 0.22 : 0.08),
             },
           ]}
         >
@@ -370,10 +371,20 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
           )}
         </View>
         <View style={styles.effectInfo}>
-          <Text style={[styles.effectName, { color: appearance.text }]}>{block.name}</Text>
-          <Text style={[styles.effectKind, { color: appearance.meta }]}>
-            {kindLabel(block.kind)} • {enabled ? 'Active' : 'Bypassed'}
+          <Text style={[styles.effectName, { color: appearance.text }]} numberOfLines={1}>
+            {block.name}
           </Text>
+          <View style={styles.effectMetaRow}>
+            <Text style={[styles.effectKind, { color: enabled ? appearance.meta : COLORS.muted }]} numberOfLines={1}>
+              {kindLabel(block.kind)}
+            </Text>
+            {!enabled && (
+              <>
+                <View style={styles.effectMetaDot} />
+                <Text style={styles.effectKindBypassed}>Bypassed</Text>
+              </>
+            )}
+          </View>
         </View>
         <Pressable
           style={[
@@ -435,9 +446,11 @@ const DragOverlayCard: React.FC<{
         )}
       </View>
       <View style={styles.effectInfo}>
-        <Text style={[styles.effectName, { color: appearance.text }]}>{block.name}</Text>
-        <Text style={[styles.effectKind, { color: appearance.meta }]}>
-          {kindLabel(block.kind)} • {enabled ? 'Active' : 'Bypassed'}
+        <Text style={[styles.effectName, { color: appearance.text }]} numberOfLines={1}>
+          {block.name}
+        </Text>
+        <Text style={[styles.effectKind, { color: enabled ? appearance.meta : COLORS.muted }]} numberOfLines={1}>
+          {kindLabel(block.kind)}
         </Text>
       </View>
     </View>
@@ -459,15 +472,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    paddingHorizontal: 0,
+    borderWidth: 0,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: COLORS.hairline,
     borderRadius: 0,
   },
   effectColorBar: {
-    width: 3,
-    height: 36,
-    borderRadius: 1.5,
+    width: 2,
+    height: 32,
+    borderRadius: 1,
   },
   effectIconWrap: {
     width: 40,
@@ -479,16 +493,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   effectIcon: { width: 24, height: 24 },
-  effectInfo: { flex: 1, gap: 2 },
+  effectInfo: { flex: 1, gap: 3 },
   effectName: {
     color: COLORS.text,
     fontFamily: FONT_BODY_SEMI,
     fontSize: 15,
+    letterSpacing: 0.1,
+  },
+  effectMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   effectKind: {
-    fontFamily: FONT_MONO,
-    fontSize: 11,
-    letterSpacing: 0.3,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    letterSpacing: 0.1,
+  },
+  effectKindBypassed: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 12,
+    letterSpacing: 0.1,
+    fontStyle: 'italic',
+  },
+  effectMetaDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: COLORS.muted,
+    opacity: 0.6,
   },
   powerBtn: {
     width: 36,
@@ -505,8 +539,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 0,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.hairline,
     opacity: 0.4,
   },
   emptySlotNum: {
@@ -526,7 +562,7 @@ const styles = StyleSheet.create({
   },
   moreSlotsBtn: {
     paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     alignItems: 'center',
   },
   moreSlotsText: {

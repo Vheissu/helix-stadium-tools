@@ -35,6 +35,7 @@ import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, Signa
 import { buildConnectionFailureStatus } from './src/utils/connection';
 import { formatTempoBpm } from './src/utils/format';
 import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
+import { groupModelsByChannel, type ModelSection } from './src/utils/modelSections';
 
 const COLORS = THEME_COLORS;
 
@@ -430,6 +431,10 @@ export default function App() {
       item.name.toLowerCase().includes(q) || (item.based_on ?? '').toLowerCase().includes(q)
     );
   }, [pickerType, pickerQuery]);
+  const pickerModelSections = useMemo<ModelSection<BlockModel>[]>(
+    () => groupModelsByChannel(pickerModels),
+    [pickerModels]
+  );
   const ioPickerModels = useMemo(() => {
     const items = ioPickerType === 'input' ? ioData.inputs.models : ioData.outputs.models;
     if (!ioPickerQuery.trim()) return items;
@@ -4621,33 +4626,42 @@ export default function App() {
                 placeholderTextColor={COLORS.muted}
               />
               <ScrollView style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                {pickerModels.map((item) => {
-                  const required = item.usage ?? 0;
-                  const canInsert = required <= availableUsage;
-                  const color = getBlockColor(pickerType ?? '');
-                  const sourceName = isUsefulRealName(item.based_on) ? item.based_on!.trim() : null;
-                  const primaryName = showRealBlockNames && sourceName ? sourceName : item.name;
-                  const secondaryName = showRealBlockNames && sourceName ? item.name : sourceName;
-                  return (
-                    <Pressable
-                      key={item.id}
-                      style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
-                      onPress={() => insertModel(item.id, item.name, pickerType ?? 'fx', item.usage ?? 0)}
-                      disabled={!canInsert}
-                    >
-                      <View style={[styles.modelDot, { backgroundColor: color }]} />
-                      <View style={styles.modelInfo}>
-                        <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>{primaryName}</Text>
-                        {secondaryName && (
-                          <Text style={styles.modelMetaText} numberOfLines={1}>{secondaryName}</Text>
-                        )}
+                {pickerModelSections.map((section, sectionIndex) => (
+                  <View key={`${section.title ?? 'models'}-${sectionIndex}`}>
+                    {section.title && (
+                      <View style={styles.modelSectionHeader}>
+                        <Text style={styles.modelSectionTitle}>{section.title}</Text>
                       </View>
-                      <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>
-                        <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>{required.toFixed(1)}</Text>
-                      </View>
-                    </Pressable>
-                  );
-                })}
+                    )}
+                    {section.models.map((item) => {
+                      const required = item.usage ?? 0;
+                      const canInsert = required <= availableUsage;
+                      const color = getBlockColor(pickerType ?? '');
+                      const sourceName = isUsefulRealName(item.based_on) ? item.based_on!.trim() : null;
+                      const primaryName = showRealBlockNames && sourceName ? sourceName : item.name;
+                      const secondaryName = showRealBlockNames && sourceName ? item.name : sourceName;
+                      return (
+                        <Pressable
+                          key={item.id}
+                          style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
+                          onPress={() => insertModel(item.id, item.name, pickerType ?? 'fx', item.usage ?? 0)}
+                          disabled={!canInsert}
+                        >
+                          <View style={[styles.modelDot, { backgroundColor: color }]} />
+                          <View style={styles.modelInfo}>
+                            <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>{primaryName}</Text>
+                            {secondaryName && (
+                              <Text style={styles.modelMetaText} numberOfLines={1}>{secondaryName}</Text>
+                            )}
+                          </View>
+                          <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>
+                            <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>{required.toFixed(1)}</Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                ))}
               </ScrollView>
             </>
           )}
@@ -5654,6 +5668,18 @@ const styles = StyleSheet.create({
   typeMeta: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, marginTop: 2 },
 
   /* ── Model picker ──────────────────────────────────────────────── */
+  modelSectionHeader: {
+    paddingTop: 12,
+    paddingBottom: 6,
+    paddingHorizontal: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.hairline,
+  },
+  modelSectionTitle: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+  },
   modelDot: { width: 10, height: 10, borderRadius: 5 },
   modelInfo: { flex: 1 },
   modelMetaText: {

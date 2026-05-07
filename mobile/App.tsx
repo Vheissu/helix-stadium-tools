@@ -29,7 +29,7 @@ import { ParamHelpButton } from './src/components/ParamHelpButton';
 import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
 import { PathChainStrip } from './src/components/signalFlow/PathChainStrip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lookupParamHelp } from './src/utils/paramHelp';
+import { getParamHelp } from './src/utils/paramHelp';
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 import { buildConnectionFailureStatus } from './src/utils/connection';
@@ -3490,8 +3490,8 @@ export default function App() {
   }, []);
 
   const openParamHelp = useCallback(
-    (param: EditorParam, modelId: number | null, modelName: string | null) => {
-      const body = lookupParamHelp(modelId, param.name);
+    (param: EditorParam, modelName: string | null) => {
+      const body = getParamHelp(param);
       setParamHelp({
         title: param.name,
         subtitle: modelName ?? undefined,
@@ -3499,6 +3499,24 @@ export default function App() {
       });
     },
     [],
+  );
+
+  /**
+   * Help sheet is rendered both inside the full-screen block editor and at the
+   * root tree, so it's reachable whether the editor is open or the user is on
+   * one of the main tabs.
+   */
+  const renderParamHelpSheet = () => (
+    <BottomSheet
+      visible={paramHelp !== null}
+      onClose={() => setParamHelp(null)}
+      title={paramHelp?.title}
+      subtitle={paramHelp?.subtitle}
+    >
+      <View style={styles.helpSheetBody}>
+        <Text style={styles.helpSheetText}>{paramHelp?.body}</Text>
+      </View>
+    </BottomSheet>
   );
 
   const renderParamFields = (
@@ -3532,10 +3550,10 @@ export default function App() {
     const useSliders = controlStyle === 'sliders';
 
     const renderHelpButton = (param: EditorParam, color: string) =>
-      lookupParamHelp(modelId, param.name) ? (
+      getParamHelp(param) ? (
         <ParamHelpButton
           accentColor={color}
-          onPress={() => openParamHelp(param, modelId, modelName)}
+          onPress={() => openParamHelp(param, modelName)}
         />
       ) : null;
 
@@ -3567,7 +3585,7 @@ export default function App() {
                     onChange={(val) => onChange(param, val)}
                     onDragChange={handleKnobDragChange}
                     helpAdornment={helpAdornment}
-                    rowHeight={isTablet ? 64 : 56}
+                    rowHeight={isTablet ? 44 : 36}
                   />
                 );
               }
@@ -4053,6 +4071,7 @@ export default function App() {
             )}
             {renderBlockParams()}
           </ScrollView>
+          {renderParamHelpSheet()}
         </SafeAreaView>
       </SafeAreaProvider>
     );
@@ -4592,16 +4611,7 @@ export default function App() {
         </BottomSheet>
 
         {/* ── Bottom Sheet: Parameter help ─────────────────────── */}
-        <BottomSheet
-          visible={paramHelp !== null}
-          onClose={() => setParamHelp(null)}
-          title={paramHelp?.title}
-          subtitle={paramHelp?.subtitle}
-        >
-          <View style={styles.helpSheetBody}>
-            <Text style={styles.helpSheetText}>{paramHelp?.body}</Text>
-          </View>
-        </BottomSheet>
+        {renderParamHelpSheet()}
 
         {/* ── Tab bar ──────────────────────────────────────────── */}
         <TabBar activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />

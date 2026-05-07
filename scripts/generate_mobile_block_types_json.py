@@ -53,6 +53,10 @@ CATALOG_GROUPS = {
     "Merge": ("routing", "Split / Merge"),
 }
 
+MODELDEF_CATEGORY_GROUPS = {
+    "eq": ("eq", "EQ"),
+}
+
 
 def build_block_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info=None):
     return build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
@@ -184,6 +188,76 @@ def add_missing_catalog_models(
     return added, skipped
 
 
+def add_missing_modeldef_category_models(
+    block_types,
+    model_categories,
+    modeldefs,
+    modeldefs_by_id,
+    uidefs,
+    param_meta_all,
+    param_meta_by_symbol,
+    controls,
+    based_on_overrides=None,
+    based_on_by_id=None,
+    based_on_by_name=None,
+):
+    existing_keys = set()
+    existing_ids = set()
+    for group in block_types.values():
+        models = group.get("models", [])
+        if not isinstance(models, list):
+            continue
+        for model in models:
+            if model.get("key"):
+                existing_keys.add(model.get("key"))
+            if isinstance(model.get("id"), int):
+                existing_ids.add(model.get("id"))
+
+    added = 0
+    skipped = []
+    for model_key, model_info in modeldefs.items():
+        if not isinstance(model_info, dict):
+            continue
+        category = model_info.get("category")
+        if category not in model_categories:
+            continue
+        group_spec = MODELDEF_CATEGORY_GROUPS.get(category)
+        if not group_spec:
+            continue
+        if model_key in existing_keys:
+            continue
+        model_id = model_info.get("id")
+        if isinstance(model_id, int) and model_id in existing_ids:
+            continue
+
+        group_key, label = group_spec
+        group = block_types.setdefault(group_key, {"label": label, "models": []})
+        if not isinstance(group.get("models"), list):
+            group["models"] = []
+
+        entry = build_catalog_model_entry(
+            model_key,
+            modeldefs,
+            modeldefs_by_id,
+            uidefs,
+            param_meta_all,
+            param_meta_by_symbol,
+            controls,
+            based_on_overrides,
+            based_on_by_id,
+            based_on_by_name,
+        )
+        if not entry:
+            skipped.append(model_key)
+            continue
+        group["models"].append(entry)
+        existing_keys.add(model_key)
+        if isinstance(model_id, int):
+            existing_ids.add(model_id)
+        added += 1
+    return added, skipped
+
+
 def preserve_missing_model_entry(model):
     if not isinstance(model.get("params"), list):
         model["params"] = []
@@ -283,12 +357,25 @@ def main():
         based_on_by_id,
         based_on_by_name,
     )
+    added_from_modeldefs, skipped_modeldef_models = add_missing_modeldef_category_models(
+        block_types,
+        {"eq"},
+        modeldefs,
+        modeldefs_by_id,
+        uidefs,
+        param_meta_all,
+        param_meta_by_symbol,
+        controls,
+        based_on_overrides,
+        based_on_by_id,
+        based_on_by_name,
+    )
 
     output_path = Path(args.output)
     output_path.write_text(json.dumps(block_types, indent=2, sort_keys=False), encoding="utf-8")
     print(
         f"Wrote {output_path} "
-        f"({updated} models updated, {added} models added, "
+        f"({updated} models updated, {added + added_from_modeldefs} models added, "
         f"{len(missing_models)} inherited entries preserved)"
     )
     if missing_models:
@@ -303,6 +390,12 @@ def main():
             print(f"  - {key}")
         if len(skipped_catalog_models) > 20:
             print(f"  ... and {len(skipped_catalog_models) - 20} more")
+    if skipped_modeldef_models:
+        print("Skipped modeldef category models without defs:")
+        for key in skipped_modeldef_models[:20]:
+            print(f"  - {key}")
+        if len(skipped_modeldef_models) > 20:
+            print(f"  ... and {len(skipped_modeldef_models) - 20} more")
 
 
 if __name__ == "__main__":

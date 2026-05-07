@@ -2,6 +2,7 @@ import unittest
 
 from scripts.generate_mobile_block_types_json import (
     add_missing_catalog_models,
+    add_missing_modeldef_category_models,
     build_catalog_model_entry,
     preserve_missing_model_entry,
 )
@@ -131,6 +132,76 @@ class TestGenerateMobileBlockTypesJsonBehavior(unittest.TestCase):
         self.assertEqual(sidechain["max"], 13)
         self.assertEqual(sidechain["def"], 0)
         self.assertEqual(sidechain["options"], ["Off", "Instrument 1", "Instrument 2"])
+
+    def test_modeldef_category_backfill_adds_all_eq_models_and_params(self):
+        block_types = {
+            "eq": {
+                "label": "EQ",
+                "models": [
+                    {
+                        "id": 413,
+                        "name": "Parametric",
+                        "key": "HX2_EQParametricMono",
+                        "category": "eq",
+                        "usage": 1.9,
+                        "params": [],
+                    }
+                ],
+            }
+        }
+        modeldefs = {
+            "HX2_EQParametricMono": {
+                "id": 413,
+                "category": "eq",
+                "usage": 1.9,
+                "params": {
+                    "LowGain": {"id": 24, "type": "f", "min": -24, "max": 24, "def": 0},
+                },
+            },
+            "HX2_EQParametricStereo": {
+                "id": 259,
+                "category": "eq",
+                "usage": 2.0,
+                "params": {
+                    "LowGain": {"id": 24, "type": "f", "min": -24, "max": 24, "def": 0},
+                },
+            },
+            "HD2_DistExampleMono": {
+                "id": 300,
+                "category": "distortion",
+                "usage": 1.0,
+                "params": {},
+            },
+        }
+        uidefs = {
+            "HX2_EQParametricMono": {
+                "name": "Parametric",
+                "params": [{"id": "LowGain", "name": "Low Gain", "display_tag": "volume"}],
+            }
+        }
+
+        added, skipped = add_missing_modeldef_category_models(
+            block_types,
+            {"eq"},
+            modeldefs,
+            {413: modeldefs["HX2_EQParametricMono"], 259: modeldefs["HX2_EQParametricStereo"]},
+            uidefs,
+            {},
+            {},
+            {},
+        )
+
+        self.assertEqual(added, 1)
+        self.assertEqual(skipped, [])
+        self.assertEqual(
+            [model["key"] for model in block_types["eq"]["models"]],
+            ["HX2_EQParametricMono", "HX2_EQParametricStereo"],
+        )
+        stereo = block_types["eq"]["models"][1]
+        self.assertEqual(stereo["name"], "Parametric")
+        self.assertEqual(stereo["usage"], 2.0)
+        self.assertEqual(stereo["params"][0]["key"], "LowGain")
+        self.assertEqual(stereo["params"][0]["id"], 24)
 
 
 if __name__ == "__main__":

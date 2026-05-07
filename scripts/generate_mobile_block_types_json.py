@@ -17,6 +17,7 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     DEFAULT_UIDEFS,
     build_detailed_param_list,
     get_param_meta_for_model,
+    index_modeldefs_by_id,
     load_controls,
     load_based_on_db,
     load_based_on_overrides,
@@ -24,6 +25,8 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     load_param_meta,
     load_uidefs,
     resolve_based_on,
+    resolve_harness_model_info,
+    resolve_uidef_for_model,
     DEFAULT_BASED_ON_OVERRIDES,
     DEFAULT_MODEL_META_DB,
 )
@@ -51,8 +54,8 @@ CATALOG_GROUPS = {
 }
 
 
-def build_block_param_list(model_key, model_info, uidef, param_meta, controls):
-    return build_detailed_param_list(model_key, model_info, uidef, param_meta, controls)
+def build_block_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info=None):
+    return build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
 
 
 def load_model_catalog(path: str):
@@ -72,6 +75,7 @@ def load_model_catalog(path: str):
 def build_catalog_model_entry(
     model_key,
     modeldefs,
+    modeldefs_by_id,
     uidefs,
     param_meta_all,
     param_meta_by_symbol,
@@ -81,7 +85,7 @@ def build_catalog_model_entry(
     based_on_by_name=None,
 ):
     model_info = modeldefs.get(model_key)
-    uidef = uidefs.get(model_key)
+    uidef = resolve_uidef_for_model(model_key, uidefs)
     if not isinstance(model_info, dict) or not isinstance(uidef, dict):
         return None
 
@@ -89,6 +93,7 @@ def build_catalog_model_entry(
     display_name = uidef.get("name") or model_key
     model_id = model_info.get("id")
     meta_category = "cab" if category == "cab_ir_interp" else category
+    harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
     param_meta = get_param_meta_for_model(
         param_meta_all,
         param_meta_by_symbol,
@@ -109,7 +114,7 @@ def build_catalog_model_entry(
         "key": model_key,
         "category": category,
         "usage": float(model_info.get("usage", 0) or 0),
-        "params": build_block_param_list(model_key, model_info, uidef, param_meta, controls),
+        "params": build_block_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info),
     }
 
 
@@ -117,6 +122,7 @@ def add_missing_catalog_models(
     block_types,
     catalog_categories,
     modeldefs,
+    modeldefs_by_id,
     uidefs,
     param_meta_all,
     param_meta_by_symbol,
@@ -155,6 +161,7 @@ def add_missing_catalog_models(
             entry = build_catalog_model_entry(
                 model_key,
                 modeldefs,
+                modeldefs_by_id,
                 uidefs,
                 param_meta_all,
                 param_meta_by_symbol,
@@ -199,6 +206,7 @@ def main():
 
     block_types = json.loads(Path(args.input).read_text(encoding="utf-8"))
     modeldefs = load_modeldefs(args.modeldefs)
+    modeldefs_by_id = index_modeldefs_by_id(modeldefs)
     uidefs = load_uidefs(args.uidefs)
     catalog_categories = load_model_catalog(args.catalog)
     controls = load_controls(args.controls)
@@ -225,7 +233,7 @@ def main():
             if not model_key:
                 continue
             model_info = modeldefs.get(model_key)
-            uidef = uidefs.get(model_key)
+            uidef = resolve_uidef_for_model(model_key, uidefs)
             if not isinstance(model_info, dict) or not isinstance(uidef, dict):
                 missing_models.append(model_key)
                 # Preserve inherited metadata for synthetic/stereo clones that do not
@@ -236,6 +244,7 @@ def main():
             category = model_info.get("category")
             display_name = uidef.get("name") or model.get("name") or model_key
             meta_category = "cab" if category == "cab_ir_interp" else category
+            harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
             param_meta = get_param_meta_for_model(
                 param_meta_all,
                 param_meta_by_symbol,
@@ -243,7 +252,14 @@ def main():
                 meta_category,
                 display_name,
             )
-            model["params"] = build_block_param_list(model_key, model_info, uidef, param_meta, controls)
+            model["params"] = build_block_param_list(
+                model_key,
+                model_info,
+                uidef,
+                param_meta,
+                controls,
+                harness_model_info,
+            )
             model["usage"] = usage_by_id.get(model_id, model.get("usage", 0) or 0)
             model["based_on"] = resolve_based_on(
                 display_name,
@@ -258,6 +274,7 @@ def main():
         block_types,
         catalog_categories,
         modeldefs,
+        modeldefs_by_id,
         uidefs,
         param_meta_all,
         param_meta_by_symbol,

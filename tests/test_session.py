@@ -850,6 +850,18 @@ class TestSession(unittest.TestCase):
         self.assertEqual(typetags, ",iiiiiii")
         self.assertEqual(vals, [11, 1, 2, 0, 3, 4, -1])
 
+    def test_set_harness_param_value_uses_harness_command(self):
+        stream = FakeStream()
+        session = HelixSession("dummy")
+        session._stream_2002 = stream
+        session._cmd_id = 12
+        session.set_harness_param_value(0, 1, 1, 2, wait_status=False, value_type="i")
+        _flags, payload = stream.sent[0]
+        addr, typetags, vals = decode_osc(payload)
+        self.assertEqual(addr, "/HarnessParamValueSet")
+        self.assertEqual(typetags, ",iiiiii")
+        self.assertEqual(vals, [12, 0, 1, 1, 2, -1])
+
     def test_set_block_enable_wait_status_false(self):
         stream = FakeStream()
         session = HelixSession("dummy")

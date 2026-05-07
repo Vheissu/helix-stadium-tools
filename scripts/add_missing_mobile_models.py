@@ -23,10 +23,12 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     DEFAULT_PARAM_META,
     DEFAULT_UIDEFS,
     get_param_meta_for_model,
+    index_modeldefs_by_id,
     load_controls,
     load_modeldefs,
     load_param_meta,
     load_uidefs,
+    resolve_harness_model_info,
 )
 from scripts.generate_mobile_block_types_json import build_block_param_list  # noqa: E402
 
@@ -45,6 +47,7 @@ def save_json(path, data):
 
 def build_routing_metadata():
     modeldefs = load_modeldefs(DEFAULT_MODELDEFS)
+    modeldefs_by_id = index_modeldefs_by_id(modeldefs)
     uidefs = load_uidefs(DEFAULT_UIDEFS)
     controls = load_controls(DEFAULT_CONTROLS)
     param_meta_all, param_meta_by_symbol = load_param_meta(DEFAULT_PARAM_META)
@@ -66,11 +69,19 @@ def build_routing_metadata():
             category,
             display_name,
         )
+        harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
         metadata[model_key] = {
             "name": display_name,
             "category": category,
             "usage": float(model_info.get("usage", 0) or 0),
-            "params": build_block_param_list(model_key, model_info, uidef, param_meta, controls),
+            "params": build_block_param_list(
+                model_key,
+                model_info,
+                uidef,
+                param_meta,
+                controls,
+                harness_model_info,
+            ),
         }
     return metadata
 

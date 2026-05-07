@@ -819,6 +819,31 @@ class HelixSession:
         self.send("/ParamValueSet", "iiiiifi", args)
         return None
 
+    def set_harness_param_value(
+        self,
+        path: int,
+        block: int,
+        param_id: int,
+        value,
+        flags: int = -1,
+        wait_status: bool = True,
+        value_type: str | None = None,
+    ):
+        cmd_id = self.next_cmd_id
+        if value_type is None and isinstance(value, float) and value.is_integer():
+            value = int(value)
+        if value_type in ("i", "b") or isinstance(value, (bool, int)):
+            args = [cmd_id, path, block, param_id, int(bool(value)) if isinstance(value, bool) else int(value), flags]
+            if wait_status:
+                return self.send_and_wait_status_code(cmd_id, "/HarnessParamValueSet", "iiiiii", args)
+            self.send("/HarnessParamValueSet", "iiiiii", args)
+            return None
+        args = [cmd_id, path, block, param_id, float(value), flags]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/HarnessParamValueSet", "iiiifi", args)
+        self.send("/HarnessParamValueSet", "iiiifi", args)
+        return None
+
     def set_block_enable(self, path: int, block: int, enabled: int, wait_status: bool = True):
         cmd_id = self.next_cmd_id
         if wait_status:
@@ -1054,6 +1079,18 @@ class HelixSession:
                         int(param["param_id"]),
                         value,
                         slot=0,
+                        flags=-1,
+                        wait_status=False,
+                        value_type=value_type,
+                    )
+                for param in entry.get("harness_params", []):
+                    value = param["value"]
+                    value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
+                    self.set_harness_param_value(
+                        target_flow,
+                        position,
+                        int(param["param_id"]),
+                        value,
                         flags=-1,
                         wait_status=False,
                         value_type=value_type,

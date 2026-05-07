@@ -124,6 +124,7 @@ class TestEditBuffer(unittest.TestCase):
                     "model_id": 700,
                     "enabled": True,
                     "params": [{"param_id": 2, "value": 1}, {"param_id": 3, "value": 0.5}],
+                    "harness_params": [],
                 },
                 {
                     "position": 1,
@@ -131,9 +132,35 @@ class TestEditBuffer(unittest.TestCase):
                     "model_id": 701,
                     "enabled": False,
                     "params": [{"param_id": 4, "value": False}],
+                    "harness_params": [],
                 },
             ],
         )
+
+    def test_extract_flow_clipboard_reads_harness_params(self):
+        state = {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [
+                            1,
+                            {
+                                "id__": 1,
+                                "enbl": 1,
+                                "mdls": [{"id__": 33, "parm": [{"pid_": 1, "valu": -36.0}]}],
+                                "hrns": {"id__": 830, "parm": [{"pid_": 1, "valu": 2}]},
+                            },
+                        ],
+                    }
+                ]
+            }
+        }
+
+        clipboard = extract_flow_clipboard(state, 0, positions=[1])
+
+        self.assertEqual(clipboard[0]["params"], [{"param_id": 1, "value": -36.0}])
+        self.assertEqual(clipboard[0]["harness_params"], [{"param_id": 1, "value": 2}])
 
     def test_extract_flow_clipboard_skips_non_realized_pair_list_positions(self):
         state = {
@@ -163,6 +190,7 @@ class TestEditBuffer(unittest.TestCase):
                     "model_id": 770,
                     "enabled": True,
                     "params": [],
+                    "harness_params": [],
                 },
                 {
                     "position": 9,
@@ -170,6 +198,7 @@ class TestEditBuffer(unittest.TestCase):
                     "model_id": 475,
                     "enabled": True,
                     "params": [],
+                    "harness_params": [],
                     "link_flow": 0,
                     "link_position": 19,
                 },
@@ -179,6 +208,7 @@ class TestEditBuffer(unittest.TestCase):
                     "model_id": 192,
                     "enabled": True,
                     "params": [],
+                    "harness_params": [],
                     "link_flow": 0,
                     "link_position": 9,
                 },

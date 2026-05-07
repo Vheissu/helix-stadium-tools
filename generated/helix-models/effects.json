@@ -766,6 +766,28 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Attack",
         "description": "Controls how quickly compression is applied once the signal exceeds the Threshold. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.",
         "min": 0.1,
@@ -1198,6 +1220,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Deck 1 Vol",
         "description": "Sets the level of Deck 1. Deck 2 is a bit lower than Deck 1 by default.",
         "min": -60,
@@ -1475,6 +1507,16 @@
     "based_on": "BOSS DM-2 w/ Adrian Mod",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "BBD Size",
         "description": "Sets the clock frequency of the bucket brigade device. Higher values provide a wider frequency response.",
         "default": "4096",
@@ -1557,6 +1599,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Attack",
         "description": "Sets the ramp time for the volume swell applied to the dry signal, and therefore, any delay repeats.",
@@ -1745,6 +1797,28 @@
     "is_agoura": false,
     "based_on": "Ampeg Opto Comp Compressor",
     "params": [
+      {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
       {
         "name": "Mix",
         "description": "Controls the blend between the compressed and dry signals. At 0%, no compressed signal is heard; at 100%, no dry signal is heard. Values in between provide parallel compression.",
@@ -2016,6 +2090,28 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Attack",
         "description": "Controls how long it takes for the filter to reach its high frequency (determined by Sensitivity and your playing dynamics) once the transient is detected. Lower values are better for funky rhythmic playing; higher values are better for slow filter sweeps and special effects.",
         "min": 5,
@@ -2114,6 +2210,28 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
       {
         "name": "Attack",
         "description": "Controls how long the swell fades in once the signal exceeds the Threshold.",
@@ -2495,6 +2613,16 @@
     "is_agoura": false,
     "based_on": "BOSS DM-2",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Feedback",
         "description": "Controls the number of delay repeats. When set to 0%, only one repeat is heard. At high values, the Delay may begin to self-oscillate and squeal (perhaps in a good way).",
@@ -3000,6 +3128,16 @@
     "based_on": "Roland RE-201 Space Echo",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Bass",
         "description": "Controls the low frequency EQ applied to the repeats.",
         "min": -18,
@@ -3181,6 +3319,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Bit Depth",
         "description": "Lowers the bit depth of the delay repeats for a grungier sound. For more transparent results, set to 24 bits.",
@@ -3438,6 +3586,28 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
       {
         "name": "Attack",
         "description": "Controls how quickly compression is applied once the signal exceeds the Threshold. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.",
@@ -3781,6 +3951,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Decay",
         "description": "Adjusts the decay time of the reverb effect.",
         "min": 0,
@@ -3852,6 +4032,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Depth",
         "description": "Controls the depth or intensity of the modulation. Does nothing if Mod Mode is set to \"Off\"",
@@ -4055,6 +4245,16 @@
     "based_on": "TC Electronic 2290",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Ducking",
         "description": "Controls the amount of ducking applied. Or rather, how far the repeats drop in volume while playing.",
         "min": 0,
@@ -4192,6 +4392,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Damping",
         "description": "Determines the frequency above which the reverb will be absorbed. For example, if your hall is full of people wearing fake ocelot jumpsuits, more high frequencies would be absorbed than if the room were empty.",
         "min": 500,
@@ -4273,6 +4483,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Low Gain",
         "description": "Controls the reverb time for frequencies below the Low Freq value. Values below 0.0 dB mean the bass frequencies decay faster than the treble frequencies; values above 0.0 dB mean the bass frequencies decay slower than the treble frequencies.",
@@ -4371,6 +4591,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Low Gain",
         "description": "Controls the reverb time for frequencies below the Low Freq value. Values below 0.0dB mean the bass frequencies decay faster than the treble frequencies; values above 0.0dB mean the bass frequencies decay slower than the treble frequencies.",
@@ -4478,6 +4708,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Low Gain",
         "description": "Sets the reverb time for frequencies below the Low Freq value. Values below 0.0dB mean the bass frequencies decay faster than the treble frequencies; values above 0.0dB mean the bass frequencies decay slower than the treble frequencies",
         "min": -15,
@@ -4573,6 +4813,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Low Gain",
         "description": "Controls the reverb time for frequencies below the Low Freq value. Values below 0.0 dB mean the bass frequencies decay faster than the treble frequencies; values above 0.0 dB mean the bass frequencies decay slower than the treble frequencies.",
@@ -4796,6 +5046,16 @@
     "based_on": "Electro-Harmonix Deluxe Memory Man",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Depth",
         "description": "Controls the depth or intensity of the modulation applied to the repeats.",
         "min": 0,
@@ -4868,6 +5128,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Feedback",
         "description": "Controls the overall number of repeats heard for the entire sequence. If you want to hear all fills in the sequence only once, set to 0%.",
@@ -5045,6 +5315,16 @@
     "based_on": "N/A",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Mix",
         "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
@@ -5076,6 +5356,16 @@
     "is_agoura": false,
     "based_on": "N/A",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Mix",
         "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
@@ -5109,6 +5399,16 @@
     "based_on": "N/A",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Mix",
         "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
@@ -5140,6 +5440,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Mix",
         "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
@@ -5173,6 +5483,16 @@
     "based_on": "N/A",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Mix",
         "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
         "min": 0,
@@ -5204,6 +5524,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Mix",
         "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.",
@@ -5469,6 +5799,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Decay",
         "description": "Adjusts the decay time of the reverb effect.",
         "min": 0,
@@ -5524,6 +5864,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Delay Div",
         "description": "Divides the delay time into smaller increments.",
@@ -5652,6 +6002,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Decay",
         "description": "Adjusts the decay time of the reverb effect.",
@@ -14997,6 +15357,28 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Close Threshold",
         "description": "Sets the level below which the gate \"closes,\" or stops signal from passing through.",
         "min": -96,
@@ -15195,6 +15577,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Voice 1 Scale",
         "description": "Voice/harmony 1's delay time is always some percentage of the root note's time (controlled via Time), and is determined by the V1 Scale parameter. For example, if Time is set to 800 ms and V1 Scale is set to 75%, voice/harmony 1's delay is 600 ms (or 75% of 800 ms). When scale is set to 100%, voice/harmony 1 and root delays are the same.",
@@ -15466,6 +15858,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Depth",
         "description": "Controls the depth or amount of modulation.",
         "min": 0,
@@ -15608,6 +16010,28 @@
     "based_on": "Horizon Precision Drive - Gate Circuit",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Gate Range",
         "description": "Determines the range of the dynamic high shelf EQ filter, or how far the signal's high end is attenuated while the gate is active. When set to \"Extended,\" drops the gate's threshold down to -90 dB, which is more attenuation than the real pedal.",
         "default": "Authentic",
@@ -15649,6 +16073,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Drip",
         "description": "Adjusts the intensity of the spring reverb, or how much \"ploink\" you might hear.",
@@ -15875,6 +16309,28 @@
     "based_on": "Xotic SP Compressor",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Attack",
         "description": "Controls how quickly compression responds to increases in input signal level. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.",
         "min": 0,
@@ -15970,6 +16426,28 @@
     "is_agoura": false,
     "based_on": "Teletronix LA-2A",
     "params": [
+      {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
       {
         "name": "Emphasis",
         "description": "Subtly increases the compression circuit's sensitivity to high frequencies. At 0.0, no emphasis is applied.",
@@ -16172,6 +16650,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Depth",
         "description": "Controls the depth or intensity of the modulation applied to the repeats.",
         "min": 0,
@@ -16254,6 +16742,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Feedback",
         "description": "Controls how many times the 6-tap delay pattern repeats. When set to 0%, the pattern is heard only once; at 100%, the pattern cycles forever.",
         "min": 0,
@@ -16317,6 +16815,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Depth",
         "description": "Controls the depth or intensity of the modulation applied to the repeats.",
@@ -16511,6 +17019,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Feedback",
         "description": "Controls how many times the 6-tap delay sequence repeats. When set to 0%, the sequence is heard only once; at 100%, the sequence cycles forever.",
@@ -16712,6 +17230,28 @@
     "based_on": "Musitronics Mu-Tron III",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Drive",
         "description": "Selects whether the filter's cutoff frequency shifts Up or Down in response to the input signal.",
         "default": "Up",
@@ -16780,6 +17320,28 @@
     "based_on": "Korg A3",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Attack",
         "description": "Controls how long it takes for the filter to sweep down (the Attack stage) before sweeping back up (the Release stage). Lower values result in a longer downward filter sweep. Is somewhat interactive with the Sensitivity parameter.",
         "min": 0,
@@ -16844,6 +17406,28 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Decay",
         "description": "Controls the length of time it takes for the open noise gate to close once the signal drops below the Threshold. Increase Decay if you want the gate to gradually lower the signal instead of chopping it off abruptly.",
         "min": 10,
@@ -16875,6 +17459,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Decay",
         "description": "Sets the decay of the reverb (1.0 ms ~ 2.000 sec). TIP: When set to note values, playing a note/chord 4 beats (Decay set to 1/1) or 2 beats (Decay set to 1/2) before a song transition can cause the reverb to stop right on the downbeat.",
@@ -17596,6 +18190,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Feedback",
         "description": "Controls the number of delay repeats. When set to 0%, only one repeat is heard; at 100%, the delay repeats forever.",
         "min": 0,
@@ -17667,6 +18271,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Cents",
         "description": "Sets the fine pitch shift of the initial repeat and if Feedback is sufficient, the shifting of each subsequent repeat.",
@@ -17964,6 +18578,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Cents 1",
         "description": "Adjusts the first pitch-shifter in cents, from -50 to +50",
@@ -18788,6 +19412,28 @@
     "based_on": "MXR Dyna Comp",
     "params": [
       {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
+      {
         "name": "Level",
         "description": "Sets the overall level of the block.",
         "min": -60,
@@ -18926,6 +19572,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Depth",
         "description": "Controls the depth or intensity of the modulation applied to the repeats.",
         "min": 0,
@@ -19007,6 +19663,28 @@
     "is_agoura": false,
     "based_on": "Ashly CLX-52 (in conjunction w/ B. Sheehan)",
     "params": [
+      {
+        "name": "Sidechain",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "Instrument 1",
+          "Instrument 2",
+          "Mic",
+          "Return 1",
+          "Return 2",
+          "Return 3",
+          "Return 4",
+          "USB 3",
+          "USB 4",
+          "USB 5",
+          "USB 6",
+          "USB 7",
+          "USB 8"
+        ]
+      },
       {
         "name": "Attack",
         "description": "Controls how quickly compression is applied once the signal exceeds the Threshold. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.",
@@ -19144,6 +19822,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Decay",
         "description": "Adjusts the decay time of the reverb effect.",
         "min": 0,
@@ -19223,6 +19911,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Pitch Blend",
         "description": "Controls how much of Pitch 1 is heard vs. Pitch 2 (set to \"Even\" by default).",
@@ -19491,6 +20189,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Feedback",
         "description": "Controls the number of delay repeats. When set to 0%, only one repeat is heard; at 100%, the delay repeats forever.",
         "min": 0,
@@ -19749,6 +20457,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Feedback",
         "description": "Feedback controls the number of delay repeats. When set to 0%, only one repeat is heard. At high values, the delay taps may begin to self-oscillate and squeal (perhaps in a good way).",
@@ -20403,6 +21121,16 @@
     "is_agoura": false,
     "based_on": "Maestro Echoplex EP-3",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Feedback",
         "description": "Controls the number of delay repeats. When set to 0%, only one repeat is heard. At high values, the Delay may begin to self-oscillate and squeal (perhaps in a good way).",
@@ -22545,6 +23273,16 @@
     "based_on": "Line 6 Original",
     "params": [
       {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
+      {
         "name": "Bit Depth",
         "description": "Lowers the bit depth of the repeats for a grungier sound. For more transparent results, set to 24 bits.",
         "default": "12",
@@ -22638,6 +23376,16 @@
     "is_agoura": false,
     "based_on": "Line 6 Original",
     "params": [
+      {
+        "name": "Trails",
+        "description": "",
+        "harness": true,
+        "default": "Off",
+        "options": [
+          "Off",
+          "On"
+        ]
+      },
       {
         "name": "Attack",
         "description": "Sets the ramp time for the volume swell applied to the dry signal, and therefore, any delay repeats.",

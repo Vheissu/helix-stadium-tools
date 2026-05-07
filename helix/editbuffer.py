@@ -147,6 +147,19 @@ def extract_flow_clipboard(state, flow_index: int, positions=None):
             if not isinstance(value, (bool, int, float)):
                 continue
             params.append({"param_id": param_id, "value": value})
+        harness_params = []
+        harness = block.get("hrns")
+        if isinstance(harness, dict):
+            for param in harness.get("parm", []):
+                if not isinstance(param, dict):
+                    continue
+                param_id = param.get("pid_")
+                if not isinstance(param_id, int):
+                    continue
+                value = param.get("valu")
+                if not isinstance(value, (bool, int, float)):
+                    continue
+                harness_params.append({"param_id": param_id, "value": value})
         entries.append(
             {
                 "position": int(pos),
@@ -154,6 +167,7 @@ def extract_flow_clipboard(state, flow_index: int, positions=None):
                 "model_id": model_id,
                 "enabled": bool(block.get("enbl", True)),
                 "params": params,
+                "harness_params": harness_params,
                 **(
                     {
                         "link_flow": int(block.get("bflw")),

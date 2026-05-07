@@ -23,6 +23,7 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     TYPE_LABELS,
     build_detailed_param_list,
     get_param_meta_for_model,
+    index_modeldefs_by_id,
     is_legacy,
     load_based_on_db,
     load_based_on_overrides,
@@ -31,6 +32,7 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     load_param_meta,
     load_uidefs,
     resolve_based_on,
+    resolve_harness_model_info,
 )
 
 DEFAULT_OUT_DIR = ROOT / "generated" / "helix-gpt-knowledge"
@@ -429,6 +431,7 @@ def build_model_entry(
     model_info,
     uidef,
     controls,
+    modeldefs_by_id,
     param_meta_all,
     param_meta_by_symbol,
     based_on_overrides,
@@ -441,7 +444,8 @@ def build_model_entry(
     based_on = resolve_based_on(name, model_id, based_on_overrides, based_on_by_id, based_on_by_name)
     meta_category = "cab" if category == "cab_ir_interp" else category
     param_meta = get_param_meta_for_model(param_meta_all, param_meta_by_symbol, model_key, meta_category, name)
-    params = build_detailed_param_list(model_key, model_info, uidef, param_meta, controls)
+    harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
+    params = build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
     return {
         "key": model_key,
         "id": model_id,
@@ -458,6 +462,7 @@ def build_model_entry(
 
 def load_models_for_docs(args):
     modeldefs = load_modeldefs(args.modeldefs)
+    modeldefs_by_id = index_modeldefs_by_id(modeldefs)
     uidefs = load_uidefs(args.uidefs)
     controls = load_controls(args.controls)
     param_meta_all, param_meta_by_symbol = load_param_meta(args.param_meta)
@@ -483,6 +488,7 @@ def load_models_for_docs(args):
                 model_info,
                 uidef,
                 controls,
+                modeldefs_by_id,
                 param_meta_all,
                 param_meta_by_symbol,
                 based_on_overrides,

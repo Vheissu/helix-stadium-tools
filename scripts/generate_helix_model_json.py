@@ -133,6 +133,51 @@ def augment_modeldefs_with_synthetic_entries(modeldefs):
     return modeldefs
 
 
+def index_modeldefs_by_id(modeldefs):
+    by_id = {}
+    if not isinstance(modeldefs, dict):
+        return by_id
+    for info in modeldefs.values():
+        if not isinstance(info, dict):
+            continue
+        model_id = info.get("id")
+        if isinstance(model_id, int):
+            by_id[model_id] = info
+    return by_id
+
+
+def resolve_harness_model_info(model_info, modeldefs_by_id):
+    if not isinstance(model_info, dict):
+        return None
+    harness_id = model_info.get("harness")
+    if not isinstance(harness_id, int):
+        return None
+    harness_info = modeldefs_by_id.get(harness_id)
+    if not isinstance(harness_info, dict):
+        return None
+    return harness_info
+
+
+def mono_uidef_key_for(model_key: str):
+    if not isinstance(model_key, str):
+        return None
+    if "Stereo" in model_key:
+        return model_key.replace("Stereo", "Mono")
+    return None
+
+
+def resolve_uidef_for_model(model_key: str, uidefs):
+    uidef = uidefs.get(model_key)
+    if isinstance(uidef, dict):
+        return uidef
+    mono_key = mono_uidef_key_for(model_key)
+    if mono_key:
+        mono_uidef = uidefs.get(mono_key)
+        if isinstance(mono_uidef, dict):
+            return mono_uidef
+    return None
+
+
 def param_meta_has_content(params) -> bool:
     if not isinstance(params, dict):
         return False
@@ -465,10 +510,67 @@ def resolve_options(display_tag, control, param_type: str):
     return None
 
 
-def build_detailed_param_list(model_key, model_info, uidef, param_meta, controls):
+def build_harness_param_entry(item, info, param_meta, controls, detailed: bool):
+    param_key = item.get("id")
+    param_type = str(info.get("type") or "f")
+    display_tag = item.get("display_tag")
+    control_key = display_tag if isinstance(display_tag, str) else None
+    control = controls.get(control_key) if control_key else None
+    raw_min = info.get("min")
+    raw_max = info.get("max")
+    raw_default = info.get("def")
+    display_min, display_max = compute_display_range(raw_min, raw_max, control_key, controls)
+    display_default = compute_display_value(raw_default, control_key, controls)
+    options = resolve_options(display_tag, control, param_type)
+    desc_key = item.get("desc_key") or param_key
+    desc = find_description(param_meta, [desc_key, param_key, item.get("name")])
+    name = item.get("name") or param_key
+    if detailed:
+        return {
+            "id": info.get("id"),
+            "key": param_key,
+            "name": name,
+            "type": param_type,
+            "min": clean_number(raw_min),
+            "max": clean_number(raw_max),
+            "def": clean_number(raw_default),
+            "display_min": clean_number(display_min if display_min is not None else raw_min),
+            "display_max": clean_number(display_max if display_max is not None else raw_max),
+            "display_def": clean_number(display_default if display_default is not None else raw_default),
+            "unit": infer_unit(control_key, controls),
+            "options": options,
+            "description": desc or "",
+            "harness": True,
+        }
+
+    entry = {
+        "name": name,
+        "description": desc or "",
+        "harness": True,
+    }
+    if options:
+        idx = None
+        if isinstance(raw_default, (int, float)):
+            if isinstance(raw_min, (int, float)):
+                idx = int(round(raw_default - raw_min))
+            else:
+                idx = int(round(raw_default))
+        if idx is not None and 0 <= idx < len(options):
+            entry["default"] = options[idx]
+        entry["options"] = options
+    else:
+        entry["min"] = clean_number(display_min if display_min is not None else raw_min)
+        entry["max"] = clean_number(display_max if display_max is not None else raw_max)
+        entry["default"] = clean_number(display_default if display_default is not None else raw_default)
+        entry["unit"] = infer_unit(control_key, controls)
+    return entry
+
+
+def build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info=None):
     del model_key  # kept for call-site symmetry with other generators
     params = []
     model_params = model_info.get("params") or {}
+    harness_params = harness_model_info.get("params") if isinstance(harness_model_info, dict) else {}
     if not isinstance(model_params, dict):
         return params
     if not isinstance(uidef, dict):
@@ -480,6 +582,11 @@ def build_detailed_param_list(model_key, model_info, uidef, param_meta, controls
         if not param_key:
             continue
         info = model_params.get(param_key)
+        if not isinstance(info, dict) and item.get("harness") and isinstance(harness_params, dict):
+            info = harness_params.get(param_key)
+            if isinstance(info, dict):
+                params.append(build_harness_param_entry(item, info, param_meta, controls, detailed=True))
+            continue
         if not isinstance(info, dict):
             continue
         param_type = str(info.get("type") or "f")
@@ -514,9 +621,10 @@ def build_detailed_param_list(model_key, model_info, uidef, param_meta, controls
     return params
 
 
-def build_param_list(model_key, model_info, uidef, param_meta, controls):
+def build_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info=None):
     params = []
     model_params = model_info.get("params") or {}
+    harness_params = harness_model_info.get("params") if isinstance(harness_model_info, dict) else {}
     ui_params = {}
     ui_param_keys = set()
     if isinstance(uidef, dict):
@@ -531,6 +639,10 @@ def build_param_list(model_key, model_info, uidef, param_meta, controls):
                 }
                 if p.get("desc_key"):
                     ui_param_keys.add(p.get("desc_key"))
+            if pid and p.get("harness") and isinstance(harness_params, dict):
+                info = harness_params.get(pid)
+                if isinstance(info, dict):
+                    params.append(build_harness_param_entry(p, info, param_meta, controls, detailed=False))
     for pkey, pinfo in model_params.items():
         if not isinstance(pinfo, dict):
             continue
@@ -598,6 +710,7 @@ def main():
     args = ap.parse_args()
 
     modeldefs = load_modeldefs(args.modeldefs)
+    modeldefs_by_id = index_modeldefs_by_id(modeldefs)
     uidefs = load_uidefs(args.uidefs)
     controls = load_controls(args.controls)
     param_meta_all, param_meta_by_symbol = load_param_meta(args.param_meta)
@@ -635,7 +748,8 @@ def main():
             else:
                 continue
             param_meta = get_param_meta_for_model(param_meta_all, param_meta_by_symbol, model_key, category, name)
-            params = build_param_list(model_key, model_info, uidef, param_meta, controls)
+            harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
+            params = build_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
             group.append({
                 "name": name,
                 "type": TYPE_LABELS.get(category, category.title()),
@@ -654,7 +768,8 @@ def main():
                 group = guitar_cabs
             meta_category = "cab" if category == "cab_ir_interp" else category
             param_meta = get_param_meta_for_model(param_meta_all, param_meta_by_symbol, model_key, meta_category, name)
-            params = build_param_list(model_key, model_info, uidef, param_meta, controls)
+            harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
+            params = build_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
             group.append({
                 "name": name,
                 "type": TYPE_LABELS.get(category, category.title()),
@@ -666,7 +781,8 @@ def main():
 
         if category in EFFECT_CATEGORIES:
             param_meta = get_param_meta_for_model(param_meta_all, param_meta_by_symbol, model_key, category, name)
-            params = build_param_list(model_key, model_info, uidef, param_meta, controls)
+            harness_model_info = resolve_harness_model_info(model_info, modeldefs_by_id)
+            params = build_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
             effects.append({
                 "name": name,
                 "type": TYPE_LABELS.get(category, category.title()),

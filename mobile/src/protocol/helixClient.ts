@@ -373,6 +373,78 @@ export class HelixClient {
     return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiifi', [path, block, slot, paramId, numericVal, flags], timeoutMs);
   }
 
+  setHarnessParamValue(
+    path: number,
+    block: number,
+    paramId: number,
+    value: number | boolean,
+    flags = -1,
+    valueType: 'i' | 'f' | 'b' = 'f'
+  ) {
+    const cmdId = this.nextCmdId();
+    if (valueType === 'b') {
+      this.sendOsc('/HarnessParamValueSet', 'iiiiii', [
+        cmdId,
+        path,
+        block,
+        paramId,
+        value ? 1 : 0,
+        flags,
+      ]);
+      return;
+    }
+    const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
+    if (valueType === 'i') {
+      this.sendOsc('/HarnessParamValueSet', 'iiiiii', [
+        cmdId,
+        path,
+        block,
+        paramId,
+        Math.round(numericVal),
+        flags,
+      ]);
+      return;
+    }
+    this.sendOsc('/HarnessParamValueSet', 'iiiifi', [cmdId, path, block, paramId, numericVal, flags]);
+  }
+
+  async setHarnessParamValueWait(
+    path: number,
+    block: number,
+    paramId: number,
+    value: number | boolean,
+    flags = -1,
+    valueType: 'i' | 'f' | 'b' = 'f',
+    timeoutMs = 2500
+  ) {
+    if (valueType === 'b') {
+      return await this.sendAndWaitStatusCode('/HarnessParamValueSet', 'iiiii', [
+        path,
+        block,
+        paramId,
+        value ? 1 : 0,
+        flags,
+      ], timeoutMs);
+    }
+    const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
+    if (valueType === 'i') {
+      return await this.sendAndWaitStatusCode('/HarnessParamValueSet', 'iiiii', [
+        path,
+        block,
+        paramId,
+        Math.round(numericVal),
+        flags,
+      ], timeoutMs);
+    }
+    return await this.sendAndWaitStatusCode('/HarnessParamValueSet', 'iiifi', [
+      path,
+      block,
+      paramId,
+      numericVal,
+      flags,
+    ], timeoutMs);
+  }
+
   doAgenda(commands: Array<any>) {
     const cmdId = this.nextCmdId();
     const blob = Buffer.from(encodeMsgpack(commands));

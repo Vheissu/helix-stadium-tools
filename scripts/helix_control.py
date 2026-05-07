@@ -824,6 +824,7 @@ def main():
     block_param.add_argument("--value", required=True, help="Value to set (number or boolean)")
     block_param.add_argument("--slot", type=int, default=0, help="Model slot for dual-model blocks")
     block_param.add_argument("--flags", type=int, default=-1)
+    block_param.add_argument("--harness", action="store_true", help="Set a block harness parameter")
     block_param.add_argument("--modeldefs", default=DEFAULT_MODELDEFS, help="Path to modeldefs .bin")
 
     clear_all = sub.add_parser("clear-all-blocks")
@@ -1080,20 +1081,36 @@ def main():
             if param_id is None:
                 if not args.param:
                     raise SystemExit("block-param requires --param-id or --param")
-                model_id = extract_active_model_id(blk)
-                if model_id is None:
-                    raise SystemExit("unable to resolve block model id for param lookup")
+                if args.harness:
+                    harness = blk.get("hrns") if isinstance(blk, dict) else None
+                    model_id = harness.get("id__") if isinstance(harness, dict) else None
+                    if model_id is None:
+                        raise SystemExit("unable to resolve block harness model id for param lookup")
+                else:
+                    model_id = extract_active_model_id(blk)
+                    if model_id is None:
+                        raise SystemExit("unable to resolve block model id for param lookup")
                 param_id = resolve_named_param_id(args.modeldefs, int(model_id), str(args.param))
             value = parse_param_value(args.value)
-            session.set_param_value(
-                row // 2,
-                int(block_id),
-                int(param_id),
-                value,
-                args.slot,
-                args.flags,
-                wait_status=True,
-            )
+            if args.harness:
+                session.set_harness_param_value(
+                    row // 2,
+                    int(block_id),
+                    int(param_id),
+                    value,
+                    args.flags,
+                    wait_status=True,
+                )
+            else:
+                session.set_param_value(
+                    row // 2,
+                    int(block_id),
+                    int(param_id),
+                    value,
+                    args.slot,
+                    args.flags,
+                    wait_status=True,
+                )
         elif args.cmd == "clear-all-blocks":
             session.clear_all_blocks(args.path, wait_status=True)
         elif args.cmd == "clear-all":

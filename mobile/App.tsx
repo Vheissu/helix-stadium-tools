@@ -64,6 +64,7 @@ type EditorParam = {
   options?: string[] | null;
   description?: string;
   faux?: boolean;
+  harness?: boolean;
   property_key?: string | null;
 };
 
@@ -83,6 +84,7 @@ type BlockModelGroup = {
 };
 
 type BlockCatalog = Record<string, BlockModelGroup>;
+type BlockTypeKey = keyof typeof blockTypes;
 
 type IOModelParam = EditorParam;
 
@@ -167,6 +169,8 @@ const TUNER_REMOTE_META = 'Note and needle stay on the Helix display';
 const TUNER_REMOTE_NOTE = 'Note and needle stay on the Helix display';
 
 const blockCatalog = blockTypes as BlockCatalog;
+const isBlockTypeKey = (kind: string): kind is BlockTypeKey =>
+  Object.prototype.hasOwnProperty.call(blockCatalog, kind);
 
 type ControlStyle = 'sliders' | 'knobs';
 const CONTROL_STYLE_KEY = 'helix.controlStyle';
@@ -192,7 +196,7 @@ export default function App() {
   const scheduledSyncOptionsRef = useRef<{ full: boolean; silent: boolean }>({ full: true, silent: false });
   // Tracks param values edited locally within the last ~1.5s so a sync that
   // races the device acknowledgement does not snap UI back to the stale
-  // server-side value. Keyed by `path:blockId:paramId`.
+  // device-side value. Keyed by `path|blockId|paramKey`.
   const recentParamEditsRef = useRef<Map<string, { value: number | boolean; ts: number }>>(new Map());
   // Suspend incoming flow syncs while the user is actively dragging a knob.
   const knobDraggingRef = useRef(false);
@@ -239,7 +243,7 @@ export default function App() {
   const [selectedSlot, setSelectedSlot] = useState<BlockSlot | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerStep, setPickerStep] = useState<'type' | 'model'>('type');
-  const [pickerType, setPickerType] = useState<null | keyof typeof blockTypes>(null);
+  const [pickerType, setPickerType] = useState<null | BlockTypeKey>(null);
   const [pickerQuery, setPickerQuery] = useState('');
   const [targetSlot, setTargetSlot] = useState({ path: 0, block: 0 });
   const [slotMenuOpen, setSlotMenuOpen] = useState(false);
@@ -362,6 +366,10 @@ export default function App() {
   };
 
   const effectBlockIndex = (row: PathIndex, slot: number) => (row % 2 === 0 ? slot + 1 : slot + 15);
+  const paramStateKey = (param: EditorParam) => {
+    const key = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+    return param.harness && param.id !== null ? `h:${param.id}` : key;
+  };
   const cloneGrid = (prev: SignalFlowGrid): SignalFlowGrid =>
     prev.map((row) =>
       row.map((cell) =>
@@ -375,7 +383,7 @@ export default function App() {
     );
   const buildParamDefaults = (params: EditorParam[]) =>
     params.reduce<Record<string, number | boolean>>((acc, param) => {
-      const key = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+      const key = paramStateKey(param);
       if (!key || param.def === undefined) return acc;
       acc[key] = param.def;
       return acc;
@@ -397,7 +405,7 @@ export default function App() {
     }
     return next;
   };
-  const blockTypeOrder: Array<keyof typeof blockTypes> = [
+  const blockTypeOrder: BlockTypeKey[] = [
     'amp',
     'preamp',
     'cab',
@@ -460,10 +468,11 @@ export default function App() {
   };
   const decorateDisplayBlocks = (row: Array<BlockData | null>) =>
     row.map((block) => (block ? { ...block, name: getBlockDisplayName(block) } : null));
+  const targetBlock = grid[targetSlot.path]?.[targetSlot.block] ?? null;
   const availableUsage = useMemo(() => {
     const remaining = targetSlot.path < 2 ? dspLimit - pathUsage.path1 : dspLimit - pathUsage.path2;
-    return Math.max(0, remaining);
-  }, [dspLimit, pathUsage, targetSlot.path]);
+    return Math.max(0, remaining + (targetBlock?.usage ?? 0));
+  }, [dspLimit, pathUsage, targetBlock?.usage, targetSlot.path]);
   const activeSetlist = useMemo(
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
@@ -1586,11 +1595,25 @@ export default function App() {
   };
 
   const replaceSlotModel = (slot: BlockSlot) => {
+    const existingBlock = grid[slot.path]?.[slot.block] ?? null;
     setSlotMenuOpen(false);
-    selectSlot(slot);
+    if (!existingBlock) {
+      selectSlot(slot);
+      return;
+    }
+    const typeKey = isBlockTypeKey(existingBlock.kind) ? existingBlock.kind : null;
+    setSelectedSlot(slot);
+    setTargetSlot({ path: slot.path, block: slot.block });
+    setBlockEditorOpen(false);
+    setBlockEditorSlot(null);
+    setScreen('main');
+    setPickerStep(typeKey ? 'model' : 'type');
+    setPickerType(typeKey);
+    setPickerQuery('');
+    setPickerOpen(true);
   };
 
-  const selectBlockType = (typeKey: keyof typeof blockTypes) => {
+  const selectBlockType = (typeKey: BlockTypeKey) => {
     setPickerType(typeKey);
     setPickerStep('model');
     setPickerQuery('');
@@ -1729,12 +1752,18 @@ export default function App() {
           await client.setBlockEnableWait(flow, pos, newBlock.enabled);
         }
         if (newBlock.params) {
+          const meta = modelLookup.get(newBlock.id);
           for (const [key, value] of Object.entries(newBlock.params)) {
-            const paramId = parseInt(key, 10);
+            const paramMeta = meta?.params.find((param) => paramStateKey(param) === key);
+            const paramId = paramMeta?.id ?? parseInt(key.replace(/^h:/, ''), 10);
             if (isNaN(paramId)) continue;
             const vt: 'i' | 'f' | 'b' =
-              typeof value === 'boolean' ? 'b' : Number.isInteger(value as number) ? 'i' : 'f';
-            await client.setParamValueWait(flow, pos, paramId, value, 0, -1, vt);
+              paramMeta?.type ?? (typeof value === 'boolean' ? 'b' : Number.isInteger(value as number) ? 'i' : 'f');
+            if (paramMeta?.harness || key.startsWith('h:')) {
+              await client.setHarnessParamValueWait(flow, pos, paramId, value, -1, vt);
+            } else {
+              await client.setParamValueWait(flow, pos, paramId, value, 0, -1, vt);
+            }
           }
         }
       }
@@ -1762,7 +1791,7 @@ export default function App() {
     const nextParams: Record<string, number | boolean> = {};
     model.params.forEach((param) => {
       if (typeof param.def === 'number' || typeof param.def === 'boolean') {
-        const key = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+        const key = paramStateKey(param);
         nextParams[key] = param.def;
       }
     });
@@ -1793,7 +1822,7 @@ export default function App() {
     const blockId = ioBlockIndex(row, ioPickerType);
     const nextValue = clampParamValue(param, value);
     if (nextValue === null) return;
-    const paramKey = param.id !== null ? String(param.id) : param.property_key ?? param.key;
+    const paramKey = paramStateKey(param);
     setIoGrid((prev) => {
       const next = prev.map((item) => ({
         input: item.input ? { ...item.input } : null,
@@ -1835,26 +1864,39 @@ export default function App() {
     const nextValue = clampParamValue(param, value);
     if (nextValue === null || activeBlock.blockId === undefined) return;
     const row = blockEditorSlot.path;
+    const paramKey = paramStateKey(param);
     setGrid((prev) => {
       const next = cloneGrid(prev);
       const block = next[row]?.[blockEditorSlot.block];
       if (block) {
         block.params = {
           ...(block.params ?? {}),
-          [String(param.id)]: nextValue,
+          [paramKey]: nextValue,
         };
       }
       return next;
     });
     // Remember this edit so an in-flight sync can't undo it before the device
-    // has acknowledged. Keyed by (row, blockId, paramId) — blockId may stay
+    // has acknowledged. Keyed by (row, blockId, param key) — blockId may stay
     // stable across syncs even when slot positions shift.
     recentParamEditsRef.current.set(
-      `${row}:${activeBlock.blockId}:${param.id}`,
+      `${row}|${activeBlock.blockId}|${paramKey}`,
       { value: nextValue, ts: Date.now() }
     );
     try {
-      client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+      if (param.harness) {
+        client
+          .setHarnessParamValueWait(rowToFlow(row), activeBlock.blockId, param.id, nextValue, -1, param.type)
+          .then(() => scheduleSync(250))
+          .catch((err) => {
+            const message = err instanceof Error ? err.message : String(err);
+            setStatus(`Update failed: ${message}`);
+            scheduleSync(150);
+          });
+        return;
+      } else {
+        client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Update failed: ${message}`);
@@ -2053,13 +2095,16 @@ export default function App() {
           const model = Array.isArray(blk.mdls) ? blk.mdls[0] : null;
           const mid = model?.id__ ?? blk.mid ?? blk.mdid ?? blk.midx ?? blk.model ?? blk.mid_;
           const params: Record<string, number | boolean> = {};
-          if (model && Array.isArray(model.parm)) {
-            model.parm.forEach((param: any) => {
+          const collectParams = (source: any, keyPrefix = '') => {
+            if (!source || !Array.isArray(source.parm)) return;
+            source.parm.forEach((param: any) => {
               const pid = param?.pid_;
               if (typeof pid !== 'number') return;
-              params[String(pid)] = param?.valu ?? 0;
+              params[`${keyPrefix}${pid}`] = param?.valu ?? 0;
             });
-          }
+          };
+          collectParams(model);
+          collectParams(blk.hrns, 'h:');
           const enabled = coerceHelixBoolean(blk?.enbl, true);
 
           if (pos === 0) {
@@ -2126,7 +2171,7 @@ export default function App() {
             editsMap.delete(key);
             continue;
           }
-          const [rowStr, blockIdStr, paramIdStr] = key.split(':');
+          const [rowStr, blockIdStr, paramKey] = key.split('|');
           const rowIdx = Number(rowStr);
           const blockId = Number(blockIdStr);
           if (!Number.isFinite(rowIdx) || !Number.isFinite(blockId)) continue;
@@ -2134,7 +2179,7 @@ export default function App() {
           if (!row) continue;
           for (const block of row) {
             if (block && block.blockId === blockId) {
-              block.params = { ...(block.params ?? {}), [paramIdStr]: entry.value };
+              block.params = { ...(block.params ?? {}), [paramKey]: entry.value };
               break;
             }
           }
@@ -3563,8 +3608,7 @@ export default function App() {
         {mainParams.length > 0 && (
           <View style={useSliders ? styles.sliderStack : styles.knobGrid}>
             {mainParams.map(({ param, index: paramIndex }) => {
-              const paramKey =
-                param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
+              const paramKey = paramStateKey(param) ?? param.name ?? 'param';
               const rowKey = `${paramKey}-${paramIndex}`;
               const current = values?.[paramKey] ?? param.def ?? 0;
               const helpAdornment = renderHelpButton(param, useSliders ? COLORS.muted : accent);
@@ -3614,8 +3658,7 @@ export default function App() {
         {toggleParams.length > 0 && (
           <View style={styles.toggleSection}>
             {toggleParams.map(({ param, index: paramIndex }) => {
-              const paramKey =
-                param.id !== null ? String(param.id) : param.property_key ?? param.key ?? param.name ?? 'param';
+              const paramKey = paramStateKey(param) ?? param.name ?? 'param';
               const rowKey = `${paramKey}-${paramIndex}`;
               const current = values?.[paramKey] ?? param.def ?? 0;
               const options = param.options ?? null;
@@ -4529,7 +4572,7 @@ export default function App() {
         <BottomSheet
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
-          title={pickerStep === 'type' ? 'Add Block' : blockCatalog[pickerType ?? 'amp']?.label}
+          title={pickerStep === 'type' ? (targetBlock ? 'Replace Block' : 'Add Block') : blockCatalog[pickerType ?? 'amp']?.label}
           subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${dspLimit}`}
         >
           {pickerStep === 'type' ? (

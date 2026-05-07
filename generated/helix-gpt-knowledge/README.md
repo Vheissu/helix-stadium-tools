@@ -1,6 +1,6 @@
 # Helix Stadium custom GPT knowledge
 
-Generated on 2026-04-19T22:24:30.490746+00:00 by `python3 scripts/generate_helix_gpt_knowledge.py`.
+Generated on 2026-05-07T22:33:14.224003+00:00 by `python3 scripts/generate_helix_gpt_knowledge.py`.
 
 Folder layout:
 

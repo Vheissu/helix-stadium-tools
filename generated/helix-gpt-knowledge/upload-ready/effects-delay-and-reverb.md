@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for delay and reverb blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Tape
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -40,6 +40,7 @@ Model count: 76
 - `Low Cut` (`key: LowCut`, `id: 15`, `type: f`): display range `19.9` to `1000` Off; default `40`. Raw range `19.9` to `1000`; raw default `40`. Applies a low cut (high pass) filter to the decks, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 16`, `type: f`): display range `500` to `20100` Hz; default `12000`. Raw range `500` to `20100`; raw default `12000`. Applies a high cut (low pass) filter to the decks, letting you remove the effected signal above a certain frequency.
 - `Envelope Thresh` (`key: Threshold`, `id: 17`, `type: f`): display range `0` to `10` unitless; default `0`. Raw range `0` to `1`; raw default `0`. Sets the level above which engages the envelope. When on, picking harder can impart very slight pitch fluctuations by tweaking Deck 2's delay. Subtle, but fun.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -50,7 +51,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Analog
-- DSP usage: 3.8
+- DSP usage estimate: 3.8
 - Based on: BOSS DM-2 w/ Adrian Mod
 - Agoura model: No
 
@@ -65,6 +66,7 @@ Model count: 76
 - `Depth` (`key: Depth`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `2.2`. Raw range `0` to `1`; raw default `0.22`. Controls the depth or intensity of the pitch modulation applied to the repeats.
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Headroom` (`key: Headroom`, `id: 9`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some delay pedals' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -75,7 +77,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Analog
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -92,6 +94,7 @@ Model count: 76
 - `Headroom` (`key: Headroom`, `id: 9`, `type: f`): display range `-12` to `12` dB; default `0.5`. Raw range `-12` to `12`; raw default `0.5`. Some delay pedals' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
 - `Threshold` (`key: Threshold`, `id: 10`, `type: f`): display range `-96` to `0` dB; default `-60`. Raw range `-96` to `0`; raw default `-60`. Sets the level below which the volume swell resets.
 - `Attack` (`key: Attack`, `id: 11`, `type: f`): display range `100` to `5000` ms; default `1000`. Raw range `0.1` to `5`; raw default `1`. Sets the ramp time for the volume swell applied to the dry signal, and therefore, any delay repeats.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -102,7 +105,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Analog
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: BOSS DM-2
 - Agoura model: No
 
@@ -114,6 +117,7 @@ Model count: 76
 - `Mix` (`key: Mix`, `id: 4`, `type: f`): display range `0` to `100` %; default `50`. Raw range `0` to `1`; raw default `0.5`. Controls the blend between the delay repeats and the dry signal. At 0%, no repeats are heard; at 100%, no dry signal is heard. If Dry Thru is off, you'll still hear the tape delay's circuitry when Mix is set to 0%.
 - `Level` (`key: Level`, `id: 5`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Headroom` (`key: Headroom`, `id: 6`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some delay pedals' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -124,7 +128,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Tape
-- DSP usage: 6.3
+- DSP usage estimate: 6.3
 - Based on: Roland RE-201 Space Echo
 - Agoura model: No
 
@@ -143,6 +147,7 @@ Model count: 76
 - `FB Tone` (`key: FBTone`, `id: 11`, `type: f`): display range `0` to `10` unitless; default `3.8`. Raw range `0` to `1`; raw default `0.38`. Determines how the frequency bandwidth of the repeats changes over time, particularly when Feedback is set high. Lower values gradually roll off more of the highs, approximating the behavior of older tape. Higher values maintain more high end for more repeats, like new tape fresh out of the box.
 - `Splice` (`key: Splice`, `id: 12`, `type: f`): display range `0` to `10` unitless; default `0`. Raw range `0` to `1`; raw default `0`. Controls the level of the tape splice. Like the original unit, Cosmos Echo uses virtual tape with ends that are spliced together. When this spliced area of the tape travels over the heads, a slight warble can be heard. Time also affects how frequently the tape splice occurs.
 - `Dry Thru` (`key: DryThru`, `id: 13`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`. When off, the dry signal is routed through the tape delay's circuitry (even with Mix set to 0%), which can add a bit of warmth and grit. When on, the dry signal bypasses the delay's circuitry.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -153,7 +158,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 4.7
+- DSP usage estimate: 4.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -175,6 +180,7 @@ Model count: 76
 - `Sample Rate` (`key: SampleRate`, `id: 14`, `type: i`): valid values `8 kHz`, `11.025 kHz`, `12 kHz`, `16 kHz`, `22.05 kHz`, `24 kHz`, `44.1 kHz`, `48 kHz`; default `16 kHz`. Raw range `0` to `7`; raw default `3`. Lowers the sample rate of the delay repeats for a grungier, more vintage digital sound. For more transparent results, set to 48kHz.
 - `Low Cut` (`key: LowCut`, `id: 15`, `type: f`): display range `19.9` to `500` Off; default `19.9`. Raw range `19.9` to `500`; raw default `19.9`. Applies a low cut (high pass) filter to the repeats, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 16`, `type: f`): display range `500` to `20100` Hz; default `20100`. Raw range `500` to `20100`; raw default `20100`. Applies a high cut (low pass) filter to the repeats, letting you remove the effected signal above a certain frequency.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -185,7 +191,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 7.5
+- DSP usage estimate: 7.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -199,6 +205,7 @@ Model count: 76
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Low Cut` (`key: LowCut`, `id: 7`, `type: f`): display range `19.9` to `500` Off; default `169`. Raw range `19.9` to `500`; raw default `169`. Applies a low cut (or high pass) filter to the reverb, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 8`, `type: f`): display range `500` to `20100` Hz; default `6000`. Raw range `500` to `20100`; raw default `6000`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -209,7 +216,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -228,6 +235,7 @@ Model count: 76
 - `Speed` (`key: Speed`, `id: 11`, `type: f`): display range `0` to `10` unitless; default `0.5`. Raw range `0` to `1`; raw default `0.05`. Controls the speed or rate of the modulation. Does nothing if Mod Mode is set to "Off"
 - `Depth` (`key: Depth`, `id: 12`, `type: f`): display range `0` to `100` %; default `35`. Raw range `0` to `1`; raw default `0.35`. Controls the depth or intensity of the modulation. Does nothing if Mod Mode is set to "Off"
 - `Spread` (`key: Spread`, `id: 13`, `type: f`): display range `0` to `10` unitless; default `10`. Raw range `0` to `1`; raw default `1`. Controls the apparent stereo width of the modulation between the left and right channels. Does nothing if Mod Mode is set to "Off"
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -238,7 +246,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.0
+- DSP usage estimate: 2.0
 - Based on: TC Electronic 2290
 - Agoura model: No
 
@@ -255,6 +263,7 @@ Model count: 76
 - `Dyn Attack` (`key: DynAttack`, `id: 10`, `type: f`): display range `10` to `2000` ms; default `560`. Raw range `0.01` to `2`; raw default `0.56`. Sets the length of time it takes for ducking to occur (and therefore, repeats to decrease in volume) once you start playing.
 - `Dyn Release` (`key: DynRel`, `id: 11`, `type: f`): display range `10` to `5000` ms; default `510`. Raw range `0.01` to `5`; raw default `0.51`. Sets the length of time it takes for ducking to stop (and therefore, repeats to ramp up in volume) once you stop playing.
 - `Dynamic Type` (`key: DynType`, `id: 12`, `type: b`): valid values `Ducking`, `Gating`; default `Ducking`. Raw range `Off` to `On`; raw default `Off`. When set to "Ducking," repeats are only heard after you stop playing, which can help maintain note definition. "Gating," inverts the ducking behavior; that is, repeats are only heard while playing, and they're ducked after you stop playing.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -265,7 +274,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 5.9
+- DSP usage estimate: 5.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -280,6 +289,7 @@ Model count: 76
 - `Low Cut` (`key: LowCut`, `id: 7`, `type: f`): display range `19.9` to `1000` Off; default `100`. Raw range `19.9` to `1000`; raw default `100`. Applies a low cut (or high pass) filter to the reverb, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 8`, `type: f`): display range `1000` to `20100` Hz; default `10000`. Raw range `1000` to `20100`; raw default `10000`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency
 - `Level` (`key: Level`, `id: 9`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -290,7 +300,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 14.2
+- DSP usage estimate: 14.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -307,6 +317,7 @@ Model count: 76
 - `High Cut` (`key: HighCut`, `id: 9`, `type: f`): display range `1000` to `20100` Hz; default `10000`. Raw range `1000` to `20100`; raw default `10000`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
 - `Ducking` (`key: DuckingAmount`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `2`. Raw range `0` to `1`; raw default `0.2`. Ducking is applied to the reverb's feedback only, not the entire reverb. For example, if you set Decay high and strum one chord, you'll hear that chord sustain for a long time. While it's ringing out, hit another chord. Without ducking, both chords now sustain together. With Ducking set high, the first chord quickly fades out, and all you'll hear sustaining is the 2nd chord. This can help your bloom from turning into a sloppy mess.
 - `Level` (`key: Level`, `id: 11`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -317,7 +328,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 8.2
+- DSP usage estimate: 8.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -335,6 +346,7 @@ Model count: 76
 - `Low Cut` (`key: LowCut`, `id: 10`, `type: f`): display range `19.9` to `1000` Off; default `117`. Raw range `19.9` to `1000`; raw default `117`. Applies a low cut (or high pass) filter to the reverb, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 11`, `type: f`): display range `500` to `20100` Hz; default `6300`. Raw range `500` to `20100`; raw default `6300`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
 - `Level` (`key: Level`, `id: 12`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -345,7 +357,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Plate
-- DSP usage: 11.1
+- DSP usage estimate: 11.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -362,6 +374,7 @@ Model count: 76
 - `Low Cut` (`key: LowCut`, `id: 9`, `type: f`): display range `19.9` to `1000` Off; default `100`. Raw range `19.9` to `1000`; raw default `100`. Applies a low cut (or high pass) filter to the reverb, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 10`, `type: f`): display range `1000` to `20100` Hz; default `10000`. Raw range `1000` to `20100`; raw default `10000`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
 - `Level` (`key: Level`, `id: 11`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -372,7 +385,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -390,6 +403,7 @@ Model count: 76
 - `High Cut` (`key: HighCut`, `id: 10`, `type: f`): display range `1000` to `20100` Hz; default `10000`. Raw range `1000` to `20100`; raw default `10000`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
 - `Early Reflections` (`key: ERLevel`, `id: 11`, `type: f`): display range `0` to `2` unitless; default `0.8`. Raw range `0` to `2`; raw default `0.8`. Controls the amount of early reflective room sound.
 - `Level` (`key: Level`, `id: 12`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -400,7 +414,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Analog
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Electro-Harmonix Deluxe Memory Man
 - Agoura model: No
 
@@ -414,6 +428,7 @@ Model count: 76
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Noise` (`key: Noise`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `1`. Raw range `0` to `1`; raw default `0.1`. Adds subtle graininess to the repeats, which is inherent in many bucket brigade delays.
 - `Headroom` (`key: Headroom`, `id: 8`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some delay pedals' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -424,7 +439,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -439,6 +454,7 @@ Model count: 76
 - `Low Cut` (`key: LowCut`, `id: 7`, `type: f`): display range `19.9` to `500` Off; default `80`. Raw range `19.9` to `500`; raw default `80`. Applies a low cut (high pass) filter to the fills, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 8`, `type: f`): display range `500` to `20100` Hz; default `20000`. Raw range `500` to `20100`; raw default `20000`. Applies a high cut (low pass) filter to the fills, letting you remove the effected signal above a certain frequency.
 - `Level` (`key: Level`, `id: 9`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -449,7 +465,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 4.8
+- DSP usage estimate: 4.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -466,7 +482,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -478,6 +494,7 @@ Model count: 76
 - `Modulation` (`key: Modulation`, `id: 4`, `type: f`): display range `0` to `10` unitless; default `7`. Raw range `0` to `1`; raw default `0.7`. Controls the amount of modulation applied to the reverb.
 - `Mix` (`key: Mix`, `id: 5`, `type: f`): display range `0` to `100` %; default `35`. Raw range `0` to `1`; raw default `0.35`. Controls the blend between the reverb and the dry signal. At 0%, no reverb is heard; at 100%, no dry signal is heard.
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -488,7 +505,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Special FX
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -509,6 +526,7 @@ Model count: 76
 - `Low Cut` (`key: Low Cut`, `id: 13`, `type: f`): display range `19.9` to `500` Off; default `19.9`. Raw range `19.9` to `500`; raw default `19.9`. Applies a low cut (or high pass) filter to the slices, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: High Cut`, `id: 14`, `type: f`): display range `500` to `20100` Hz; default `20100`. Raw range `500` to `20100`; raw default `20100`. Applies a high cut (or low pass) filter to the slices, letting you remove the effected signal above a certain frequency.
 - `Level` (`key: Level`, `id: 15`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -519,7 +537,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -536,6 +554,7 @@ Model count: 76
 - `Depth` (`key: Depth`, `id: 9`, `type: f`): display range `0` to `10` unitless; default `3.8`. Raw range `0` to `1`; raw default `0.38`. Controls the depth of modulation applied to the reverb.
 - `Xover` (`key: Xover`, `id: 10`, `type: f`): display range `100` to `10000` Hz; default `866`. Raw range `100` to `10000`; raw default `866`. Determines the frequencies above which the second modulation is applied. Frequencies below this value are only affected by the first modulation.
 - `Mod Mix` (`key: Mod Mix`, `id: 11`, `type: f`): display range `0` to `10` unitless; default `3.5`. Raw range `0` to `1`; raw default `0.35`. Controls the blend of reverb with and without the second modulation.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -546,7 +565,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 9.9
+- DSP usage estimate: 9.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -563,7 +582,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.9
+- DSP usage estimate: 5.9
 - Based on: BOSS DM-2 w/Adrian mod
 - Agoura model: No
 
@@ -580,7 +599,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: BOSS DM-2
 - Agoura model: No
 
@@ -597,7 +616,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Roland RE-201 Space Echo
 - Agoura model: No
 
@@ -614,7 +633,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -631,7 +650,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 2.8
+- DSP usage estimate: 2.8
 - Based on: TC Electronic 2290
 - Agoura model: No
 
@@ -648,7 +667,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.7
+- DSP usage estimate: 5.7
 - Based on: Electro-Harmonix Deluxe Memory Man
 - Agoura model: No
 
@@ -665,7 +684,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -682,7 +701,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 3.9
+- DSP usage estimate: 3.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -699,7 +718,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -716,7 +735,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -733,7 +752,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -750,7 +769,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -767,7 +786,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -784,7 +803,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -801,7 +820,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -818,7 +837,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Maestro Echoplex EP-3
 - Agoura model: No
 
@@ -835,7 +854,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 4.7
+- DSP usage estimate: 4.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -852,7 +871,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 7.7
+- DSP usage estimate: 7.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -869,7 +888,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 5.2
+- DSP usage estimate: 5.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -886,7 +905,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 6.3
+- DSP usage estimate: 6.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -903,7 +922,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 7.6
+- DSP usage estimate: 7.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -920,7 +939,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 9.7
+- DSP usage estimate: 9.7
 - Based on: Unknown
 - Agoura model: No
 
@@ -937,7 +956,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -954,7 +973,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 7.0
+- DSP usage estimate: 7.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -971,7 +990,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -995,6 +1014,7 @@ Model count: 76
 - `Root Pan` (`key: PanRootVoice`, `id: 16`, `type: f`): display range `-100` to `100` Left; default `0.5`. Raw range `0` to `1`; raw default `0.5`. Controls the panning of the root (unhitched) repeats between the left and right channels.
 - `Low Cut` (`key: LowCut`, `id: 17`, `type: f`): display range `19.9` to `500` Off; default `19.9`. Raw range `19.9` to `500`; raw default `19.9`. Applies a low cut (high pass) filter to the repeats, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 18`, `type: f`): display range `500` to `20100` Hz; default `20100`. Raw range `500` to `20100`; raw default `20100`. Applies a high cut (low pass) filter to the repeats, letting you remove the effected signal above a certain frequency.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1005,7 +1025,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Special FX
-- DSP usage: 4.9
+- DSP usage estimate: 4.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1020,6 +1040,7 @@ Model count: 76
 - `Reverb Mix` (`key: VerbMix`, `id: 7`, `type: f`): display range `0` to `100` %; default `50`. Raw range `0` to `1`; raw default `0.5`. Controls the blend between the reverb and the dry signal inside the delay's feedback loop. At 0%, no reverb is heard.
 - `Reverb Decay` (`key: VerbDecay`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Controls the decay of the reverb inside the delay's feedback loop.
 - `Headroom` (`key: Headroom`, `id: 9`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some delay pedals' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1030,7 +1051,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spring
-- DSP usage: 7.6
+- DSP usage estimate: 7.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1043,6 +1064,7 @@ Model count: 76
 - `High Cut` (`key: HighCut`, `id: 5`, `type: f`): display range `500` to `20100` Hz; default `5000`. Raw range `500` to `20100`; raw default `5000`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
 - `Mix` (`key: Mix`, `id: 6`, `type: f`): display range `0` to `100` %; default `37`. Raw range `0` to `1`; raw default `0.37`. Controls the blend between the reverb and the dry signal. At 0%, no reverb is heard; at 100%, no dry signal is heard.
 - `Level` (`key: Level`, `id: 7`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1053,7 +1075,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Analog
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1068,6 +1090,7 @@ Model count: 76
 - `Mod Mode` (`key: ModulationMode`, `id: 9`, `type: i`): valid values `Off`, `Chorus`, `Vibrato`; default `Chorus`. Raw range `0` to `2`; raw default `1`. Selects the type of modulation applied to the repeats--None (Off), Chorus, or Vibrato.
 - `Speed` (`key: Speed`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `0.22`. Raw range `0` to `1`; raw default `0.022`. Controls the speed or rate of the modulation applied to the repeats.
 - `Depth` (`key: Depth`, `id: 8`, `type: f`): display range `0` to `100` %; default `49`. Raw range `0` to `1`; raw default `0.49`. Controls the depth or intensity of the modulation applied to the repeats.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1078,7 +1101,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Special FX
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1090,6 +1113,7 @@ Model count: 76
 - `Mode` (`key: Mode`, `id: 4`, `type: b`): valid values `Delay`, `Echo`; default `Delay`. Raw range `Off` to `On`; raw default `Off`. Determines the type of repeat mode. "Delay" results in cleaner rhythmic patterns, with the same pattern repeating every sequence. "Echo" applies delays within the pattern itself, creating more of a sea of echoes, especially when Feedback is set high.
 - `Mix` (`key: Mix`, `id: 5`, `type: f`): display range `0` to `100` %; default `50`. Raw range `0` to `1`; raw default `0.5`. Controls the blend between the delay repeats and the dry signal. At 0%, no repeats are heard; at 100%, no dry signal is heard.
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1100,7 +1124,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Multitap
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1129,6 +1153,7 @@ Model count: 76
 - `Depth` (`key: Depth`, `id: 21`, `type: f`): display range `0` to `10` unitless; default `3.8`. Raw range `0` to `1`; raw default `0.38`. Controls the depth or intensity of the modulation applied to the repeats.
 - `Spread` (`key: Spread`, `id: 22`, `type: f`): display range `0` to `10` unitless; default `5.8`. Raw range `0` to `1`; raw default `0.58`. Subtly controls the apparent stereo width of the modulation.
 - `Level` (`key: Level`, `id: 23`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1139,7 +1164,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Multitap
-- DSP usage: 3.0
+- DSP usage estimate: 3.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1169,6 +1194,7 @@ Model count: 76
 - `Tap 6 Scale` (`key: Tap6Delay`, `id: 22`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. For multitap delays, each tap's time is some percentage of the master Time parameter. For example, if Time is set to 1.000 second, and T6 Scale is set to 100%, tap 6's delay is also 1.000 second (or 100% of 1.000 second).
 - `Tap 6 Pan` (`key: Tap6Pan`, `id: 23`, `type: f`): display range `-100` to `100` Left; default `1`. Raw range `0` to `1`; raw default `1`. Controls the panning of delay tap 6 between the left and right channels.
 - `Tap 6 Level` (`key: Tap6Level`, `id: 24`, `type: f`): display range `0` to `10` unitless; default `10`. Raw range `0` to `1`; raw default `1`. Controls the level of delay tap 6. To mute a tap, set its Level to 0.0.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1179,7 +1205,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 9.1
+- DSP usage estimate: 9.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1196,6 +1222,7 @@ Model count: 76
 - `High Cut` (`key: HighCut`, `id: 9`, `type: f`): display range `500` to `20100` Hz; default `8600`. Raw range `500` to `20100`; raw default `8600`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency.
 - `Mod` (`key: Mod`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of modulation applied to the reverb.
 - `Rate` (`key: Rate`, `id: 11`, `type: f`): display range `0` to `10` unitless; default `0.66`. Raw range `0` to `1`; raw default `0.066`. Controls the rate or speed of modulation applied to the reverb.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1206,7 +1233,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1220,6 +1247,7 @@ Model count: 76
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Low Cut` (`key: LowCut`, `id: 7`, `type: f`): display range `19.9` to `500` Off; default `100`. Raw range `19.9` to `500`; raw default `100`. Applies a low cut (or high pass) filter to the repeats, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 8`, `type: f`): display range `500` to `20100` Hz; default `8900`. Raw range `500` to `20100`; raw default `8900`. Applies a high cut (or low pass) filter to the repeats, letting you remove the effected signal above a certain frequency.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1230,7 +1258,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 4.2
+- DSP usage estimate: 4.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1244,6 +1272,7 @@ Model count: 76
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Low Cut` (`key: LowCut`, `id: 7`, `type: f`): display range `19.9` to `500` Off; default `19.9`. Raw range `19.9` to `500`; raw default `19.9`. Applies a low cut (or high pass) filter to the repeats, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 8`, `type: f`): display range `500` to `20100` Hz; default `20100`. Raw range `500` to `20100`; raw default `20100`. Applies a high cut (or low pass) filter to the repeats, letting you remove the effected signal above a certain frequency.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1254,7 +1283,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 5.4
+- DSP usage estimate: 5.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1271,6 +1300,7 @@ Model count: 76
 - `Pitch 2` (`key: Pitch2`, `id: 10`, `type: i`): display range `-24` to `24` unitless; default `7`. Raw range `-24` to `24`; raw default `7`. Adjusts the second pitch-shifter in semitones, from 2 octaves down to 2 octaves up.
 - `Cents 2` (`key: Cents2`, `id: 11`, `type: f`): display range `-50` to `50` unitless; default `0.4`. Raw range `-50` to `50`; raw default `0.4`. Adjusts the second pitch-shifter in cents, from -50 to +50.
 - `Pitch Mix` (`key: PitchMix`, `id: 12`, `type: f`): display range `0` to `100` %; default `24`. Raw range `0` to `1`; raw default `0.24`. Controls the blend between the pitch-shifted signal and dry signal sent to the reverb.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1281,7 +1311,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Sustain
-- DSP usage: 16.4
+- DSP usage estimate: 16.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1308,7 +1338,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.2
+- DSP usage estimate: 2.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1328,7 +1358,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1343,6 +1373,7 @@ Model count: 76
 - `Mod Mode` (`key: ModulationMode`, `id: 7`, `type: i`): valid values `Off`, `Chorus`, `Vibrato`; default `Off`. Raw range `0` to `2`; raw default `0`. Selects the type of modulation applied to the repeats--None (Off), Chorus, or Vibrato.
 - `Speed` (`key: Speed`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `0.2`. Raw range `0` to `1`; raw default `0.02`. Controls the speed or rate of the modulation applied to the repeats.
 - `Depth` (`key: Depth`, `id: 9`, `type: f`): display range `0` to `100` %; default `50`. Raw range `0` to `1`; raw default `0.5`. Controls the depth or intensity of the modulation applied to the repeats.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1353,7 +1384,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Spaces
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1368,6 +1399,7 @@ Model count: 76
 - `Modulation` (`key: Modulation`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `3`. Raw range `0` to `1`; raw default `0.3`. Controls the amount of modulation applied to the reverb.
 - `Speed` (`key: Speed`, `id: 8`, `type: f`): display range `1` to `10` unitless; default `3.7`. Raw range `0.1` to `1`; raw default `0.37`. Controls the speed of the modulation applied to the reverb.
 - `Intensity` (`key: Intensity`, `id: 9`, `type: f`): display range `0` to `10` unitless; default `6.3`. Raw range `0` to `1`; raw default `0.63`. Controls the intensity of the modulation. At higher values, you may hear a phaser-like effect within the reverb.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1378,7 +1410,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Special FX
-- DSP usage: 10.2
+- DSP usage estimate: 10.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1400,6 +1432,7 @@ Model count: 76
 - `Low Cut` (`key: LowCut`, `id: 14`, `type: f`): display range `19.9` to `1000` Off; default `120`. Raw range `19.9` to `1000`; raw default `120`. Applies a low cut (or high pass) filter to the reverb, letting you remove the effected signal below a certain frequency.
 - `High Cut` (`key: HighCut`, `id: 15`, `type: f`): display range `500` to `20100` Hz; default `6300`. Raw range `500` to `20100`; raw default `6300`. Applies a high cut (or low pass) filter to the reverb, letting you remove the effected signal above a certain frequency
 - `Level` (`key: Level`, `id: 16`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1410,7 +1443,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 1.6
+- DSP usage estimate: 1.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1420,6 +1453,7 @@ Model count: 76
 - `Feedback` (`key: Feedback`, `id: 2`, `type: f`): display range `0` to `100` %; default `35`. Raw range `0` to `1`; raw default `0.35`. Controls the number of delay repeats. When set to 0%, only one repeat is heard; at 100%, the delay repeats forever.
 - `Mix` (`key: Mix`, `id: 5`, `type: f`): display range `0` to `100` %; default `40`. Raw range `0` to `1`; raw default `0.4`. Controls the blend between the delay repeats and the dry signal. At 0%, no repeats are heard; at 100%, no dry signal is heard.
 - `Level` (`key: Level`, `id: 6`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1430,7 +1464,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Special FX
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1450,6 +1484,7 @@ Model count: 76
 - `Resonance` (`key: SweepResonance`, `id: 12`, `type: f`): display range `0` to `10` unitless; default `4.5`. Raw range `0` to `1`; raw default `0.45`. Controls the resonance or width of the frequency band affected by the filters.
 - `Duty Cycle` (`key: SweepSymmetry`, `id: 13`, `type: f`): display range `0` to `100` %; default `50`. Raw range `0` to `1`; raw default `0.5`. Alters the modulation wave shape in differing ways. For example, when Shape is set to "Triangle," 50% is a normal triangle wave and extreme values warp the wave toward a saw down (0%) or saw up (100%) shape. Or with Sine, 50% is a normal sine wave and extreme values warp the wave toward a parabolic down (0%) or parabolic up (100%) shape.
 - `Headroom` (`key: Headroom`, `id: 14`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Provides up to 12.0 dB of additional headroom.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1460,7 +1495,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.2
+- DSP usage estimate: 2.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1489,7 +1524,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Tape
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Maestro Echoplex EP-3
 - Agoura model: No
 
@@ -1501,6 +1536,7 @@ Model count: 76
 - `Mix` (`key: Mix`, `id: 4`, `type: f`): display range `0` to `100` %; default `40`. Raw range `0` to `1`; raw default `0.4`. Controls the blend between the delay repeats and the dry signal. At 0%, no repeats are heard; at 100%, no dry signal is heard.
 - `Level` (`key: Level`, `id: 5`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
 - `Headroom` (`key: Headroom`, `id: 9`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some delay devices' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1511,7 +1547,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1528,7 +1564,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 3.0
+- DSP usage estimate: 3.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1545,7 +1581,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Unknown
-- DSP usage: 2.8
+- DSP usage estimate: 2.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1562,7 +1598,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 11.1
+- DSP usage estimate: 11.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1579,7 +1615,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 5.9
+- DSP usage estimate: 5.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1596,7 +1632,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 14.2
+- DSP usage estimate: 14.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1613,7 +1649,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1630,7 +1666,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 8.2
+- DSP usage estimate: 8.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1647,7 +1683,7 @@ Model count: 76
 - Type: Reverb
 - Category: `reverb`
 - Class: Unknown
-- DSP usage: 10.2
+- DSP usage estimate: 10.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1664,7 +1700,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.7
+- DSP usage estimate: 2.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1679,6 +1715,7 @@ Model count: 76
 - `Rate` (`key: Rate`, `id: 7`, `type: f`): display range `0.1` to `8` Hz; default `0.2`. Raw range `0.1` to `8`; raw default `0.2`. Controls the speed or rate of the pitch modulation applied to the repeats.
 - `Depth` (`key: Depth`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `2`. Raw range `0` to `1`; raw default `0.2`. Controls the depth or intensity of the pitch modulation applied to the repeats.
 - `Headroom` (`key: Headroom`, `id: 9`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some older rackmount delays' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -1689,7 +1726,7 @@ Model count: 76
 - Type: Delay
 - Category: `delay`
 - Class: Digital
-- DSP usage: 2.8
+- DSP usage estimate: 2.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1706,3 +1743,4 @@ Model count: 76
 - `Headroom` (`key: Headroom`, `id: 9`, `type: f`): display range `-12` to `12` dB; default `0`. Raw range `-12` to `12`; raw default `0`. Some older rackmount delays' internal signal paths exhibit a bit of grit, especially when placed after a high-gain amp block. Negative values increase the perceived amount of grit; positive values clean things up a bit.
 - `Threshold` (`key: Threshold`, `id: 10`, `type: f`): display range `-96` to `0` dB; default `-60`. Raw range `-96` to `0`; raw default `-60`. Sets the level below which the volume swell resets.
 - `Attack` (`key: Attack`, `id: 11`, `type: f`): display range `100` to `5000` ms; default `1000`. Raw range `0.1` to `5`; raw default `1`. Sets the ramp time for the volume swell applied to the dry signal, and therefore, any delay repeats.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.

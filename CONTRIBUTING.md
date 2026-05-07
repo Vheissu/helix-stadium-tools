@@ -41,6 +41,8 @@ If you touched generated model data, regenerate the affected JSON and include th
 - Remove defensive branches only when we understand the real failure mode and have tests covering the intended behavior.
 - Add tests when they protect protocol decoding, state transforms, or user-visible behavior. Avoid tests that only restate implementation details.
 - Keep user-facing copy focused on actions and outcomes. Avoid protocol jargon in the UI unless it is directly useful for troubleshooting.
+- Do not add settings or code paths that bypass DSP, model-count, or routing limits enforced by the editor or device. Treat accepted out-of-range commands as validation bugs, not supported behaviour.
+- When documenting DSP-related behaviour, describe values as metadata-derived estimates and avoid implying hidden or unlockable headroom.
 - For live device testing, use a spare preset or setlist slot.
 
 ## PR notes

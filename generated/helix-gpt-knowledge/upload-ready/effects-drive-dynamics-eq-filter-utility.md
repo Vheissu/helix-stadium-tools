@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for distortion, dynamics, EQ, filter, FX Loop, looper, and volume/pan blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 155
 - Type: Looper
 - Category: `looper`
 - Class: Unknown
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Unknown
 - Agoura model: No
 
@@ -37,7 +37,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Graphic
-- DSP usage: 1.7
+- DSP usage estimate: 1.7
 - Based on: MXR 10-Band Graphic EQ
 - Agoura model: No
 
@@ -64,12 +64,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: 3-Band
-- DSP usage: 3.2
+- DSP usage estimate: 3.2
 - Based on: Line 6 Original
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Ratio` (`key: Ratio`, `id: 1`, `type: i`): valid values `2:1`, `3:1`, `4:1`, `6:1`, `8:1`, `12:1`, `20:1`; default `4:1`. Raw range `0` to `6`; raw default `2`. Determines how much compression is applied to the signal once it exceeds the Threshold. Higher values mean more compression.
 - `Attack` (`key: Attack`, `id: 2`, `type: f`): display range `0.1` to `200` ms; default `35`. Raw range `0.0001` to `0.2`; raw default `0.035`. Controls how quickly compression is applied once the signal exceeds the Threshold. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.
 - `Release` (`key: Release`, `id: 3`, `type: f`): display range `50` to `2500` ms; default `200`. Raw range `0.05` to `2.5`; raw default `0.2`. Controls how quickly the signal returns to unity gain after it returns below the Threshold.
@@ -92,7 +93,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Acoustic Sim
-- DSP usage: 2.7
+- DSP usage estimate: 2.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -113,7 +114,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 3.6
+- DSP usage estimate: 3.6
 - Based on: Carvin VLD1 Legacy Drive (Hi Gain Channel)
 - Agoura model: No
 
@@ -132,12 +133,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Compress
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Ampeg Opto Comp Compressor
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Compress` (`key: Compression`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls how much level the compressor detector circuit receives. More level = more compression. (Ampeg Opto Comp has a fixed threshold and ratio.)
 - `Release` (`key: Release`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `2.5`. Raw range `0` to `1`; raw default `0.25`. Controls how quickly the effect returns to unity gain after the input signal falls below the threshold. At 0.0, the release is 75 ms; at 10.0, the release is around 600 ms.
 - `Mix` (`key: Blend`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the blend between the compressed and dry signals. At 0%, no compressed signal is heard; at 100%, no dry signal is heard. Values in between provide parallel compression.
@@ -152,7 +154,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Ampeg Scrambler Bass Overdrive
 - Agoura model: No
 
@@ -172,7 +174,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Arbiter Fuzz Face
 - Agoura model: No
 
@@ -190,7 +192,7 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Filter
-- DSP usage: 5.7
+- DSP usage estimate: 5.7
 - Based on: Analogman King of Tone
 - Agoura model: No
 
@@ -223,12 +225,13 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Filter
-- DSP usage: 1.6
+- DSP usage estimate: 1.6
 - Based on: Line 6 Original
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Mode` (`key: Mode`, `id: 1`, `type: i`): valid values `Low Pass`, `Band Pass`, `High Pass`; default `Band Pass`. Raw range `0` to `2`; raw default `1`. Selects the type of filter effect (Low Pass, Band Pass, or High Pass).
 - `Filter Gain` (`key: FilterGain`, `id: 2`, `type: f`): display range `0` to `36` dB; default `18`. Raw range `0` to `36`; raw default `18`. Controls the amount of boost or cut applied to the filtered frequencies.
 - `Filter Q` (`key: FilterQ`, `id: 3`, `type: f`): display range `1` to `10` unitless; default `7.5`. Raw range `1` to `10`; raw default `7.5`. Controls the resonance or width of the frequency band affected by the filter.
@@ -250,12 +253,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Swell
-- DSP usage: 2.0
+- DSP usage estimate: 2.0
 - Based on: Line 6 Original
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Threshold` (`key: Threshold`, `id: 1`, `type: f`): display range `-100` to `0` dB; default `-70`. Raw range `-100` to `0`; raw default `-70`. Sets the level above which a swell (fade in) is triggered. To trigger another swell, the signal must drop below this level and then exceed it again.
 - `Release Offset` (`key: Rel Offset`, `id: 2`, `type: f`): display range `-40` to `40` dB; default `5`. Raw range `-40` to `40`; raw default `5`. Determines the behavior of the swell's Decay (fade out), relative to the Threshold. When set to 0.0, Attack and Decay have the same Threshold. Negative values cause the Decay to happen immediately after the Attack. Positive values let you continue to play after the Attack stage, preventing the Decay.
 - `Attack` (`key: Attack`, `id: 3`, `type: f`): display range `100` to `5000` ms; default `400`. Raw range `0.1` to `5`; raw default `0.4`. Controls how long the swell fades in once the signal exceeds the Threshold.
@@ -272,7 +276,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 6.2
+- DSP usage estimate: 6.2
 - Based on: Euthymia ICBM Fuzz
 - Agoura model: No
 
@@ -291,7 +295,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: â73 Electro-Harmonix Ramâs Head Big Muff Pi
 - Agoura model: No
 
@@ -310,7 +314,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Bitcrusher
-- DSP usage: 2.6
+- DSP usage estimate: 2.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -337,7 +341,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Graphic
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: MESA/Boogie Mark IV Graphic EQ
 - Agoura model: No
 
@@ -359,7 +363,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Wounded Paw Battering Ram
 - Agoura model: No
 
@@ -384,7 +388,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 2.1
+- DSP usage estimate: 2.1
 - Based on: Fulltone OCD
 - Agoura model: No
 
@@ -405,7 +409,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 4.9
+- DSP usage estimate: 4.9
 - Based on: Electro-Harmonix Russian Big Muff Pi
 - Agoura model: No
 
@@ -424,7 +428,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: BOSS DS-1 Distortion (Keeley Electronics modded)
 - Agoura model: No
 
@@ -444,7 +448,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: BOSS DS-1 Distortion (Made-in-Japan)
 - Agoura model: No
 
@@ -463,12 +467,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Compress
-- DSP usage: 2.1
+- DSP usage estimate: 2.1
 - Based on: Line 6 Original
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Threshold` (`key: Threshold`, `id: 1`, `type: f`): display range `-60` to `0` dB; default `-37.1`. Raw range `-60` to `0`; raw default `-37.1`. Sets the level above which compression is applied. Lower values compress more of the signal; higher values compress only louder parts of the signal.
 - `Ratio` (`key: Ratio`, `id: 2`, `type: i`): valid values `2:1`, `3:1`, `4:1`, `6:1`, `10:1`, `20:1`; default `6:1`. Raw range `0` to `5`; raw default `3`. Determines how much compression is applied to the signal once it exceeds the Threshold. Higher values mean more compression.
 - `Attack` (`key: Attack`, `id: 3`, `type: f`): display range `0.1` to `200` ms; default `38`. Raw range `0.0001` to `0.2`; raw default `0.038`. Controls how quickly compression is applied once the signal exceeds the Threshold. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.
@@ -486,7 +491,7 @@ Model count: 155
 - Type: Looper
 - Category: `looper`
 - Class: Unknown
-- DSP usage: 2.7
+- DSP usage estimate: 2.7
 - Based on: Unknown
 - Agoura model: No
 
@@ -506,7 +511,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 2.7
+- DSP usage estimate: 2.7
 - Based on: Dallas Rangemaster Treble Booster
 - Agoura model: No
 
@@ -526,7 +531,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Clone
-- DSP usage: 25.3
+- DSP usage estimate: 25.3
 - Based on: Unknown
 - Agoura model: Yes
 
@@ -549,7 +554,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 3.2
+- DSP usage estimate: 3.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -569,7 +574,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: N/A
 - Agoura model: No
 
@@ -578,6 +583,7 @@ Model count: 155
 - `Send` (`key: Send`, `id: 1`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Send 1 signal. 0.0 dB is unity gain.
 - `Return` (`key: Return`, `id: 2`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Return 1 signal. 0.0 dB is unity gain.
 - `Mix` (`key: Mix`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -588,7 +594,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: N/A
 - Agoura model: No
 
@@ -597,6 +603,7 @@ Model count: 155
 - `Send` (`key: Send`, `id: 1`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Send 1/2 signal. 0.0 dB is unity gain.
 - `Return` (`key: Return`, `id: 2`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Return 1/2 signal. 0.0 dB is unity gain.
 - `Mix` (`key: Mix`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -607,7 +614,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: N/A
 - Agoura model: No
 
@@ -616,6 +623,7 @@ Model count: 155
 - `Send` (`key: Send`, `id: 1`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Send 2 signal. 0.0 dB is unity gain.
 - `Return` (`key: Return`, `id: 2`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Return 2 signal. 0.0 dB is unity gain.
 - `Mix` (`key: Mix`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -626,7 +634,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -635,6 +643,7 @@ Model count: 155
 - `Send` (`key: Send`, `id: 1`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Send 3 signal. 0.0 dB is unity gain.
 - `Return` (`key: Return`, `id: 2`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Return 3 signal. 0.0 dB is unity gain.
 - `Mix` (`key: Mix`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -645,7 +654,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: N/A
 - Agoura model: No
 
@@ -654,6 +663,7 @@ Model count: 155
 - `Send` (`key: Send`, `id: 1`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Send 3/4 signal. 0.0 dB is unity gain.
 - `Return` (`key: Return`, `id: 2`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Return 3/4 signal. 0.0 dB is unity gain.
 - `Mix` (`key: Mix`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -664,7 +674,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -673,6 +683,7 @@ Model count: 155
 - `Send` (`key: Send`, `id: 1`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Send 4 signal. 0.0 dB is unity gain.
 - `Return` (`key: Return`, `id: 2`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the level of the Return 4 signal. 0.0 dB is unity gain.
 - `Mix` (`key: Mix`, `id: 3`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values.
+- `Trails` (`key: Trails`, `id: 1`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`.
 
 ---
 
@@ -683,7 +694,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Feedbacker
-- DSP usage: 9.9
+- DSP usage estimate: 9.9
 - Based on: Line 6 Original, Feedback Generator
 - Agoura model: No
 
@@ -711,7 +722,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Gain
-- DSP usage: 0.8
+- DSP usage estimate: 0.8
 - Based on: Vox AC-15 Tremolo
 - Agoura model: No
 
@@ -728,7 +739,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Unknown
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: MESA/Boogie Mark IV Graphic EQ
 - Agoura model: No
 
@@ -745,7 +756,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Way Huge Red Llama (modded)
 - Agoura model: No
 
@@ -762,7 +773,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 12.9
+- DSP usage estimate: 12.9
 - Based on: Earthquaker Devices Life (Dist side)
 - Agoura model: No
 
@@ -779,7 +790,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 3.9
+- DSP usage estimate: 3.9
 - Based on: Dallas Arbiter Fuzz Face
 - Agoura model: No
 
@@ -796,7 +807,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 11.7
+- DSP usage estimate: 11.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -813,7 +824,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.4
+- DSP usage estimate: 4.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -830,7 +841,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Euthymia ICBM Fuzz
 - Agoura model: No
 
@@ -847,7 +858,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Fulltone OCD
 - Agoura model: No
 
@@ -864,7 +875,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 9.0
+- DSP usage estimate: 9.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -881,7 +892,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 6.4
+- DSP usage estimate: 6.4
 - Based on: BOSS DS-1 Distortion (Keeley modded)
 - Agoura model: No
 
@@ -898,7 +909,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 7.9
+- DSP usage estimate: 7.9
 - Based on: BOSS DS-1 Distortion (Made-in-Japan)
 - Agoura model: No
 
@@ -915,7 +926,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.1
+- DSP usage estimate: 4.1
 - Based on: Dallas Rangemaster
 - Agoura model: No
 
@@ -932,7 +943,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.1
+- DSP usage estimate: 5.1
 - Based on: Hermida Zendrive
 - Agoura model: No
 
@@ -949,7 +960,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.2
+- DSP usage estimate: 4.2
 - Based on: MAXON SD9 Distortion
 - Agoura model: No
 
@@ -966,7 +977,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Analogman Prince of Tone
 - Agoura model: No
 
@@ -983,7 +994,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 11.2
+- DSP usage estimate: 11.2
 - Based on: Unknown
 - Agoura model: No
 
@@ -1000,7 +1011,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Z.Vex Fuzz Factory
 - Agoura model: No
 
@@ -1017,7 +1028,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.9
+- DSP usage estimate: 5.9
 - Based on: Ben Adrian Kowloon Walled Bunny Distortion
 - Agoura model: No
 
@@ -1034,7 +1045,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Xotic EP Booster
 - Agoura model: No
 
@@ -1051,7 +1062,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Noble Preamp Bass DI
 - Agoura model: No
 
@@ -1068,7 +1079,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1085,7 +1096,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 8.6
+- DSP usage estimate: 8.6
 - Based on: Horizon Precision Drive
 - Agoura model: No
 
@@ -1102,7 +1113,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 8.1
+- DSP usage estimate: 8.1
 - Based on: Darkglass Electronics B7K Ultra
 - Agoura model: No
 
@@ -1119,7 +1130,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: Earthquaker Devices Plumes distortion
 - Agoura model: No
 
@@ -1136,7 +1147,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Jordan Boss Tone
 - Agoura model: No
 
@@ -1153,7 +1164,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 13.7
+- DSP usage estimate: 13.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1170,7 +1181,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 6.8
+- DSP usage estimate: 6.8
 - Based on: Electro Harmonix Ram's Head Big Muff Pi (1973)
 - Agoura model: No
 
@@ -1187,7 +1198,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 8.0
+- DSP usage estimate: 8.0
 - Based on: Pro Co RAT
 - Agoura model: No
 
@@ -1204,7 +1215,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 6.2
+- DSP usage estimate: 6.2
 - Based on: Unknown
 - Agoura model: No
 
@@ -1221,7 +1232,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.8
+- DSP usage estimate: 4.8
 - Based on: Ibanez TS808 Tube Screamer
 - Agoura model: No
 
@@ -1238,7 +1249,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.2
+- DSP usage estimate: 5.2
 - Based on: BOSS SD-1 Overdrive
 - Agoura model: No
 
@@ -1255,7 +1266,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.7
+- DSP usage estimate: 4.7
 - Based on: BOSS HM-2 Distortion
 - Agoura model: No
 
@@ -1272,7 +1283,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.8
+- DSP usage estimate: 4.8
 - Based on: Paul Cochrane Timmy Overdrive
 - Agoura model: No
 
@@ -1289,7 +1300,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 9.2
+- DSP usage estimate: 9.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1306,7 +1317,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 9.9
+- DSP usage estimate: 9.9
 - Based on: Electro Harmonix Russian Big Muff
 - Agoura model: No
 
@@ -1323,7 +1334,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: DOD OD-250
 - Agoura model: No
 
@@ -1340,7 +1351,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Electro Harmonix Big Muff Pi
 - Agoura model: No
 
@@ -1357,7 +1368,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: Tycobrahe Octavia
 - Agoura model: No
 
@@ -1374,7 +1385,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 9.6
+- DSP usage estimate: 9.6
 - Based on: Carvin VLD1 Legacy Drive (Hi Gain Channel)
 - Agoura model: No
 
@@ -1391,7 +1402,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 3.4
+- DSP usage estimate: 3.4
 - Based on: Pro Co RAT
 - Agoura model: No
 
@@ -1408,7 +1419,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 4.6
+- DSP usage estimate: 4.6
 - Based on: Earthquaker Devices Life (Boost side)
 - Agoura model: No
 
@@ -1425,7 +1436,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 15.0
+- DSP usage estimate: 15.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1442,7 +1453,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 8.3
+- DSP usage estimate: 8.3
 - Based on: Garbage's modded BOSS FZ-2
 - Agoura model: No
 
@@ -1459,7 +1470,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 7.7
+- DSP usage estimate: 7.7
 - Based on: Nobels ODR-1
 - Agoura model: No
 
@@ -1476,7 +1487,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Unknown
-- DSP usage: 5.4
+- DSP usage estimate: 5.4
 - Based on: Tech 21 SansAmp Bass Driver DI V1
 - Agoura model: No
 
@@ -1493,7 +1504,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Unknown
-- DSP usage: 2.2
+- DSP usage estimate: 2.2
 - Based on: MXR 10-Band Graphic EQ
 - Agoura model: No
 
@@ -1510,7 +1521,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Unknown
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1527,7 +1538,7 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Unknown
-- DSP usage: 7.2
+- DSP usage estimate: 7.2
 - Based on: Moog Moogerfooger MF-105M MuRF Filter
 - Agoura model: No
 
@@ -1544,7 +1555,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Unknown
-- DSP usage: 0.9
+- DSP usage estimate: 0.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1561,7 +1572,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Unknown
-- DSP usage: 0.9
+- DSP usage estimate: 0.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1578,7 +1589,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 5.8
+- DSP usage estimate: 5.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1595,7 +1606,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 1.7
+- DSP usage estimate: 1.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1612,7 +1623,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 2.6
+- DSP usage estimate: 2.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1629,7 +1640,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 7.3
+- DSP usage estimate: 7.3
 - Based on: Xotic SP Compressor
 - Agoura model: No
 
@@ -1646,7 +1657,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: Teletronix LA-2A
 - Agoura model: No
 
@@ -1663,7 +1674,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: Ampeg Octo Comp compressor
 - Agoura model: No
 
@@ -1680,7 +1691,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 8.8
+- DSP usage estimate: 8.8
 - Based on: MXR Dyna Comp
 - Agoura model: No
 
@@ -1697,7 +1708,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Ashly CLX-52 (in conjunction w/ B. Sheehan)
 - Agoura model: No
 
@@ -1714,7 +1725,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Unknown
-- DSP usage: 2.0
+- DSP usage estimate: 2.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1731,7 +1742,7 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Unknown
-- DSP usage: 2.1
+- DSP usage estimate: 2.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1748,7 +1759,7 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Musitronics Mu-Tron III
 - Agoura model: No
 
@@ -1765,7 +1776,7 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Korg A3
 - Agoura model: No
 
@@ -1782,7 +1793,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 1.8
+- DSP usage estimate: 1.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1799,7 +1810,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: Horizon Precision Drive - Gate Circuit
 - Agoura model: No
 
@@ -1816,7 +1827,7 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Unknown
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1833,12 +1844,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Gate
-- DSP usage: 1.2
+- DSP usage estimate: 1.2
 - Based on: Line 6 Original
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Open Threshold` (`key: OpenThreshold`, `id: 1`, `type: f`): display range `-96` to `0` dB; default `-50`. Raw range `-96` to `0`; raw default `-50`. Sets the level above which the gate "opens," or passes signal through.
 - `Close Threshold` (`key: CloseThreshold`, `id: 2`, `type: f`): display range `-96` to `0` dB; default `-60`. Raw range `-96` to `0`; raw default `-60`. Sets the level below which the gate "closes," or stops signal from passing through.
 - `Hold Time` (`key: HoldTime`, `id: 3`, `type: f`): display range `10` to `800` ms; default `10`. Raw range `0.01` to `0.8`; raw default `0.01`. Adjusts the length of time after the signal drops below the Close threshold before it is gated. Increase Hold Time if your playing is chopped off too soon.
@@ -1854,7 +1866,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 2.6
+- DSP usage estimate: 2.6
 - Based on: MAXON SD9 Sonic Distortion
 - Agoura model: No
 
@@ -1873,7 +1885,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Analogman Prince of Tone
 - Agoura model: No
 
@@ -1896,7 +1908,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 6.1
+- DSP usage estimate: 6.1
 - Based on: Horizon Precision Drive
 - Agoura model: No
 
@@ -1918,12 +1930,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Gate
-- DSP usage: 1.7
+- DSP usage estimate: 1.7
 - Based on: Horizon Precision Drive - Gate Circuit
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Mode` (`key: Mode`, `id: 1`, `type: i`): valid values `Bass`, `Guitar`; default `Guitar`. Raw range `0` to `1`; raw default `1`. Determines whether the gate's response is optimized for bass or guitar.
 - `Sensitivity` (`key: Sensitivity`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `8.46`. Raw range `0` to `1`; raw default `0.846`. Lower values eliminate most noise without affecting your tone; higher values can tighten up your bass response, at the expense of note articulation. Note that Horizon Gate isn't a traditional gate as much as it's a dynamic high shelf EQ filter that squashes high end noise while letting lower end signals continue to decay naturally.
 - `Gate Range` (`key: Gate Range`, `id: 3`, `type: b`): valid values `Authentic`, `Extended`; default `Authentic`. Raw range `Off` to `On`; raw default `Off`. Determines the range of the dynamic high shelf EQ filter, or how far the signal's high end is attenuated while the gate is active. When set to "Extended," drops the gate's threshold down to -90 dB, which is more attenuation than the real pedal.
@@ -1938,7 +1951,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 5.8
+- DSP usage estimate: 5.8
 - Based on: Z.Vex Fuzz Factory
 - Agoura model: No
 
@@ -1960,7 +1973,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Benadrian Kowloon Walled Bunny Distortion
 - Agoura model: No
 
@@ -1983,7 +1996,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Boost
-- DSP usage: 3.2
+- DSP usage estimate: 3.2
 - Based on: Xotic EP Booster
 - Agoura model: No
 
@@ -2002,12 +2015,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Compress
-- DSP usage: 4.2
+- DSP usage estimate: 4.2
 - Based on: Xotic SP Compressor
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Sensitivity` (`key: Sensitivity`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the sensitivity of the compressor's input. Higher values apply more compression.
 - `Mix` (`key: Mix`, `id: 2`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the blend between the compressed and dry signals. At 0%, no compressed signal is heard; at 100%, no dry signal is heard. Values in between provide parallel compression.
 - `Attack` (`key: Attack`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `0`. Raw range `0` to `1`; raw default `0`. Controls how quickly compression responds to increases in input signal level. Higher values mean a slower attack, which lets the instrument's initial transient sneak through and only compresses the sustained portion of the signal.
@@ -2023,7 +2037,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Unknown
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2040,12 +2054,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Compress
-- DSP usage: 3.9
+- DSP usage estimate: 3.9
 - Based on: Teletronix LA-2A
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Peak Reduction` (`key: PeakReduction`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `7.8`. Raw range `0` to `1`; raw default `0.78`. Peak Reduction lowers the threshold, controlling how much compression is applied to the input signal.
 - `Gain` (`key: Gain`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `6.2`. Raw range `0` to `1`; raw default `0.62`. Increases the signal's level to compensate for the reduced level that results from compression/peak reduction.
 - `Type` (`key: Type`, `id: 3`, `type: b`): valid values `Compress`, `Limit`; default `Compress`. Raw range `Off` to `On`; raw default `Off`. Switches between compression (3:1 ratio) and limiting (Infinity:1 ratio).
@@ -2062,7 +2077,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Carvin VLD1 Legacy Drive (hi gain channel)
 - Agoura model: No
 
@@ -2084,7 +2099,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Megaphone
-- DSP usage: 1.6
+- DSP usage estimate: 1.6
 - Based on: Megaphone
 - Agoura model: No
 
@@ -2106,7 +2121,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 4.8
+- DSP usage estimate: 4.8
 - Based on: Klon Centaur
 - Agoura model: No
 
@@ -2125,12 +2140,13 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Filter
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Musitronics Mu-Tron III
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Mode` (`key: Mode`, `id: 1`, `type: i`): valid values `Low Pass`, `Band Pass`, `High Pass`; default `Band Pass`. Raw range `0` to `2`; raw default `1`. Selects the type of filter effect (Low Pass, Band Pass, or High Pass).
 - `Peak` (`key: Peak`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Controls the resonance or width of the frequency band affected by the filter.
 - `Gain` (`key: Gain`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `1.5`. Raw range `0` to `1`; raw default `0.15`. Adjusts the filter’s sensitivity to the incoming signal.
@@ -2148,12 +2164,13 @@ Model count: 155
 - Type: Filter
 - Category: `filter`
 - Class: Filter
-- DSP usage: 1.6
+- DSP usage estimate: 1.6
 - Based on: Korg A3
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Sensitivity` (`key: Sensitivity`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `5.2`. Raw range `0` to `1`; raw default `0.52`. Controls the filter envelope's input sensitivity. Higher values are more sensitive to your playing dynamics.
 - `Frequency` (`key: Frequency`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Sets the highest frequency in the filter sweep. Higher values are more extreme.
 - `Resonance` (`key: Resonance`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Controls the resonance or width of the frequency band affected by the filters.
@@ -2171,12 +2188,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Gate
-- DSP usage: 1.1
+- DSP usage estimate: 1.1
 - Based on: Line 6 Original
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Threshold` (`key: Threshold`, `id: 1`, `type: f`): display range `-96` to `0` dB; default `-48`. Raw range `-96` to `0`; raw default `-48`. Sets the noise gate's Threshold. The gate "opens" when the signal's level exceeds the Threshold, to let audio pass through. The gate "closes" when the signal's level drops below the Threshold. Adjust Threshold so only softer, unwanted signals (such as noise or hum) are gated.
 - `Decay` (`key: Decay`, `id: 2`, `type: f`): display range `10` to `1000` ms; default `500`. Raw range `0.01` to `1`; raw default `0.5`. Controls the length of time it takes for the open noise gate to close once the signal drops below the Threshold. Increase Decay if you want the gate to gradually lower the signal instead of chopping it off abruptly.
 - `Level` (`key: Level`, `id: 3`, `type: f`): display range `-60` to `6` dB; default `0`. Raw range `-60` to `6`; raw default `0`. Sets the overall level of the block.
@@ -2190,7 +2208,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 4.8
+- DSP usage estimate: 4.8
 - Based on: Darkglass Electronics Microtubes B7K Ultra
 - Agoura model: No
 
@@ -2219,7 +2237,7 @@ Model count: 155
 - Type: Looper
 - Category: `looper`
 - Class: Unknown
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Unknown
 - Agoura model: No
 
@@ -2236,7 +2254,7 @@ Model count: 155
 - Type: Looper
 - Category: `looper`
 - Class: Unknown
-- DSP usage: 2.7
+- DSP usage estimate: 2.7
 - Based on: Unknown
 - Agoura model: No
 
@@ -2253,7 +2271,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Pan/Image
-- DSP usage: 0.9
+- DSP usage estimate: 0.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2270,7 +2288,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Parametric
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2311,7 +2329,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 3.8
+- DSP usage estimate: 3.8
 - Based on: Earthquaker Devices Plumes
 - Agoura model: No
 
@@ -2331,7 +2349,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2350,7 +2368,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: Unknown
 - Agoura model: No
 
@@ -2369,7 +2387,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: 2x15" MESA/Boogie 2x15 EV
 - Agoura model: No
 
@@ -2388,7 +2406,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: Unknown
 - Agoura model: No
 
@@ -2407,7 +2425,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: MXR 10-Band Graphic EQ
 - Agoura model: No
 
@@ -2426,7 +2444,7 @@ Model count: 155
 - Type: FX Loop
 - Category: `fxloop`
 - Class: FX Loop
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: Unknown
 - Agoura model: No
 
@@ -2445,7 +2463,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Jordan Boss Tone Fuzz
 - Agoura model: No
 
@@ -2463,7 +2481,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 7.2
+- DSP usage estimate: 7.2
 - Based on: Nobels ODR-1(bc)
 - Agoura model: No
 
@@ -2484,7 +2502,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: Maestro Bass Brassmaster
 - Agoura model: No
 
@@ -2503,12 +2521,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Compress
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: MXR Dyna Comp
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Sensitivity` (`key: Sensitivity`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `4.4`. Raw range `0` to `1`; raw default `0.44`. Controls the sensitivity of the compressor's input. Higher values apply more compression.
 - `Mix` (`key: Mix`, `id: 2`, `type: f`): display range `0` to `100` %; default `100`. Raw range `0` to `1`; raw default `1`. Controls the blend between the compressed and dry signals. At 0%, no compressed signal is heard; at 100%, no dry signal is heard. Values in between provide parallel compression.
 - `Level` (`key: Level`, `id: 3`, `type: f`): display range `-60` to `12` dB; default `5.4`. Raw range `-60` to `12`; raw default `5.4`. Sets the overall level of the block.
@@ -2522,7 +2541,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Nobel Preamp Bass DI
 - Agoura model: No
 
@@ -2542,12 +2561,13 @@ Model count: 155
 - Type: Dynamics
 - Category: `dynamics`
 - Class: Compress
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Ashly CLX-52 (in conjunction w/ B. Sheehan)
 - Agoura model: No
 
 ### Parameters
 
+- `Sidechain` (`key: ControlSource`, `id: 1`, `type: i`): valid values `Off`, `Instrument 1`, `Instrument 2`, `Mic`, `Return 1`, `Return 2`, `Return 3`, `Return 4`, `USB 3`, `USB 4`, `USB 5`, `USB 6`, `USB 7`, `USB 8`; default `Off`. Raw range `0` to `13`; raw default `0`.
 - `Gain` (`key: Gain`, `id: 1`, `type: f`): display range `-15` to `15` dB; default `3`. Raw range `-15` to `15`; raw default `3`. Increases the signal's level to compensate for the reduced level that results from compression.
 - `Threshold` (`key: Threshold`, `id: 2`, `type: f`): display range `-40` to `22` dB; default `-24`. Raw range `-40` to `22`; raw default `-24`. Sets the level above which compression is applied. Lower values compress more of the signal; higher values compress only louder parts of the signal.
 - `Ratio` (`key: Ratio`, `id: 3`, `type: f`): display range `1` to `40` infinity; default `10`. Raw range `1` to `40`; raw default `10`. Determines how much compression is applied to the signal once it exceeds the Threshold. Higher values mean more compression.
@@ -2566,7 +2586,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 3.3
+- DSP usage estimate: 3.3
 - Based on: Ibanez TS808 Tube Screamer
 - Agoura model: No
 
@@ -2585,7 +2605,7 @@ Model count: 155
 - Type: Looper
 - Category: `looper`
 - Class: Unknown
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Unknown
 - Agoura model: No
 
@@ -2614,7 +2634,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Pan/Image
-- DSP usage: 1.8
+- DSP usage estimate: 1.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2634,7 +2654,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Pan/Image
-- DSP usage: 1.1
+- DSP usage estimate: 1.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2655,7 +2675,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 3.1
+- DSP usage estimate: 3.1
 - Based on: BOSS SD-1 Overdrive
 - Agoura model: No
 
@@ -2674,7 +2694,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: BOSS HM-2 Heavy Metal Distortion (MIJ)
 - Agoura model: No
 
@@ -2694,7 +2714,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 3.0
+- DSP usage estimate: 3.0
 - Based on: Paul Cochrane Timmy Overdrive
 - Agoura model: No
 
@@ -2715,7 +2735,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 5.1
+- DSP usage estimate: 5.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2737,7 +2757,7 @@ Model count: 155
 - Type: EQ
 - Category: `eq`
 - Class: Tilt
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -2756,7 +2776,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 5.4
+- DSP usage estimate: 5.4
 - Based on: Analogman King of Tone
 - Agoura model: No
 
@@ -2785,7 +2805,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: DOD OD-250
 - Agoura model: No
 
@@ -2803,7 +2823,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Electro-Harmonix Big Muff Pi
 - Agoura model: No
 
@@ -2822,7 +2842,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: Tycobrahe Octavia
 - Agoura model: No
 
@@ -2840,7 +2860,7 @@ Model count: 155
 - Type: Looper
 - Category: `looper`
 - Class: Unknown
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: Unknown
 - Agoura model: No
 
@@ -2857,7 +2877,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Chandler Tube Driver
 - Agoura model: No
 
@@ -2877,7 +2897,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Pro Co RAT
 - Agoura model: No
 
@@ -2896,7 +2916,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Boost
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: Earthquaker Devices Life - Boost circuit
 - Agoura model: No
 
@@ -2913,7 +2933,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Distortion
-- DSP usage: 7.8
+- DSP usage estimate: 7.8
 - Based on: Earthquaker Devices Life - Octave/Distortion circuit
 - Agoura model: No
 
@@ -2934,7 +2954,7 @@ Model count: 155
 - Type: Volume
 - Category: `volume`
 - Class: Volume Pedal
-- DSP usage: 0.8
+- DSP usage estimate: 0.8
 - Based on: N/A
 - Agoura model: No
 
@@ -2952,7 +2972,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 4.5
+- DSP usage estimate: 4.5
 - Based on: Garbageâs modded BOSS FZ-2
 - Agoura model: No
 
@@ -2973,7 +2993,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Fuzz
-- DSP usage: 4.6
+- DSP usage estimate: 4.6
 - Based on: Subdecay Harmonic Antagonizer
 - Agoura model: No
 
@@ -2999,7 +3019,7 @@ Model count: 155
 - Type: Distortion
 - Category: `distortion`
 - Class: Overdrive
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Tech 21 SansAmp Bass Driver DI V1
 - Agoura model: No
 

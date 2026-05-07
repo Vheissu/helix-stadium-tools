@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for guitar cabs, bass cabs, and IR cabs.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 8x10" Ampeg SVT 810AV Heritage
 - Agoura model: No
 
@@ -42,7 +42,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x12" Vox AC-15 Blue Alnico
 - Agoura model: No
 
@@ -67,7 +67,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Custom 1x12" open-back cab EVM12L
 - Agoura model: No
 
@@ -92,7 +92,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x8" Fender Tweed Champ
 - Agoura model: No
 
@@ -117,7 +117,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Matchless DC-30 custom G12M-25
 - Agoura model: No
 
@@ -142,7 +142,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Hiwatt Fane
 - Agoura model: No
 
@@ -167,7 +167,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Marshall 1960A T75
 - Agoura model: No
 
@@ -192,7 +192,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x12" Fender Tweed Deluxe
 - Agoura model: No
 
@@ -217,7 +217,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Marshall "Basketweave" Fill This In
 - Agoura model: No
 
@@ -242,7 +242,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x10" Fender Princeton Reverb
 - Agoura model: No
 
@@ -267,7 +267,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Park 75 G12H-30
 - Agoura model: No
 
@@ -292,7 +292,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Soldano Eminence
 - Agoura model: No
 
@@ -317,7 +317,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" MESA/Boogie 4FB V30
 - Agoura model: No
 
@@ -342,7 +342,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Roland JC-120
 - Agoura model: No
 
@@ -367,7 +367,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1 6x9" Supro S6616
 - Agoura model: No
 
@@ -392,7 +392,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Vox AC-30 Silver Alnico
 - Agoura model: No
 
@@ -417,7 +417,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Marshall "Basketweave" G12M-20
 - Agoura model: No
 
@@ -442,7 +442,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x12" Vox AC-15 Blue Alnico
 - Agoura model: No
 
@@ -467,7 +467,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x15" Fender Silverface Bassman
 - Agoura model: No
 
@@ -492,7 +492,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 6x10" MESA/Boogie
 - Agoura model: No
 
@@ -517,7 +517,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Custom 1x12" open-back cab G12M-65
 - Agoura model: No
 
@@ -542,7 +542,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Marshall 1960AV V30
 - Agoura model: No
 
@@ -567,7 +567,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Cab IR
 - Agoura model: No
 
@@ -592,7 +592,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x12" MESA/Boogie Mark IV
 - Agoura model: No
 
@@ -617,7 +617,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x12" Epifani Ultralight series
 - Agoura model: No
 
@@ -642,7 +642,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 1x12" MESA/Boogie Extension Cab
 - Agoura model: No
 
@@ -667,7 +667,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x10" Fender Super Reverb
 - Agoura model: No
 
@@ -692,7 +692,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x10" Fender Bassman P10R
 - Agoura model: No
 
@@ -717,7 +717,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Sunn G75T
 - Agoura model: No
 
@@ -742,7 +742,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Fender Twin
 - Agoura model: No
 
@@ -767,7 +767,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Marshall "Basketweave" G12M-25
 - Agoura model: No
 
@@ -792,7 +792,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Cartographer Mesa C90 Black Shadow
 - Agoura model: No
 
@@ -817,7 +817,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Cartographer Eminence Governor
 - Agoura model: No
 
@@ -842,7 +842,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Matchless DC-30 custom G12H-30
 - Agoura model: No
 
@@ -867,7 +867,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Orange PPC212 V30
 - Agoura model: No
 
@@ -892,7 +892,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Marshall "Basketweave" Fill This In
 - Agoura model: No
 
@@ -917,7 +917,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x10" Eden D410XLT
 - Agoura model: No
 
@@ -942,7 +942,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Bogner Uberkab T75
 - Agoura model: No
 
@@ -967,7 +967,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Soldano Eminence
 - Agoura model: No
 
@@ -992,7 +992,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 2x12" Silvertone 1481
 - Agoura model: No
 
@@ -1017,7 +1017,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x10" Ampeg PR-410HLF
 - Agoura model: No
 
@@ -1042,7 +1042,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Cartographer Eminence Governor
 - Agoura model: No
 
@@ -1067,7 +1067,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Orange Eminence
 - Agoura model: No
 
@@ -1092,7 +1092,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x10" Fender Super Reverb
 - Agoura model: No
 
@@ -1117,7 +1117,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Bass
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Bogner Uberkab V30
 - Agoura model: No
 
@@ -1142,7 +1142,7 @@ Model count: 48
 - Type: IR
 - Category: `ir`
 - Class: IR
-- DSP usage: 0.0
+- DSP usage estimate: 0.0
 - Based on: Unknown
 - Agoura model: No
 
@@ -1165,7 +1165,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: No Cab
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Unknown
 - Agoura model: No
 
@@ -1182,7 +1182,7 @@ Model count: 48
 - Type: Cab
 - Category: `cab_ir_interp`
 - Class: Guitar
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: 4x12" Cartographer Mesa C90 Black Shadow
 - Agoura model: No
 

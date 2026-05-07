@@ -75,7 +75,7 @@ tool must sign it before a device will install it.
 
 - Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address.
 - The app shares the same underlying protocol path as the desktop editor, but the UI keeps language focused on the device and user actions.
-- DSP meters use per-model `usage` values from the modeldefs bundle and a **66 usage** reference cap per path. When Auto-cab is enabled, amp insertion checks also include the linked cab usage from the same bundle.
+- DSP meters and block-picker availability use conservative estimates from the extracted model metadata, and are intended to stay within the same practical limits as the device/editor. When Auto-cab is enabled, amp insertion checks also include the linked cab usage.
 - This project only targets native mobile builds; there is no separate web target to maintain.
 
 ## Refresh generated app data

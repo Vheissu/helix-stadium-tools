@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for modulation, pitch, synth, and wah blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: 12-String
-- DSP usage: 17.2
+- DSP usage estimate: 17.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -38,7 +38,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Rotary
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Leslie 122
 - Agoura model: No
 
@@ -63,7 +63,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Rotary
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Leslie 145
 - Agoura model: No
 
@@ -88,7 +88,7 @@ Model count: 94
 - Type: Synth
 - Category: `synth`
 - Class: Generator
-- DSP usage: 3.6
+- DSP usage estimate: 3.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -123,7 +123,7 @@ Model count: 94
 - Type: Synth
 - Category: `synth`
 - Class: Synth
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -163,7 +163,7 @@ Model count: 94
 - Type: Synth
 - Category: `synth`
 - Class: Generator
-- DSP usage: 3.8
+- DSP usage estimate: 3.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -195,7 +195,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -218,7 +218,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Tremolo
-- DSP usage: 1.8
+- DSP usage estimate: 1.8
 - Based on: Vox AC-15 Tremolo
 - Agoura model: No
 
@@ -238,7 +238,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 3.0
+- DSP usage estimate: 3.0
 - Based on: BOSS CE-1
 - Agoura model: No
 
@@ -261,7 +261,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Ring Mod
-- DSP usage: 2.1
+- DSP usage estimate: 2.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -285,7 +285,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 5.1
+- DSP usage estimate: 5.1
 - Based on: Ampeg Liquifier Chorus
 - Agoura model: No
 
@@ -307,7 +307,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Tremolo
-- DSP usage: 1.7
+- DSP usage estimate: 1.7
 - Based on: Lightfoot Labs Goatkeeper
 - Agoura model: No
 
@@ -331,7 +331,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Pitch
-- DSP usage: 2.5
+- DSP usage estimate: 2.5
 - Based on: Boss OC-2 Octaver
 - Agoura model: No
 
@@ -350,7 +350,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 3.0
+- DSP usage estimate: 3.0
 - Based on: BOSS VB-2 Vibrato
 - Agoura model: No
 
@@ -372,7 +372,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 2.2
+- DSP usage estimate: 2.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -395,7 +395,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Maestro Boomerang
 - Agoura model: No
 
@@ -416,7 +416,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Colorsound Wah-fuzz
 - Agoura model: No
 
@@ -437,7 +437,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Dunlop Cry Baby Super
 - Agoura model: No
 
@@ -458,7 +458,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: RMC Real McCoy 1
 - Agoura model: No
 
@@ -479,7 +479,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Flanger/Tape
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Electro-Harmonix Deluxe Electric Mistress
 - Agoura model: No
 
@@ -502,7 +502,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Phaser
-- DSP usage: 2.2
+- DSP usage estimate: 2.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -526,7 +526,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Flanger/Tape
-- DSP usage: 8.1
+- DSP usage estimate: 8.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -547,7 +547,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Pitch
-- DSP usage: 4.1
+- DSP usage estimate: 4.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -573,7 +573,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Flanger/Tape
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: MicMix Dyna Flanger
 - Agoura model: No
 
@@ -602,7 +602,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -623,7 +623,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Phaser
-- DSP usage: 1.7
+- DSP usage estimate: 1.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -644,7 +644,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Flanger/Tape
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: MXR 117 Flanger
 - Agoura model: No
 
@@ -667,7 +667,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -684,7 +684,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 4.9
+- DSP usage estimate: 4.9
 - Based on: BOLine 6 Original CE-1
 - Agoura model: No
 
@@ -701,7 +701,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 9.2
+- DSP usage estimate: 9.2
 - Based on: Ampeg Liquifier Chorus
 - Agoura model: No
 
@@ -718,7 +718,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 5.7
+- DSP usage estimate: 5.7
 - Based on: Modded Arion SCH-Z chorus
 - Agoura model: No
 
@@ -735,7 +735,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -752,7 +752,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 8.9
+- DSP usage estimate: 8.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -769,7 +769,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: Electro-Harmonix Deluxe EM
 - Agoura model: No
 
@@ -786,7 +786,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: MicMix Dynaflanger
 - Agoura model: No
 
@@ -803,7 +803,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 7.5
+- DSP usage estimate: 7.5
 - Based on: MXR 117 Flanger
 - Agoura model: No
 
@@ -820,7 +820,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: A/DA Flanger
 - Agoura model: No
 
@@ -837,7 +837,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.7
+- DSP usage estimate: 2.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -854,7 +854,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: Electro-Harmonix Small Stone
 - Agoura model: No
 
@@ -871,7 +871,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.6
+- DSP usage estimate: 2.6
 - Based on: MXR Phase 90
 - Agoura model: No
 
@@ -888,7 +888,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 3.9
+- DSP usage estimate: 3.9
 - Based on: Shin-ei Uni-Vibe
 - Agoura model: No
 
@@ -905,7 +905,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Unknown
-- DSP usage: 7.8
+- DSP usage estimate: 7.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -922,7 +922,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Unknown
-- DSP usage: 4.2
+- DSP usage estimate: 4.2
 - Based on: Digitech Whammy
 - Agoura model: No
 
@@ -939,7 +939,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Unknown
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -956,7 +956,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Unknown
-- DSP usage: 7.7
+- DSP usage estimate: 7.7
 - Based on: Eventide H3000
 - Agoura model: No
 
@@ -973,7 +973,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 5.3
+- DSP usage estimate: 5.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -990,7 +990,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1007,7 +1007,7 @@ Model count: 94
 - Type: Synth
 - Category: `synth`
 - Class: Unknown
-- DSP usage: 3.6
+- DSP usage estimate: 3.6
 - Based on: 1x12" Fender Blackface Deluxe
 - Agoura model: No
 
@@ -1024,7 +1024,7 @@ Model count: 94
 - Type: Synth
 - Category: `synth`
 - Class: Unknown
-- DSP usage: 3.8
+- DSP usage estimate: 3.8
 - Based on: 4x12" ENGL XXL V30
 - Agoura model: No
 
@@ -1041,7 +1041,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Vox AC-15 Tremolo
 - Agoura model: No
 
@@ -1058,7 +1058,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1075,7 +1075,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.0
+- DSP usage estimate: 2.0
 - Based on: Fender optical tremolo circuit
 - Agoura model: No
 
@@ -1092,7 +1092,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.1
+- DSP usage estimate: 2.1
 - Based on: Lightfoot Labs Goatkeeper
 - Agoura model: No
 
@@ -1109,7 +1109,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: BOSS VB-2 Vibrato
 - Agoura model: No
 
@@ -1126,7 +1126,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Modded Vox V847
 - Agoura model: No
 
@@ -1143,7 +1143,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Vox V847
 - Agoura model: No
 
@@ -1160,7 +1160,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Colorsound Wah-fuzz
 - Agoura model: No
 
@@ -1177,7 +1177,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Maestro Boomerang
 - Agoura model: No
 
@@ -1194,7 +1194,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Dunlop Cry Baby Super
 - Agoura model: No
 
@@ -1211,7 +1211,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 3.1
+- DSP usage estimate: 3.1
 - Based on: Dunlop Cry Baby Fasel model 310
 - Agoura model: No
 
@@ -1228,7 +1228,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 2.0
+- DSP usage estimate: 2.0
 - Based on: Dunlop Bass Cry Baby Model 105Q
 - Agoura model: No
 
@@ -1245,7 +1245,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: RMC Real McCoy 1
 - Agoura model: No
 
@@ -1262,7 +1262,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 3.1
+- DSP usage estimate: 3.1
 - Based on: Vox V846
 - Agoura model: No
 
@@ -1279,7 +1279,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1296,7 +1296,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Unknown
-- DSP usage: 1.9
+- DSP usage estimate: 1.9
 - Based on: Arbiter Cry Baby
 - Agoura model: No
 
@@ -1313,7 +1313,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Flanger/Tape
-- DSP usage: 3.9
+- DSP usage estimate: 3.9
 - Based on: A/DA Flanger
 - Agoura model: No
 
@@ -1337,7 +1337,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Tremolo
-- DSP usage: 2.1
+- DSP usage estimate: 2.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1361,7 +1361,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Tremolo
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Fender optical tremolo circuit
 - Agoura model: No
 
@@ -1380,7 +1380,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Phaser
-- DSP usage: 3.1
+- DSP usage estimate: 3.1
 - Based on: Electro-Harmonix Small Stone
 - Agoura model: No
 
@@ -1399,7 +1399,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Ring Mod
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1428,7 +1428,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Wham
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Digitech Whammy
 - Agoura model: No
 
@@ -1449,7 +1449,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Modded Arion SCH-Z chorus
 - Agoura model: No
 
@@ -1472,7 +1472,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Pitch
-- DSP usage: 16.2
+- DSP usage estimate: 16.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1493,7 +1493,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 16.2
+- DSP usage estimate: 16.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1514,7 +1514,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Pitch
-- DSP usage: 17.5
+- DSP usage estimate: 17.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1540,7 +1540,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Wham
-- DSP usage: 17.5
+- DSP usage estimate: 17.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1563,7 +1563,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Flanger/Tape
-- DSP usage: 3.7
+- DSP usage estimate: 3.7
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1586,7 +1586,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Phaser
-- DSP usage: 2.0
+- DSP usage estimate: 2.0
 - Based on: MXR Phase 90
 - Agoura model: No
 
@@ -1605,7 +1605,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Pitch
-- DSP usage: 3.5
+- DSP usage estimate: 3.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1627,7 +1627,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Eventide H3000
 - Agoura model: No
 
@@ -1646,7 +1646,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1667,7 +1667,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Arbiter Cry Baby
 - Agoura model: No
 
@@ -1688,7 +1688,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Tremolo
-- DSP usage: 1.5
+- DSP usage estimate: 1.5
 - Based on: BOSS PN-2
 - Agoura model: No
 
@@ -1709,7 +1709,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 1.8
+- DSP usage estimate: 1.8
 - Based on: BOSS PN-2
 - Agoura model: No
 
@@ -1726,7 +1726,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Chorus
-- DSP usage: 4.7
+- DSP usage estimate: 4.7
 - Based on: Dytronics Tri-Stereo Chorus
 - Agoura model: No
 
@@ -1754,7 +1754,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Rotary
-- DSP usage: 7.2
+- DSP usage estimate: 7.2
 - Based on: Yamaha RA-200
 - Agoura model: No
 
@@ -1785,7 +1785,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Pitch
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Eventide H3000
 - Agoura model: No
 
@@ -1811,7 +1811,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 2.3
+- DSP usage estimate: 2.3
 - Based on: Digitech Whammy
 - Agoura model: No
 
@@ -1830,7 +1830,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Phaser
-- DSP usage: 2.4
+- DSP usage estimate: 2.4
 - Based on: Shin-ei Uni-Vibe
 - Agoura model: No
 
@@ -1852,7 +1852,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Unknown
-- DSP usage: 2.8
+- DSP usage estimate: 2.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1869,7 +1869,7 @@ Model count: 94
 - Type: Pitch
 - Category: `pitch`
 - Class: Unknown
-- DSP usage: 2.9
+- DSP usage estimate: 2.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1886,7 +1886,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1907,7 +1907,7 @@ Model count: 94
 - Type: Modulation
 - Category: `modulation`
 - Class: Rotary
-- DSP usage: 5.5
+- DSP usage estimate: 5.5
 - Based on: Fender Vibratone
 - Agoura model: No
 
@@ -1932,7 +1932,7 @@ Model count: 94
 - Type: Wah
 - Category: `wah`
 - Class: Wah
-- DSP usage: 1.3
+- DSP usage estimate: 1.3
 - Based on: BOSS PN-2
 - Agoura model: No
 

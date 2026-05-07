@@ -2,7 +2,7 @@
 
 Minimal upload pack covering guitar and bass amp and preamp blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 8.7
+- DSP usage estimate: 8.7
 - Based on: Gallien-Krueger GK 800RB
 - Agoura model: No
 
@@ -42,7 +42,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Gallien-Krueger GK 800RB
 - Agoura model: No
 
@@ -67,7 +67,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.8
+- DSP usage estimate: 14.8
 - Based on: Bogner Shiva
 - Agoura model: No
 
@@ -95,7 +95,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.8
+- DSP usage estimate: 9.8
 - Based on: Bogner Shiva
 - Agoura model: No
 
@@ -119,7 +119,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Bogner Ãerschall
 - Agoura model: No
 
@@ -146,7 +146,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.1
+- DSP usage estimate: 9.1
 - Based on: Bogner Ãerschall
 - Agoura model: No
 
@@ -169,7 +169,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 22.2
+- DSP usage estimate: 22.2
 - Based on: Bogner Ecstacy 101B, EL34 (Blue channel)
 - Agoura model: Yes
 
@@ -201,7 +201,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.3
+- DSP usage estimate: 13.3
 - Based on: Bogner Ecstacy 101B, EL34 (Blue channel)
 - Agoura model: No
 
@@ -234,7 +234,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.1
+- DSP usage estimate: 9.1
 - Based on: Bogner Ecstacy 101B, EL34 (Blue channel)
 - Agoura model: No
 
@@ -259,7 +259,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 23.7
+- DSP usage estimate: 23.7
 - Based on: Bogner Ecstacy 101B, EL34 (Red channel)
 - Agoura model: Yes
 
@@ -291,7 +291,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.7
+- DSP usage estimate: 14.7
 - Based on: Bogner Ecstacy 101B, EL34 (Red channel)
 - Agoura model: No
 
@@ -324,7 +324,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Bogner Ecstacy 101B, EL34 (Red channel)
 - Agoura model: No
 
@@ -349,7 +349,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 15.8
+- DSP usage estimate: 15.8
 - Based on: Grammatico GSG100
 - Agoura model: No
 
@@ -385,7 +385,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 11.5
+- DSP usage estimate: 11.5
 - Based on: Grammatico GSG100
 - Agoura model: No
 
@@ -417,7 +417,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.5
+- DSP usage estimate: 11.5
 - Based on: Grammatico LaGrange (Bright channel)
 - Agoura model: No
 
@@ -445,7 +445,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Grammatico LaGrange (Bright channel)
 - Agoura model: No
 
@@ -470,7 +470,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.7
+- DSP usage estimate: 13.7
 - Based on: Grammatico LaGrange (Jumped channels)
 - Agoura model: No
 
@@ -498,7 +498,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.4
+- DSP usage estimate: 9.4
 - Based on: Grammatico LaGrange (Jumped channels)
 - Agoura model: No
 
@@ -523,7 +523,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.5
+- DSP usage estimate: 11.5
 - Based on: Grammatico LaGrange (Normal channel)
 - Agoura model: No
 
@@ -551,7 +551,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Grammatico LaGrange (Normal channel)
 - Agoura model: No
 
@@ -576,7 +576,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 10.3
+- DSP usage estimate: 10.3
 - Based on: Dr Z Route 66
 - Agoura model: No
 
@@ -604,7 +604,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 5.9
+- DSP usage estimate: 5.9
 - Based on: Dr Z Route 66
 - Agoura model: No
 
@@ -628,7 +628,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 6.9
+- DSP usage estimate: 6.9
 - Based on: Roland JC-120 Jazz Chorus
 - Agoura model: No
 
@@ -652,7 +652,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 4.5
+- DSP usage estimate: 4.5
 - Based on: Roland JC-120 Jazz Chorus
 - Agoura model: No
 
@@ -675,7 +675,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.2
+- DSP usage estimate: 11.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -702,7 +702,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 11.4
+- DSP usage estimate: 11.4
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -726,7 +726,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 9.0
+- DSP usage estimate: 9.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -754,7 +754,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -778,7 +778,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.3
+- DSP usage estimate: 13.3
 - Based on: Silvertone 1484
 - Agoura model: No
 
@@ -806,7 +806,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: Silvertone 1484
 - Agoura model: No
 
@@ -830,7 +830,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.9
+- DSP usage estimate: 13.9
 - Based on: Orange OR80
 - Agoura model: No
 
@@ -859,7 +859,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.6
+- DSP usage estimate: 7.6
 - Based on: Orange OR80
 - Agoura model: No
 
@@ -884,7 +884,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Orange AD200 MkIII
 - Agoura model: No
 
@@ -911,7 +911,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Orange AD200 MkIII
 - Agoura model: No
 
@@ -935,7 +935,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 16.3
+- DSP usage estimate: 16.3
 - Based on: Orange AD200 MkIII (Passive & Active inputs)
 - Agoura model: Yes
 
@@ -962,8 +962,8 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 27.0
-- Based on: Unknown
+- DSP usage estimate: 27.0
+- Based on: Orange Rockerverb 100MKIII
 - Agoura model: Yes
 
 ### Parameters
@@ -990,7 +990,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Orange Rockerverb 100 MkIII (dirty channel)
 - Agoura model: No
 
@@ -1017,7 +1017,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.9
+- DSP usage estimate: 9.9
 - Based on: Orange Rockerverb 100 MkIII (dirty channel)
 - Agoura model: No
 
@@ -1041,8 +1041,8 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 25.5
-- Based on: Unknown
+- DSP usage estimate: 25.5
+- Based on: Matchless DC30
 - Agoura model: Yes
 
 ### Parameters
@@ -1070,7 +1070,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.3
+- DSP usage estimate: 11.3
 - Based on: Matchless DC30 (Channel 1)
 - Agoura model: No
 
@@ -1098,7 +1098,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.8
+- DSP usage estimate: 6.8
 - Based on: Matchless DC30 (Channel 1)
 - Agoura model: No
 
@@ -1121,7 +1121,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.3
+- DSP usage estimate: 11.3
 - Based on: Matchless DC30 (Channel 2)
 - Agoura model: No
 
@@ -1148,7 +1148,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Matchless DC30 (Channel 2)
 - Agoura model: No
 
@@ -1170,7 +1170,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.4
+- DSP usage estimate: 14.4
 - Based on: Matchless DC30 (Jumped channels)
 - Agoura model: No
 
@@ -1200,7 +1200,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.7
+- DSP usage estimate: 9.7
 - Based on: Matchless DC30 (Jumped channels)
 - Agoura model: No
 
@@ -1225,7 +1225,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.0
+- DSP usage estimate: 13.0
 - Based on: Sunn Model T (Bright channel)
 - Agoura model: No
 
@@ -1254,7 +1254,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Sunn Model T (Bright channel)
 - Agoura model: No
 
@@ -1280,7 +1280,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.3
+- DSP usage estimate: 14.3
 - Based on: Sunn Model T (Jumped channels)
 - Agoura model: No
 
@@ -1309,7 +1309,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.8
+- DSP usage estimate: 9.8
 - Based on: Sunn Model T (Jumped channels)
 - Agoura model: No
 
@@ -1335,7 +1335,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.0
+- DSP usage estimate: 13.0
 - Based on: Sunn Model T (Normal channel)
 - Agoura model: No
 
@@ -1364,7 +1364,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.6
+- DSP usage estimate: 8.6
 - Based on: Sunn Model T (Normal channel)
 - Agoura model: No
 
@@ -1390,7 +1390,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.8
+- DSP usage estimate: 13.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1417,7 +1417,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 13.8
+- DSP usage estimate: 13.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1441,7 +1441,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.6
+- DSP usage estimate: 13.6
 - Based on: Peavey 5150
 - Agoura model: No
 
@@ -1470,7 +1470,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Peavey 5150
 - Agoura model: No
 
@@ -1494,7 +1494,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.6
+- DSP usage estimate: 14.6
 - Based on: Peavey Invective (Clean channel)
 - Agoura model: No
 
@@ -1524,7 +1524,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.6
+- DSP usage estimate: 10.6
 - Based on: Peavey Invective (Clean channel)
 - Agoura model: No
 
@@ -1549,7 +1549,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 18.4
+- DSP usage estimate: 18.4
 - Based on: Peavey Invective (Crunch channel)
 - Agoura model: No
 
@@ -1579,7 +1579,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 13.8
+- DSP usage estimate: 13.8
 - Based on: Peavey Invective (Crunch channel)
 - Agoura model: No
 
@@ -1604,7 +1604,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 18.4
+- DSP usage estimate: 18.4
 - Based on: Peavey Invective (Lead channel)
 - Agoura model: No
 
@@ -1634,7 +1634,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Peavey Invective (Lead channel)
 - Agoura model: No
 
@@ -1659,7 +1659,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 10.5
+- DSP usage estimate: 10.5
 - Based on: Friedman BE-100 (clean channel)
 - Agoura model: No
 
@@ -1686,7 +1686,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Friedman BE-100 (clean channel)
 - Agoura model: No
 
@@ -1709,7 +1709,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.6
+- DSP usage estimate: 12.6
 - Based on: Friedman BE-100 (BE/HBE channel)
 - Agoura model: No
 
@@ -1740,7 +1740,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.7
+- DSP usage estimate: 10.7
 - Based on: Friedman BE-100 (BE/HBE channel)
 - Agoura model: No
 
@@ -1767,7 +1767,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 25.0
+- DSP usage estimate: 25.0
 - Based on: Revv Generator 120 (Purple/Gain Channel 3)
 - Agoura model: Yes
 
@@ -1800,7 +1800,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 27.0
+- DSP usage estimate: 27.0
 - Based on: Revv Generator 120 (Red/High Gain Channel 4)
 - Agoura model: Yes
 
@@ -1833,7 +1833,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Revv Generator 120 (Purple/Gain Ch. 3)
 - Agoura model: No
 
@@ -1863,7 +1863,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.2
+- DSP usage estimate: 10.2
 - Based on: Revv Generator 120 (Purple/Gain Ch. 3)
 - Agoura model: No
 
@@ -1888,7 +1888,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Revv Generator 120 (Red/High Gain Ch. 4)
 - Agoura model: No
 
@@ -1918,7 +1918,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.4
+- DSP usage estimate: 10.4
 - Based on: Revv Generator 120 (Red/High Gain Ch. 4)
 - Agoura model: No
 
@@ -1943,7 +1943,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 22.5
+- DSP usage estimate: 22.5
 - Based on: Soldano SLO-100 (Normal & Overdrive channels)
 - Agoura model: Yes
 
@@ -1973,7 +1973,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.1
+- DSP usage estimate: 13.1
 - Based on: Soldano SLO-100 (Clean channel)
 - Agoura model: No
 
@@ -2001,7 +2001,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.9
+- DSP usage estimate: 8.9
 - Based on: Soldano SLO-100 (Clean channel)
 - Agoura model: No
 
@@ -2025,7 +2025,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.2
+- DSP usage estimate: 13.2
 - Based on: Soldano SLO-100 (Crunch channel)
 - Agoura model: No
 
@@ -2053,7 +2053,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.6
+- DSP usage estimate: 8.6
 - Based on: Soldano SLO-100 (Crunch channel)
 - Agoura model: No
 
@@ -2077,7 +2077,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.8
+- DSP usage estimate: 14.8
 - Based on: Soldano SLO-100 (Overdrive channel)
 - Agoura model: No
 
@@ -2105,7 +2105,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.5
+- DSP usage estimate: 10.5
 - Based on: Soldano SLO-100 (Overdrive channel)
 - Agoura model: No
 
@@ -2129,7 +2129,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 8.0
+- DSP usage estimate: 8.0
 - Based on: Supro S6616
 - Agoura model: No
 
@@ -2157,7 +2157,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.7
+- DSP usage estimate: 7.7
 - Based on: Supro S6616
 - Agoura model: No
 
@@ -2181,7 +2181,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.2
+- DSP usage estimate: 13.2
 - Based on: Gibson EH-185
 - Agoura model: No
 
@@ -2209,7 +2209,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.1
+- DSP usage estimate: 8.1
 - Based on: Gibson EH-185
 - Agoura model: No
 
@@ -2233,7 +2233,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.1
+- DSP usage estimate: 12.1
 - Based on: Fender Bassman (Bright channel)
 - Agoura model: No
 
@@ -2261,7 +2261,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Fender Bassman (Bright channel)
 - Agoura model: No
 
@@ -2285,7 +2285,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.1
+- DSP usage estimate: 12.1
 - Based on: Fender Bassman (Normal channel)
 - Agoura model: No
 
@@ -2313,7 +2313,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Fender Bassman (Normal channel)
 - Agoura model: No
 
@@ -2337,7 +2337,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 20.5
+- DSP usage estimate: 20.5
 - Based on: Fender Champ 5F1 (Low & High inputs)
 - Agoura model: Yes
 
@@ -2362,7 +2362,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.7
+- DSP usage estimate: 11.7
 - Based on: Fender Deluxe Reverb (Normal channel)
 - Agoura model: No
 
@@ -2390,7 +2390,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Fender Deluxe Reverb (Normal channel)
 - Agoura model: No
 
@@ -2414,7 +2414,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.0
+- DSP usage estimate: 13.0
 - Based on: Fender Deluxe Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2442,7 +2442,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.1
+- DSP usage estimate: 8.1
 - Based on: Fender Deluxe Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2466,7 +2466,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 19.5
+- DSP usage estimate: 19.5
 - Based on: Fender Twin Reverb AB763 (Normal & Vibrato channels)
 - Agoura model: Yes
 
@@ -2494,7 +2494,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.1
+- DSP usage estimate: 12.1
 - Based on: Fender Twin Reverb (Normal channel)
 - Agoura model: No
 
@@ -2522,7 +2522,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.7
+- DSP usage estimate: 6.7
 - Based on: Fender Twin Reverb (Normal channel)
 - Agoura model: No
 
@@ -2546,7 +2546,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.0
+- DSP usage estimate: 13.0
 - Based on: Fender Twin Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2574,7 +2574,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.9
+- DSP usage estimate: 7.9
 - Based on: Fender Twin Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2598,7 +2598,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 25.1
+- DSP usage estimate: 25.1
 - Based on: Fender Bassman Silverface (Bass, Normal, & Jumped channels)
 - Agoura model: Yes
 
@@ -2629,7 +2629,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 12.3
+- DSP usage estimate: 12.3
 - Based on: Marshall JCM-800 (2203)
 - Agoura model: No
 
@@ -2657,7 +2657,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 9.2
+- DSP usage estimate: 9.2
 - Based on: Marshall JCM-800 (2203)
 - Agoura model: No
 
@@ -2682,7 +2682,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 21.0
+- DSP usage estimate: 21.0
 - Based on: Fender Deluxe Reverb AB763 (Normal & Vibrato channels)
 - Agoura model: Yes
 
@@ -2708,7 +2708,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.7
+- DSP usage estimate: 12.7
 - Based on: Fender Princeton Reverb
 - Agoura model: No
 
@@ -2736,7 +2736,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.3
+- DSP usage estimate: 8.3
 - Based on: Fender Princeton Reverb
 - Agoura model: No
 
@@ -2760,7 +2760,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 15.5
+- DSP usage estimate: 15.5
 - Based on: Fender Princeton Reverb AA1164
 - Agoura model: Yes
 
@@ -2785,7 +2785,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Fender Champ
 - Agoura model: No
 
@@ -2813,7 +2813,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.1
+- DSP usage estimate: 7.1
 - Based on: Fender Champ
 - Agoura model: No
 
@@ -2837,7 +2837,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 20.4
+- DSP usage estimate: 20.4
 - Based on: Fender Super Reverb (Normal & Vibrato channels)
 - Agoura model: Yes
 
@@ -2865,7 +2865,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Fender Super Reverb (Normal channel)
 - Agoura model: No
 
@@ -2894,7 +2894,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.8
+- DSP usage estimate: 6.8
 - Based on: Fender Super Reverb (Normal channel)
 - Agoura model: No
 
@@ -2919,7 +2919,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.5
+- DSP usage estimate: 12.5
 - Based on: Fender Super Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2948,7 +2948,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.1
+- DSP usage estimate: 8.1
 - Based on: Fender Super Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2973,7 +2973,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 23.5
+- DSP usage estimate: 23.5
 - Based on: Fender Bassman 5F6A (Normal, Bright, & Jumped channels)
 - Agoura model: Yes
 
@@ -3002,7 +3002,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 8.9
+- DSP usage estimate: 8.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -3030,7 +3030,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.0
+- DSP usage estimate: 9.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -3055,7 +3055,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.5
+- DSP usage estimate: 12.5
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -3082,7 +3082,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 12.9
+- DSP usage estimate: 12.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -3106,7 +3106,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.2
+- DSP usage estimate: 13.2
 - Based on: Victoria Electro King
 - Agoura model: No
 
@@ -3134,7 +3134,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.2
+- DSP usage estimate: 9.2
 - Based on: Victoria Electro King
 - Agoura model: No
 
@@ -3159,7 +3159,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.5
+- DSP usage estimate: 13.5
 - Based on: Hiwatt DR-103 (Brilliant channel)
 - Agoura model: No
 
@@ -3187,7 +3187,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Hiwatt DR-103 (Brilliant channel)
 - Agoura model: No
 
@@ -3212,7 +3212,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 26.5
+- DSP usage estimate: 26.5
 - Based on: Hiwatt DR-103 (Normal, Bright, & Jumped channels)
 - Agoura model: Yes
 
@@ -3241,7 +3241,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 6.1
+- DSP usage estimate: 6.1
 - Based on: Acoustic 360
 - Agoura model: No
 
@@ -3269,7 +3269,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: Acoustic 360
 - Agoura model: No
 

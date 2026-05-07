@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for guitar amp and preamp blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.2
+- DSP usage estimate: 11.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -45,7 +45,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.2
+- DSP usage estimate: 10.2
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -70,7 +70,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 10.1
+- DSP usage estimate: 10.1
 - Based on: Vox AC-30 Fawn (Bright channel)
 - Agoura model: No
 
@@ -98,7 +98,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 5.7
+- DSP usage estimate: 5.7
 - Based on: Vox AC-30 Fawn (Bright channel)
 - Agoura model: No
 
@@ -121,7 +121,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 10.1
+- DSP usage estimate: 10.1
 - Based on: Vox AC-30 Fawn (Normal channel)
 - Agoura model: No
 
@@ -149,7 +149,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.0
+- DSP usage estimate: 6.0
 - Based on: Vox AC-30 Fawn (Normal channel)
 - Agoura model: No
 
@@ -172,7 +172,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.5
+- DSP usage estimate: 13.5
 - Based on: ENGL Fireball 100
 - Agoura model: No
 
@@ -201,7 +201,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.6
+- DSP usage estimate: 9.6
 - Based on: ENGL Fireball 100
 - Agoura model: No
 
@@ -226,7 +226,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.5
+- DSP usage estimate: 12.5
 - Based on: Paul Reed Smith Archon (Clean channel)
 - Agoura model: No
 
@@ -256,7 +256,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.9
+- DSP usage estimate: 7.9
 - Based on: Paul Reed Smith Archon (Clean channel)
 - Agoura model: No
 
@@ -281,7 +281,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.7
+- DSP usage estimate: 13.7
 - Based on: Paul Reed Smith Archon (Lead channel)
 - Agoura model: No
 
@@ -310,7 +310,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.1
+- DSP usage estimate: 9.1
 - Based on: Paul Reed Smith Archon (Lead channel)
 - Agoura model: No
 
@@ -334,7 +334,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.9
+- DSP usage estimate: 11.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -361,7 +361,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 12.1
+- DSP usage estimate: 12.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -385,7 +385,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 8.9
+- DSP usage estimate: 8.9
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -412,7 +412,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.3
+- DSP usage estimate: 8.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -435,7 +435,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.9
+- DSP usage estimate: 13.9
 - Based on: Marshall JCM-800, 2203, 100W
 - Agoura model: No
 
@@ -464,7 +464,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 14.5
+- DSP usage estimate: 14.5
 - Based on: Marshall JCM-800, 2203, 100W
 - Agoura model: No
 
@@ -489,7 +489,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 21.0
+- DSP usage estimate: 21.0
 - Based on: Marshall JCM-800, 100W, 2203 (Low and High inputs)
 - Agoura model: Yes
 
@@ -517,7 +517,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.2
+- DSP usage estimate: 14.2
 - Based on: Marshall JCM-800, 2204, 50W
 - Agoura model: No
 
@@ -545,7 +545,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.1
+- DSP usage estimate: 10.1
 - Based on: Marshall JCM-800, 2204, 50W
 - Agoura model: No
 
@@ -569,7 +569,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.6
+- DSP usage estimate: 12.6
 - Based on: Marshall JTM-45 (Bright channel)
 - Agoura model: No
 
@@ -597,7 +597,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.6
+- DSP usage estimate: 7.6
 - Based on: Marshall JTM-45 (Bright channel)
 - Agoura model: No
 
@@ -621,7 +621,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.6
+- DSP usage estimate: 12.6
 - Based on: Marshall JTM-45 (Normal channel)
 - Agoura model: No
 
@@ -649,7 +649,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.6
+- DSP usage estimate: 7.6
 - Based on: Marshall JTM-45 (Normal channel)
 - Agoura model: No
 
@@ -673,7 +673,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 24.0
+- DSP usage estimate: 24.0
 - Based on: Marshall Silver Jubilee (Rhythm, Rhythm Clip, & Lead channels)
 - Agoura model: Yes
 
@@ -702,7 +702,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.7
+- DSP usage estimate: 12.7
 - Based on: Park 75 (Bright channel)
 - Agoura model: No
 
@@ -730,7 +730,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Park 75 (Bright channel)
 - Agoura model: No
 
@@ -754,7 +754,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.7
+- DSP usage estimate: 12.7
 - Based on: Park 75 (Normal channel)
 - Agoura model: No
 
@@ -782,7 +782,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Park 75 (Normal channel)
 - Agoura model: No
 
@@ -806,7 +806,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 23.0
+- DSP usage estimate: 23.0
 - Based on: Marshall Super Lead 100 (Normal, Bright & Jumped channels)
 - Agoura model: Yes
 
@@ -835,7 +835,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.5
+- DSP usage estimate: 14.5
 - Based on: Marshall Super Lead 100 (Bright channel)
 - Agoura model: No
 
@@ -863,7 +863,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.7
+- DSP usage estimate: 9.7
 - Based on: Marshall Super Lead 100 (Bright channel)
 - Agoura model: No
 
@@ -887,7 +887,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 16.3
+- DSP usage estimate: 16.3
 - Based on: Marshall Super Lead 100 (Normal channel)
 - Agoura model: No
 
@@ -916,7 +916,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 11.2
+- DSP usage estimate: 11.2
 - Based on: Marshall Super Lead 100 (Normal channel)
 - Agoura model: No
 
@@ -941,7 +941,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.3
+- DSP usage estimate: 14.3
 - Based on: Marshall Super Lead 100 (Normal channel)
 - Agoura model: No
 
@@ -969,7 +969,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.5
+- DSP usage estimate: 9.5
 - Based on: Marshall Super Lead 100 (Normal channel)
 - Agoura model: No
 
@@ -993,7 +993,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.9
+- DSP usage estimate: 13.9
 - Based on: Marshall JTM-50 (Bright channel)
 - Agoura model: No
 
@@ -1021,7 +1021,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.9
+- DSP usage estimate: 8.9
 - Based on: Marshall JTM-50 (Bright channel)
 - Agoura model: No
 
@@ -1045,7 +1045,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 15.2
+- DSP usage estimate: 15.2
 - Based on: Marshall JTM-50 (Jumped channels)
 - Agoura model: No
 
@@ -1074,7 +1074,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 10.6
+- DSP usage estimate: 10.6
 - Based on: Marshall JTM-50 (Jumped channels)
 - Agoura model: No
 
@@ -1099,7 +1099,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.9
+- DSP usage estimate: 13.9
 - Based on: Marshall JTM-50 (Normal channel)
 - Agoura model: No
 
@@ -1127,7 +1127,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.9
+- DSP usage estimate: 8.9
 - Based on: Marshall JTM-50 (Normal channel)
 - Agoura model: No
 
@@ -1151,7 +1151,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 24.7
+- DSP usage estimate: 24.7
 - Based on: Mesa/Boogie Mark IIC (Normal & Lead channels, all switches)
 - Agoura model: Yes
 
@@ -1192,7 +1192,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.5
+- DSP usage estimate: 14.5
 - Based on: MESA/Boogie Mark IV (Lead channel)
 - Agoura model: No
 
@@ -1225,7 +1225,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.5
+- DSP usage estimate: 9.5
 - Based on: MESA/Boogie Mark IV (Lead channel)
 - Agoura model: No
 
@@ -1255,7 +1255,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.1
+- DSP usage estimate: 13.1
 - Based on: MESA/Boogie Mark IV (Channel I)
 - Agoura model: No
 
@@ -1287,7 +1287,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.2
+- DSP usage estimate: 8.2
 - Based on: MESA/Boogie Mark IV (Channel I)
 - Agoura model: No
 
@@ -1316,7 +1316,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.1
+- DSP usage estimate: 13.1
 - Based on: MESA/Boogie Mark IV (Channel II)
 - Agoura model: No
 
@@ -1348,7 +1348,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.2
+- DSP usage estimate: 8.2
 - Based on: MESA/Boogie Mark IV (Channel II)
 - Agoura model: No
 
@@ -1377,7 +1377,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 14.3
+- DSP usage estimate: 14.3
 - Based on: MESA/Boogie Dual Rectifier
 - Agoura model: No
 
@@ -1405,7 +1405,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.8
+- DSP usage estimate: 9.8
 - Based on: MESA/Boogie Dual Rectifier
 - Agoura model: No
 
@@ -1430,7 +1430,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.5
+- DSP usage estimate: 12.5
 - Based on: MESA/Boogie Lone Star (Clean channel)
 - Agoura model: No
 
@@ -1457,7 +1457,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.9
+- DSP usage estimate: 7.9
 - Based on: MESA/Boogie Lone Star (Clean channel)
 - Agoura model: No
 
@@ -1480,7 +1480,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.9
+- DSP usage estimate: 13.9
 - Based on: MESA/Boogie Lone Star (Drive channel)
 - Agoura model: No
 
@@ -1509,7 +1509,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: MESA/Boogie Lone Star (Drive channel)
 - Agoura model: No
 
@@ -1534,7 +1534,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.1
+- DSP usage estimate: 11.1
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1561,7 +1561,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 11.3
+- DSP usage estimate: 11.3
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1585,7 +1585,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.4
+- DSP usage estimate: 13.4
 - Based on: Ben Adrian Cartographer
 - Agoura model: No
 
@@ -1617,7 +1617,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.3
+- DSP usage estimate: 9.3
 - Based on: Ben Adrian Cartographer
 - Agoura model: No
 
@@ -1644,7 +1644,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 8.6
+- DSP usage estimate: 8.6
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1669,7 +1669,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.8
+- DSP usage estimate: 8.8
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1694,7 +1694,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.8
+- DSP usage estimate: 13.8
 - Based on: Diezel VH4 (Lead channel)
 - Agoura model: No
 
@@ -1722,7 +1722,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 9.8
+- DSP usage estimate: 9.8
 - Based on: Diezel VH4 (Lead channel)
 - Agoura model: No
 
@@ -1745,7 +1745,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 12.6
+- DSP usage estimate: 12.6
 - Based on: Diezel VH4 (Mega channel)
 - Agoura model: No
 
@@ -1773,7 +1773,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Diezel VH4 (Mega channel)
 - Agoura model: No
 
@@ -1796,7 +1796,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 13.0
+- DSP usage estimate: 13.0
 - Based on: Trainwreck Circuits Express
 - Agoura model: No
 
@@ -1825,7 +1825,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 7.9
+- DSP usage estimate: 7.9
 - Based on: Trainwreck Circuits Express
 - Agoura model: No
 
@@ -1850,7 +1850,7 @@ Model count: 70
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage: 11.7
+- DSP usage estimate: 11.7
 - Based on: Ã·13 JRT 9/15
 - Agoura model: No
 
@@ -1878,7 +1878,7 @@ Model count: 70
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Ã·13 JRT 9/15
 - Agoura model: No
 

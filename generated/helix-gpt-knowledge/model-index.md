@@ -1,6 +1,6 @@
 # Helix Stadium custom GPT knowledge index
 
-Generated on 2026-04-19T22:24:30.490746+00:00.
+Generated on 2026-05-07T22:33:14.224003+00:00.
 
 This index is for manual lookup while building or validating the GPT. It is not required as a knowledge upload.
 

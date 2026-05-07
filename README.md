@@ -586,7 +586,7 @@ python3 scripts/generate_model_id_map.py
 
 ### scripts/generate_helix_gpt_knowledge.py
 
-Generates upload-ready Markdown knowledge files for a Custom GPT. The output is aimed at retrieval-friendly upload files and includes model keys, model IDs, DSP usage, parameter descriptions, raw ranges, display ranges, defaults, and discrete valid values.
+Generates upload-ready Markdown knowledge files for a Custom GPT. The output is aimed at retrieval-friendly upload files and includes model keys, model IDs, metadata-derived DSP usage estimates, parameter descriptions, raw ranges, display ranges, defaults, and discrete valid values.
 
 Output:
 

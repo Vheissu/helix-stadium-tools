@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for bass amp and preamp blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-04-19T22:24:30.490746+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -17,7 +17,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 9.6
+- DSP usage estimate: 9.6
 - Based on: Aguilar DB51
 - Agoura model: No
 
@@ -41,7 +41,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 9.4
+- DSP usage estimate: 9.4
 - Based on: Aguilar DB51
 - Agoura model: No
 
@@ -65,7 +65,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 11.5
+- DSP usage estimate: 11.5
 - Based on: Aguilar DB751
 - Agoura model: Yes
 
@@ -90,7 +90,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 4.8
+- DSP usage estimate: 4.8
 - Based on: Aguilar Tone Hammer
 - Agoura model: No
 
@@ -114,7 +114,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 5.2
+- DSP usage estimate: 5.2
 - Based on: Aguilar Tone Hammer
 - Agoura model: No
 
@@ -138,7 +138,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 11.2
+- DSP usage estimate: 11.2
 - Based on: Ampeg B-15NF Portaflex
 - Agoura model: No
 
@@ -166,7 +166,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 6.9
+- DSP usage estimate: 6.9
 - Based on: Ampeg B-15NF Portaflex
 - Agoura model: No
 
@@ -191,7 +191,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 13.6
+- DSP usage estimate: 13.6
 - Based on: Ampeg B-15NF Portaflex
 - Agoura model: Yes
 
@@ -216,7 +216,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 25.0
+- DSP usage estimate: 25.0
 - Based on: Ampeg Heritageâ¢ 50th Anniversary SVT (Ch 1 Normal, Ch1 Bright, Ch2 Normal, Ch2 Bright & Jumped channels)
 - Agoura model: Yes
 
@@ -251,7 +251,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Ampeg SVT (bright channel)
 - Agoura model: No
 
@@ -279,7 +279,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 11.0
+- DSP usage estimate: 11.0
 - Based on: Ampeg SVT (bright channel)
 - Agoura model: No
 
@@ -304,7 +304,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 14.0
+- DSP usage estimate: 14.0
 - Based on: Ampeg SVT (Normal channel)
 - Agoura model: No
 
@@ -332,7 +332,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 11.0
+- DSP usage estimate: 11.0
 - Based on: Ampeg SVT (Normal channel)
 - Agoura model: No
 
@@ -357,7 +357,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 8.5
+- DSP usage estimate: 8.5
 - Based on: Ampeg SVT-4 PRO
 - Agoura model: No
 
@@ -394,7 +394,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 7.6
+- DSP usage estimate: 7.6
 - Based on: Ampeg SVT-4 PRO
 - Agoura model: No
 
@@ -431,7 +431,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 14.5
+- DSP usage estimate: 14.5
 - Based on: Marshall Super Bass 1992 (Normal, Bright & Jumped channels)
 - Agoura model: Yes
 
@@ -460,7 +460,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: Pearce BC-1 preamp (Channel 1)
 - Agoura model: No
 
@@ -487,7 +487,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Pearce BC-1 preamp (Channel 1)
 - Agoura model: No
 
@@ -514,7 +514,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: Pearce BC-1 preamp (Channel 2)
 - Agoura model: No
 
@@ -541,7 +541,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 4.0
+- DSP usage estimate: 4.0
 - Based on: Pearce BC-1 preamp (Channel 2)
 - Agoura model: No
 
@@ -568,7 +568,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: Pearce BC-1 preamp (Jumped channels)
 - Agoura model: No
 
@@ -602,7 +602,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Pearce BC-1 preamp (Jumped channels)
 - Agoura model: No
 
@@ -636,7 +636,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 11.1
+- DSP usage estimate: 11.1
 - Based on: MESA/Boogie Bass 400+ (channel 1)
 - Agoura model: No
 
@@ -664,7 +664,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 7.0
+- DSP usage estimate: 7.0
 - Based on: MESA/Boogie Bass 400+ (channel 1)
 - Agoura model: No
 
@@ -689,7 +689,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 11.1
+- DSP usage estimate: 11.1
 - Based on: MESA/Boogie Bass 400+ (channel 2)
 - Agoura model: No
 
@@ -717,7 +717,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 7.0
+- DSP usage estimate: 7.0
 - Based on: MESA/Boogie Bass 400+ (channel 2)
 - Agoura model: No
 
@@ -742,7 +742,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 6.5
+- DSP usage estimate: 6.5
 - Based on: MESA/Boogie M9 Carbine
 - Agoura model: No
 
@@ -767,7 +767,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 6.8
+- DSP usage estimate: 6.8
 - Based on: MESA/Boogie M9 Carbine
 - Agoura model: No
 
@@ -792,7 +792,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 4.3
+- DSP usage estimate: 4.3
 - Based on: Sunn Coliseum 300
 - Agoura model: No
 
@@ -820,7 +820,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 2.8
+- DSP usage estimate: 2.8
 - Based on: Sunn Coliseum 300
 - Agoura model: No
 
@@ -848,7 +848,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 8.7
+- DSP usage estimate: 8.7
 - Based on: Gallien-Krueger GK 800RB
 - Agoura model: No
 
@@ -873,7 +873,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 6.6
+- DSP usage estimate: 6.6
 - Based on: Gallien-Krueger GK 800RB
 - Agoura model: No
 
@@ -898,7 +898,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 10.8
+- DSP usage estimate: 10.8
 - Based on: Orange AD200 MkIII
 - Agoura model: No
 
@@ -925,7 +925,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 7.4
+- DSP usage estimate: 7.4
 - Based on: Orange AD200 MkIII
 - Agoura model: No
 
@@ -949,7 +949,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 16.3
+- DSP usage estimate: 16.3
 - Based on: Orange AD200 MkIII (Passive & Active inputs)
 - Agoura model: Yes
 
@@ -976,7 +976,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 25.1
+- DSP usage estimate: 25.1
 - Based on: Fender Bassman Silverface (Bass, Normal, & Jumped channels)
 - Agoura model: Yes
 
@@ -1007,7 +1007,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 12.3
+- DSP usage estimate: 12.3
 - Based on: Marshall JCM-800 (2203)
 - Agoura model: No
 
@@ -1035,7 +1035,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 9.2
+- DSP usage estimate: 9.2
 - Based on: Marshall JCM-800 (2203)
 - Agoura model: No
 
@@ -1060,7 +1060,7 @@ Model count: 40
 - Type: Amp
 - Category: `amp`
 - Class: Bass
-- DSP usage: 6.1
+- DSP usage estimate: 6.1
 - Based on: Acoustic 360
 - Agoura model: No
 
@@ -1088,7 +1088,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage: 5.0
+- DSP usage estimate: 5.0
 - Based on: Acoustic 360
 - Agoura model: No
 

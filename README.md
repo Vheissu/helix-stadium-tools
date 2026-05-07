@@ -104,7 +104,7 @@ with HelixSession(
 ) as session:
     info = session.get_product_info()
     print(info)
-    session.set_snapshot_name(0, "Dwayne!")
+    session.set_snapshot_name(0, "Verse A")
     update = session.recv_update(timeout=1.0)
     print(update)
 ```
@@ -347,7 +347,7 @@ Examples:
 python3 scripts/osc_session.py --host p35x1.local
 
 # Rename snapshot 0
-python3 scripts/osc_session.py --host p35x1.local --snapshot 0 "Dwayne!"
+python3 scripts/osc_session.py --host p35x1.local --snapshot 0 "Verse A"
 ```
 
 ## scripts/helix_control.py
@@ -358,7 +358,7 @@ Examples:
 
 ```bash
 # Rename a snapshot
-python3 scripts/helix_control.py snapshot-name --index 0 --name "Dwayne!"
+python3 scripts/helix_control.py snapshot-name --index 0 --name "Verse A"
 
 # Update a scribble strip label
 python3 scripts/helix_control.py scribble-label --stomp a.7 --label "MY LABEL"
@@ -468,7 +468,7 @@ python3 scripts/helix_control.py --duration 15 monitor
 
 # Increase timeout/retry policy
 python3 scripts/helix_control.py --timeout 6 --retries 2 --retry-delay 0.2 \
-  snapshot-name --index 0 --name "Dwayne!"
+  snapshot-name --index 0 --name "Verse A"
 
 # Run a batch of actions
 cat > /tmp/helix-actions.json <<'JSON'
@@ -707,3 +707,4 @@ python3 scripts/generate_mobile_models_json.py
 
 - This repository is for research and automation. Ensure your usage complies with the Line 6 EULA and local law.
 - The protocol details here are observational and may change with firmware or editor updates.
+- Do not use these tools to bypass limits enforced by the editor or device. If a command appears to accept an out-of-range edit, treat that as a validation issue rather than supported behaviour.

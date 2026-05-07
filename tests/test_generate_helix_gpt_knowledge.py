@@ -88,6 +88,8 @@ class TestGenerateHelixGptKnowledge(unittest.TestCase):
         self.assertIn("# Effects: delay", document)
         self.assertIn("## Simple Delay", document)
         self.assertIn("- Model key: `HD2_DelaySimple`", document)
+        self.assertIn("- DSP usage estimate: 3.2", document)
+        self.assertNotIn("- DSP usage:", document)
         self.assertIn("display range `0` to `1000` ms; default `250`", document)
 
     def test_build_upload_documents_keeps_expected_upload_count(self):

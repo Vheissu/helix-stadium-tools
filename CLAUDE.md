@@ -27,7 +27,7 @@ There is no build system. Use Python scripts directly.
   ```
 - Control the device (ZMTP handshake included):
   ```bash
-  python3 scripts/helix_control.py --host p35x1.local snapshot-name --index 0 --name "Dwayne!"
+  python3 scripts/helix_control.py --host p35x1.local snapshot-name --index 0 --name "Verse A"
   ```
 - Regenerate model JSON:
   ```bash
@@ -67,3 +67,4 @@ There is no build system. Use Python scripts directly.
 - Ensure the Helix Stadium is on the same network as your machine.
 - Remote Access must be enabled on the device for control commands to work.
 - Use a spare preset while experimenting to avoid accidental live changes.
+- Do not bypass DSP, model-count, routing, or other editor/device limits. Treat accepted out-of-range commands as validation bugs, not supported behaviour.

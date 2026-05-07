@@ -1,6 +1,9 @@
 import unittest
+from pathlib import Path
 
+import scripts.generate_helix_model_json as generate_helix_model_json
 from scripts.generate_helix_model_json import (
+    DEFAULT_OUT_DIR,
     SYNTHETIC_MODEL_FALLBACKS,
     augment_modeldefs_with_synthetic_entries,
     get_param_meta_for_model,
@@ -8,6 +11,10 @@ from scripts.generate_helix_model_json import (
 
 
 class TestGenerateModelJsonHelpers(unittest.TestCase):
+    def test_default_output_dir_is_repo_relative(self):
+        repo_root = Path(generate_helix_model_json.__file__).resolve().parents[1]
+        self.assertEqual(DEFAULT_OUT_DIR, repo_root / "generated" / "helix-models")
+
     def test_augment_modeldefs_adds_plugin_fallbacks(self):
         modeldefs = {
             "HD2_FXLoopMono1": {

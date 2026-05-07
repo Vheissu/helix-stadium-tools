@@ -21,6 +21,7 @@ DEFAULT_PARAM_META = f"{DEFAULT_APP_RES}/meta-data/parameter-meta"
 DEFAULT_CONTROLS = f"{DEFAULT_APP_RES}/P35Controls.json"
 DEFAULT_MODEL_META_DB = f"{DEFAULT_APP_RES}/ModelMetadataStore.sqlite3"
 DEFAULT_BASED_ON_OVERRIDES = str(Path(__file__).with_name("based_on_overrides.json"))
+DEFAULT_OUT_DIR = Path(__file__).resolve().parents[1] / "generated" / "helix-models"
 
 EFFECT_CATEGORIES = {
     "delay",
@@ -706,7 +707,7 @@ def main():
     ap.add_argument("--controls", default=DEFAULT_CONTROLS)
     ap.add_argument("--model-meta-db", default=DEFAULT_MODEL_META_DB)
     ap.add_argument("--based-on-overrides", default=DEFAULT_BASED_ON_OVERRIDES)
-    ap.add_argument("--out-dir", default="/Users/dwayne/Code/helix-editor/generated/helix-models")
+    ap.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
     args = ap.parse_args()
 
     modeldefs = load_modeldefs(args.modeldefs)

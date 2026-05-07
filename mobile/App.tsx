@@ -44,7 +44,7 @@ const FONT_BODY_MEDIUM = FONTS.bodyMedium;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 const FONT_DISPLAY = FONTS.display;
-const STANDARD_DSP_CAP = 70;
+const STANDARD_DSP_CAP = 66;
 const AUTO_SYNC_INTERVAL_MS = 4500;
 
 type HelixParamType = 'i' | 'f' | 'b';

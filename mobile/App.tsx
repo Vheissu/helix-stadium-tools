@@ -75,6 +75,7 @@ type BlockModel = {
   based_on?: string | null;
   category: string;
   usage?: number;
+  auto_cab_usage?: number;
   params: EditorParam[];
 };
 
@@ -476,6 +477,21 @@ export default function App() {
       targetSlot.path < 2 ? STANDARD_DSP_CAP - pathUsage.path1 : STANDARD_DSP_CAP - pathUsage.path2;
     return Math.max(0, remaining + (targetBlock?.usage ?? 0));
   }, [pathUsage, targetBlock?.usage, targetSlot.path]);
+  const shouldBudgetAutoCab = useCallback(
+    (model: Pick<BlockModel, 'category' | 'auto_cab_usage'>) => {
+      if (!autoCab || model.category !== 'amp' || !model.auto_cab_usage || targetBlock) {
+        return false;
+      }
+      const row = grid[targetSlot.path] ?? [];
+      return targetSlot.block < row.length - 1 && !row[targetSlot.block + 1];
+    },
+    [autoCab, grid, targetBlock, targetSlot.block, targetSlot.path]
+  );
+  const getProjectedInsertUsage = useCallback(
+    (model: Pick<BlockModel, 'usage' | 'category' | 'auto_cab_usage'>) =>
+      (model.usage ?? 0) + (shouldBudgetAutoCab(model) ? model.auto_cab_usage ?? 0 : 0),
+    [shouldBudgetAutoCab]
+  );
   const activeSetlist = useMemo(
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
@@ -1520,33 +1536,35 @@ export default function App() {
     setStatus('Notes sent');
   };
 
-  const insertModel = async (modelId: number, name: string, kind: string, usage = 0) => {
+  const insertModel = async (model: BlockModel, kind: string) => {
     const client = requireClient();
     if (!client) return;
     const p = targetSlot.path as PathIndex;
     const b = targetSlot.block;
     const blockId = effectBlockIndex(p, b);
-    const meta = modelLookup.get(modelId);
-    if (usage > availableUsage) {
-      setStatus(`DSP budget reached (${STANDARD_DSP_CAP} per path)`);
+    const meta = modelLookup.get(model.id);
+    const usage = model.usage ?? 0;
+    const requiredUsage = getProjectedInsertUsage(model);
+    if (requiredUsage > availableUsage) {
+      setStatus('Not enough processing headroom for that block');
       return;
     }
     const flow = rowToFlow(p);
     try {
-      await client.setModelWait(flow, blockId, modelId, 0);
+      await client.setModelWait(flow, blockId, model.id, 0);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Insert failed: ${message}`);
       return;
     }
-    setStatus(`Inserted ${name} into ${rowLabels[p]}-${b + 1}`);
+    setStatus(`Inserted ${model.name} into ${rowLabels[p]}-${b + 1}`);
     setGrid((prev) => {
       const next = cloneGrid(prev);
       if (next[p] && next[p][b] !== undefined) {
         next[p][b] = {
-          id: modelId,
-          name,
-          modelName: name,
+          id: model.id,
+          name: model.name,
+          modelName: model.name,
           realName: meta?.realName ?? null,
           kind,
           usage,
@@ -4625,7 +4643,7 @@ export default function App() {
                       </View>
                     )}
                     {section.models.map((item) => {
-                      const required = item.usage ?? 0;
+                      const required = getProjectedInsertUsage(item);
                       const canInsert = required <= availableUsage;
                       const color = getBlockColor(pickerType ?? '');
                       const sourceName = isUsefulRealName(item.based_on) ? item.based_on!.trim() : null;
@@ -4635,7 +4653,7 @@ export default function App() {
                         <Pressable
                           key={item.id}
                           style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
-                          onPress={() => insertModel(item.id, item.name, pickerType ?? 'fx', item.usage ?? 0)}
+                          onPress={() => insertModel(item, pickerType ?? 'fx')}
                           disabled={!canInsert}
                         >
                           <View style={[styles.modelDot, { backgroundColor: color }]} />

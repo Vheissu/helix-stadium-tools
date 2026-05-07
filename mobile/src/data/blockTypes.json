@@ -190,7 +190,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 612,
@@ -380,7 +381,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Vox AC-30 Fawn (Bright channel)"
+        "based_on": "Vox AC-30 Fawn (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 613,
@@ -570,7 +572,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Vox AC-30 Fawn (Normal channel)"
+        "based_on": "Vox AC-30 Fawn (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 610,
@@ -778,7 +781,8 @@
             "description": "When on, boosts midrange frequencies. Typically used when soloing."
           }
         ],
-        "based_on": "ENGL Fireball 100"
+        "based_on": "ENGL Fireball 100",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 663,
@@ -914,7 +918,8 @@
             "description": "When on, applies a 5 dB boost at 5-7 kHz."
           }
         ],
-        "based_on": "Aguilar DB51"
+        "based_on": "Aguilar DB51",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 809,
@@ -1065,7 +1070,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Aguilar DB751"
+        "based_on": "Aguilar DB751",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 726,
@@ -1195,7 +1201,8 @@
             "description": "Adjusts the Mid band EQ frequency between 180 Hz (0.0) and 1 kHz (10.0)."
           }
         ],
-        "based_on": "Aguilar Tone Hammer"
+        "based_on": "Aguilar Tone Hammer",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 542,
@@ -1385,7 +1392,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Ampeg B-15NF Portaflex"
+        "based_on": "Ampeg B-15NF Portaflex",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 759,
@@ -1530,7 +1538,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Ampeg B-15NF Portaflex"
+        "based_on": "Ampeg B-15NF Portaflex",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 805,
@@ -1848,7 +1857,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Ampeg Heritage\u00e2\u0084\u00a2 50th Anniversary SVT (Ch 1 Normal, Ch1 Bright, Ch2 Normal, Ch2 Bright & Jumped channels)"
+        "based_on": "Ampeg Heritage\u00e2\u0084\u00a2 50th Anniversary SVT (Ch 1 Normal, Ch1 Bright, Ch2 Normal, Ch2 Bright & Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 554,
@@ -2042,7 +2052,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Ampeg SVT (bright channel)"
+        "based_on": "Ampeg SVT (bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 555,
@@ -2236,7 +2247,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Ampeg SVT (Normal channel)"
+        "based_on": "Ampeg SVT (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 673,
@@ -2579,7 +2591,8 @@
             "description": "Controls the output level of the 9-band graphic EQ. If the EQ\u2019d signal is too soft, turn EQ Level up; if it\u2019s too loud, turn EQ Level down."
           }
         ],
-        "based_on": "Ampeg SVT-4 PRO"
+        "based_on": "Ampeg SVT-4 PRO",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 637,
@@ -2802,7 +2815,8 @@
             "description": "When on, increases the brightness of the amp."
           }
         ],
-        "based_on": "Paul Reed Smith Archon (Clean channel)"
+        "based_on": "Paul Reed Smith Archon (Clean channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 635,
@@ -3007,7 +3021,8 @@
             "description": "Boosts low frequencies in the power amp."
           }
         ],
-        "based_on": "Paul Reed Smith Archon (Lead channel)"
+        "based_on": "Paul Reed Smith Archon (Lead channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 713,
@@ -3185,7 +3200,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 643,
@@ -3360,7 +3376,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 735,
@@ -3568,7 +3585,8 @@
             "description": "Selects the input of the amp--Low or High. Like the real amp, the level and gain difference here is significant."
           }
         ],
-        "based_on": "Marshall JCM-800, 2203, 100W"
+        "based_on": "Marshall JCM-800, 2203, 100W",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 758,
@@ -3761,7 +3779,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Marshall JCM-800, 100W, 2203 (Low and High inputs)"
+        "based_on": "Marshall JCM-800, 100W, 2203 (Low and High inputs)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 608,
@@ -3951,7 +3970,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JCM-800, 2204, 50W"
+        "based_on": "Marshall JCM-800, 2204, 50W",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 604,
@@ -4141,7 +4161,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JTM-45 (Bright channel)"
+        "based_on": "Marshall JTM-45 (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 605,
@@ -4331,7 +4352,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JTM-45 (Normal channel)"
+        "based_on": "Marshall JTM-45 (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 834,
@@ -4541,7 +4563,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Marshall Silver Jubilee (Rhythm, Rhythm Clip, & Lead channels)"
+        "based_on": "Marshall Silver Jubilee (Rhythm, Rhythm Clip, & Lead channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 757,
@@ -4750,7 +4773,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Marshall Super Bass 1992 (Normal, Bright & Jumped channels)"
+        "based_on": "Marshall Super Bass 1992 (Normal, Bright & Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 600,
@@ -4940,7 +4964,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Park 75 (Bright channel)"
+        "based_on": "Park 75 (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 601,
@@ -5130,7 +5155,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Park 75 (Normal channel)"
+        "based_on": "Park 75 (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 756,
@@ -5339,7 +5365,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Marshall Super Lead 100 (Normal, Bright & Jumped channels)"
+        "based_on": "Marshall Super Lead 100 (Normal, Bright & Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 594,
@@ -5529,7 +5556,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall Super Lead 100 (Bright channel)"
+        "based_on": "Marshall Super Lead 100 (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 595,
@@ -5734,7 +5762,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall Super Lead 100 (Normal channel)"
+        "based_on": "Marshall Super Lead 100 (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 596,
@@ -5924,7 +5953,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall Super Lead 100 (Normal channel)"
+        "based_on": "Marshall Super Lead 100 (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 657,
@@ -6114,7 +6144,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JTM-50 (Bright channel)"
+        "based_on": "Marshall JTM-50 (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 658,
@@ -6319,7 +6350,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JTM-50 (Jumped channels)"
+        "based_on": "Marshall JTM-50 (Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 659,
@@ -6509,7 +6541,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JTM-50 (Normal channel)"
+        "based_on": "Marshall JTM-50 (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 649,
@@ -6694,7 +6727,8 @@
             "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
           }
         ],
-        "based_on": "Pearce BC-1 preamp (Channel 1)"
+        "based_on": "Pearce BC-1 preamp (Channel 1)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 647,
@@ -6879,7 +6913,8 @@
             "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
           }
         ],
-        "based_on": "Pearce BC-1 preamp (Channel 2)"
+        "based_on": "Pearce BC-1 preamp (Channel 2)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 645,
@@ -7172,7 +7207,8 @@
             "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
           }
         ],
-        "based_on": "Pearce BC-1 preamp (Jumped channels)"
+        "based_on": "Pearce BC-1 preamp (Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 832,
@@ -7578,7 +7614,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Mesa/Boogie Mark IIC (Normal & Lead channels, all switches)"
+        "based_on": "Mesa/Boogie Mark IIC (Normal & Lead channels, all switches)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 590,
@@ -7768,7 +7805,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "MESA/Boogie Bass 400+ (channel 1)"
+        "based_on": "MESA/Boogie Bass 400+ (channel 1)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 591,
@@ -7958,7 +7996,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "MESA/Boogie Bass 400+ (channel 2)"
+        "based_on": "MESA/Boogie Bass 400+ (channel 2)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 588,
@@ -8109,7 +8148,8 @@
             "description": "This 5-position parameter changes the overall tonal character of the amp: Voices 1 and 2 are variations of a \"scooped\" sound, Voices 4 and 5 are variations of a \"mid-forward\" sound, and Voice 3 is flat."
           }
         ],
-        "based_on": "MESA/Boogie M9 Carbine"
+        "based_on": "MESA/Boogie M9 Carbine",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 626,
@@ -8374,7 +8414,8 @@
             "description": "The amount of boost and cut is not equal for all bands. This is consistent with the real amp."
           }
         ],
-        "based_on": "MESA/Boogie Mark IV (Lead channel)"
+        "based_on": "MESA/Boogie Mark IV (Lead channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 622,
@@ -8624,7 +8665,8 @@
             "description": "The amount of boost and cut is not equal for all bands. This is consistent with the real amp."
           }
         ],
-        "based_on": "MESA/Boogie Mark IV (Channel I)"
+        "based_on": "MESA/Boogie Mark IV (Channel I)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 623,
@@ -8874,7 +8916,8 @@
             "description": "The amount of boost and cut is not equal for all bands. This is consistent with the real amp."
           }
         ],
-        "based_on": "MESA/Boogie Mark IV (Channel II)"
+        "based_on": "MESA/Boogie Mark IV (Channel II)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 586,
@@ -9064,7 +9107,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "MESA/Boogie Dual Rectifier"
+        "based_on": "MESA/Boogie Dual Rectifier",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 671,
@@ -9239,7 +9283,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "MESA/Boogie Lone Star (Clean channel)"
+        "based_on": "MESA/Boogie Lone Star (Clean channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 667,
@@ -9448,7 +9493,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "MESA/Boogie Lone Star (Drive channel)"
+        "based_on": "MESA/Boogie Lone Star (Drive channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 712,
@@ -9626,7 +9672,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 655,
@@ -9882,7 +9929,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Ben Adrian Cartographer"
+        "based_on": "Ben Adrian Cartographer",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 710,
@@ -10030,7 +10078,8 @@
             "description": "Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 693,
@@ -10220,7 +10269,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Diezel VH4 (Lead channel)"
+        "based_on": "Diezel VH4 (Lead channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 695,
@@ -10410,7 +10460,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Diezel VH4 (Mega channel)"
+        "based_on": "Diezel VH4 (Mega channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 639,
@@ -10606,7 +10657,8 @@
             "description": "Boost or cut up to 15.0 dB."
           }
         ],
-        "based_on": "Sunn Coliseum 300"
+        "based_on": "Sunn Coliseum 300",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 651,
@@ -10811,7 +10863,8 @@
             "description": "Selects the amount of brightness--Off (0), softer brightness (1), or harder, edgy brightness (2). This parameter is more dramatic at lower Drive settings."
           }
         ],
-        "based_on": "Trainwreck Circuits Express"
+        "based_on": "Trainwreck Circuits Express",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 584,
@@ -11001,7 +11054,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "\u00c3\u00b713 JRT 9/15"
+        "based_on": "\u00c3\u00b713 JRT 9/15",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 568,
@@ -11191,7 +11245,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 811,
@@ -11366,7 +11421,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "EVH 5150III 100, 6L6 (Blue channel)"
+        "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 746,
@@ -11556,7 +11612,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Gain and Master settings."
           }
         ],
-        "based_on": "EVH 5150III 100, 6L6 (Blue channel)"
+        "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 823,
@@ -11731,7 +11788,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "EVH 5150III 100, 6L6 (Red channel)"
+        "based_on": "EVH 5150III 100, 6L6 (Red channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 745,
@@ -11921,7 +11979,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Gain and Master settings."
           }
         ],
-        "based_on": "EVH 5150III 100, 6L6 (Red channel)"
+        "based_on": "EVH 5150III 100, 6L6 (Red channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 566,
@@ -12096,7 +12155,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 725,
@@ -12316,7 +12376,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 564,
@@ -12506,7 +12567,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 582,
@@ -12696,7 +12758,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Vox AC-15"
+        "based_on": "Vox AC-15",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 580,
@@ -12886,7 +12949,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Vox AC-30 with Top Boost"
+        "based_on": "Vox AC-30 with Top Boost",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 810,
@@ -13079,7 +13143,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Vox AC-30CC (Normal and Top Boost channels)"
+        "based_on": "Vox AC-30CC (Normal and Top Boost channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 630,
@@ -13254,7 +13319,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 682,
@@ -13444,7 +13510,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Tweed Deluxe 5C3 (Bright channel)"
+        "based_on": "Fender Tweed Deluxe 5C3 (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 683,
@@ -13634,7 +13701,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Tweed Deluxe 5C3 (Jumped channels)"
+        "based_on": "Fender Tweed Deluxe 5C3 (Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 684,
@@ -13824,7 +13892,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Tweed Deluxe 5C3 (Normal channel)"
+        "based_on": "Fender Tweed Deluxe 5C3 (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 578,
@@ -13972,7 +14041,8 @@
             "description": "When on, adds a notch filter around 500 Hz to provide a smoother, rounder sound."
           }
         ],
-        "based_on": "Gallien-Krueger GK 800RB"
+        "based_on": "Gallien-Krueger GK 800RB",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 576,
@@ -14162,7 +14232,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Bogner Shiva"
+        "based_on": "Bogner Shiva",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 574,
@@ -14337,7 +14408,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Bogner \u00c3\u009cerschall"
+        "based_on": "Bogner \u00c3\u009cerschall",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 818,
@@ -14604,7 +14676,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)"
+        "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 741,
@@ -14889,7 +14962,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)"
+        "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 819,
@@ -15156,7 +15230,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)"
+        "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 742,
@@ -15441,7 +15516,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)"
+        "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 731,
@@ -15770,7 +15846,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Grammatico GSG100"
+        "based_on": "Grammatico GSG100",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 676,
@@ -15960,7 +16037,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Grammatico LaGrange (Bright channel)"
+        "based_on": "Grammatico LaGrange (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 677,
@@ -16150,7 +16228,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Grammatico LaGrange (Jumped channels)"
+        "based_on": "Grammatico LaGrange (Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 678,
@@ -16340,7 +16419,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Grammatico LaGrange (Normal channel)"
+        "based_on": "Grammatico LaGrange (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 572,
@@ -16530,7 +16610,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Dr Z Route 66"
+        "based_on": "Dr Z Route 66",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 570,
@@ -16660,7 +16741,8 @@
             "description": "Adds additional treble and brightness to the tone. On the original amp, the Bright switch toggles off (0.0) and on (10.0); here you have continuous control (0.0-10.0)."
           }
         ],
-        "based_on": "Roland JC-120 Jazz Chorus"
+        "based_on": "Roland JC-120 Jazz Chorus",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 711,
@@ -16838,7 +16920,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 633,
@@ -17028,7 +17111,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 562,
@@ -17218,7 +17302,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Silvertone 1484"
+        "based_on": "Silvertone 1484",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 560,
@@ -17430,7 +17515,8 @@
             "description": "This 6-position switch selects different capacitors that change the preamp's low frequency cutoff. Higher values cut more of the bass."
           }
         ],
-        "based_on": "Orange OR80"
+        "based_on": "Orange OR80",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 733,
@@ -17605,7 +17691,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Orange AD200 MkIII"
+        "based_on": "Orange AD200 MkIII",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 754,
@@ -17783,7 +17870,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Orange AD200 MkIII (Passive & Active inputs)"
+        "based_on": "Orange AD200 MkIII (Passive & Active inputs)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 697,
@@ -17958,7 +18046,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Orange Rockerverb 100 MkIII (dirty channel)"
+        "based_on": "Orange Rockerverb 100 MkIII (dirty channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 616,
@@ -18148,7 +18237,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Matchless DC30 (Channel 1)"
+        "based_on": "Matchless DC30 (Channel 1)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 617,
@@ -18330,7 +18420,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Matchless DC30 (Channel 2)"
+        "based_on": "Matchless DC30 (Channel 2)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 618,
@@ -18557,7 +18648,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Matchless DC30 (Jumped channels)"
+        "based_on": "Matchless DC30 (Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 703,
@@ -18762,7 +18854,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Sunn Model T (Bright channel)"
+        "based_on": "Sunn Model T (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 702,
@@ -18967,7 +19060,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Sunn Model T (Jumped channels)"
+        "based_on": "Sunn Model T (Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 701,
@@ -19172,7 +19266,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Sunn Model T (Normal channel)"
+        "based_on": "Sunn Model T (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 714,
@@ -19350,7 +19445,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 558,
@@ -19555,7 +19651,8 @@
             "description": "Controls the level of low frequencies in the power amp."
           }
         ],
-        "based_on": "Peavey 5150"
+        "based_on": "Peavey 5150",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 723,
@@ -19775,7 +19872,8 @@
             "description": "Controls the low frequency response in the power amp."
           }
         ],
-        "based_on": "Peavey Invective (Clean channel)"
+        "based_on": "Peavey Invective (Clean channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 708,
@@ -19995,7 +20093,8 @@
             "description": "Controls the low frequency response in the power amp."
           }
         ],
-        "based_on": "Peavey Invective (Crunch channel)"
+        "based_on": "Peavey Invective (Crunch channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 707,
@@ -20215,7 +20314,8 @@
             "description": "Controls the low frequency response in the power amp."
           }
         ],
-        "based_on": "Peavey Invective (Lead channel)"
+        "based_on": "Peavey Invective (Lead channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 669,
@@ -20394,7 +20494,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Friedman BE-100 (clean channel)"
+        "based_on": "Friedman BE-100 (clean channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 665,
@@ -20641,7 +20742,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Friedman BE-100 (BE/HBE channel)"
+        "based_on": "Friedman BE-100 (BE/HBE channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 817,
@@ -20915,7 +21017,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Revv Generator 120 (Purple/Gain Channel 3)"
+        "based_on": "Revv Generator 120 (Purple/Gain Channel 3)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 806,
@@ -21189,7 +21292,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Revv Generator 120 (Red/High Gain Channel 4)"
+        "based_on": "Revv Generator 120 (Red/High Gain Channel 4)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 689,
@@ -21409,7 +21513,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Revv Generator 120 (Purple/Gain Ch. 3)"
+        "based_on": "Revv Generator 120 (Purple/Gain Ch. 3)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 675,
@@ -21629,7 +21734,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Revv Generator 120 (Red/High Gain Ch. 4)"
+        "based_on": "Revv Generator 120 (Red/High Gain Ch. 4)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 753,
@@ -21858,7 +21964,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Soldano SLO-100 (Normal & Overdrive channels)"
+        "based_on": "Soldano SLO-100 (Normal & Overdrive channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 550,
@@ -22048,7 +22155,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Soldano SLO-100 (Clean channel)"
+        "based_on": "Soldano SLO-100 (Clean channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 551,
@@ -22238,7 +22346,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Soldano SLO-100 (Crunch channel)"
+        "based_on": "Soldano SLO-100 (Crunch channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 548,
@@ -22428,7 +22537,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Soldano SLO-100 (Overdrive channel)"
+        "based_on": "Soldano SLO-100 (Overdrive channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 546,
@@ -22618,7 +22728,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Supro S6616"
+        "based_on": "Supro S6616",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 544,
@@ -22808,7 +22919,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Gibson EH-185"
+        "based_on": "Gibson EH-185",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 538,
@@ -22998,7 +23110,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Bassman (Bright channel)"
+        "based_on": "Fender Bassman (Bright channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 539,
@@ -23188,7 +23301,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Bassman (Normal channel)"
+        "based_on": "Fender Bassman (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 752,
@@ -23339,7 +23453,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Champ 5F1 (Low & High inputs)"
+        "based_on": "Fender Champ 5F1 (Low & High inputs)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 536,
@@ -23529,7 +23644,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Deluxe Reverb (Normal channel)"
+        "based_on": "Fender Deluxe Reverb (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 534,
@@ -23719,7 +23835,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Deluxe Reverb (Vibrato channel)"
+        "based_on": "Fender Deluxe Reverb (Vibrato channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 807,
@@ -23915,7 +24032,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Twin Reverb AB763 (Normal & Vibrato channels)"
+        "based_on": "Fender Twin Reverb AB763 (Normal & Vibrato channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 532,
@@ -24105,7 +24223,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Twin Reverb (Normal channel)"
+        "based_on": "Fender Twin Reverb (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 530,
@@ -24295,7 +24414,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Twin Reverb (Vibrato channel)"
+        "based_on": "Fender Twin Reverb (Vibrato channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 812,
@@ -24540,7 +24660,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Bassman Silverface (Bass, Normal, & Jumped channels)"
+        "based_on": "Fender Bassman Silverface (Bass, Normal, & Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 729,
@@ -24733,7 +24854,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Marshall JCM-800 (2203)"
+        "based_on": "Marshall JCM-800 (2203)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 751,
@@ -24896,7 +25018,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Deluxe Reverb AB763 (Normal & Vibrato channels)"
+        "based_on": "Fender Deluxe Reverb AB763 (Normal & Vibrato channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 691,
@@ -25086,7 +25209,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Princeton Reverb"
+        "based_on": "Fender Princeton Reverb",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 750,
@@ -25231,7 +25355,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Princeton Reverb AA1164"
+        "based_on": "Fender Princeton Reverb AA1164",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 528,
@@ -25421,7 +25546,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Fender Champ"
+        "based_on": "Fender Champ",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 833,
@@ -25617,7 +25743,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Super Reverb (Normal & Vibrato channels)"
+        "based_on": "Fender Super Reverb (Normal & Vibrato channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 737,
@@ -25825,7 +25952,8 @@
             "description": "When on, boosts high frequencies. Is more obvious when Drive is set low."
           }
         ],
-        "based_on": "Fender Super Reverb (Normal channel)"
+        "based_on": "Fender Super Reverb (Normal channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 739,
@@ -26033,7 +26161,8 @@
             "description": "When on, boosts high frequencies. Is more obvious when Drive is set low."
           }
         ],
-        "based_on": "Fender Super Reverb (Vibrato channel)"
+        "based_on": "Fender Super Reverb (Vibrato channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 749,
@@ -26242,7 +26371,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Fender Bassman 5F6A (Normal, Bright, & Jumped channels)"
+        "based_on": "Fender Bassman 5F6A (Normal, Bright, & Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 700,
@@ -26432,7 +26562,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 709,
@@ -26610,7 +26741,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Line 6 Original"
+        "based_on": "Line 6 Original",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 653,
@@ -26800,7 +26932,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Victoria Electro King"
+        "based_on": "Victoria Electro King",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 526,
@@ -26990,7 +27123,8 @@
             "description": "Determines how the power amp tubes\u2019 voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings."
           }
         ],
-        "based_on": "Hiwatt DR-103 (Brilliant channel)"
+        "based_on": "Hiwatt DR-103 (Brilliant channel)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 808,
@@ -27199,7 +27333,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Hiwatt DR-103 (Normal, Bright, & Jumped channels)"
+        "based_on": "Hiwatt DR-103 (Normal, Bright, & Jumped channels)",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 641,
@@ -27398,7 +27533,8 @@
             "description": "Controls the fine tuning of the Tuning Fork's reference tone."
           }
         ],
-        "based_on": "Acoustic 360"
+        "based_on": "Acoustic 360",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 835,
@@ -27614,7 +27750,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Matchless DC30"
+        "based_on": "Matchless DC30",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 844,
@@ -27807,7 +27944,8 @@
             "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
           }
         ],
-        "based_on": "Orange Rockerverb 100MKIII"
+        "based_on": "Orange Rockerverb 100MKIII",
+        "auto_cab_usage": 3.0
       },
       {
         "id": 836,

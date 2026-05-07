@@ -4,6 +4,8 @@ import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake } from './zmtp';
 import { coerceHelixBoolean, extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
 
+const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
+
 const fourcc = (text: string) => {
   if (text.length !== 4) throw new Error('fourcc must be 4 chars');
   const b = Buffer.from(text, 'utf8');
@@ -61,6 +63,16 @@ const buildPropertyBlob = (key: string, value: any, valueType: 's' | 'i' | 'f' |
     [fourcc('val_'), valueType === 'i' ? Number(value) : value],
   ]);
   return Buffer.concat([Buffer.from('lavppgsm', 'utf8'), payload]);
+};
+
+const formatStatusFailure = (address: string, vals: Array<any>) => {
+  const detailValues = vals.slice(1);
+  const statusNumbers = detailValues.map((value) => Number(value)).filter((value) => Number.isFinite(value));
+  if (statusNumbers.some((value) => DEVICE_RESOURCE_STATUS_CODES.has(value))) {
+    return 'Not enough processing headroom on the device.';
+  }
+  const detail = detailValues.join(', ');
+  return `${address} failed (${detail})`;
 };
 
 export type HelixPathClipboardEntry = {
@@ -276,8 +288,7 @@ export class HelixClient {
     if (vals.length >= 2) {
       const statusCode = Number(vals[1]);
       if (Number.isFinite(statusCode) && statusCode !== 0) {
-        const detail = vals.slice(1).join(', ');
-        throw new Error(`${address} failed (${detail})`);
+        throw new Error(formatStatusFailure(address, vals));
       }
     }
     return vals;

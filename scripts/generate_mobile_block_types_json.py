@@ -62,6 +62,24 @@ def build_block_param_list(model_key, model_info, uidef, param_meta, controls, h
     return build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
 
 
+def compute_auto_cab_usage(model_info, modeldefs):
+    cablink = model_info.get("cablink")
+    if not isinstance(cablink, list):
+        return 0.0
+    total = 0.0
+    for linked_model in cablink:
+        if not isinstance(linked_model, dict):
+            continue
+        linked_key = linked_model.get("id")
+        linked_info = modeldefs.get(linked_key)
+        if not isinstance(linked_info, dict):
+            continue
+        usage = linked_info.get("usage")
+        if isinstance(usage, (int, float)):
+            total += float(usage)
+    return total
+
+
 def load_model_catalog(path: str):
     catalog_path = Path(path)
     if not catalog_path.exists():
@@ -105,7 +123,7 @@ def build_catalog_model_entry(
         meta_category,
         display_name,
     )
-    return {
+    entry = {
         "id": model_id,
         "name": display_name,
         "based_on": resolve_based_on(
@@ -120,6 +138,10 @@ def build_catalog_model_entry(
         "usage": float(model_info.get("usage", 0) or 0),
         "params": build_block_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info),
     }
+    auto_cab_usage = compute_auto_cab_usage(model_info, modeldefs)
+    if auto_cab_usage:
+        entry["auto_cab_usage"] = auto_cab_usage
+    return entry
 
 
 def add_missing_catalog_models(
@@ -335,6 +357,11 @@ def main():
                 harness_model_info,
             )
             model["usage"] = usage_by_id.get(model_id, model.get("usage", 0) or 0)
+            auto_cab_usage = compute_auto_cab_usage(model_info, modeldefs)
+            if auto_cab_usage:
+                model["auto_cab_usage"] = auto_cab_usage
+            else:
+                model.pop("auto_cab_usage", None)
             model["based_on"] = resolve_based_on(
                 display_name,
                 model_id,

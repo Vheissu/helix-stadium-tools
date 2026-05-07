@@ -27,6 +27,9 @@ def build_osc(address: str, typetags: str, args):
             payload += struct.pack(">I", len(a))
             payload += a
             payload += b"\x00" * ((4 - (len(a) % 4)) % 4)
+        elif t in ("T", "F"):
+            # OSC booleans carry their value in the typetag and no payload.
+            continue
         else:
             raise ValueError(f"unsupported typetag: {t}")
     return addr + tt + payload

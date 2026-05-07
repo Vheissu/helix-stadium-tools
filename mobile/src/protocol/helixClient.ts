@@ -383,12 +383,12 @@ export class HelixClient {
   ) {
     const cmdId = this.nextCmdId();
     if (valueType === 'b') {
-      this.sendOsc('/HarnessParamValueSet', 'iiiiii', [
+      this.sendOsc('/HarnessParamValueSet', value ? 'iiiiTi' : 'iiiiFi', [
         cmdId,
         path,
         block,
         paramId,
-        value ? 1 : 0,
+        Boolean(value),
         flags,
       ]);
       return;
@@ -418,11 +418,11 @@ export class HelixClient {
     timeoutMs = 2500
   ) {
     if (valueType === 'b') {
-      return await this.sendAndWaitStatusCode('/HarnessParamValueSet', 'iiiii', [
+      return await this.sendAndWaitStatusCode('/HarnessParamValueSet', value ? 'iiiTi' : 'iiiFi', [
         path,
         block,
         paramId,
-        value ? 1 : 0,
+        Boolean(value),
         flags,
       ], timeoutMs);
     }

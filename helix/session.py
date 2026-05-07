@@ -832,7 +832,14 @@ class HelixSession:
         cmd_id = self.next_cmd_id
         if value_type is None and isinstance(value, float) and value.is_integer():
             value = int(value)
-        if value_type in ("i", "b") or isinstance(value, (bool, int)):
+        if value_type == "b" or (value_type is None and isinstance(value, bool)):
+            typetag = "T" if bool(value) else "F"
+            args = [cmd_id, path, block, param_id, bool(value), flags]
+            if wait_status:
+                return self.send_and_wait_status_code(cmd_id, "/HarnessParamValueSet", f"iiii{typetag}i", args)
+            self.send("/HarnessParamValueSet", f"iiii{typetag}i", args)
+            return None
+        if value_type == "i" or isinstance(value, (bool, int)):
             args = [cmd_id, path, block, param_id, int(bool(value)) if isinstance(value, bool) else int(value), flags]
             if wait_status:
                 return self.send_and_wait_status_code(cmd_id, "/HarnessParamValueSet", "iiiiii", args)

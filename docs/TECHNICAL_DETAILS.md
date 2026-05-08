@@ -391,6 +391,29 @@ The notes panel open/close events appear as `volatile.presetinfo.open` and
 `volatile.presetinfo.close` (type `i`, value `1`). These look like UI
 commands rather than persistent preset state.
 
+## Matrix Mixer device updates
+
+Hardware-side Matrix Mixer edits are emitted on the subscribed device stream
+after the port 2001 SUB handshake. A live read-only subscription captured these
+events while changing Matrix controls on the Helix itself:
+
+- `/syncMixChannelVolume ,iiiif [session, event_id, output_layer, channel, level_db]`
+- `/syncMixChannelPan ,iiiif [session, event_id, output_layer, channel, pan]`
+- `/syncMixChannelMute ,iiiii [session, event_id, output_layer, channel, enabled]`
+- `/syncMixChannelSolo ,iiiii [session, event_id, output_layer, channel, enabled]`
+- `/syncMixAttachedOut ,iii [...]`
+
+The observed pan range is centred at `0.0`, with hard left/right near `-1.0`
+and `1.0`. The observed volume values are in dB-like units and include values
+around `0.0`, negative attenuation, and positive boost. Captures saw output
+layer `2` and channel ids including `5` and `14` through `18`; the exact
+output-layer and channel-id mapping still needs a controlled capture.
+
+The desktop binary also contains `/syncMatrixMixer`, `/syncMixerLinkedOutputs`,
+and `/MixerSave`, but those were not observed in this short capture. These
+captures prove read-only Matrix state tracking is possible from device-originated
+events. Write/control commands are not confirmed yet.
+
 ## Model ID mapping
 
 Model IDs in `/ModelSet` and `/setModelWithMID` do **not** match `ModelMetadataStore.sqlite3`. They match the `id` field in the modeldefs msgpack file:
@@ -456,6 +479,8 @@ sudo tcpdump -i en0 -s 0 -U -w - tcp port 2001 or tcp port 2002 | \
 
 ## Capture gotchas
 
-- Edits made on the **device itself** do not traverse the network and will not show up in a capture.
+- Edits made on the **device itself** do not traverse the editor-to-device
+  command stream. Device-to-client subscriptions can still receive hardware
+  state updates such as Matrix Mixer sync events.
 - Use the **macOS editor app** for any actions you want to observe.
 - If your `.pcap` file is ~24 bytes, no packets were captured; re‑run the capture and ensure the editor is connected.

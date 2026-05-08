@@ -420,11 +420,25 @@ Observed output layers:
 - `3`: Phones Matrix Mixer, selected with LED index `16`
 
 Selecting an output layer emits `/syncMixAttachedOut` twice, followed by LED
-updates for the three Matrix output buttons. Captures across XLR, 1/4", and
-Phones saw channel ids including `5` and `14` through `18`. Those ids line up
-with the group of controls changed during testing (paths, song, count-in,
-USB 1/2, and Bluetooth), but the exact channel-id-to-label mapping still needs
-a one-control-at-a-time capture.
+updates for the three Matrix output buttons. `server.mixer.state` also exposes
+the same Matrix state as a property blob (`type: v`). Its `lyrs` array contains
+the three output layers in the same order (`1/4"`, XLR, Phones).
+
+Observed Matrix channel ids:
+
+- `1`: Path 1A
+- `2`: Path 1B
+- `3`: Path 2A
+- `4`: Path 2B
+- `5`: Paths
+- `6` through `13`: Track 1 through Track 8
+- `14`: Song
+- `15`: Click
+- `16`: Count
+- `17`: USB 1/2
+- `18`: Bluetooth
+- `19`: AUX In
+- `20` through `23`: Nexus 1 through Nexus 4
 
 Reusable capture helper:
 
@@ -432,8 +446,10 @@ Reusable capture helper:
 python3 scripts/matrix_mixer_monitor.py --host auto --duration 60 --include-led
 ```
 
-Confirmed write commands use the same `sync` addresses without the leading
-session/event fields. Send these on the command socket:
+### Matrix Mixer write attempts
+
+The same `sync` addresses can be sent on the command socket without the leading
+session/event fields:
 
 - `/syncMixChannelVolume ,iiif [cmd_id, output_layer, channel, level_db]`
 - `/syncMixChannelPan ,iiif [cmd_id, output_layer, channel, pan]`
@@ -442,14 +458,68 @@ session/event fields. Send these on the command socket:
 
 The device replies on the command socket with `/success ,ii [cmd_id, 0]` and
 then pushes the matching subscribed update with `[session, cmd_id, output_layer,
-channel, value]`. This was verified on layer `1` (1/4" Matrix Mixer), channel
-`5`, by setting volume to `6.0`, `0.0`, and `-120.0`; pan to `-1.0`, `0.0`,
-and `1.0`; and mute/solo to `1` and back to `0`.
+channel, value]`. However, live visual testing on the Helix showed these are
+accepted as sync/cache messages only. They do not visibly move the hardware
+Matrix Mixer slider, and `server.mixer.state` readback remains at the real
+hardware value.
 
-The desktop binary also contains `/syncMatrixMixer`, `/syncMixerLinkedOutputs`,
-and `/MixerSave`, but those were not observed in these captures. These captures
-prove Matrix state tracking and direct Matrix channel control are possible.
-Persistence/save behaviour is not confirmed yet.
+`/syncMatrixMixer ,iib [cmd_id, output_layer, blob]` was also tested with the
+full `server.mixer.state` value blob and the full property blob. Blob variants
+prefixed with `lavppgsm` are accepted and rebroadcast on the subscribed stream,
+but they also do not change the real Matrix Mixer readback. Raw state or
+single-layer blobs fail with `/error ... "SyncMatrixMixer: FAILED!"`. Sending
+the accepted full-state blob and then `/MixerSave ,i [cmd_id]` also returns
+success but does not persist the edited Matrix value.
+
+`/PropertyValueSet` for `server.mixer.state` is accepted when sent as a normal
+property blob, but does not drive the visible hardware Matrix Mixer either.
+
+The desktop binary contains `/SendMidiMessage ,ib [cmd_id, midi_blob]`. The blob
+is not raw MIDI bytes; it is the app's 20-byte `midiMessage` structure. For a CC
+message, byte layout is:
+
+- bytes `0..3`: little-endian integer `3` for CC
+- byte `12`: zero-based MIDI channel
+- byte `13`: CC number
+- byte `14`: CC value
+
+This shape returns `/status ,iii [cmd_id, 0, 0]`, while raw MIDI byte blobs fail
+with `/error ... "SendMidiMessage: failed"`. Sending Global CC 9 and CC 38 via
+this endpoint did not produce Matrix Mixer readback changes in network-only
+testing, so it appears to send MIDI out rather than feed the Helix's own MIDI
+input path.
+
+The desktop binary also exposes `MIDIValueToHXLocalID(midiMessage)`. For CC
+messages it derives a controller id as `(status_byte << 8) | cc_number`, where
+`status_byte` is `0xB0 | zero_based_channel`. For example:
+
+- MIDI channel 1 CC9 -> `0xB009`
+- MIDI channel 1 CC38 -> `0xB026`
+- MIDI channel 3 CC38 -> `0xB226`
+
+`/ControllerValueSet ,iif [cmd_id, controller_id, value]` accepts these ids and
+returns success, but testing with CC38 ids and both raw MIDI-style values
+(`100.0`, `105.0`) and normalised values (`0.2`, `0.8`) did not change Matrix
+Mixer readback. Sending the CC9 id (`0xB009`) pushes `/setControllerValue` back
+to clients, but does not emit Matrix attach/LED events, so it is not equivalent
+to an actual incoming Global CC.
+
+With USB-C connected, macOS exposes a CoreMIDI source and destination named
+`Helix Stadium XL`. Sending USB MIDI CCs to this destination returns CoreMIDI
+status `0`. USB MIDI channel 1 CC9 value `7` is confirmed to enter the Helix's
+real Global CC path: it emits 1/4" Matrix attach events, Matrix LED events, and
+`/setSelectedBlock`. USB CC38 sent while 1/4" Matrix is attached has not emitted
+Matrix value events or changed Matrix Mixer readback.
+
+The same CC9 message sent through network `/SendMidiMessage` returns success
+but emits no subscribed events. That endpoint appears to send MIDI out, not
+loop MIDI back into the Helix's own Global CC handler.
+
+Current conclusion: the editor protocol exposes Matrix Mixer readback and
+client sync events, but no confirmed network command has been found that
+actually controls the hardware Matrix Mixer. The official MIDI global controls
+may still work if delivered to the Helix through a real MIDI input path such as
+USB-C MIDI or DIN MIDI.
 
 ## Model ID mapping
 

@@ -401,13 +401,24 @@ events while changing Matrix controls on the Helix itself:
 - `/syncMixChannelPan ,iiiif [session, event_id, output_layer, channel, pan]`
 - `/syncMixChannelMute ,iiiii [session, event_id, output_layer, channel, enabled]`
 - `/syncMixChannelSolo ,iiiii [session, event_id, output_layer, channel, enabled]`
-- `/syncMixAttachedOut ,iii [...]`
+- `/syncMixAttachedOut ,iii [session, event_id, output_layer]`
 
 The observed pan range is centred at `0.0`, with hard left/right near `-1.0`
 and `1.0`. The observed volume values are in dB-like units and include values
-around `0.0`, negative attenuation, and positive boost. Captures saw output
-layer `2` and channel ids including `5` and `14` through `18`; the exact
-output-layer and channel-id mapping still needs a controlled capture.
+around `0.0`, negative attenuation, and positive boost.
+
+Observed output layers:
+
+- `1`: 1/4" Matrix Mixer, selected with LED index `14`
+- `2`: XLR Matrix Mixer, selected with LED index `15`
+- `3`: Phones Matrix Mixer, selected with LED index `16`
+
+Selecting an output layer emits `/syncMixAttachedOut` twice, followed by LED
+updates for the three Matrix output buttons. Captures across XLR, 1/4", and
+Phones saw channel ids including `5` and `14` through `18`. Those ids line up
+with the group of controls changed during testing (paths, song, count-in,
+USB 1/2, and Bluetooth), but the exact channel-id-to-label mapping still needs
+a one-control-at-a-time capture.
 
 The desktop binary also contains `/syncMatrixMixer`, `/syncMixerLinkedOutputs`,
 and `/MixerSave`, but those were not observed in this short capture. These

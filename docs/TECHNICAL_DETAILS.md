@@ -403,9 +403,15 @@ events while changing Matrix controls on the Helix itself:
 - `/syncMixChannelSolo ,iiiii [session, event_id, output_layer, channel, enabled]`
 - `/syncMixAttachedOut ,iii [session, event_id, output_layer]`
 
-The observed pan range is centred at `0.0`, with hard left/right near `-1.0`
-and `1.0`. The observed volume values are in dB-like units and include values
-around `0.0`, negative attenuation, and positive boost.
+The observed volume range is `-120.0` to `6.0`, matching the UI's `-120 dB`
+minimum and `+6.00 dB` maximum. A UI stop at `0.00 dB` emitted
+`0.000337966` in one live capture, so clients should round display values and
+compare near-zero values with tolerance.
+
+The observed pan range is normalised from `-1.0` to `1.0`: UI `L100` emits
+`-1.0`, centre emits `0.0`, and UI `R100` emits `1.0`. Intermediate UI values
+map proportionally, for example `L65` near `-0.65` and `R42` near `0.42`.
+Mute and solo values are integer booleans (`1` enabled, `0` disabled).
 
 Observed output layers:
 
@@ -426,10 +432,24 @@ Reusable capture helper:
 python3 scripts/matrix_mixer_monitor.py --host auto --duration 60 --include-led
 ```
 
+Confirmed write commands use the same `sync` addresses without the leading
+session/event fields. Send these on the command socket:
+
+- `/syncMixChannelVolume ,iiif [cmd_id, output_layer, channel, level_db]`
+- `/syncMixChannelPan ,iiif [cmd_id, output_layer, channel, pan]`
+- `/syncMixChannelMute ,iiii [cmd_id, output_layer, channel, enabled]`
+- `/syncMixChannelSolo ,iiii [cmd_id, output_layer, channel, enabled]`
+
+The device replies on the command socket with `/success ,ii [cmd_id, 0]` and
+then pushes the matching subscribed update with `[session, cmd_id, output_layer,
+channel, value]`. This was verified on layer `1` (1/4" Matrix Mixer), channel
+`5`, by setting volume to `6.0`, `0.0`, and `-120.0`; pan to `-1.0`, `0.0`,
+and `1.0`; and mute/solo to `1` and back to `0`.
+
 The desktop binary also contains `/syncMatrixMixer`, `/syncMixerLinkedOutputs`,
-and `/MixerSave`, but those were not observed in this short capture. These
-captures prove read-only Matrix state tracking is possible from device-originated
-events. Write/control commands are not confirmed yet.
+and `/MixerSave`, but those were not observed in these captures. These captures
+prove Matrix state tracking and direct Matrix channel control are possible.
+Persistence/save behaviour is not confirmed yet.
 
 ## Model ID mapping
 

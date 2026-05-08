@@ -420,6 +420,12 @@ with the group of controls changed during testing (paths, song, count-in,
 USB 1/2, and Bluetooth), but the exact channel-id-to-label mapping still needs
 a one-control-at-a-time capture.
 
+Reusable capture helper:
+
+```
+python3 scripts/matrix_mixer_monitor.py --host auto --duration 60 --include-led
+```
+
 The desktop binary also contains `/syncMatrixMixer`, `/syncMixerLinkedOutputs`,
 and `/MixerSave`, but those were not observed in this short capture. These
 captures prove read-only Matrix state tracking is possible from device-originated

@@ -44,7 +44,8 @@ const FONT_BODY_MEDIUM = FONTS.bodyMedium;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 const FONT_DISPLAY = FONTS.display;
-const STANDARD_DSP_CAP = 66;
+const STANDARD_DSP_CAP = 70;
+const EXTENDED_DSP_CAP = 82;
 const AUTO_SYNC_INTERVAL_MS = 4500;
 
 type HelixParamType = 'i' | 'f' | 'b';
@@ -208,6 +209,7 @@ export default function App() {
   const [notesVisible, setNotesVisible] = useState(false);
   const [autoCab, setAutoCab] = useState(true);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [extendedDspEnabled, setExtendedDspEnabled] = useState(false);
   const [showRealBlockNames, setShowRealBlockNames] = useState(false);
   const [blockLabelMode, setBlockLabelMode] = useState(false);
   const [controlStyle, setControlStyleState] = useState<ControlStyle>('sliders');
@@ -451,6 +453,7 @@ export default function App() {
   const activePresetName = activePresetRef?.name ?? 'None';
   const activePresetStorageId =
     typeof activePresetRef?.rcid === 'number' ? activePresetRef.rcid : activePresetContentId;
+  const dspLimit = extendedDspEnabled ? EXTENDED_DSP_CAP : STANDARD_DSP_CAP;
   const isUsefulRealName = (realName?: string | null) =>
     Boolean(realName && realName.trim() && realName.trim().toLowerCase() !== 'line 6 original');
   const getBlockLabelOverrideKey = (path: number, blockId: number | undefined, modelId: number) =>
@@ -473,10 +476,9 @@ export default function App() {
     row.map((block) => (block ? { ...block, name: getBlockDisplayName(block) } : null));
   const targetBlock = grid[targetSlot.path]?.[targetSlot.block] ?? null;
   const availableUsage = useMemo(() => {
-    const remaining =
-      targetSlot.path < 2 ? STANDARD_DSP_CAP - pathUsage.path1 : STANDARD_DSP_CAP - pathUsage.path2;
+    const remaining = targetSlot.path < 2 ? dspLimit - pathUsage.path1 : dspLimit - pathUsage.path2;
     return Math.max(0, remaining + (targetBlock?.usage ?? 0));
-  }, [pathUsage, targetBlock?.usage, targetSlot.path]);
+  }, [dspLimit, pathUsage, targetBlock?.usage, targetSlot.path]);
   const shouldBudgetAutoCab = useCallback(
     (model: Pick<BlockModel, 'category' | 'auto_cab_usage'>) => {
       if (!autoCab || model.category !== 'amp' || !model.auto_cab_usage || targetBlock) {
@@ -2330,8 +2332,8 @@ export default function App() {
     const flowIndex = pathNum - 1;
     const usage = pathNum === 1 ? pathUsage.path1 : pathUsage.path2;
     const hasSplit = pathNum === 1 ? hasSplit1 : hasSplit2;
-    const ratio = Math.min(usage / STANDARD_DSP_CAP, 1);
-    const dspColor = usage > STANDARD_DSP_CAP ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
+    const ratio = Math.min(usage / dspLimit, 1);
+    const dspColor = usage > dspLimit ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
     const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
     const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex;
 
@@ -2345,7 +2347,7 @@ export default function App() {
           </View>
           <View style={styles.pathHeaderRight}>
             <Text style={[styles.pathDspNumber, { color: dspColor }]}>{usage.toFixed(1)}</Text>
-            <Text style={styles.pathDspLimit}>/{STANDARD_DSP_CAP}</Text>
+            <Text style={styles.pathDspLimit}>/{dspLimit}</Text>
           </View>
         </View>
         {/* Hairline DSP meter */}
@@ -2960,6 +2962,13 @@ export default function App() {
             <Text style={styles.labelHint}>Pick up edits from the device or desktop editor</Text>
           </View>
           <Switch value={autoSyncEnabled} onValueChange={setAutoSyncEnabled} />
+        </View>
+        <View style={styles.rowBetween}>
+          <View>
+            <Text style={styles.label}>Extended DSP Budget</Text>
+            <Text style={styles.labelHint}>Test block picking up to {EXTENDED_DSP_CAP} per path</Text>
+          </View>
+          <Switch value={extendedDspEnabled} onValueChange={setExtendedDspEnabled} />
         </View>
         <View style={styles.rowBetween}>
           <View>
@@ -4587,7 +4596,7 @@ export default function App() {
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
           title={pickerStep === 'type' ? (targetBlock ? 'Replace Block' : 'Add Block') : blockCatalog[pickerType ?? 'amp']?.label}
-          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${STANDARD_DSP_CAP}`}
+          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${dspLimit}`}
         >
           {pickerStep === 'type' ? (
             <ScrollView style={styles.sheetList} nestedScrollEnabled showsVerticalScrollIndicator={false}>

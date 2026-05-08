@@ -4,7 +4,7 @@ import { SignalPath } from './SignalPath';
 import { COLORS, FONTS } from '../../theme/colors';
 import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from '../../types/signalFlow';
 
-const DSP_CAP = 66;
+const DSP_CAP = 70;
 const DSP_WARN_RATIO = 0.85;
 
 const buildUsageMeta = (value: number) => {

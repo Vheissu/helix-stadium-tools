@@ -75,7 +75,7 @@ tool must sign it before a device will install it.
 
 - Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address.
 - The app shares the same underlying protocol path as the desktop editor, but the UI keeps language focused on the device and user actions.
-- DSP meters and block-picker availability use conservative estimates from the extracted model metadata, and are intended to stay within the same practical limits as the device/editor. When Auto-cab is enabled, amp insertion checks also include the linked cab usage.
+- On the `over_dsp` branch only, the app restores the older 70-per-path baseline and an **Extended DSP Budget** switch for hardware validation with Line 6. Do not ship this branch as a normal release.
 - This project only targets native mobile builds; there is no separate web target to maintain.
 
 ## Refresh generated app data

@@ -45,10 +45,10 @@ npx expo start --dev-client
 
 ## Sideload builds
 
-Fresh sideload artifacts are kept in `build-artifacts/`:
+Fresh sideload artefacts are kept in `build-artifacts/`:
 
-- `build-artifacts/android/stadium-remote-1.0.0-android-release.apk`
-- `build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa`
+- [Android APK](build-artifacts/android/stadium-remote-1.0.0-android-release.apk) ([SHA-256](build-artifacts/android/stadium-remote-1.0.0-android-release.apk.sha256))
+- [Unsigned iOS IPA](build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa) ([SHA-256](build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa.sha256))
 
 Verify the downloaded file against its adjacent `.sha256` file before
 installing it.

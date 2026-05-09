@@ -1,11 +1,11 @@
 # Mobile Sideload Builds
 
-Current artifacts:
+Current artefacts:
 
-- `android/stadium-remote-1.0.0-android-release.apk`
-- `ios/stadium-remote-1.0.0-ios-unsigned.ipa`
+- [Android APK](android/stadium-remote-1.0.0-android-release.apk) ([SHA-256](android/stadium-remote-1.0.0-android-release.apk.sha256))
+- [Unsigned iOS IPA](ios/stadium-remote-1.0.0-ios-unsigned.ipa) ([SHA-256](ios/stadium-remote-1.0.0-ios-unsigned.ipa.sha256))
 
-Each artifact has a matching `.sha256` file.
+Each artefact has a matching `.sha256` file.
 
 ## Signing notes
 

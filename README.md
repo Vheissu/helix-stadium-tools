@@ -39,6 +39,15 @@ npm test
 npm run ios
 ```
 
+## Sideload builds
+
+Fresh mobile builds are checked into the repo for people who want to install without building locally:
+
+- [Android APK](mobile/build-artifacts/android/stadium-remote-1.0.0-android-release.apk) ([SHA-256](mobile/build-artifacts/android/stadium-remote-1.0.0-android-release.apk.sha256))
+- [Unsigned iOS IPA](mobile/build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa) ([SHA-256](mobile/build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa.sha256))
+
+Each file has a matching `.sha256` checksum beside it. The Android APK is debug-key signed for sideload testing. The iOS IPA is unsigned and still needs signing with a valid Apple account, provisioning profile, or sideloading tool before it will install on a device.
+
 ## Repository layout
 
 - `scripts/`

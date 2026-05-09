@@ -2,19 +2,22 @@
 
 [![codecov](https://codecov.io/gh/Vheissu/helix-stadium-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/Vheissu/helix-stadium-tools)
 
-Python tooling and an Expo-based mobile companion for exploring the Helix Stadium editor protocol, controlling a device over Wi-Fi, and generating structured model metadata from the official app bundles.
+Python tooling and an Expo-based mobile companion for exploring the Helix Stadium editor protocol, controlling a device over Wi-Fi, and working with structured model metadata.
 
 > **Disclaimer:** This is an unofficial, independent open-source project and is not affiliated with, endorsed by, or associated with Yamaha Guitar Group, Line 6, or any of their subsidiaries. All trademarks, logos, and brand names (including but not limited to "Helix", "Line 6", and "Yamaha") are the property of their respective owners and are used here solely for identification purposes. Use of these names does not imply any affiliation or endorsement.
 
-Most examples assume the macOS editor app is installed at `/Applications/Line6/Helix Stadium.app`.
+The repo includes generated JSON data, so the macOS editor app is not required for normal development, running the mobile app, reading the docs, or using the checked-in catalogues. The app bundle is only needed when regenerating data from a newer desktop app install, or when decoding a capture with local `modeldefs`.
 
 ## What’s in this repo
 
 - `helix/` exposes the reusable Python client pieces: discovery, ZMTP, OSC, edit-buffer helpers, and the session API.
 - `scripts/` contains the CLI entry points for capture analysis, device control, and data extraction.
-- `generated/helix-models/` contains the generated JSON catalogs used by downstream tools.
+- `generated/helix-models/` contains the generated JSON catalogues used by downstream tools.
+- `generated/helix-gpt-knowledge/` contains generated Markdown, PDF, and upload-plan files for AI/project knowledge use.
 - `mobile/` contains the Expo mobile app for connecting to a Helix Stadium over Wi-Fi.
+- `mobile/src/data/` contains the checked-in JSON data used by the mobile app.
 - `docs/` contains the deeper protocol and transport notes.
+- `mobile/README.md` is the quickest place to start if you only care about the app.
 
 ## Quick start
 

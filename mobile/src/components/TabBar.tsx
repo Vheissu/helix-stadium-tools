@@ -4,7 +4,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS } from '../theme/colors';
 
-export type TabKey = 'flow' | 'preset' | 'setlists' | 'settings';
+export type TabKey = 'flow' | 'preset' | 'setlists' | 'matrix' | 'settings';
 
 interface TabBarProps {
   activeTab: TabKey;
@@ -50,6 +50,13 @@ const SetlistsIcon = ({ color, size }: { color: string; size: number }) => (
   </Svg>
 );
 
+const MatrixIcon = ({ color, size }: { color: string; size: number }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M6 5v14M12 5v14M18 5v14" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    <Path d="M4 9h4M10 15h4M16 11h4" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+  </Svg>
+);
+
 const DeviceIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path
@@ -72,6 +79,7 @@ const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
   { key: 'flow', label: 'Flow', Icon: FlowIcon },
   { key: 'preset', label: 'Preset', Icon: PresetIcon },
   { key: 'setlists', label: 'Setlists', Icon: SetlistsIcon },
+  { key: 'matrix', label: 'Matrix', Icon: MatrixIcon },
   { key: 'settings', label: 'Settings', Icon: DeviceIcon },
 ];
 

@@ -711,6 +711,7 @@ def main():
 
     sub.add_parser("get-product-info")
     sub.add_parser("get-edit-buffer")
+    sub.add_parser("get-matrix-mixer")
     sub.add_parser("get-active-preset")
     sub.add_parser("get-snapshot-count")
     sub.add_parser("get-active-snapshot")
@@ -905,6 +906,10 @@ def main():
             return
         elif args.cmd == "get-edit-buffer":
             value = session.get_edit_buffer_state()
+            json_print(value)
+            return
+        elif args.cmd == "get-matrix-mixer":
+            value = session.get_matrix_mixer_state()
             json_print(value)
             return
         elif args.cmd == "get-active-preset":

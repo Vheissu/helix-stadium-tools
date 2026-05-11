@@ -14,24 +14,19 @@ import time
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from helix.discovery import discover_first_service  # noqa: E402
+from helix.matrix_mixer import (  # noqa: E402
+    MATRIX_LAYER_LABELS as LAYER_LABELS,
+    MATRIX_SYNC_ADDRESSES,
+    apply_matrix_mixer_event,
+)
 from helix.osc import decode_osc_payloads  # noqa: E402
 from helix.zmtp import ZMTPStream, zmtp_handshake  # noqa: E402
 
 
 MATRIX_ADDRESSES = {
     "/syncMatrixMixer",
-    "/syncMixAttachedOut",
-    "/syncMixChannelMute",
-    "/syncMixChannelPan",
-    "/syncMixChannelSolo",
-    "/syncMixChannelVolume",
     "/syncMixerLinkedOutputs",
-}
-
-LAYER_LABELS = {
-    1: '1/4"',
-    2: "XLR",
-    3: "Phones",
+    *MATRIX_SYNC_ADDRESSES,
 }
 
 LED_LABELS = {
@@ -135,6 +130,7 @@ def main():
     counts = Counter()
     layer_counts = defaultdict(Counter)
     channel_counts = defaultdict(Counter)
+    matrix_state = None
     heartbeats = 0
     start = time.monotonic()
     deadline = start + max(args.duration, 0.0)
@@ -152,6 +148,7 @@ def main():
                 elapsed = time.monotonic() - start
                 event = describe_event(address, typetags, values, elapsed)
                 print(json.dumps(event), flush=True)
+                matrix_state = apply_matrix_mixer_event(matrix_state, address, values)
 
                 counts[address] += 1
                 layer = event.get("layer")
@@ -169,6 +166,7 @@ def main():
         "counts": dict(counts),
         "layers": {key: dict(value) for key, value in layer_counts.items()},
         "layer_channels": {key: dict(value) for key, value in channel_counts.items()},
+        "matrix_state": matrix_state,
     }
     print(json.dumps(summary))
 

@@ -3,6 +3,7 @@ import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpa
 import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake } from './zmtp';
 import { coerceHelixBoolean, extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
+import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } from '../utils/matrixMixer';
 
 const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
 
@@ -485,6 +486,11 @@ export class HelixClient {
     const blob = extractFirstBlob(vals);
     if (!blob) return null;
     return decodePropertyBlob(blob);
+  }
+
+  async getMatrixMixerState(): Promise<MatrixMixerState | null> {
+    const property = await this.getProperty(MATRIX_MIXER_PROPERTY);
+    return parseMatrixMixerState(property);
   }
 
   async getPropertyDefinitionWithKey(key: string) {

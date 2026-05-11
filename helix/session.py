@@ -17,6 +17,7 @@ from .editbuffer import (
     flow_position_map,
     normalize_edit_buffer,
 )
+from .matrix_mixer import MATRIX_MIXER_PROPERTY, parse_matrix_mixer_state
 from .zmtp import ZMTPStream, zmtp_handshake
 
 FACTORY_PRESETS_CID = -1
@@ -358,6 +359,10 @@ class HelixSession:
         if not vals or len(vals) < 3 or not isinstance(vals[2], (bytes, bytearray)):
             return None
         return decode_property_blob(vals[2])
+
+    def get_matrix_mixer_state(self):
+        prop = self.get_property(MATRIX_MIXER_PROPERTY)
+        return parse_matrix_mixer_state(prop)
 
     def get_active_preset_content_id(self):
         value = self.get_property("server.active.preset.id")

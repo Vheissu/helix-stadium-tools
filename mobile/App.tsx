@@ -35,6 +35,15 @@ import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, Signa
 import { buildConnectionFailureStatus } from './src/utils/connection';
 import { formatTempoBpm } from './src/utils/format';
 import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
+import {
+  MATRIX_LAYERS,
+  MATRIX_MIXER_PROPERTY,
+  applyMatrixMixerEvent,
+  formatMatrixPan,
+  formatMatrixVolume,
+  parseMatrixMixerState,
+  type MatrixMixerState,
+} from './src/utils/matrixMixer';
 import { groupModelsByChannel, type ModelSection } from './src/utils/modelSections';
 
 const COLORS = THEME_COLORS;
@@ -307,6 +316,8 @@ export default function App() {
   const [tunerStringOffsets, setTunerStringOffsets] = useState<Record<number, number | null>>(
     EMPTY_TUNER_STRING_OFFSETS
   );
+  const [matrixMixerState, setMatrixMixerState] = useState<MatrixMixerState | null>(null);
+  const [selectedMatrixLayerId, setSelectedMatrixLayerId] = useState<number>(1);
 
   const modelLookup = useMemo(() => {
     const map = new Map<number, { name: string; realName: string | null; kind: string; usage: number; params: EditorParam[] }>();
@@ -549,6 +560,24 @@ export default function App() {
     start = Math.max(0, end - windowSize);
     return presetItems.slice(start, end);
   }, [activePresetIndexInList, presetItems]);
+  const selectedMatrixLayer = useMemo(() => {
+    if (!matrixMixerState) return null;
+    return (
+      matrixMixerState.layers.find((layer) => layer.id === selectedMatrixLayerId) ??
+      matrixMixerState.layers.find((layer) => layer.id === matrixMixerState.attachedLayer) ??
+      matrixMixerState.layers[0] ??
+      null
+    );
+  }, [matrixMixerState, selectedMatrixLayerId]);
+  const attachedMatrixLayerLabel = useMemo(() => {
+    const attachedId = matrixMixerState?.attachedLayer ?? null;
+    if (attachedId === null) return 'Unknown';
+    return (
+      matrixMixerState?.layers.find((layer) => layer.id === attachedId)?.label ??
+      MATRIX_LAYERS.find((layer) => layer.id === attachedId)?.label ??
+      `Output ${attachedId}`
+    );
+  }, [matrixMixerState]);
   const coerceNumber = (value: unknown): number | null => {
     if (typeof value === 'number' && Number.isFinite(value)) return value;
     if (typeof value === 'boolean') return value ? 1 : 0;
@@ -583,6 +612,20 @@ export default function App() {
     const key = property?.key;
     if (!key) {
       if (
+        addr === '/syncmixattachedout' ||
+        addr === '/syncmixchannelvolume' ||
+        addr === '/syncmixchannelpan' ||
+        addr === '/syncmixchannelmute' ||
+        addr === '/syncmixchannelsolo'
+      ) {
+        const layer = coerceNumber(event.vals[2]);
+        if (addr === '/syncmixattachedout' && layer !== null) {
+          setSelectedMatrixLayerId(Math.trunc(layer));
+        }
+        setMatrixMixerState((prev) => applyMatrixMixerEvent(prev, event.addr, event.vals));
+        return;
+      }
+      if (
         addr === '/setmodelwithmid' ||
         addr === '/setparamvalue' ||
         addr === '/setblockenable' ||
@@ -591,6 +634,17 @@ export default function App() {
         addr === '/setsnapshotname'
       ) {
         scheduleSync(700, { full: false, silent: true });
+      }
+      return;
+    }
+
+    if (key === MATRIX_MIXER_PROPERTY) {
+      const next = parseMatrixMixerState(property);
+      if (next) {
+        setMatrixMixerState(next);
+        if (typeof next.attachedLayer === 'number') {
+          setSelectedMatrixLayerId(next.attachedLayer);
+        }
       }
       return;
     }
@@ -742,6 +796,8 @@ export default function App() {
     setTunerTrails(null);
     setTunerOffsetsEnabled(null);
     setTunerStringOffsets(EMPTY_TUNER_STRING_OFFSETS);
+    setMatrixMixerState(null);
+    setSelectedMatrixLayerId(1);
   };
 
   useEffect(() => {
@@ -824,6 +880,7 @@ export default function App() {
         tunerTrailsProp,
         tunerOffsetsProp,
         autoCabProp,
+        matrixMixer,
         ...tunerOffsetProps
       ] = await Promise.all([
         client.getProperty('volatile.tempo.bpm').catch(() => null),
@@ -837,6 +894,7 @@ export default function App() {
         client.getProperty('global.tuner.trails').catch(() => null),
         client.getProperty('global.tuner.offsets').catch(() => null),
         client.getProperty('global.modelselect.addcabblock').catch(() => null),
+        client.getMatrixMixerState().catch(() => null),
         ...TUNER_STRING_CONFIG.map(({ stringNumber }) =>
           client.getProperty(`global.tuner.offset.string.${stringNumber}`).catch(() => null)
         ),
@@ -858,6 +916,10 @@ export default function App() {
       setTunerTrails(coerceBool(tunerTrailsProp?.value));
       setTunerOffsetsEnabled(coerceBool(tunerOffsetsProp?.value));
       setAutoCab(coerceBool(autoCabProp?.value) ?? true);
+      setMatrixMixerState(matrixMixer);
+      if (typeof matrixMixer?.attachedLayer === 'number') {
+        setSelectedMatrixLayerId(matrixMixer.attachedLayer);
+      }
       setTunerStringOffsets(
         TUNER_STRING_CONFIG.reduce<Record<number, number | null>>((acc, { stringNumber }, index) => {
           acc[stringNumber] = coerceNumber(tunerOffsetProps[index]?.value);
@@ -866,6 +928,20 @@ export default function App() {
       );
     } catch (_err) {
       // Leave the last known transport state in place if a property fetch fails.
+    }
+  };
+
+  const refreshMatrixMixerContext = async (clientArg?: HelixClient | null) => {
+    const client = clientArg ?? requireClient();
+    if (!client) return;
+    try {
+      const next = await client.getMatrixMixerState();
+      setMatrixMixerState(next);
+      if (typeof next?.attachedLayer === 'number') {
+        setSelectedMatrixLayerId(next.attachedLayer);
+      }
+    } catch (_err) {
+      // Keep the last known Matrix Mixer state if a single refresh fails.
     }
   };
 
@@ -989,6 +1065,9 @@ export default function App() {
     }
     if (nextTab === 'preset' && libraryRoot === 'setlists') {
       void handleLibraryRootChange('user');
+    }
+    if (nextTab === 'matrix') {
+      void refreshMatrixMixerContext();
     }
   };
 
@@ -2901,6 +2980,82 @@ export default function App() {
     </ScrollView>
   );
 
+  const renderMatrixTab = () => (
+    <ScrollView
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabPadding}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.deviceHero}>
+        <Text style={styles.deviceTitle}>Matrix</Text>
+        <Text style={styles.deviceSubtitle}>Global output levels from the Helix</Text>
+      </View>
+
+      <Section title="Outputs">
+        <View style={styles.segmentedControl}>
+          {MATRIX_LAYERS.map((layer, idx) => {
+            const active = selectedMatrixLayerId === layer.id;
+            return (
+              <Pressable
+                key={`matrix-layer-${layer.id}`}
+                style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
+                onPress={() => setSelectedMatrixLayerId(layer.id)}
+              >
+                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{layer.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View style={styles.matrixStatusRow}>
+          <Text style={styles.matrixStatusLabel}>Selected on device</Text>
+          <Text style={styles.matrixStatusValue}>{attachedMatrixLayerLabel}</Text>
+        </View>
+        <Pressable style={[styles.button, styles.buttonGhost]} onPress={() => void refreshMatrixMixerContext()}>
+          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Refresh Matrix</Text>
+        </Pressable>
+      </Section>
+
+      <Section title={selectedMatrixLayer?.label ?? 'Channels'}>
+        {!selectedMatrixLayer ? (
+          <Text style={styles.paramHint}>Sync after connecting to load Matrix Mixer levels.</Text>
+        ) : (
+          <View style={styles.matrixChannelList}>
+            {selectedMatrixLayer.channels.map((channel) => {
+              const muted = channel.mute === true;
+              const solo = channel.solo === true;
+              return (
+                <View
+                  key={`matrix-channel-${selectedMatrixLayer.id}-${channel.id}`}
+                  style={[styles.matrixChannelRow, muted && styles.matrixChannelRowMuted]}
+                >
+                  <View style={styles.matrixChannelMain}>
+                    <Text style={styles.matrixChannelName} numberOfLines={1}>{channel.label}</Text>
+                    <View style={styles.matrixFlags}>
+                      <Text style={[styles.matrixFlagText, muted && styles.matrixFlagTextActive]}>
+                        {muted ? 'Muted' : 'Open'}
+                      </Text>
+                      {solo && <Text style={[styles.matrixFlagText, styles.matrixFlagTextActive]}>Solo</Text>}
+                    </View>
+                  </View>
+                  <View style={styles.matrixValueGroup}>
+                    <View style={styles.matrixValueCell}>
+                      <Text style={styles.matrixValueLabel}>Level</Text>
+                      <Text style={styles.matrixValueText}>{formatMatrixVolume(channel.volumeDb)}</Text>
+                    </View>
+                    <View style={styles.matrixValueCell}>
+                      <Text style={styles.matrixValueLabel}>Pan</Text>
+                      <Text style={styles.matrixValueText}>{formatMatrixPan(channel.pan)}</Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </Section>
+    </ScrollView>
+  );
+
   const renderSettingsTab = () => (
     <ScrollView
       style={styles.tabContent}
@@ -4192,6 +4347,7 @@ export default function App() {
         {activeTab === 'flow' && renderFlowTab()}
         {activeTab === 'preset' && renderPresetTab()}
         {activeTab === 'setlists' && renderSetlistsTab()}
+        {activeTab === 'matrix' && renderMatrixTab()}
         {activeTab === 'settings' && renderSettingsTab()}
 
         {/* ── Bottom Sheet: Setlist Picker ─────────────────────── */}
@@ -5624,6 +5780,93 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.panel,
   },
   snapshotTargetText: { color: COLORS.text, fontFamily: FONT_MONO, fontSize: 12 },
+
+  /* ── Matrix Mixer ─────────────────────────────────────────────── */
+  matrixStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.hairline,
+  },
+  matrixStatusLabel: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 13,
+  },
+  matrixStatusValue: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 13,
+  },
+  matrixChannelList: {
+    gap: 8,
+  },
+  matrixChannelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: 72,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panelAlt,
+  },
+  matrixChannelRowMuted: {
+    opacity: 0.72,
+  },
+  matrixChannelMain: {
+    flex: 1,
+    minWidth: 0,
+    gap: 6,
+  },
+  matrixChannelName: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+    fontSize: 14,
+  },
+  matrixFlags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  matrixFlagText: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 11,
+  },
+  matrixFlagTextActive: {
+    color: COLORS.text,
+    fontFamily: FONT_BODY_SEMI,
+  },
+  matrixValueGroup: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  matrixValueCell: {
+    width: 72,
+    minHeight: 48,
+    justifyContent: 'center',
+    gap: 3,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    backgroundColor: COLORS.panel,
+  },
+  matrixValueLabel: {
+    color: COLORS.muted,
+    fontFamily: FONT_BODY,
+    fontSize: 10,
+  },
+  matrixValueText: {
+    color: COLORS.text,
+    fontFamily: FONT_MONO,
+    fontSize: 12,
+  },
 
   /* ── Status / events ──────────────────────────────────────────── */
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

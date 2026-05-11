@@ -387,6 +387,9 @@ python3 scripts/helix_control.py get-product-info
 # Read the edit buffer state (large blob)
 python3 scripts/helix_control.py get-edit-buffer
 
+# Read the global Matrix Mixer state
+python3 scripts/helix_control.py get-matrix-mixer
+
 # Show the active preset content ref
 python3 scripts/helix_control.py get-active-preset
 

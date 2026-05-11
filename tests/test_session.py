@@ -410,6 +410,13 @@ class TestSession(unittest.TestCase):
         session.get_property = lambda _key: {"val_": 508}
         self.assertEqual(session.get_active_preset_content_id(), 508)
 
+    def test_get_matrix_mixer_state_reads_property_value(self):
+        session = HelixSession("dummy")
+        session.get_property = lambda _key: {"val_": {"aout": 1, "lyrs": [{"chns": [{"chnl": 1, "vol": 0}]}]}}
+        state = session.get_matrix_mixer_state()
+        self.assertEqual(state["attached_layer"], 1)
+        self.assertEqual(state["layers"][0]["channels"][0]["label"], "Path 1A")
+
     def test_get_snapshot_count_returns_int(self):
         session = HelixSession("dummy")
         session.request = lambda cmd_id, *_args, **_kwargs: [cmd_id, 8]

@@ -10,3 +10,4 @@ __pycache__/
 .coverage.*
 coverage.txt
 coverage.xml
+.codex-artifacts/

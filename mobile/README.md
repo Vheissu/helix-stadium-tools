@@ -45,13 +45,9 @@ npx expo start --dev-client
 
 ## Sideload builds
 
-Fresh sideload artefacts are kept in `build-artifacts/`:
-
-- [Android APK](build-artifacts/android/stadium-remote-1.0.0-android-release.apk) ([SHA-256](build-artifacts/android/stadium-remote-1.0.0-android-release.apk.sha256))
-- [Unsigned iOS IPA](build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa) ([SHA-256](build-artifacts/ios/stadium-remote-1.0.0-ios-unsigned.ipa.sha256))
-
-Verify the downloaded file against its adjacent `.sha256` file before
-installing it.
+Prebuilt sideload artefacts are published on the project
+[Releases page](https://github.com/Vheissu/helix-stadium-tools/releases). Each
+build ships with a matching `.sha256` file; verify it before installing.
 
 Android build command used for the current APK:
 

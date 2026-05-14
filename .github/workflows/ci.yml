@@ -11,6 +11,7 @@ jobs:
       python: ${{ steps.filter.outputs.python }}
       mobile: ${{ steps.filter.outputs.mobile }}
     steps:
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:

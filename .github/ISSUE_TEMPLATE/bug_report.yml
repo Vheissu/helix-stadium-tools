@@ -1,0 +1,120 @@
+name: Bug report
+description: Something is not working the way it should
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        Before filing, please check existing issues to see if it has been
+        reported. If you are not sure whether something is a bug or
+        intentional behaviour, open a Discussion instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: A clear one or two sentence description of what is going wrong.
+      placeholder: helix_control snapshot-name times out when the device is on a different subnet.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the project is affected?
+      options:
+        - Python library (helix/)
+        - Python scripts (scripts/)
+        - Mobile app (mobile/)
+        - Generated data (generated/)
+        - Docs
+        - Build / CI
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Exact commands or actions, in order. The more concrete, the faster
+        this can be fixed. For mobile, list the screen and the tap path.
+      placeholder: |
+        1. Run `python3 scripts/helix_control.py discover`
+        2. Run `python3 scripts/helix_control.py --host p35x1.local snapshot-name --index 0 --name "Verse A"`
+        3. Observe the error after ~5 seconds.
+      render: bash
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      placeholder: The CLI should rename snapshot 0 and exit 0.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include error messages or relevant output. Use a code block.
+      placeholder: |
+        ```
+        TimeoutError: no ack received within 5s
+        ```
+      render: bash
+    validations:
+      required: true
+
+  - type: input
+    id: project-version
+    attributes:
+      label: Project version or commit
+      description: Tag, release, or `git rev-parse --short HEAD`.
+      placeholder: v1.0.0 or 7c54e47
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Output of `python3 --version`. Leave blank if not relevant.
+      placeholder: Python 3.11.8
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      description: Output of `node --version`. Leave blank if not relevant to a mobile bug.
+      placeholder: v22.5.1
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15.4 / Ubuntu 24.04 / Windows 11
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Helix device and firmware
+      description: If the bug involves hardware, include the device and firmware version.
+      placeholder: Helix Stadium XL, firmware 1.20.0
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: |
+        Capture files, screenshots, logs, network setup, anything that
+        might help. Strip identifying information before attaching.

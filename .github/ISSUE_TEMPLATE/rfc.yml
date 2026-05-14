@@ -1,0 +1,69 @@
+name: RFC (Request for Comments)
+description: Propose a larger design, protocol, or architectural change
+title: "[rfc] "
+labels: ["rfc", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for proposals that affect the protocol layer, the public
+        Python API, the mobile app architecture, or any change that needs
+        discussion before code lands.
+
+        Small, scoped feature requests should use the Feature template
+        instead. Open-ended exploration should start in Discussions.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph. What is being proposed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: |
+        Why is this needed? What problem does it solve, and who is
+        affected? Concrete examples and links to existing issues help.
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: Detailed design
+      description: |
+        The proposed change in enough detail that someone could implement
+        it. New APIs, data shapes, OSC addresses, UI screens, file
+        layouts, migration steps.
+    validations:
+      required: true
+
+  - type: textarea
+    id: drawbacks
+    attributes:
+      label: Drawbacks and trade-offs
+      description: What gets worse? Compatibility, complexity, maintenance.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, and why this proposal is preferred.
+
+  - type: textarea
+    id: open-questions
+    attributes:
+      label: Open questions
+      description: Things you are unsure about and want feedback on.
+
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior art and references
+      description: Related issues, similar features in other projects, captures, documentation.

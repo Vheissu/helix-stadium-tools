@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, help, and general chat
+    url: https://github.com/Vheissu/helix-stadium-tools/discussions/categories/q-a
+    about: Ask a question or get help with setup, captures, the mobile app, or the protocol.
+  - name: Ideas and show-and-tell
+    url: https://github.com/Vheissu/helix-stadium-tools/discussions/categories/ideas
+    about: Share an idea, a workflow, a tip, or something cool you built on top of this.
+  - name: Project disclaimer
+    url: https://github.com/Vheissu/helix-stadium-tools/blob/main/README.md#this-is-an-unofficial-community-project
+    about: This is an unofficial community project, not affiliated with Line 6 or Yamaha.

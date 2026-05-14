@@ -7,8 +7,6 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
-import fitz
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_DIR = ROOT / "generated" / "helix-gpt-knowledge" / "upload-ready"
 DEFAULT_OUTPUT = ROOT / "generated" / "helix-gpt-knowledge" / "helix-stadium-custom-gpt-knowledge.pdf"
@@ -102,6 +100,8 @@ def paginate_lines(lines: list[str]) -> list[list[str]]:
 
 
 def write_pdf(lines: list[str], output_path: Path) -> None:
+    import fitz
+
     doc = fitz.open()
     for page_lines in paginate_lines(lines):
         page = doc.new_page(width=PAGE_WIDTH, height=PAGE_HEIGHT)

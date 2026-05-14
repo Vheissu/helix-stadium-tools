@@ -2,6 +2,16 @@
 
 Expo app for connecting to a Helix Stadium over Wi-Fi and editing presets from a phone or tablet.
 
+## Unofficial community project
+
+Stadium Remote is a fan-made app. It is **not** an official Line 6 or Yamaha
+product, and is not affiliated with or endorsed by Line 6, Yamaha Guitar
+Group, or Yamaha Corporation. "Helix", "Helix Stadium", "Line 6", and
+"Yamaha" are trademarks of their respective owners; they are referenced
+here only for identification and interoperability. See the
+[project disclaimer](../README.md#this-is-an-unofficial-community-project)
+for the full notice.
+
 ## Requirements
 
 - Node.js 20+

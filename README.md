@@ -7,13 +7,29 @@ Python tooling and an Expo-based mobile companion for exploring the Helix
 Stadium editor protocol, controlling a device over Wi-Fi, and working with
 structured model metadata.
 
-> **Disclaimer**: This is an unofficial, independent open-source project and is
-> not affiliated with, endorsed by, or associated with Yamaha Guitar Group,
-> Line 6, or any of their subsidiaries. All trademarks, logos, and brand names
-> (including but not limited to "Helix", "Line 6", and "Yamaha") are the
-> property of their respective owners and are used here solely for
-> identification purposes. Use of these names does not imply any affiliation or
-> endorsement.
+## This is an unofficial community project
+
+This repository is a fan-made, community-run project. It is **not** an official
+product. It is **not affiliated with, endorsed by, or associated with** Line 6,
+Yamaha Guitar Group, Yamaha Corporation, or any of their subsidiaries.
+
+It exists because I own a Helix Stadium, love the device, and really wanted a
+mobile app to drive it from a phone. So I built one, and shared the tooling
+that came out of working on it.
+
+"Helix", "Helix Stadium", "Line 6", "Yamaha", and any related names, logos,
+and product designs are trademarks or registered trademarks of their
+respective owners. They are referenced here solely for identification and
+interoperability. No affiliation or endorsement is implied or intended.
+
+No source code, firmware, or proprietary assets from the Helix editor app
+or the device firmware are included in this repository. Everything here is
+either independently written or generated from data on a Helix Stadium that
+the user already owns and is licensed to use.
+
+If anyone at Line 6 or Yamaha would prefer something here be removed,
+renamed, or clarified, please open an issue and I will be happy to work
+with you.
 
 The repo includes generated JSON data, so the macOS editor app is not required
 for normal development, running the mobile app, reading the docs, or using the

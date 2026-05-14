@@ -1,4 +1,4 @@
-.DS_Store
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -10,4 +10,21 @@ __pycache__/
 .coverage.*
 coverage.txt
 coverage.xml
+
+# macOS
+.DS_Store
+
+# Editor / agent scratch
 .codex-artifacts/
+.claude/
+.playwright-mcp/
+
+# Local working files
+/*.png
+generated/firmware/
+
+# Mobile binary builds (published via GitHub Releases instead)
+mobile/build-artifacts/android/*.apk
+mobile/build-artifacts/android/*.apk.sha256
+mobile/build-artifacts/ios/*.ipa
+mobile/build-artifacts/ios/*.ipa.sha256

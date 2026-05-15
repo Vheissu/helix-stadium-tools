@@ -189,6 +189,10 @@ details, frame layouts, and the full OSC address catalogue.
   If a command appears to accept an out-of-range edit, treat that as a
   validation issue rather than supported behaviour.
 
+## Contact
+
+For questions, issues, or contributions, please open an issue or pull request on the GitHub repository. You can also reach me via email at [dwaynecharrington@gmail.com](mailto:dwaynecharrington@gmail.com).
+
 ## Licence
 
 Released under the [MIT License](LICENSE).

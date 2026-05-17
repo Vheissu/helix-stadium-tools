@@ -1024,19 +1024,6 @@ const resolveFlowBlock = (flow: any, position: number) => {
   return { blockId: null, block: null };
 };
 
-const getFlowBlockMap = (state: any, flowIndex: number) => {
-  const flow = getFlow(state, flowIndex);
-  const out: Record<number, number> = {};
-  if (!flow) return out;
-  COPYABLE_FLOW_POSITIONS.forEach((position) => {
-    const { blockId } = resolveFlowBlock(flow, position);
-    if (typeof blockId === 'number') {
-      out[position] = blockId;
-    }
-  });
-  return out;
-};
-
 const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard => {
   const flow = getFlow(state, flowIndex);
   if (!flow) {

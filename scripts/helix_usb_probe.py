@@ -18,9 +18,9 @@ import ctypes
 import ctypes.util
 import sys
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -288,7 +288,7 @@ class USBProbe:
         self.lib = lib
         self.ctx = ctypes.POINTER(LibusbContext)()
 
-    def __enter__(self) -> "USBProbe":
+    def __enter__(self) -> USBProbe:
         rc = self.lib.libusb_init(ctypes.byref(self.ctx))
         if rc != 0:
             raise USBProbeError(f"libusb_init failed: {rc}")

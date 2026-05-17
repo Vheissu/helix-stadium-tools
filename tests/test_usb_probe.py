@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import importlib.util
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 from helix.osc import build_osc
-
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "helix_usb_probe.py"
 SPEC = importlib.util.spec_from_file_location("helix_usb_probe", SCRIPT_PATH)

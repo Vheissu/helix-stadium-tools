@@ -191,7 +191,7 @@ def load_modeldefs(path: str):
     try:
         import msgpack  # type: ignore
     except Exception as exc:
-        raise SystemExit(f"msgpack is required to parse modeldefs: {exc}")
+        raise SystemExit(f"msgpack is required to parse modeldefs: {exc}") from exc
     with open(path, "rb") as f:
         unpacker = msgpack.Unpacker(f, raw=False)
         last = None
@@ -205,14 +205,14 @@ def load_modeldefs(path: str):
 def load_uidefs(path: str):
     if not os.path.exists(path):
         raise FileNotFoundError(path)
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def load_controls(path: str):
     if not os.path.exists(path):
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -278,7 +278,7 @@ def load_based_on_overrides(path: str):
     if not path or not os.path.exists(path):
         return {}
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
         return {}
@@ -316,7 +316,7 @@ def load_param_meta(root: str):
                 continue
             path = os.path.join(dirpath, name)
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     data = json.load(f)
             except Exception:
                 continue
@@ -358,7 +358,7 @@ def get_param_meta_for_model(meta, meta_by_symbol, model_key, category, display_
                 return meta_by_symbol[sym]["params"]
         if (category_value, display_name_value) in meta:
             return meta[(category_value, display_name_value)]
-        for (cat, name), params in meta.items():
+        for (_cat, name), params in meta.items():
             if name == display_name_value:
                 return params
         return {}
@@ -843,15 +843,6 @@ def main():
             compact_models.append(compact_model)
 
         return {"param_defs": param_defs, "models": compact_models}
-
-    groups = {
-        "guitar_amps": guitar_amps,
-        "bass_amps": bass_amps,
-        "effects": effects,
-        "guitar_cabs": guitar_cabs,
-        "bass_cabs": bass_cabs,
-        "ir_cabs": ir_cabs,
-    }
 
     print(
         f"wrote {len(guitar_amps)} guitar amps, {len(bass_amps)} bass amps, {len(effects)} effects, "

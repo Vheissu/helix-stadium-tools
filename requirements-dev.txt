@@ -1,2 +1,3 @@
-msgpack
-coverage
+# Dev/CI dependencies are defined in pyproject.toml so versions stay in one place.
+# `pip install -r requirements-dev.txt` installs the package plus its dev extras.
+-e .[dev]

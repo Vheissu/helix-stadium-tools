@@ -6,7 +6,11 @@ from unittest import mock
 from helix.blobs import build_property_blob, decode_property_blob, fourcc_int
 from helix.discovery import HelixService
 from helix.osc import build_osc, decode_osc
-from helix.session import HelixSession, HelixSessionError, HelixStatusError, HelixTimeoutError
+from helix.session import (
+    HelixSession,
+    HelixStatusError,
+    HelixTimeoutError,
+)
 
 
 class FakeStream:

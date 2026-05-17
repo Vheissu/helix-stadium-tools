@@ -1,4 +1,3 @@
-import socket
 import unittest
 
 from helix.zmtp import ZMTPStream, recv_exact, zmtp_handshake, zmtp_ready_payload
@@ -28,7 +27,7 @@ class FakeRecvSocket:
 
 class TimeoutRecvSocket(FakeRecvSocket):
     def recv(self, _size: int):
-        raise socket.timeout()
+        raise TimeoutError()
 
 
 class NoReadyStream:

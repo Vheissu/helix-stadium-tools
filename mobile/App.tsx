@@ -31,7 +31,7 @@ import { PathChainStrip } from './src/components/signalFlow/PathChainStrip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getParamHelp } from './src/utils/paramHelp';
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
-import type { BlockData, BlockIndex, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
+import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 import { buildConnectionFailureStatus } from './src/utils/connection';
 import { formatTempoBpm } from './src/utils/format';
 import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
@@ -49,7 +49,6 @@ import { groupModelsByChannel, type ModelSection } from './src/utils/modelSectio
 const COLORS = THEME_COLORS;
 
 const FONT_BODY = FONTS.body;
-const FONT_BODY_MEDIUM = FONTS.bodyMedium;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 const FONT_DISPLAY = FONTS.display;
@@ -193,7 +192,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 );
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
+  const [_fontsLoaded] = useFonts({
     'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
     'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
     'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
@@ -283,8 +282,8 @@ export default function App() {
   const [snapshotCount, setSnapshotCount] = useState(0);
   const [activeSnapshotIndex, setActiveSnapshotIndex] = useState<number | null>(null);
   const [snapshots, setSnapshots] = useState<SnapshotRef[]>([]);
-  const [activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
-  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [_activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
+  const [_libraryLoading, setLibraryLoading] = useState(false);
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
   const [presetRenameText, setPresetRenameText] = useState('');
   const [setlistRenameText, setSetlistRenameText] = useState('');
@@ -556,7 +555,7 @@ export default function App() {
     if (!presetItems.length) return [];
     if (activePresetIndexInList < 0) return presetItems.slice(0, windowSize);
     let start = Math.max(0, activePresetIndexInList - 3);
-    let end = Math.min(presetItems.length, start + windowSize);
+    const end = Math.min(presetItems.length, start + windowSize);
     start = Math.max(0, end - windowSize);
     return presetItems.slice(start, end);
   }, [activePresetIndexInList, presetItems]);
@@ -1687,7 +1686,7 @@ export default function App() {
     setSlotMenuOpen(true);
   };
 
-  const openBlockEditor = (slot: BlockSlot) => {
+  const _openBlockEditor = (slot: BlockSlot) => {
     setSelectedSlot(slot);
     setBlockEditorSlot(slot);
     setBlockEditorOpen(true);
@@ -3739,7 +3738,7 @@ export default function App() {
     onChange: (param: EditorParam, value: number | boolean) => void,
     emptyHint: string,
     blockColor?: string,
-    modelId: number | null = null,
+    _modelId: number | null = null,
     modelName: string | null = null,
   ) => {
     if (!params.length) {

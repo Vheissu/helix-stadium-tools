@@ -9,14 +9,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.generate_helix_model_json import (
+from scripts.generate_helix_model_json import (  # noqa: E402
     DEFAULT_APP_RES,
+    DEFAULT_CONTROLS,
     DEFAULT_MODELDEFS,
     DEFAULT_UIDEFS,
-    DEFAULT_CONTROLS,
+    load_controls,
     load_modeldefs,
     load_uidefs,
-    load_controls,
 )
 
 DEFAULT_MODEL_CATALOG = f"{DEFAULT_APP_RES}/P35ModelCatalog.json"
@@ -26,7 +26,7 @@ DEFAULT_OUTPUT = ROOT / "mobile" / "src" / "data" / "ioModels.json"
 def load_catalog(path: str):
     if not os.path.exists(path):
         raise FileNotFoundError(path)
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 

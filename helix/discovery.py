@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os
 import queue
 import re
@@ -10,7 +9,7 @@ import shutil
 import subprocess
 import threading
 import time
-
+from dataclasses import dataclass
 
 DEFAULT_SERVICE_TYPE = "_stadiumserver._tcp"
 DEFAULT_DOMAIN = "local."

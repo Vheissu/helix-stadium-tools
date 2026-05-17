@@ -148,6 +148,8 @@ npm test
 
 - [docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md) — per-script reference and
   worked examples for every tool in `scripts/`.
+- [docs/LIBRARY_API.md](docs/LIBRARY_API.md) — the importable `helix` Python
+  library: `HelixSession`, the OSC/msgpack codecs, and discovery.
 - [docs/TECHNICAL_DETAILS.md](docs/TECHNICAL_DETAILS.md) — observed editor
   protocol: ZMTP framing, OSC payloads, snapshot and preset operations,
   Matrix Mixer, content library, and more.

@@ -1,6 +1,9 @@
 import unittest
 
-from scripts.add_missing_mobile_models import build_routing_model_entry, hydrate_existing_routing_models
+from scripts.add_missing_mobile_models import (
+    build_routing_model_entry,
+    hydrate_existing_routing_models,
+)
 
 
 class TestAddMissingMobileModelsHelpers(unittest.TestCase):

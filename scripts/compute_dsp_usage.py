@@ -6,7 +6,6 @@ import os
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
@@ -35,7 +34,7 @@ def coerce_numeric_keys(obj):
 
 
 def load_edit_buffer(path: str):
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     return normalize_fourcc_map(coerce_numeric_keys(data))
 

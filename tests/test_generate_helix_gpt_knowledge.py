@@ -5,8 +5,8 @@ from scripts.generate_helix_gpt_knowledge import (
     build_upload_documents,
     classify_group,
     format_param_line,
-    render_project_instructions_document,
     render_knowledge_document,
+    render_project_instructions_document,
 )
 
 

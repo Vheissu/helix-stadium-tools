@@ -12,7 +12,7 @@ def build_osc(address: str, typetags: str, args):
     addr = pad4(address.encode() + b"\x00")
     tt = pad4(("," + typetags).encode() + b"\x00")
     payload = b""
-    for t, a in zip(typetags, args):
+    for t, a in zip(typetags, args, strict=False):
         if t == "i":
             payload += struct.pack(">i", int(a))
         elif t == "h":

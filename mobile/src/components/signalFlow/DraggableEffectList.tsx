@@ -102,7 +102,7 @@ export const DraggableEffectList: React.FC<DraggableEffectListProps> = React.mem
 
     // ── Drag lifecycle ────────────────────────────────────────
     const handleLongPress = useCallback(
-      (slotIndex: number, e: GestureResponderEvent) => {
+      (slotIndex: number, _e: GestureResponderEvent) => {
         const block = blocks[slotIndex];
         if (!block) return;
 

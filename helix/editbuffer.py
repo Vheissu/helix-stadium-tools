@@ -160,6 +160,13 @@ def extract_flow_clipboard(state, flow_index: int, positions=None):
                 if not isinstance(value, (bool, int, float)):
                     continue
                 harness_params.append({"param_id": param_id, "value": value})
+        bflw = block.get("bflw")
+        bblk = block.get("bblk")
+        link = (
+            {"link_flow": int(bflw), "link_position": int(bblk)}
+            if isinstance(bflw, int) and isinstance(bblk, int)
+            else {}
+        )
         entries.append(
             {
                 "position": int(pos),
@@ -168,14 +175,7 @@ def extract_flow_clipboard(state, flow_index: int, positions=None):
                 "enabled": bool(block.get("enbl", True)),
                 "params": params,
                 "harness_params": harness_params,
-                **(
-                    {
-                        "link_flow": int(block.get("bflw")),
-                        "link_position": int(block.get("bblk")),
-                    }
-                    if isinstance(block.get("bflw"), int) and isinstance(block.get("bblk"), int)
-                    else {}
-                ),
+                **link,
             }
         )
     return entries

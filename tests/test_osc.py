@@ -1,7 +1,13 @@
 import struct
 import unittest
 
-from helix.osc import build_osc, decode_osc, decode_osc_payloads, decode_wrapped_osc, pad4
+from helix.osc import (
+    build_osc,
+    decode_osc,
+    decode_osc_payloads,
+    decode_wrapped_osc,
+    pad4,
+)
 
 
 class TestOsc(unittest.TestCase):

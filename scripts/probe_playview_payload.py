@@ -7,10 +7,15 @@ import argparse
 import socket
 import time
 
-from helix.blobs import build_property_blob, decode_msgpack_blob, decode_property_blob, normalize_fourcc_map
-from helix.osc import build_osc, decode_osc_payloads
-
 from osc_session import ZMTPStream, handshake_messages, zmtp_handshake
+
+from helix.blobs import (
+    build_property_blob,
+    decode_msgpack_blob,
+    decode_property_blob,
+    normalize_fourcc_map,
+)
+from helix.osc import build_osc, decode_osc_payloads
 
 
 def recv_events(stream: ZMTPStream, timeout: float = 0.25):
@@ -20,7 +25,7 @@ def recv_events(stream: ZMTPStream, timeout: float = 0.25):
     while time.time() < deadline:
         try:
             flags, payload = stream.recv_frame()
-        except (socket.timeout, TimeoutError):
+        except TimeoutError:
             continue
         if flags is None:
             break

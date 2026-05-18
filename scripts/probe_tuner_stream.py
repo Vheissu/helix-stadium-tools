@@ -7,6 +7,8 @@ import argparse
 import socket
 import time
 
+from osc_session import ZMTPStream, handshake_messages, zmtp_handshake
+
 from helix.blobs import (
     build_property_blob,
     decode_msgpack_blob,
@@ -14,9 +16,6 @@ from helix.blobs import (
     normalize_fourcc_map,
 )
 from helix.osc import build_osc, decode_osc_payloads
-
-from osc_session import ZMTPStream, handshake_messages, zmtp_handshake
-
 
 DEFAULT_PATTERNS = ["*tuner*", "*note*", "*freq*", "*pitch*"]
 
@@ -26,7 +25,7 @@ def recv_osc_events(stream: ZMTPStream, timeout: float = 1.5):
     while time.time() < deadline:
         try:
             flags, payload = stream.recv_frame()
-        except (socket.timeout, TimeoutError):
+        except TimeoutError:
             continue
         if flags is None:
             return None

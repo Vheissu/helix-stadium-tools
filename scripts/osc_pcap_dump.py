@@ -15,7 +15,9 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from helix.blobs import decode_property_blob  # noqa: E402
-from scripts.generate_helix_model_json import resolve_default_modeldefs_path  # noqa: E402
+from scripts.generate_helix_model_json import (
+    resolve_default_modeldefs_path,  # noqa: E402
+)
 
 DEFAULT_PCAP = "/tmp/helix-stadium.pcap"
 DEFAULT_PORTS = "2001,2002"
@@ -421,7 +423,7 @@ def load_model_params(model_key, model_file):
     if not os.path.exists(model_file):
         print(f"warn: model defs not found: {model_file}", file=sys.stderr)
         return None, None
-    with open(model_file, "r", encoding="utf-8") as f:
+    with open(model_file, encoding="utf-8") as f:
         data = json.load(f)
     # Direct key match
     if model_key in data:
@@ -459,7 +461,7 @@ def load_block_map(path, model_file):
     if not os.path.exists(path):
         print(f"warn: block map not found: {path}", file=sys.stderr)
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     out = {}
     for key, val in data.items():

@@ -19,7 +19,7 @@ def build_osc(address: str, typetags: str, args):
     addr = pad4(address.encode() + b"\x00")
     tt = pad4(("," + typetags).encode() + b"\x00")
     payload = b""
-    for t, a in zip(typetags, args):
+    for t, a in zip(typetags, args, strict=False):
         if t == "i":
             payload += struct.pack(">i", int(a))
         elif t == "f":
@@ -71,7 +71,7 @@ def build_property_blob(key: str, value: str, value_type: str = "s") -> bytes:
     try:
         import msgpack  # type: ignore
     except Exception as exc:
-        raise SystemExit(f"msgpack is required: {exc}")
+        raise SystemExit(f"msgpack is required: {exc}") from exc
     payload = {
         fourcc_int("key_"): key,
         fourcc_int("type"): value_type,

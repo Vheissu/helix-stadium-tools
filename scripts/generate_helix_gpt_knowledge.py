@@ -14,8 +14,8 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     CAB_CATEGORIES,
     DEFAULT_BASED_ON_OVERRIDES,
     DEFAULT_CONTROLS,
-    DEFAULT_MODELDEFS,
     DEFAULT_MODEL_META_DB,
+    DEFAULT_MODELDEFS,
     DEFAULT_PARAM_META,
     DEFAULT_UIDEFS,
     EFFECT_CATEGORIES,
@@ -578,7 +578,7 @@ def build_document_set(groups, generated_at, pack_specs):
             continue
         split_into = int(spec.get("split_into") or 1)
         chunks = split_models_by_weight(models, split_into)
-        for index, chunk in enumerate(chunks, start=1):
+        for chunk in chunks:
             if split_into > 1:
                 range_title, range_slug = chunk_range_label(chunk)
                 title = f"{spec['title']} ({range_title})"

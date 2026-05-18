@@ -7,8 +7,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.generate_helix_model_json import DEFAULT_MODELDEFS, load_modeldefs  # noqa: E402
-
+from scripts.generate_helix_model_json import (  # noqa: E402
+    DEFAULT_MODELDEFS,
+    load_modeldefs,
+)
 
 BLOCK_TYPES_PATH = ROOT / "mobile" / "src" / "data" / "blockTypes.json"
 

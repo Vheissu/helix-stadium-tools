@@ -1,5 +1,4 @@
 """Helpers for msgpack property blobs."""
-import struct
 
 
 def fourcc_int(text: str) -> int:
@@ -57,10 +56,13 @@ def build_property_blob(key: str, value, value_type: str = "s") -> bytes:
     try:
         import msgpack  # type: ignore
     except ImportError as exc:
-        raise SystemExit(f"msgpack is required: {exc}")
+        raise SystemExit(f"msgpack is required: {exc}") from exc
     payload = {
         fourcc_int("key_"): key,
         fourcc_int("type"): value_type,
         fourcc_int("val_"): value,
     }
-    return b"lavppgsm" + msgpack.packb(payload, use_bin_type=True)
+    packed = msgpack.packb(payload, use_bin_type=True)
+    if packed is None:
+        raise SystemExit("msgpack failed to encode property blob")
+    return b"lavppgsm" + packed

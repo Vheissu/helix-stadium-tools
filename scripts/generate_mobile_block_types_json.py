@@ -11,24 +11,24 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.generate_helix_model_json import (  # noqa: E402
     DEFAULT_APP_RES,
+    DEFAULT_BASED_ON_OVERRIDES,
     DEFAULT_CONTROLS,
+    DEFAULT_MODEL_META_DB,
     DEFAULT_MODELDEFS,
     DEFAULT_PARAM_META,
     DEFAULT_UIDEFS,
     build_detailed_param_list,
     get_param_meta_for_model,
     index_modeldefs_by_id,
-    load_controls,
     load_based_on_db,
     load_based_on_overrides,
+    load_controls,
     load_modeldefs,
     load_param_meta,
     load_uidefs,
     resolve_based_on,
     resolve_harness_model_info,
     resolve_uidef_for_model,
-    DEFAULT_BASED_ON_OVERRIDES,
-    DEFAULT_MODEL_META_DB,
 )
 
 DEFAULT_INPUT = ROOT / "mobile" / "src" / "data" / "blockTypes.json"

@@ -7,8 +7,6 @@ You can optionally send a single OSC message with a custom header.
 import argparse
 import socket
 import struct
-import sys
-import time
 
 
 def pad4(data: bytes) -> bytes:
@@ -21,7 +19,7 @@ def build_osc(address: str, typetags: str, args):
     addr = pad4(address.encode() + b"\x00")
     tt = pad4(("," + typetags).encode() + b"\x00")
     payload = b""
-    for t, a in zip(typetags, args):
+    for t, a in zip(typetags, args, strict=False):
         if t == "i":
             payload += struct.pack(">i", int(a))
         elif t == "f":

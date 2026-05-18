@@ -1,7 +1,5 @@
 """ZeroMQ ZMTP 3.0 helpers."""
-import socket
 import struct
-
 
 CLIENT_GREETING = bytes.fromhex(
     "ff00000000000000017f03004e554c4c"
@@ -46,7 +44,7 @@ class ZMTPStream:
                         return flags, payload
             try:
                 data = self.sock.recv(4096)
-            except socket.timeout:
+            except TimeoutError:
                 return None, None
             if not data:
                 return None, None

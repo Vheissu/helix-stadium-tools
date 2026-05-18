@@ -30,7 +30,9 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     load_uidefs,
     resolve_harness_model_info,
 )
-from scripts.generate_mobile_block_types_json import build_block_param_list  # noqa: E402
+from scripts.generate_mobile_block_types_json import (  # noqa: E402
+    build_block_param_list,
+)
 
 BLOCK_TYPES_PATH = ROOT / "mobile" / "src" / "data" / "blockTypes.json"
 IO_MODELS_PATH = ROOT / "mobile" / "src" / "data" / "ioModels.json"

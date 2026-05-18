@@ -8,7 +8,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.generate_helix_model_json import DEFAULT_MODELDEFS, DEFAULT_UIDEFS, load_modeldefs, load_uidefs  # noqa: E402
+from scripts.generate_helix_model_json import (  # noqa: E402
+    DEFAULT_MODELDEFS,
+    DEFAULT_UIDEFS,
+    load_modeldefs,
+    load_uidefs,
+)
 
 
 def main():

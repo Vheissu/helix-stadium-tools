@@ -4,24 +4,25 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter, defaultdict
 import json
 import os
 import socket
 import sys
 import time
+from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from helix.discovery import discover_first_service  # noqa: E402
 from helix.matrix_mixer import (  # noqa: E402
     MATRIX_LAYER_LABELS as LAYER_LABELS,
+)
+from helix.matrix_mixer import (
     MATRIX_SYNC_ADDRESSES,
     apply_matrix_mixer_event,
 )
 from helix.osc import decode_osc_payloads  # noqa: E402
 from helix.zmtp import ZMTPStream, zmtp_handshake  # noqa: E402
-
 
 MATRIX_ADDRESSES = {
     "/syncMatrixMixer",

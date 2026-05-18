@@ -6,9 +6,9 @@ Supports both single actions via CLI flags and batch execution from JSON.
 import argparse
 import json
 import os
+import re
 import sys
 import time
-import re
 from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -25,6 +25,7 @@ from helix import (  # noqa: E402
     decode_msgpack_blob,
     discover_first_service,
 )
+from helix.blobs import normalize_fourcc_map  # noqa: E402
 from helix.editbuffer import (  # noqa: E402
     extract_active_model_id,
     find_io_block,
@@ -32,9 +33,9 @@ from helix.editbuffer import (  # noqa: E402
     normalize_edit_buffer,
     parse_row,
 )
-from helix.blobs import normalize_fourcc_map  # noqa: E402
-from scripts.generate_helix_model_json import resolve_default_modeldefs_path  # noqa: E402
-
+from scripts.generate_helix_model_json import (
+    resolve_default_modeldefs_path,  # noqa: E402
+)
 
 DEFAULT_APP_RES = "/Applications/Line6/Helix Stadium.app/Contents/Resources"
 DEFAULT_MODELDEFS = resolve_default_modeldefs_path(DEFAULT_APP_RES)
@@ -144,7 +145,7 @@ def normalize_query(value: str) -> str:
 def load_model_map(path: str):
     if not path or not os.path.exists(path):
         return None
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     if isinstance(data, dict) and isinstance(data.get("models"), list):
         return data["models"]
@@ -159,7 +160,7 @@ def load_modeldefs(path: str):
     try:
         import msgpack  # type: ignore
     except Exception as exc:
-        raise SystemExit(f"msgpack is required to parse modeldefs: {exc}")
+        raise SystemExit(f"msgpack is required to parse modeldefs: {exc}") from exc
     with open(path, "rb") as f:
         unpacker = msgpack.Unpacker(f, raw=False)
         last = None
@@ -173,7 +174,7 @@ def load_modeldefs(path: str):
 def load_uidefs(path: str):
     if not os.path.exists(path):
         return None
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -372,7 +373,7 @@ def json_safe(value):
 
 
 def iter_actions_from_file(path):
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     if isinstance(data, dict):
         data = data.get("actions", [])

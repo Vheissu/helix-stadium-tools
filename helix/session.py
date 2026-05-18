@@ -2,7 +2,6 @@
 import socket
 import time
 
-from .osc import build_osc, decode_osc_payloads
 from .blobs import (
     build_property_blob,
     decode_msgpack_blob,
@@ -18,6 +17,7 @@ from .editbuffer import (
     normalize_edit_buffer,
 )
 from .matrix_mixer import MATRIX_MIXER_PROPERTY, parse_matrix_mixer_state
+from .osc import build_osc, decode_osc_payloads
 from .zmtp import ZMTPStream, zmtp_handshake
 
 FACTORY_PRESETS_CID = -1
@@ -40,6 +40,14 @@ SNAPSHOT_COLOR_NAMES = {
 ROUTING_MODEL_IDS = {474, 475, 476, 477, 478}
 SPLIT_MODEL_IDS = {474, 475, 476, 477}
 JOIN_MODEL_IDS = {478}
+
+
+def _coerce_int(value) -> int | None:
+    """Best-effort int() that returns None instead of raising on bad input."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 class HelixSessionError(RuntimeError):
@@ -300,12 +308,15 @@ class HelixSession:
             return None
         return bytes(vals[blob_index])
 
-    def _encode_msgpack(self, value):
+    def _encode_msgpack(self, value) -> bytes:
         try:
             import msgpack  # type: ignore
         except Exception as exc:
             raise HelixSessionError(f"msgpack is required: {exc}") from exc
-        return msgpack.packb(value, use_bin_type=True)
+        packed = msgpack.packb(value, use_bin_type=True)
+        if packed is None:
+            raise HelixSessionError("msgpack failed to encode payload")
+        return packed
 
     def _poll_until(self, predicate, timeout: float | None = None, interval: float = 0.05):
         if timeout is None:
@@ -371,10 +382,7 @@ class HelixSession:
         raw = value.get("val_")
         if raw is None:
             raw = value.get("val")
-        try:
-            return int(raw)
-        except (TypeError, ValueError):
-            return None
+        return _coerce_int(raw)
 
     def get_content_ref(self, content_id: int):
         cmd_id = self.next_cmd_id
@@ -529,10 +537,8 @@ class HelixSession:
         raw = value.get("val_")
         if raw is None:
             raw = value.get("val")
-        try:
-            return bool(int(raw))
-        except (TypeError, ValueError):
-            return None
+        coerced = _coerce_int(raw)
+        return None if coerced is None else bool(coerced)
 
     def get_auto_cab_enabled(self):
         value = self.get_property("global.modelselect.addcabblock")
@@ -541,10 +547,8 @@ class HelixSession:
         raw = value.get("val_")
         if raw is None:
             raw = value.get("val")
-        try:
-            return bool(int(raw))
-        except (TypeError, ValueError):
-            return None
+        coerced = _coerce_int(raw)
+        return None if coerced is None else bool(coerced)
 
     def get_active_preset_ref(self):
         active_id = self.get_active_preset_content_id()
@@ -926,7 +930,7 @@ class HelixSession:
         try:
             import msgpack  # type: ignore
         except ImportError as exc:
-            raise SystemExit(f"msgpack is required: {exc}")
+            raise SystemExit(f"msgpack is required: {exc}") from exc
         cmd_id = self.next_cmd_id
         blob = msgpack.packb(commands, use_bin_type=True)
         if wait_status:
@@ -987,6 +991,8 @@ class HelixSession:
         if state is None:
             return None
         data = normalize_fourcc_map(state)
+        if not isinstance(data, dict):
+            return None
         flows = data.get("sfg_", {}).get("flow", [])
         if not isinstance(flows, list):
             return None

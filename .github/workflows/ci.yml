@@ -20,6 +20,7 @@ jobs:
               - 'scripts/**'
               - 'tests/**'
               - 'helix/**'
+              - 'pyproject.toml'
               - 'requirements-dev.txt'
               - '.coveragerc'
               - 'codecov.yml'
@@ -41,6 +42,10 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements-dev.txt
+      - name: Lint (ruff)
+        run: python3 -m ruff check
+      - name: Typecheck (pyright)
+        run: python3 -m pyright
       - name: Run tests with coverage
         run: python3 -m coverage run -m unittest discover -s tests
       - name: Generate coverage reports
@@ -83,6 +88,8 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Typecheck
         run: npm run typecheck
       - name: Run focused mobile tests

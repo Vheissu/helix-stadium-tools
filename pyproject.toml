@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "helix-stadium-tools"
+version = "0.1.0"
+description = "Unofficial community tooling and a Python library for the Helix Stadium editor protocol"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Dwayne Charrington", email = "dwaynecharrington@gmail.com" }]
+dependencies = ["msgpack>=1.0"]
+
+[project.urls]
+Homepage = "https://github.com/Vheissu/helix-stadium-tools"
+Documentation = "https://github.com/Vheissu/helix-stadium-tools/blob/main/docs/LIBRARY_API.md"
+
+[project.optional-dependencies]
+dev = [
+    "coverage==7.13.1",
+    "ruff==0.15.13",
+    "pyright==1.1.409",
+]
+
+[tool.setuptools]
+packages = ["helix"]
+
+[tool.ruff]
+target-version = "py310"
+# Scripts and library only; mobile/ is TypeScript and excluded.
+extend-exclude = ["mobile", "generated"]
+
+[tool.ruff.lint]
+# Start pragmatic: real-bug rules plus import hygiene and modern-syntax upgrades.
+# E501 (line length) is intentionally off — the data-generation scripts carry
+# long literals; tighten this later if the team wants a hard column limit.
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pyright]
+# Scoped to the public library, where the type hints already exist and the
+# payoff is highest. Scripts can be folded in once their signatures are
+# annotated; track that as a follow-up rather than bulk-ignoring here.
+include = ["helix"]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"

@@ -816,8 +816,17 @@ class HelixSession:
         value_type: str | None = None,
     ):
         cmd_id = self.next_cmd_id
-        if value_type in ("i", "b") or isinstance(value, bool):
-            args = [cmd_id, path, block, slot, param_id, int(bool(value)) if isinstance(value, bool) else int(value), flags]
+        if value_type == "b" or (value_type is None and isinstance(value, bool)):
+            # Bool params require an OSC boolean (T/F typetag); the firmware
+            # silently ignores an integer written to a bool param.
+            typetag = "T" if bool(value) else "F"
+            args = [cmd_id, path, block, slot, param_id, bool(value), flags]
+            if wait_status:
+                return self.send_and_wait_status_code(cmd_id, "/ParamValueSet", f"iiiii{typetag}i", args)
+            self.send("/ParamValueSet", f"iiiii{typetag}i", args)
+            return None
+        if value_type == "i" or isinstance(value, int):
+            args = [cmd_id, path, block, slot, param_id, int(value), flags]
             if wait_status:
                 return self.send_and_wait_status_code(cmd_id, "/ParamValueSet", "iiiiiii", args)
             self.send("/ParamValueSet", "iiiiiii", args)

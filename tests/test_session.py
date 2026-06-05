@@ -837,7 +837,9 @@ class TestSession(unittest.TestCase):
         result = session.set_param_value(0, 1, 2, 0.5, wait_status=True)
         self.assertEqual(result, ["ok"])
 
-    def test_set_param_value_bool_uses_integer_payload(self):
+    def test_set_param_value_bool_uses_boolean_payload(self):
+        # Block bool params must be sent as an OSC boolean (T/F typetag); the
+        # firmware silently ignores an integer written to a bool param.
         stream = FakeStream()
         session = HelixSession("dummy")
         session._stream_2002 = stream
@@ -846,8 +848,20 @@ class TestSession(unittest.TestCase):
         _flags, payload = stream.sent[0]
         addr, typetags, vals = decode_osc(payload)
         self.assertEqual(addr, "/ParamValueSet")
-        self.assertEqual(typetags, ",iiiiiii")
-        self.assertEqual(vals, [10, 0, 1, 0, 7, 1, -1])
+        self.assertEqual(typetags, ",iiiiiTi")
+        self.assertEqual(vals, [10, 0, 1, 0, 7, True, -1])
+
+    def test_set_param_value_explicit_bool_type_false_uses_boolean_payload(self):
+        stream = FakeStream()
+        session = HelixSession("dummy")
+        session._stream_2002 = stream
+        session._cmd_id = 14
+        session.set_param_value(0, 1, 7, 0, wait_status=False, value_type="b")
+        _flags, payload = stream.sent[0]
+        addr, typetags, vals = decode_osc(payload)
+        self.assertEqual(addr, "/ParamValueSet")
+        self.assertEqual(typetags, ",iiiiiFi")
+        self.assertEqual(vals, [14, 0, 1, 0, 7, False, -1])
 
     def test_set_param_value_explicit_int_type_uses_integer_payload(self):
         stream = FakeStream()

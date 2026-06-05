@@ -257,7 +257,10 @@ Additional live requests:
 
 Observed behaviour:
 
-- `SavePresetWithCID` accepts the request but did not emit a synchronous `/status` acknowledgement during testing.
+- `SavePresetWithCID` is a **no-op** on Stadium firmware: it emits no `/status`
+  ack, never clears `volatile.preset.edited`, and does **not** write flash. This
+  holds whether it is given a setlist *reference* id or the underlying `rcid`
+  (both verified live). Do not rely on it to save.
 - `SetContentAttrs` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - `SetContentData` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - `SetContentPath` responds with `/status ,iii [cmdId, 0, 1]` on success.
@@ -266,6 +269,28 @@ Observed behaviour:
 - Updating the `name` field in that attrs blob successfully renames:
   - raw preset ids (for example the `rcid` behind an active setlist entry)
   - setlist container ids
+
+### Persisting the edit buffer (the real "Save preset")
+
+To actually save the live edit buffer to a preset (verified live on Stadium):
+
+1. Resolve the storage id. `server.active.preset.id` (and any setlist slot)
+   reports a *reference* content id whose `GetContentData` is **empty** — the
+   preset blob lives under that ref's `rcid`. A write to the bare reference id is
+   silently dropped, so target the `rcid`.
+2. Read the live patch with `EditBufferStateGet` (the blob is the third value).
+3. Write it back with `SetContentData ,iib [cmdId, rcid, <edit-buffer blob>]`.
+   The device acks `/status ,iii [cmdId, 0, 1]` once the write persists — that
+   ack, not the `volatile.preset.edited` flag, is the proof of persistence.
+   (Persistence confirmed by switching presets away and back: the written value
+   survives the edit-buffer discard.)
+4. Optionally clear the dirty flag for UI/guard accuracy:
+   `PropertyValueSet volatile.preset.edited = 0` (it does **not** clear on its
+   own after `SetContentData`).
+
+The edit-buffer blob omits the `selb`/`self` (selected block/flow UI state) keys
+that `GetContentData` carries; writing without them is accepted and reloads
+cleanly. This is the mechanism `HelixSession.save_preset_with_cid` now uses.
 
 Additional live content-management requests:
 

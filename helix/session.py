@@ -12,6 +12,7 @@ from .blobs import (
 from .discovery import HelixService, discover_first_service
 from .editbuffer import (
     CLEARABLE_FLOW_POSITIONS,
+    COPYABLE_FLOW_POSITIONS,
     extract_flow_clipboard,
     flow_position_map,
     normalize_edit_buffer,
@@ -692,23 +693,131 @@ class HelixSession:
             f"container {target_container} position {target_position}",
         )
 
-    def save_preset_with_cid(self, content_id: int, wait_clean: bool = False, timeout: float | None = None):
+    def get_edit_buffer_blob(self):
+        """Raw msgpack blob of the live edit buffer (the unsaved patch).
+
+        This is the payload the device persists when a preset is saved; it is
+        the third value returned by ``/getEditBufferState``.
+        """
         cmd_id = self.next_cmd_id
-        target_id = int(content_id)
-        self.send("/SavePresetWithCID", "ii", [cmd_id, target_id])
+        vals = self.request(cmd_id, "/EditBufferStateGet", "i", [cmd_id], "/getEditBufferState")
+        return self._raw_blob_response(vals, 2)
+
+    def resolve_storage_content_id(self, content_id: int) -> int:
+        """Map a content id to the id that actually stores the preset data.
+
+        ``server.active.preset.id`` (and setlist slots in general) report a
+        *reference* content id whose ``GetContentData`` is empty -- the real
+        preset blob lives under the ref's ``rcid``. A save written to the bare
+        reference id is silently dropped, so callers must target the ``rcid``.
+        Raw preset ids (e.g. straight from the user-preset container) have no
+        distinct ``rcid`` and are returned unchanged.
+        """
+        target = int(content_id)
+        try:
+            ref = self.get_content_ref(target)
+        except HelixSessionError:
+            return target
+        if isinstance(ref, dict):
+            rcid = ref.get("rcid")
+            if rcid is None:
+                rcid = ref.get(fourcc_int("rcid"))
+            coerced = _coerce_int(rcid)
+            if coerced is not None and coerced > 0 and coerced != target:
+                return coerced
+        return target
+
+    def save_preset_with_cid(
+        self,
+        content_id: int,
+        wait_clean: bool = True,
+        timeout: float | None = None,
+        settle_delay: float = 0.15,
+        clear_edited: bool = True,
+    ):
+        """Persist the live edit buffer to ``content_id`` and confirm it landed.
+
+        Despite the name, this does **not** use ``/SavePresetWithCID``: on the
+        Stadium firmware that command is a no-op -- it never writes flash and
+        never clears ``volatile.preset.edited`` (verified live against both a
+        setlist reference id and its underlying ``rcid``). The save the editor
+        actually performs, and that this method uses, is:
+
+        1. resolve ``content_id`` to the underlying storage id -- a setlist
+           slot's ``rcid`` (see :meth:`resolve_storage_content_id`); writing to
+           the bare reference id is dropped,
+        2. read the edit-buffer blob, and
+        3. write it back with ``/SetContentData``, which the device acknowledges
+           synchronously with ``/status [cmd, 0, 1]`` once the write persists.
+
+        That ``/status`` ack -- not the volatile edited flag -- is the proof of
+        persistence. After a confirmed write the volatile ``edited`` flag is
+        cleared so status/guards reflect the now-clean buffer.
+
+        Returns (``wait_clean=True``):
+
+        - ``{"saved": True}`` -- the write was acknowledged and persisted.
+        - ``{"saved": False, "reason": "edit-buffer-unavailable", ...}`` -- the
+          live patch blob could not be read, so nothing was written.
+        - ``{"saved": False, "reason": "rejected", ...}`` -- the device returned
+          a non-zero status for the write.
+        - ``{"saved": False, "reason": "no-ack", ...}`` -- the write was sent but
+          not acknowledged within ``timeout``.
+
+        ``wait_clean=False`` fires the write without waiting for the ack and
+        returns ``None`` (legacy fire-and-forget behaviour). ``settle_delay`` is
+        retained for signature compatibility and is unused.
+        """
+        target_id = self.resolve_storage_content_id(int(content_id))
+        eb_blob = self.get_edit_buffer_blob()
+        if not eb_blob:
+            if not wait_clean:
+                return None
+            return {
+                "saved": False,
+                "reason": "edit-buffer-unavailable",
+                "detail": "Could not read the live patch to save.",
+            }
+
         if not wait_clean:
+            self.set_content_data(target_id, eb_blob, wait_status=False)
             return None
 
-        def predicate():
-            edited = self.is_preset_edited()
-            if edited is False:
-                return False
-            return None
+        effective_timeout = self.timeout if timeout is None else timeout
+        cmd_id = self.next_cmd_id
+        try:
+            ack = self.send_and_wait_status_code(
+                cmd_id,
+                "/SetContentData",
+                "iib",
+                [cmd_id, target_id, bytes(eb_blob)],
+                timeout=effective_timeout,
+            )
+        except HelixStatusError as exc:
+            return {
+                "saved": False,
+                "reason": "rejected",
+                "detail": f"Device rejected the save: status={list(exc.status_values)}.",
+            }
+        if ack is None:
+            return {
+                "saved": False,
+                "reason": "no-ack",
+                "detail": f"Save was sent but not acknowledged within {effective_timeout:g}s.",
+            }
 
-        result = self._poll_until(predicate, timeout=timeout)
-        if result is not None:
-            return result
-        return self._handle_timeout("/SavePresetWithCID", cmd_id, f"preset {target_id}")
+        # The write is confirmed by the ack above; reflect the now-clean buffer
+        # so get_status and the load dirty-guard stop reporting unsaved edits.
+        # Best-effort -- a failure here does not undo the persisted save.
+        # Skipped for "save as" to a *different* slot: the active buffer still
+        # differs from the active stored preset, so its edited flag must stand.
+        if clear_edited:
+            try:
+                self.set_property("volatile.preset.edited", 0, "i", wait_status=True)
+            except HelixSessionError:
+                pass
+
+        return {"saved": True}
 
     def add_contents_to_container(
         self,
@@ -774,6 +883,28 @@ class HelixSession:
         if wait_status:
             return self.send_and_wait_status_code(cmd_id, "/SetContentData", "iib", args)
         self.send("/SetContentData", "iib", args)
+        return None
+
+    def set_edit_buffer_blob(self, blob, wait_status: bool = True):
+        """EXPERIMENTAL: write a captured edit-buffer blob back to the live buffer.
+
+        This is the symmetric counterpart of :meth:`get_edit_buffer_blob`, used to
+        implement an in-session "undo" without persisting anything: it targets the
+        live edit buffer only and does **not** write any stored preset (so it can
+        never corrupt a saved patch).
+
+        The write verb ``/EditBufferStateSet`` is the natural symmetric command but
+        is **pending live confirmation on Stadium firmware**; callers must read-back
+        verify (compare ``get_edit_buffer_blob`` afterwards) and treat a mismatch as
+        "restore unsupported", not as success. If the firmware ignores the command
+        the device simply will not change, leaving the buffer as-is.
+        """
+        data = bytes(blob)
+        cmd_id = self.next_cmd_id
+        args = [cmd_id, data]
+        if wait_status:
+            return self.send_and_wait_status_code(cmd_id, "/EditBufferStateSet", "ib", args)
+        self.send("/EditBufferStateSet", "ib", args)
         return None
 
     def set_content_path(self, content_id: int, path: str, wait_status: bool = True):
@@ -1039,6 +1170,93 @@ class HelixSession:
             self.set_auto_cab(auto_cab, wait_status=wait_status)
         return self.set_model(path, block, model_id, slot=slot, wait_status=wait_status)
 
+    def _replay_flow_clipboard(self, clipboard, target_flow, source_flow, occupied_positions, wait_status):
+        """Recreate a captured flow clipboard onto ``target_flow`` using granular
+        setters (clear -> model -> routing -> enable -> params -> harness).
+
+        These setters are the only buffer-write path the Stadium firmware honours,
+        so this single replay backs both :meth:`copy_path` (clipboard from a live
+        source path) and :meth:`restore_signal_chain` (clipboard from a captured
+        checkpoint). ``source_flow`` is only used to remap split/join links when
+        copying across paths; for an in-place restore pass ``source_flow ==
+        target_flow`` so the mapping is identity.
+        """
+        if occupied_positions:
+            self.clear_positions(target_flow, occupied_positions, wait_status=wait_status)
+        for entry in clipboard:
+            self.set_model(target_flow, int(entry["position"]), int(entry["model_id"]), slot=0, wait_status=wait_status)
+        for entry in clipboard:
+            model_id = int(entry["model_id"])
+            link_flow = entry.get("link_flow")
+            link_position = entry.get("link_position")
+            if not isinstance(link_flow, int) or not isinstance(link_position, int):
+                continue
+            mapped_link_flow = target_flow if link_flow == source_flow else int(link_flow)
+            position = int(entry["position"])
+            if model_id in SPLIT_MODEL_IDS:
+                self.set_split_destination(target_flow, position, mapped_link_flow, link_position, wait_status=wait_status)
+            elif model_id in JOIN_MODEL_IDS:
+                self.set_join_origin(target_flow, position, mapped_link_flow, link_position, wait_status=wait_status)
+        for entry in clipboard:
+            position = int(entry["position"])
+            self.set_block_enable(target_flow, position, int(bool(entry["enabled"])), wait_status=False)
+            for param in entry["params"]:
+                value = param["value"]
+                value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
+                self.set_param_value(
+                    target_flow, position, int(param["param_id"]), value,
+                    slot=0, flags=-1, wait_status=False, value_type=value_type,
+                )
+            for param in entry.get("harness_params", []):
+                value = param["value"]
+                value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
+                self.set_harness_param_value(
+                    target_flow, position, int(param["param_id"]), value,
+                    flags=-1, wait_status=False, value_type=value_type,
+                )
+
+    def restore_signal_chain(self, state, wait_status: bool = True):
+        """Re-apply a captured edit-buffer signal chain onto the live edit buffer.
+
+        The firmware has no working "write whole edit buffer" verb
+        (``/EditBufferStateSet`` is a no-op and the live buffer has no writable
+        content id), so an in-session restore is reconstructed from ``state`` with
+        the same granular replay :meth:`copy_path` uses: for each flow, clear the
+        occupied positions then recreate every block's model, routing, enable,
+        params and harness params.
+
+        This restores the signal chain (blocks + routing + I/O). Per-snapshot
+        values, controller assignments and snapshot metadata are not replayed. It
+        never writes flash. Returns ``{"flows", "entry_count"}``; callers should
+        read-back verify.
+        """
+        normalized = normalize_edit_buffer(state)
+        if normalized is None:
+            return None
+        flows = normalized.get("sfg_", {}).get("flow")
+        if not isinstance(flows, list):
+            return None
+        live = normalize_edit_buffer(self.get_edit_buffer_state())
+        auto_cab = self.get_auto_cab_enabled()
+        if auto_cab:
+            self.set_auto_cab(False, wait_status=wait_status)
+        replayed = 0
+        try:
+            for flow in range(len(flows)):
+                clipboard = extract_flow_clipboard(normalized, flow, positions=COPYABLE_FLOW_POSITIONS)
+                occupied = (
+                    sorted(int(e["position"]) for e in extract_flow_clipboard(live, flow, positions=CLEARABLE_FLOW_POSITIONS))
+                    if live is not None
+                    else []
+                )
+                # In-place restore: source_flow == target_flow, so links map to themselves.
+                self._replay_flow_clipboard(clipboard, flow, flow, occupied, wait_status)
+                replayed += len(clipboard)
+        finally:
+            if auto_cab:
+                self.set_auto_cab(True, wait_status=wait_status)
+        return {"flows": len(flows), "entry_count": replayed}
+
     def copy_path(self, source_path: int, target_path: int, wait_status: bool = True):
         source_flow = int(source_path)
         target_flow = int(target_path)
@@ -1057,62 +1275,9 @@ class HelixSession:
         if auto_cab:
             self.set_auto_cab(False, wait_status=wait_status)
         try:
-            if occupied_positions:
-                self.clear_positions(target_flow, occupied_positions, wait_status=wait_status)
-            for entry in clipboard:
-                self.set_model(target_flow, int(entry["position"]), int(entry["model_id"]), slot=0, wait_status=wait_status)
-            for entry in clipboard:
-                model_id = int(entry["model_id"])
-                link_flow = entry.get("link_flow")
-                link_position = entry.get("link_position")
-                if not isinstance(link_flow, int) or not isinstance(link_position, int):
-                    continue
-                mapped_link_flow = target_flow if link_flow == source_flow else int(link_flow)
-                position = int(entry["position"])
-                if model_id in SPLIT_MODEL_IDS:
-                    self.set_split_destination(
-                        target_flow,
-                        position,
-                        mapped_link_flow,
-                        link_position,
-                        wait_status=wait_status,
-                    )
-                elif model_id in JOIN_MODEL_IDS:
-                    self.set_join_origin(
-                        target_flow,
-                        position,
-                        mapped_link_flow,
-                        link_position,
-                        wait_status=wait_status,
-                    )
-            for entry in clipboard:
-                position = int(entry["position"])
-                self.set_block_enable(target_flow, position, int(bool(entry["enabled"])), wait_status=False)
-                for param in entry["params"]:
-                    value = param["value"]
-                    value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
-                    self.set_param_value(
-                        target_flow,
-                        position,
-                        int(param["param_id"]),
-                        value,
-                        slot=0,
-                        flags=-1,
-                        wait_status=False,
-                        value_type=value_type,
-                    )
-                for param in entry.get("harness_params", []):
-                    value = param["value"]
-                    value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
-                    self.set_harness_param_value(
-                        target_flow,
-                        position,
-                        int(param["param_id"]),
-                        value,
-                        flags=-1,
-                        wait_status=False,
-                        value_type=value_type,
-                    )
+            self._replay_flow_clipboard(
+                clipboard, target_flow, source_flow, occupied_positions, wait_status
+            )
             if wait_status:
                 expected_entries = [
                     {
@@ -1161,6 +1326,86 @@ class HelixSession:
             "entry_count": len(clipboard),
             "routing_entry_count": routing_entry_count,
         }
+
+    def move_block(
+        self,
+        path: int,
+        from_position: int,
+        to_position: int,
+        overwrite: bool = False,
+        wait_status: bool = True,
+    ):
+        """Move a signal block (with its params/harness/enable) to another position.
+
+        There is no atomic move command, so this composes one from the same
+        replay primitives ``copy_path`` uses: read the source block, recreate it
+        at the destination, then clear the source. Read-back verified. Routing
+        (split/join) blocks can't be moved this way.
+        """
+        flow = int(path)
+        src = int(from_position)
+        dst = int(to_position)
+        if src == dst:
+            raise ValueError("from_position and to_position must differ")
+        state = normalize_edit_buffer(self.get_edit_buffer_state())
+        if state is None:
+            return None
+        entries = {
+            int(e["position"]): e
+            for e in extract_flow_clipboard(state, flow, positions=COPYABLE_FLOW_POSITIONS)
+        }
+        source = entries.get(src)
+        if source is None:
+            raise ValueError(f"no block at path {path} position {src} to move")
+        model_id = int(source["model_id"])
+        if model_id in ROUTING_MODEL_IDS:
+            raise ValueError("cannot move a split/join routing block")
+        if dst in entries and not overwrite:
+            raise ValueError(f"position {dst} is occupied; pass overwrite=True to replace it")
+
+        auto_cab = self.get_auto_cab_enabled()
+        if auto_cab:
+            self.set_auto_cab(False, wait_status=wait_status)
+        try:
+            self.set_model(flow, dst, model_id, slot=0, wait_status=wait_status)
+            self.set_block_enable(flow, dst, int(bool(source["enabled"])), wait_status=False)
+            for param in source["params"]:
+                value = param["value"]
+                value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
+                self.set_param_value(
+                    flow, dst, int(param["param_id"]), value,
+                    slot=0, flags=-1, wait_status=False, value_type=value_type,
+                )
+            for param in source.get("harness_params", []):
+                value = param["value"]
+                value_type = "b" if isinstance(value, bool) else "i" if isinstance(value, int) else "f"
+                self.set_harness_param_value(
+                    flow, dst, int(param["param_id"]), value,
+                    flags=-1, wait_status=False, value_type=value_type,
+                )
+            self.clear_block_position(flow, src, wait_status=wait_status)
+            if wait_status:
+                def moved():
+                    cur = normalize_edit_buffer(self.get_edit_buffer_state())
+                    if cur is None:
+                        return None
+                    cur_entries = {
+                        int(e["position"]): e
+                        for e in extract_flow_clipboard(cur, flow, positions=COPYABLE_FLOW_POSITIONS)
+                    }
+                    dest = cur_entries.get(dst)
+                    if not isinstance(dest, dict) or int(dest.get("model_id", -1)) != model_id:
+                        return None
+                    if src in cur_entries:  # source must be cleared
+                        return None
+                    return True
+
+                if self._poll_until(moved) is None:
+                    return self._handle_timeout("/moveBlock", 0, f"path {flow} pos {src} -> {dst}")
+        finally:
+            if auto_cab:
+                self.set_auto_cab(True, wait_status=wait_status)
+        return {"path": flow, "from_position": src, "to_position": dst, "model_id": model_id}
 
     # Context manager helpers
     def __enter__(self):

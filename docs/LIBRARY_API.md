@@ -119,7 +119,9 @@ not answer (unless `raise_on_timeout=True`).
 
 `load_preset_with_cid(cid, wait_change=True)`,
 `load_preset_at_container_position(container_cid, position, wait_change=True)`,
-`save_preset_with_cid(cid, wait_clean=False)`, `rename_content(cid, name)`,
+`save_preset_with_cid(cid, wait_clean=True)` (verified: polls the unsaved-edits
+flag and returns `{"saved": True}` / `{"saved": False, "reason": ...}`),
+`rename_content(cid, name)`,
 `set_content_path(cid, path)`, `set_content_data(cid, data)`,
 `set_content_attrs(cid, attrs)`, `add_contents_to_container(...)`,
 `reorder_container_content(...)`, `remove_content(container_cid, content_ids)`,

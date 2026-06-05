@@ -707,19 +707,61 @@ class TestSession(unittest.TestCase):
         self.assertEqual(result, {"cid_": 506, "ccid": 500, "posi": 4})
 
     def test_save_preset_with_cid_wait_clean_false(self):
+        # Legacy fire-and-forget: writes the edit buffer to the storage cid
+        # (the ref's rcid) without waiting for the ack.
         session = HelixSession("dummy")
         session.send = mock.Mock()
-        session.save_preset_with_cid(508, wait_clean=False)
-        session.send.assert_called_once_with("/SavePresetWithCID", "ii", [1, 508])
+        session.get_content_ref = lambda cid: {"cid_": 508, "rcid": 507}
+        session.get_edit_buffer_blob = lambda: b"blob"
+        result = session.save_preset_with_cid(508, wait_clean=False)
+        session.send.assert_called_once_with("/SetContentData", "iib", [1, 507, b"blob"])
+        self.assertIsNone(result)
 
     def test_save_preset_with_cid_wait_clean_true(self):
+        # Verified save: SetContentData to the rcid is acknowledged, then the
+        # volatile edited flag is cleared.
         session = HelixSession("dummy", timeout=0.1)
-        session.send = mock.Mock()
-        values = iter([True, False])
-        session.is_preset_edited = lambda: next(values)
-        with mock.patch("helix.session.time.sleep"):
-            result = session.save_preset_with_cid(508, wait_clean=True, timeout=0.1)
-        self.assertFalse(result)
+        session.get_content_ref = lambda cid: {"cid_": 508, "rcid": 507}
+        session.get_edit_buffer_blob = lambda: b"blob"
+        session.send_and_wait_status_code = mock.Mock(return_value=[1, 0, 1])
+        session.set_property = mock.Mock(return_value=[2, 0])
+        result = session.save_preset_with_cid(508, wait_clean=True, timeout=0.5)
+        self.assertEqual(result, {"saved": True})
+        # Data is written to the underlying storage id (rcid 507), not 508.
+        addr, _tt, args = session.send_and_wait_status_code.call_args[0][1:4]
+        self.assertEqual(addr, "/SetContentData")
+        self.assertEqual(args[1], 507)
+        session.set_property.assert_called_once_with(
+            "volatile.preset.edited", 0, "i", wait_status=True
+        )
+
+    def test_save_preset_with_cid_no_ack(self):
+        session = HelixSession("dummy", timeout=0.05)
+        session.get_content_ref = lambda cid: {"cid_": 508, "rcid": 507}
+        session.get_edit_buffer_blob = lambda: b"blob"
+        session.send_and_wait_status_code = mock.Mock(return_value=None)  # no ack
+        result = session.save_preset_with_cid(508, wait_clean=True, timeout=0.05)
+        self.assertFalse(result["saved"])
+        self.assertEqual(result["reason"], "no-ack")
+
+    def test_save_preset_with_cid_edit_buffer_unavailable(self):
+        session = HelixSession("dummy", timeout=0.05)
+        session.get_content_ref = lambda cid: {"cid_": 508, "rcid": 507}
+        session.get_edit_buffer_blob = lambda: None  # could not read live patch
+        result = session.save_preset_with_cid(508, wait_clean=True, timeout=0.05)
+        self.assertFalse(result["saved"])
+        self.assertEqual(result["reason"], "edit-buffer-unavailable")
+
+    def test_resolve_storage_content_id_prefers_rcid(self):
+        session = HelixSession("dummy")
+        session.get_content_ref = lambda cid: {"cid_": 570, "rcid": 569}
+        self.assertEqual(session.resolve_storage_content_id(570), 569)
+
+    def test_resolve_storage_content_id_passthrough(self):
+        session = HelixSession("dummy")
+        # Raw preset id whose ref has no distinct rcid stays unchanged.
+        session.get_content_ref = lambda cid: {"cid_": 507}
+        self.assertEqual(session.resolve_storage_content_id(507), 507)
 
     def test_add_contents_to_container_wait_status_false(self):
         session = HelixSession("dummy")
@@ -1188,6 +1230,88 @@ class TestSession(unittest.TestCase):
         session.set_param_value = mock.Mock(return_value=None)
         session.copy_path(0, 1)
         session.clear_positions.assert_called_once_with(1, [1], wait_status=True)
+
+    def _move_buffer(self):
+        # Flat-format flow with one block (model 770, 2 params) at position 1.
+        return {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [
+                            1,
+                            {"id__": 1, "enbl": 1, "mdls": [{"id__": 770, "parm": [{"pid_": 2, "valu": 1}, {"pid_": 3, "valu": 0.5}]}]},
+                        ],
+                    },
+                    {"bmap": list(range(28)), "blks": []},
+                ]
+            }
+        }
+
+    def test_move_block_replays_and_clears_source(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: self._move_buffer()
+        session.get_auto_cab_enabled = lambda: False
+        calls = []
+        session.set_model = lambda path, block, model_id, slot=0, wait_status=True: calls.append(
+            ("set_model", path, block, model_id, slot, wait_status)
+        )
+        session.set_block_enable = lambda path, block, enabled, wait_status=True: calls.append(
+            ("set_block_enable", path, block, enabled, wait_status)
+        )
+        session.set_param_value = lambda path, block, param_id, value, slot=0, flags=-1, wait_status=True, value_type=None: calls.append(
+            ("set_param_value", path, block, param_id, value, value_type)
+        )
+        session.clear_block_position = lambda flow, position, wait_status=True: calls.append(
+            ("clear_block_position", flow, position, wait_status)
+        )
+        result = session.move_block(0, 1, 5, wait_status=False)
+        self.assertEqual(result, {"path": 0, "from_position": 1, "to_position": 5, "model_id": 770})
+        self.assertEqual(
+            calls,
+            [
+                ("set_model", 0, 5, 770, 0, False),
+                ("set_block_enable", 0, 5, 1, False),
+                ("set_param_value", 0, 5, 2, 1, "i"),
+                ("set_param_value", 0, 5, 3, 0.5, "f"),
+                ("clear_block_position", 0, 1, False),  # source pos 1 cleared
+            ],
+        )
+
+    def test_move_block_same_position_rejected(self):
+        session = HelixSession("dummy")
+        with self.assertRaises(ValueError):
+            session.move_block(0, 5, 5)
+
+    def test_move_block_missing_source_rejected(self):
+        session = HelixSession("dummy")
+        session.get_edit_buffer_state = lambda: self._move_buffer()
+        session.get_auto_cab_enabled = lambda: False
+        with self.assertRaises(ValueError):
+            session.move_block(0, 7, 9)  # nothing at position 7
+
+    def test_move_block_occupied_destination_requires_overwrite(self):
+        session = HelixSession("dummy")
+        # Two blocks: pos 1 (model 770) and pos 5 (model 771).
+        session.get_edit_buffer_state = lambda: {
+            "sfg_": {
+                "flow": [
+                    {
+                        "bmap": list(range(28)),
+                        "blks": [
+                            1,
+                            {"id__": 1, "enbl": 1, "mdls": [{"id__": 770, "parm": []}]},
+                            5,
+                            {"id__": 5, "enbl": 1, "mdls": [{"id__": 771, "parm": []}]},
+                        ],
+                    },
+                    {"bmap": list(range(28)), "blks": []},
+                ]
+            }
+        }
+        session.get_auto_cab_enabled = lambda: False
+        with self.assertRaises(ValueError):
+            session.move_block(0, 1, 5)  # pos 5 occupied, no overwrite
 
     def test_enter_exit_calls_helpers(self):
         session = HelixSession("dummy")

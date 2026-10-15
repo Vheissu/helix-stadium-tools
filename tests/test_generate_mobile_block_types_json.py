@@ -5,10 +5,37 @@ from scripts.generate_mobile_block_types_json import (
     add_missing_modeldef_category_models,
     build_catalog_model_entry,
     preserve_missing_model_entry,
+    prune_unavailable_synthetic_models,
 )
 
 
 class TestGenerateMobileBlockTypesJsonBehavior(unittest.TestCase):
+    def test_unavailable_synthetic_models_are_removed_from_picker(self):
+        block_types = {
+            "fx_loop": {
+                "models": [
+                    {"key": "HD2_FXLoopMono1", "id": 277},
+                    {"key": "HD2_PluginMono1", "id": 416},
+                ]
+            }
+        }
+        modeldefs = {
+            "HD2_FXLoopMono1": {"id": 277},
+            "HD2_PluginMono1": {
+                "id": 416,
+                "available": False,
+                "synthetic_fallback": True,
+            },
+        }
+
+        removed = prune_unavailable_synthetic_models(block_types, modeldefs)
+
+        self.assertEqual(removed, ["HD2_PluginMono1"])
+        self.assertEqual(
+            [model["key"] for model in block_types["fx_loop"]["models"]],
+            ["HD2_FXLoopMono1"],
+        )
+
     def test_missing_modeldefs_should_preserve_existing_param_metadata(self):
         model = {
             "key": "HD2_DistSomeStereoClone",

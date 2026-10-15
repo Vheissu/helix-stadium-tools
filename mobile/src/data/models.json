@@ -979,6 +979,27 @@
       "based_on": null,
       "key": "VIC_AmpCabFlexNet",
       "category": "amp"
+    },
+    {
+      "id": 846,
+      "name": "Prosecutor",
+      "based_on": null,
+      "key": "Agoura_AmpLine6Prosecutor",
+      "category": "amp"
+    },
+    {
+      "id": 845,
+      "name": "Brit SL100",
+      "based_on": null,
+      "key": "Agoura_AmpBritSL100",
+      "category": "amp"
+    },
+    {
+      "id": 847,
+      "name": "Omega Granophyre",
+      "based_on": null,
+      "key": "Agoura_AmpOmegaGrano",
+      "category": "amp"
     }
   ],
   "preamps": [

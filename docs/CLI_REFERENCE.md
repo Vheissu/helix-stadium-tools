@@ -3,6 +3,15 @@
 Per-script reference for the tools in `scripts/`. Run each script with `--help`
 for the authoritative flag list.
 
+Firmware 1.4 adds `get-expression-pedal-position --index 0`,
+`get-library-content --library 0 [--sku stadium]`, and
+`get-ir-spectrum --path 0 --block 7 [--slot 0] [--output spectrum.bin]` to
+`helix_control.py`. `list-presets` accepts an optional `--sku` filter, and
+`monitor --library-operations` prints structured IR/clone operation events.
+See [1.4 support](FIRMWARE_1_4_SUPPORT.md) for compatibility and verification
+details. Library events must not be interpreted as successful imports solely
+because an end notification arrived.
+
 - [Capture and decode workflow](#capture-and-decode-workflow)
 - [`scripts/osc_pcap_dump.py`](#scriptsosc_pcap_dumppy)
 - [`scripts/osc_client.py`](#scriptsosc_clientpy)
@@ -501,4 +510,11 @@ python3 scripts/generate_io_models_json.py
 python3 scripts/generate_mobile_block_types_json.py
 python3 scripts/add_missing_mobile_models.py
 python3 scripts/generate_mobile_models_json.py
+python3 scripts/extract_param_help.py
+python3 scripts/generate_helix_gpt_knowledge.py
 ```
+
+Stereo variants use their own model definitions for parameter IDs, defaults,
+ranges, and DSP usage. Display labels fall back to the matching mono UI
+definition when needed. The IO backfill skips unnamed definitions so internal
+entries do not become selectable routing options.

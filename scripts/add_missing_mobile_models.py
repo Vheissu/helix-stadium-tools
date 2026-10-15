@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Add missing stereo variants, routing blocks, and IO models to mobile data files.
 
-The Helix device reports stereo model IDs when blocks are on a stereo signal
-path, but blockTypes.json only contained mono variants.  This script clones
-each mono entry for its stereo counterpart so the mobile app can resolve all
-model IDs to human-readable names.
+Stereo variants share display metadata with their mono counterparts, but have
+their own parameter IDs, defaults, and DSP usage. Read those from modeldefs.
 
 It also adds join/split routing blocks and any missing IO models.
 """
@@ -32,6 +30,7 @@ from scripts.generate_helix_model_json import (  # noqa: E402
 )
 from scripts.generate_mobile_block_types_json import (  # noqa: E402
     build_block_param_list,
+    build_catalog_model_entry,
 )
 
 BLOCK_TYPES_PATH = ROOT / "mobile" / "src" / "data" / "blockTypes.json"
@@ -131,57 +130,90 @@ def hydrate_existing_routing_models(block_types, routing_metadata):
     return updated
 
 
+def add_missing_stereo_models(block_types, catalogue, modeldefs, uidefs,
+                              param_meta_all, param_meta_by_symbol, controls):
+    existing_ids = {
+        model["id"] for group in block_types.values() for model in group.get("models", [])
+    }
+    by_key = {
+        model["key"]: (group, model)
+        for group in block_types.values() for model in group.get("models", [])
+    }
+    modeldefs_by_id = index_modeldefs_by_id(modeldefs)
+    added = 0
+    for entry in catalogue:
+        key = entry.get("key", "")
+        model_id = entry.get("id")
+        if "Stereo" not in key or not isinstance(model_id, int) or model_id in existing_ids:
+            continue
+        if entry.get("available") is False:
+            continue
+        mono = by_key.get(key.replace("Stereo", "Mono"))
+        if mono is None:
+            continue
+        group, mono_entry = mono
+        stereo = build_catalog_model_entry(
+            key, modeldefs, modeldefs_by_id, uidefs,
+            param_meta_all, param_meta_by_symbol, controls,
+        )
+        if stereo is None:
+            continue
+        stereo["based_on"] = mono_entry.get("based_on")
+        group["models"].append(stereo)
+        existing_ids.add(stereo["id"])
+        added += 1
+    return added
+
+
+def add_missing_io_models(io_models, catalogue):
+    """Backfill named IO entries only; hidden definitions are not picker options."""
+    existing_ids = {
+        model["id"] for group in io_models.values() for model in group.get("models", [])
+    }
+    added = 0
+    for entry in catalogue:
+        category = entry.get("category")
+        model_id = entry.get("id")
+        if category not in ("input", "output") or not isinstance(model_id, int):
+            continue
+        if model_id in existing_ids or not entry.get("name") or entry.get("available") is False:
+            continue
+        section = "inputs" if category == "input" else "outputs"
+        io_models[section]["models"].append({
+            "id": model_id,
+            "name": entry["name"],
+            "params": [],
+        })
+        existing_ids.add(model_id)
+        added += 1
+    return added
+
+
 def main():
     block_types = load_json(BLOCK_TYPES_PATH)
     io_models = load_json(IO_MODELS_PATH)
     model_id_map = load_json(MODEL_ID_MAP_PATH)
     catalogue = model_id_map["models"]
     routing_metadata = build_routing_metadata()
+    modeldefs = load_modeldefs(DEFAULT_MODELDEFS)
+    uidefs = load_uidefs(DEFAULT_UIDEFS)
+    controls = load_controls(DEFAULT_CONTROLS)
+    param_meta_all, param_meta_by_symbol = load_param_meta(DEFAULT_PARAM_META)
 
     # ---- Build indexes ----
     # All IDs currently in blockTypes
     existing_ids = set()
-    key_to_entry = {}  # model key -> (bt_category, entry)
-    for group_key, group in block_types.items():
+    for group in block_types.values():
         for m in group.get("models", []):
             existing_ids.add(m["id"])
-            key_to_entry[m["key"]] = (group_key, m)
-
-    # All IDs currently in ioModels
-    existing_io_ids = set()
-    for section in ("inputs", "outputs"):
-        for m in io_models.get(section, {}).get("models", []):
-            existing_io_ids.add(m["id"])
 
     hydrated_routing = hydrate_existing_routing_models(block_types, routing_metadata)
 
     # ---- 1. Add missing stereo variants to blockTypes ----
-    added_stereo = 0
-    for entry in catalogue:
-        key = entry.get("key", "")
-        model_id = entry.get("id")
-        if "Stereo" not in key:
-            continue
-        if model_id in existing_ids:
-            continue
-
-        # Find mono counterpart
-        mono_key = key.replace("Stereo", "Mono")
-        if mono_key not in key_to_entry:
-            continue
-
-        bt_cat, mono_entry = key_to_entry[mono_key]
-        stereo_entry = {
-            "id": model_id,
-            "name": mono_entry["name"],
-            "key": key,
-            "category": mono_entry.get("category", bt_cat),
-            "usage": mono_entry.get("usage", 0),
-            "params": mono_entry.get("params", []),
-        }
-        block_types[bt_cat]["models"].append(stereo_entry)
-        existing_ids.add(model_id)
-        added_stereo += 1
+    added_stereo = add_missing_stereo_models(
+        block_types, catalogue, modeldefs, uidefs,
+        param_meta_all, param_meta_by_symbol, controls,
+    )
 
     # ---- 2. Add routing blocks (join/split) ----
     routing_models = []
@@ -204,22 +236,7 @@ def main():
         block_types["routing"]["models"].extend(routing_models)
 
     # ---- 3. Add missing IO models ----
-    added_io = 0
-    for entry in catalogue:
-        cat = entry.get("category")
-        model_id = entry.get("id")
-        if cat not in ("input", "output"):
-            continue
-        if model_id in existing_io_ids:
-            continue
-        section = "inputs" if cat == "input" else "outputs"
-        io_models[section]["models"].append({
-            "id": model_id,
-            "name": entry.get("name") or entry.get("key", ""),
-            "params": [],
-        })
-        existing_io_ids.add(model_id)
-        added_io += 1
+    added_io = add_missing_io_models(io_models, catalogue)
 
     # ---- Save ----
     save_json(BLOCK_TYPES_PATH, block_types)

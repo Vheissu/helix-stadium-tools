@@ -282,7 +282,7 @@
           },
           {
             "id": 2,
-            "key": "Pad.1",
+            "key": "Pad_1",
             "name": "Inst 1 Pad",
             "type": "i",
             "min": 1,
@@ -298,7 +298,7 @@
           },
           {
             "id": 3,
-            "key": "Trim.1",
+            "key": "Trim_1",
             "name": "Inst 1 Trim",
             "type": "f",
             "min": -24,
@@ -311,7 +311,7 @@
           },
           {
             "id": 4,
-            "key": "noiseGate.1",
+            "key": "noiseGate_1",
             "name": "Inst 1 Gate",
             "type": "b",
             "min": false,
@@ -330,7 +330,7 @@
           },
           {
             "id": 5,
-            "key": "threshold.1",
+            "key": "threshold_1",
             "name": "Inst 1 Thresh",
             "type": "f",
             "min": -96,
@@ -343,7 +343,7 @@
           },
           {
             "id": 6,
-            "key": "decay.1",
+            "key": "decay_1",
             "name": "Inst 1 Decay",
             "type": "f",
             "min": 0.01,
@@ -410,7 +410,7 @@
           },
           {
             "id": 22,
-            "key": "Pad.2",
+            "key": "Pad_2",
             "name": "Inst 2 Pad",
             "type": "i",
             "min": 1,
@@ -426,7 +426,7 @@
           },
           {
             "id": 23,
-            "key": "Trim.2",
+            "key": "Trim_2",
             "name": "Inst 2 Trim",
             "type": "f",
             "min": -24,
@@ -439,7 +439,7 @@
           },
           {
             "id": 24,
-            "key": "noiseGate.2",
+            "key": "noiseGate_2",
             "name": "Inst 2 Gate",
             "type": "b",
             "min": false,
@@ -458,7 +458,7 @@
           },
           {
             "id": 25,
-            "key": "threshold.2",
+            "key": "threshold_2",
             "name": "Inst 2 Thresh",
             "type": "f",
             "min": -96,
@@ -471,7 +471,7 @@
           },
           {
             "id": 26,
-            "key": "decay.2",
+            "key": "decay_2",
             "name": "Inst 2 Decay",
             "type": "f",
             "min": 0.01,
@@ -1211,16 +1211,6 @@
             "property_key": null
           }
         ]
-      },
-      {
-        "id": 776,
-        "name": "Nexus 1",
-        "params": []
-      },
-      {
-        "id": 777,
-        "name": "Nexus 2",
-        "params": []
       }
     ]
   },

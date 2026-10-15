@@ -13,6 +13,7 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     DEFAULT_UIDEFS,
     load_modeldefs,
     load_uidefs,
+    resolve_uidef_for_model,
 )
 
 
@@ -31,18 +32,21 @@ def main():
 
     models = []
     for key, info in modeldefs.items():
-        ui = uidefs.get(key, {})
-        models.append(
-            {
-                "key": key,
-                "id": info.get("id"),
-                "name": ui.get("name"),
-                "class": ui.get("class"),
-                "category": info.get("category"),
-                "stereo_model": ui.get("stereo_model"),
-                "dsp": ui.get("dsp"),
-            }
-        )
+        ui = resolve_uidef_for_model(key, uidefs) or {}
+        entry = {
+            "key": key,
+            "id": info.get("id"),
+            "name": ui.get("name"),
+            "class": ui.get("class"),
+            "category": info.get("category"),
+            "stereo_model": ui.get("stereo_model"),
+            "dsp": ui.get("dsp"),
+        }
+        if info.get("available") is False:
+            entry["available"] = False
+        if info.get("synthetic_fallback"):
+            entry["synthetic_fallback"] = True
+        models.append(entry)
 
     missing = [key for key in uidefs.keys() if key not in modeldefs]
     if missing:
@@ -57,6 +61,7 @@ def main():
                     "category": None,
                     "stereo_model": ui.get("stereo_model"),
                     "dsp": ui.get("dsp"),
+                    "available": False,
                 }
             )
 

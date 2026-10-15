@@ -18,6 +18,10 @@ SPEC.loader.exec_module(MODULE)
 
 
 class USBProbeHelpersTest(unittest.TestCase):
+    def test_class_name_identifies_usb_networking(self):
+        self.assertEqual(MODULE.class_name(0x02, 0x0D), "CDC Communications / NCM")
+        self.assertEqual(MODULE.class_name(0x0A, 0x00), "CDC Data")
+
     def test_build_text_command_matches_version_bootstrap(self):
         payload = MODULE.build_text_command("version")
         self.assertEqual(payload[:10], bytes.fromhex("01070076657273696f6e"))

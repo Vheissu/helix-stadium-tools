@@ -24,6 +24,7 @@ from helix import (  # noqa: E402
     browse_services,
     decode_msgpack_blob,
     discover_first_service,
+    parse_library_operation,
 )
 from helix.blobs import normalize_fourcc_map  # noqa: E402
 from helix.editbuffer import (  # noqa: E402
@@ -709,8 +710,17 @@ def main():
 
     get_prop = sub.add_parser("get-property")
     get_prop.add_argument("--key", required=True)
-
     sub.add_parser("get-product-info")
+    pedal_position = sub.add_parser("get-expression-pedal-position")
+    pedal_position.add_argument("--index", type=int, choices=(0, 1, 2), required=True)
+    library_content = sub.add_parser("get-library-content")
+    library_content.add_argument("--library", type=int, required=True)
+    library_content.add_argument("--sku", help="Optional device SKU filter (firmware 1.4+)")
+    ir_spectrum = sub.add_parser("get-ir-spectrum")
+    ir_spectrum.add_argument("--path", type=int, choices=(0, 1), required=True)
+    ir_spectrum.add_argument("--block", type=int, required=True)
+    ir_spectrum.add_argument("--slot", type=int, choices=(0, 1), default=0)
+    ir_spectrum.add_argument("--output", help="Write the raw spectrum blob to this file")
     sub.add_parser("get-edit-buffer")
     sub.add_parser("get-matrix-mixer")
     sub.add_parser("get-active-preset")
@@ -762,6 +772,7 @@ def main():
     reorder_content.add_argument("--content-ids", required=True, help="Comma-separated content ids to move")
     reorder_content.add_argument("--position", type=int, required=True, help="Target insertion index reported by the device route")
     list_presets = sub.add_parser("list-presets")
+    list_presets.add_argument("--sku", help="Optional device SKU filter (firmware 1.4+)")
     list_presets.add_argument("--container-cid", type=int, help="Container content id to list")
     list_presets.add_argument("--root", choices=("factory", "user"), help="Convenience root container")
     load_preset = sub.add_parser("load-preset")
@@ -850,7 +861,8 @@ def main():
     discover = sub.add_parser("discover")
     discover.add_argument("--all", action="store_true", help="List all visible Helix services instead of resolving the first one")
 
-    sub.add_parser("monitor")
+    monitor = sub.add_parser("monitor")
+    monitor.add_argument("--library-operations", action="store_true", help="Print structured IR/clone operation events only")
 
     args = ap.parse_args()
 
@@ -904,6 +916,20 @@ def main():
         elif args.cmd == "get-product-info":
             value = session.get_product_info()
             json_print(value)
+            return
+        elif args.cmd == "get-expression-pedal-position":
+            json_print(session.get_expression_pedal_position(args.index))
+            return
+        elif args.cmd == "get-library-content":
+            json_print(session.get_library_content(args.library, sku=args.sku))
+            return
+        elif args.cmd == "get-ir-spectrum":
+            blob = session.get_ir_spectrum(args.path, args.block, args.slot)
+            if args.output and blob is not None:
+                Path(args.output).write_bytes(blob)
+                json_print({"output": args.output, "bytes": len(blob)})
+            else:
+                json_print(blob)
             return
         elif args.cmd == "get-edit-buffer":
             value = session.get_edit_buffer_state()
@@ -995,7 +1021,7 @@ def main():
             if args.container_cid is None and not args.root:
                 raise SystemExit("list-presets requires --container-cid or --root")
             container_cid = args.container_cid if args.container_cid is not None else resolve_content_root(args.root)
-            json_print(session.get_container_contents(container_cid))
+            json_print(session.get_container_contents(container_cid, sku=args.sku))
             return
         elif args.cmd == "load-preset":
             if args.cid is not None and (args.container_cid is not None or args.root or args.position is not None):
@@ -1154,6 +1180,11 @@ def main():
             while time.time() < end:
                 decoded = session.recv_update(timeout=max(0.0, end - time.time()))
                 if decoded:
+                    if getattr(args, "library_operations", False):
+                        operation = parse_library_operation(decoded[0], decoded[2])
+                        if operation is not None:
+                            json_print(operation)
+                        continue
                     print(format_event(decoded))
         else:
             time.sleep(args.duration)

@@ -2,11 +2,11 @@
 
 Minimal upload pack covering guitar and bass amp and preamp blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-10-15T13:25:19.538466+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
-Model count: 122
+Model count: 124
 
 ---
 
@@ -146,7 +146,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.1
+- DSP usage estimate: 8.6
 - Based on: Bogner Ãerschall
 - Agoura model: No
 
@@ -169,7 +169,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 22.2
+- DSP usage estimate: 22.6
 - Based on: Bogner Ecstacy 101B, EL34 (Blue channel)
 - Agoura model: Yes
 
@@ -259,7 +259,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 23.7
+- DSP usage estimate: 24.6
 - Based on: Bogner Ecstacy 101B, EL34 (Red channel)
 - Agoura model: Yes
 
@@ -754,7 +754,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.3
+- DSP usage estimate: 9.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -911,7 +911,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 7.4
+- DSP usage estimate: 6.2
 - Based on: Orange AD200 MkIII
 - Agoura model: No
 
@@ -962,7 +962,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 27.0
+- DSP usage estimate: 24.5
 - Based on: Orange Rockerverb 100MKIII
 - Agoura model: Yes
 
@@ -1017,7 +1017,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.9
+- DSP usage estimate: 9.4
 - Based on: Orange Rockerverb 100 MkIII (dirty channel)
 - Agoura model: No
 
@@ -1041,7 +1041,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 25.5
+- DSP usage estimate: 23.5
 - Based on: Matchless DC30
 - Agoura model: Yes
 
@@ -1098,7 +1098,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.8
+- DSP usage estimate: 6.3
 - Based on: Matchless DC30 (Channel 1)
 - Agoura model: No
 
@@ -1148,7 +1148,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.6
+- DSP usage estimate: 6.0
 - Based on: Matchless DC30 (Channel 2)
 - Agoura model: No
 
@@ -1200,7 +1200,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.7
+- DSP usage estimate: 9.2
 - Based on: Matchless DC30 (Jumped channels)
 - Agoura model: No
 
@@ -1431,6 +1431,38 @@ Model count: 122
 - `Boost` (`key: Boost`, `id: 7`, `type: f`): display range `0` to `10` Off; default `0`. Raw range `0` to `1`; raw default `0`. Controls the amount of Drive from the built in Distortion > Stupor OD.
 - `Sag` (`key: Sag`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of sag, or how much the power supply compresses or "droops" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a "tighter" responsiveness for a more modern feel.
 - `Hum` (`key: HumSwitch`, `id: 9`, `type: b`): valid values `Off`, `On`; default `On`. Raw range `Off` to `On`; raw default `On`. Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.
+
+---
+
+## Omega Granophyre
+
+- Model key: `Agoura_AmpOmegaGrano`
+- Model ID: `847`
+- Type: Amp
+- Category: `amp`
+- Class: Guitar
+- DSP usage estimate: 24.0
+- Based on: Unknown
+- Agoura model: Yes
+
+### Parameters
+
+- `Jack` (`key: Jack`, `id: 1`, `type: i`): valid values `Low`, `High`; default `High`. Raw range `0` to `1`; raw default `1`. Sets the input jack on the amp—Low or High.
+- `Drive` (`key: Drive`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of gain applied to the signal, which influences the level of distortion.
+- `Bass` (`key: Bass`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the low frequency EQ of the tonestack.
+- `Mid` (`key: Mid`, `id: 4`, `type: f`): display range `0` to `10` unitless; default `4`. Raw range `0` to `1`; raw default `0.4`. Controls the midrange frequency EQ of the tonestack.
+- `Treble` (`key: Treble`, `id: 5`, `type: f`): display range `0` to `10` unitless; default `4.5`. Raw range `0` to `1`; raw default `0.45`. Controls the high frequency EQ of the tonestack.
+- `Voice` (`key: Voice`, `id: 6`, `type: i`): valid values `Low Mid`, `High Mid`; default `Low Mid`. Raw range `0` to `1`; raw default `0`. Switches the voicing of the midrange knob between lower mid focus and higher mid focus.
+- `Volume` (`key: Volume`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the level of the preamp into the phase inverter before the power amp. Turn Volume down and Master up for big, chunky low end or turn Volume up and Master down for a darker response with a bit of midrange grit.
+- `Level` (`key: Level`, `id: 8`, `type: f`): display range `-40` to `10` dB; default `-16`. Raw range `-40` to `10`; raw default `-16`. Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.
+- `Presence` (`key: Presence`, `id: 9`, `type: f`): display range `0` to `10` unitless; default `1.54`. Raw range `0` to `1`; raw default `0.154`. Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.
+- `Depth` (`key: Depth`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `0`. Raw range `0` to `1`; raw default `0`. Controls the low frequency response in the power amp.
+- `NFB` (`key: NFB`, `id: 11`, `type: b`): valid values `Open`, `Closed`; default `Closed`. Raw range `Off` to `On`; raw default `On`. Controls the amount of NFB (Negative Feedback) within the power section. “Open” is a bit smoother and darker; “Closed” slightly increases aggression and attack.
+- `Master` (`key: Master`, `id: 12`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag.
+- `Sag` (`key: Sag`, `id: 13`, `type: f`): display range `-10` to `10` Stock; default `0`. Raw range `-1` to `1`; raw default `0`. Controls the amount of sag, or how much the power supply compresses or "droops" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a "tighter" responsiveness for a more modern feel.
+- `Ripple` (`key: Ripple`, `id: 14`, `type: f`): display range `-10` to `10` Stock; default `0`. Raw range `-1` to `1`; raw default `0`. Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.
+- `Z PrePost` (`key: ZPrePost`, `id: 15`, `type: f`): display range `0` to `10` unitless; default `3`. Raw range `0` to `1`; raw default `0.3`. Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).
+- `Hype` (`key: Hype`, `id: 16`, `type: f`): display range `0` to `10` Off; default `0`. Raw range `0` to `1`; raw default `0`. Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.
 
 ---
 
@@ -1686,7 +1718,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.7
+- DSP usage estimate: 6.2
 - Based on: Friedman BE-100 (clean channel)
 - Agoura model: No
 
@@ -1740,7 +1772,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 10.7
+- DSP usage estimate: 10.2
 - Based on: Friedman BE-100 (BE/HBE channel)
 - Agoura model: No
 
@@ -1757,6 +1789,33 @@ Model count: 122
 - `Fat` (`key: Fat`, `id: 9`, `type: b`): valid values `Off`, `On`; default `On`. Raw range `Off` to `On`; raw default `On`. When on, thickens up your tone. Especially helpful for guitars with single coil pickups.
 - `C45` (`key: C45`, `id: 10`, `type: b`): valid values `Off`, `On`; default `On`. Raw range `Off` to `On`; raw default `On`. When on, revoices the amp for more of a scooped sound.
 - `Saturation` (`key: Saturation`, `id: 11`, `type: b`): valid values `Off`, `On`; default `Off`. Raw range `Off` to `On`; raw default `Off`. When on, adds saturation and a bit of compression to your tone.
+
+---
+
+## Prosecutor
+
+- Model key: `Agoura_AmpLine6Prosecutor`
+- Model ID: `846`
+- Type: Amp
+- Category: `amp`
+- Class: Guitar
+- DSP usage estimate: 21.0
+- Based on: Unknown
+- Agoura model: Yes
+
+### Parameters
+
+- `Drive` (`key: Drive`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of gain applied to the signal, which influences the level of distortion.
+- `Bass` (`key: Bass`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `6`. Raw range `0` to `1`; raw default `0.6`. Controls the low frequency EQ of the tonestack.
+- `Mid` (`key: Mid`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `5.5`. Raw range `0` to `1`; raw default `0.55`. Controls the midrange frequency EQ of the tonestack.
+- `Treble` (`key: Treble`, `id: 4`, `type: f`): display range `0` to `10` unitless; default `4.5`. Raw range `0` to `1`; raw default `0.45`. Controls the high frequency EQ of the tonestack.
+- `Presence` (`key: Presence`, `id: 5`, `type: f`): display range `0` to `10` unitless; default `2`. Raw range `0` to `1`; raw default `0.2`. Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.
+- `Master` (`key: Master`, `id: 6`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag.
+- `Sag` (`key: Sag`, `id: 7`, `type: f`): display range `-10` to `10` Stock; default `0.5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of sag, or how much the power supply compresses or "droops" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a "tighter" responsiveness for a more modern feel.
+- `Level` (`key: Level`, `id: 8`, `type: f`): display range `-40` to `10` dB; default `-9.9999`. Raw range `-40` to `10`; raw default `-9.9999`. Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.
+- `Ripple` (`key: Ripple`, `id: 9`, `type: f`): display range `-10` to `10` Stock; default `0`. Raw range `-1` to `1`; raw default `0`. Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.
+- `Z PrePost` (`key: ZPrePost`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `3`. Raw range `0` to `1`; raw default `0.3`. Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).
+- `Hype` (`key: Hype`, `id: 11`, `type: f`): display range `0` to `10` Off; default `0`. Raw range `0` to `1`; raw default `0`. Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.
 
 ---
 
@@ -1943,7 +2002,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 22.5
+- DSP usage estimate: 23.0
 - Based on: Soldano SLO-100 (Normal & Overdrive channels)
 - Agoura model: Yes
 
@@ -2001,7 +2060,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 8.9
+- DSP usage estimate: 7.6
 - Based on: Soldano SLO-100 (Clean channel)
 - Agoura model: No
 
@@ -2053,7 +2112,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 8.6
+- DSP usage estimate: 7.6
 - Based on: Soldano SLO-100 (Crunch channel)
 - Agoura model: No
 
@@ -2105,7 +2164,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 10.5
+- DSP usage estimate: 9.3
 - Based on: Soldano SLO-100 (Overdrive channel)
 - Agoura model: No
 
@@ -2129,7 +2188,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 8.0
+- DSP usage estimate: 7.8
 - Based on: Supro S6616
 - Agoura model: No
 
@@ -2157,7 +2216,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 7.7
+- DSP usage estimate: 7.3
 - Based on: Supro S6616
 - Agoura model: No
 
@@ -2209,7 +2268,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 8.1
+- DSP usage estimate: 7.8
 - Based on: Gibson EH-185
 - Agoura model: No
 
@@ -2337,7 +2396,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 20.5
+- DSP usage estimate: 21.0
 - Based on: Fender Champ 5F1 (Low & High inputs)
 - Agoura model: Yes
 
@@ -2390,7 +2449,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.6
+- DSP usage estimate: 6.3
 - Based on: Fender Deluxe Reverb (Normal channel)
 - Agoura model: No
 
@@ -2442,7 +2501,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 8.1
+- DSP usage estimate: 7.7
 - Based on: Fender Deluxe Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2466,7 +2525,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 19.5
+- DSP usage estimate: 20.5
 - Based on: Fender Twin Reverb AB763 (Normal & Vibrato channels)
 - Agoura model: Yes
 
@@ -2522,7 +2581,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.7
+- DSP usage estimate: 6.3
 - Based on: Fender Twin Reverb (Normal channel)
 - Agoura model: No
 
@@ -2574,7 +2633,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 7.9
+- DSP usage estimate: 7.4
 - Based on: Fender Twin Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2657,7 +2716,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 9.2
+- DSP usage estimate: 8.3
 - Based on: Marshall JCM-800 (2203)
 - Agoura model: No
 
@@ -2736,7 +2795,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 8.3
+- DSP usage estimate: 7.4
 - Based on: Fender Princeton Reverb
 - Agoura model: No
 
@@ -2813,7 +2872,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 7.1
+- DSP usage estimate: 6.3
 - Based on: Fender Champ
 - Agoura model: No
 
@@ -2894,7 +2953,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.8
+- DSP usage estimate: 6.0
 - Based on: Fender Super Reverb (Normal channel)
 - Agoura model: No
 
@@ -2948,7 +3007,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 8.1
+- DSP usage estimate: 7.5
 - Based on: Fender Super Reverb (Vibrato channel)
 - Agoura model: No
 
@@ -2973,7 +3032,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 23.5
+- DSP usage estimate: 21.5
 - Based on: Fender Bassman 5F6A (Normal, Bright, & Jumped channels)
 - Agoura model: Yes
 
@@ -3134,7 +3193,7 @@ Model count: 122
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.2
+- DSP usage estimate: 9.0
 - Based on: Victoria Electro King
 - Agoura model: No
 
@@ -3212,7 +3271,7 @@ Model count: 122
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 26.5
+- DSP usage estimate: 23.5
 - Based on: Hiwatt DR-103 (Normal, Bright, & Jumped channels)
 - Agoura model: Yes
 

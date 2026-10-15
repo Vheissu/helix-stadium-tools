@@ -2,11 +2,11 @@
 
 Upload-ready knowledge for guitar amp and preamp blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-10-15T13:25:19.538466+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
-Model count: 69
+Model count: 71
 
 ---
 
@@ -69,7 +69,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 26.8
+- DSP usage estimate: 25.5
 - Based on: EVH 5150III 100, 6L6 (Blue channel)
 - Agoura model: Yes
 
@@ -148,7 +148,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 27.0
+- DSP usage estimate: 27.5
 - Based on: EVH 5150III 100, 6L6 (Red channel)
 - Agoura model: Yes
 
@@ -463,7 +463,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 7.4
+- DSP usage estimate: 6.7
 - Based on: Vox AC-30 with Top Boost
 - Agoura model: No
 
@@ -486,7 +486,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 22.5
+- DSP usage estimate: 21.5
 - Based on: Vox AC-30CC (Normal and Top Boost channels)
 - Agoura model: Yes
 
@@ -804,7 +804,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.1
+- DSP usage estimate: 8.6
 - Based on: Bogner Ãerschall
 - Agoura model: No
 
@@ -827,7 +827,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 22.2
+- DSP usage estimate: 22.6
 - Based on: Bogner Ecstacy 101B, EL34 (Blue channel)
 - Agoura model: Yes
 
@@ -917,7 +917,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 23.7
+- DSP usage estimate: 24.6
 - Based on: Bogner Ecstacy 101B, EL34 (Red channel)
 - Agoura model: Yes
 
@@ -1412,7 +1412,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.3
+- DSP usage estimate: 9.0
 - Based on: Line 6 Original
 - Agoura model: No
 
@@ -1542,7 +1542,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 27.0
+- DSP usage estimate: 24.5
 - Based on: Orange Rockerverb 100MKIII
 - Agoura model: Yes
 
@@ -1597,7 +1597,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.9
+- DSP usage estimate: 9.4
 - Based on: Orange Rockerverb 100 MkIII (dirty channel)
 - Agoura model: No
 
@@ -1621,7 +1621,7 @@ Model count: 69
 - Type: Amp
 - Category: `amp`
 - Class: Guitar
-- DSP usage estimate: 25.5
+- DSP usage estimate: 23.5
 - Based on: Matchless DC30
 - Agoura model: Yes
 
@@ -1678,7 +1678,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.8
+- DSP usage estimate: 6.3
 - Based on: Matchless DC30 (Channel 1)
 - Agoura model: No
 
@@ -1728,7 +1728,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 6.6
+- DSP usage estimate: 6.0
 - Based on: Matchless DC30 (Channel 2)
 - Agoura model: No
 
@@ -1780,7 +1780,7 @@ Model count: 69
 - Type: Preamp
 - Category: `preamp`
 - Class: Guitar
-- DSP usage estimate: 9.7
+- DSP usage estimate: 9.2
 - Based on: Matchless DC30 (Jumped channels)
 - Agoura model: No
 
@@ -1847,6 +1847,61 @@ Model count: 69
 - `Treble` (`key: Treble`, `id: 5`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the high frequency EQ of the tonestack.
 - `Level` (`key: ChVol`, `id: 6`, `type: f`): display range `0` to `10` unitless; default `7.5`. Raw range `0` to `1`; raw default `0.75`. Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.
 - `Presence` (`key: Presence`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `4`. Raw range `0` to `1`; raw default `0.4`. Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.
+- `Master` (`key: Master`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Controls the Master Volume of the amplifier.
+- `Sag` (`key: Sag`, `id: 9`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of sag, or how much the power supply compresses or "droops" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a "tighter" responsiveness for a more modern feel.
+- `Hum` (`key: Hum`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.
+
+---
+
+## Moo)))n Jump
+
+- Model key: `HD2_AmpMoonJump`
+- Model ID: `702`
+- Type: Amp
+- Category: `amp`
+- Class: Guitar
+- DSP usage estimate: 14.3
+- Based on: Sunn Model T (Jumped channels)
+- Agoura model: No
+
+### Parameters
+
+- `Brt Drive` (`key: BrtDrive`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `4.5`. Raw range `0` to `1`; raw default `0.45`. Controls the amount of Bright channel gain applied to the signal.
+- `Nrm Drive` (`key: NrmDrive`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `3`. Raw range `0` to `1`; raw default `0.3`. Controls the amount of Normal channel gain applied to the signal.
+- `Bass` (`key: Bass`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `4`. Raw range `0` to `1`; raw default `0.4`. Controls the low frequency EQ of the tonestack.
+- `Mid` (`key: Mid`, `id: 4`, `type: f`): display range `0` to `10` unitless; default `3.5`. Raw range `0` to `1`; raw default `0.35`. Controls the midrange frequency EQ of the tonestack.
+- `Treble` (`key: Treble`, `id: 5`, `type: f`): display range `0` to `10` unitless; default `5.4`. Raw range `0` to `1`; raw default `0.54`. Controls the high frequency EQ of the tonestack.
+- `Level` (`key: ChVol`, `id: 6`, `type: f`): display range `0` to `10` unitless; default `7`. Raw range `0` to `1`; raw default `0.7`. Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.
+- `Presence` (`key: Presence`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.
+- `Master` (`key: Master`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Controls the Master Volume of the amplifier.
+- `Sag` (`key: Sag`, `id: 9`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of sag, or how much the power supply compresses or "droops" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a "tighter" responsiveness for a more modern feel.
+- `Hum` (`key: Hum`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.
+- `Ripple` (`key: Ripple`, `id: 11`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.
+- `Bias` (`key: Bias`, `id: 12`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Adjusts the bias of the tubes in the power amp, causing a change in tonality and the distortion characteristic.
+- `Bias X` (`key: BiasX`, `id: 13`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Determines how the power amp tubes’ voicing reacts when pushed hard. Set low for a tighter feel. Set high for more tube compression. This parameter is highly reactive with the Drive and Master settings.
+
+---
+
+## Moo)))n Jump
+
+- Model key: `HD2_PreampMoonJump`
+- Model ID: `705`
+- Type: Preamp
+- Category: `preamp`
+- Class: Guitar
+- DSP usage estimate: 9.8
+- Based on: Sunn Model T (Jumped channels)
+- Agoura model: No
+
+### Parameters
+
+- `Brt Drive` (`key: BrtDrive`, `id: 1`, `type: f`): display range `0` to `10` unitless; default `4.5`. Raw range `0` to `1`; raw default `0.45`. Controls the amount of Bright channel gain applied to the signal.
+- `Nrm Drive` (`key: NrmDrive`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `3`. Raw range `0` to `1`; raw default `0.3`. Controls the amount of Normal channel gain applied to the signal.
+- `Bass` (`key: Bass`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `4`. Raw range `0` to `1`; raw default `0.4`. Controls the low frequency EQ of the tonestack.
+- `Mid` (`key: Mid`, `id: 4`, `type: f`): display range `0` to `10` unitless; default `3.5`. Raw range `0` to `1`; raw default `0.35`. Controls the midrange frequency EQ of the tonestack.
+- `Treble` (`key: Treble`, `id: 5`, `type: f`): display range `0` to `10` unitless; default `5.4`. Raw range `0` to `1`; raw default `0.54`. Controls the high frequency EQ of the tonestack.
+- `Level` (`key: ChVol`, `id: 6`, `type: f`): display range `0` to `10` unitless; default `7`. Raw range `0` to `1`; raw default `0.7`. Controls the overall level of the Preamp block. Unlike Master Volume, it has no effect on the block's tone.
+- `Presence` (`key: Presence`, `id: 7`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.
 - `Master` (`key: Master`, `id: 8`, `type: f`): display range `0` to `10` unitless; default `8`. Raw range `0` to `1`; raw default `0.8`. Controls the Master Volume of the amplifier.
 - `Sag` (`key: Sag`, `id: 9`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Controls the amount of sag, or how much the power supply compresses or "droops" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a "tighter" responsiveness for a more modern feel.
 - `Hum` (`key: Hum`, `id: 10`, `type: f`): display range `0` to `10` unitless; default `5`. Raw range `0` to `1`; raw default `0.5`. Adjusts the level of power supply hum that interacts with the signal. Preamp tube heaters in tube amps will leak a little bit of 60 cycle hum into the audio signal. When this hum mixes with the distorted audio signal, a non-musical distortion is created at low levels. To some players, this low-level, non-harmonic distortion adds a bit of realism to the amp model.

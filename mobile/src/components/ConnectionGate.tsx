@@ -14,10 +14,16 @@ import Svg, { Rect, Circle } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { COLORS, FONTS } from '../theme/colors';
 import { getConnectionErrorMessage } from '../utils/connection';
+import {
+  getConnectionHint,
+  type ConnectionTransport,
+} from '../utils/connectionTransport';
 
 interface ConnectionGateProps {
   host: string;
   onHostChange: (value: string) => void;
+  transport: ConnectionTransport;
+  onTransportChange: (value: ConnectionTransport) => void;
   onConnect: () => void;
   connecting: boolean;
   status: string;
@@ -95,6 +101,8 @@ const SpinnerDot = () => {
 export const ConnectionGate: React.FC<ConnectionGateProps> = ({
   host,
   onHostChange,
+  transport,
+  onTransportChange,
   onConnect,
   connecting,
   status,
@@ -114,10 +122,34 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
 
           <Text style={styles.title}>Helix Stadium</Text>
           <Text style={styles.subtitle}>
-            Edit and control your device over Wi-Fi.
+            Edit and control your device over USB or Wi-Fi.
           </Text>
 
           <View style={styles.form}>
+            <View style={styles.transportWrap}>
+              <Text style={styles.inputLabel}>Connection</Text>
+              <View style={styles.transportRow}>
+                {(['auto', 'usb', 'wifi'] as const).map((option) => {
+                  const selected = transport === option;
+                  const label = option === 'auto' ? 'Automatic' : option === 'usb' ? 'USB' : 'Wi-Fi';
+                  return (
+                    <Pressable
+                      key={option}
+                      style={[styles.transportButton, selected && styles.transportButtonSelected]}
+                      onPress={() => onTransportChange(option)}
+                      disabled={connecting}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected, disabled: connecting }}
+                    >
+                      <Text style={[styles.transportText, selected && styles.transportTextSelected]}>
+                        {label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
             <View style={styles.inputWrap}>
               <Text style={styles.inputLabel}>Device address</Text>
               <TextInput
@@ -159,7 +191,7 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
 
           <View style={styles.bottomInfo}>
             <Text style={styles.hint}>
-              Same Wi-Fi network. Remote Access on.
+              {getConnectionHint(transport)}
             </Text>
           </View>
         </KeyboardAvoidingView>
@@ -224,6 +256,35 @@ const styles = StyleSheet.create({
   },
   inputWrap: {
     gap: 6,
+  },
+  transportWrap: {
+    gap: 8,
+  },
+  transportRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  transportButton: {
+    flex: 1,
+    minHeight: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: COLORS.stroke,
+    backgroundColor: COLORS.panel,
+  },
+  transportButtonSelected: {
+    borderColor: COLORS.accent,
+    backgroundColor: COLORS.accent,
+  },
+  transportText: {
+    color: COLORS.muted,
+    fontFamily: FONTS.bodySemi,
+    fontSize: 13,
+  },
+  transportTextSelected: {
+    color: COLORS.bg,
   },
   inputLabel: {
     color: COLORS.muted,

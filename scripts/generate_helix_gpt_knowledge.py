@@ -33,6 +33,7 @@ from scripts.generate_helix_model_json import (  # noqa: E402
     load_uidefs,
     resolve_based_on,
     resolve_harness_model_info,
+    resolve_uidef_for_model,
 )
 
 DEFAULT_OUT_DIR = ROOT / "generated" / "helix-gpt-knowledge"
@@ -473,10 +474,12 @@ def load_models_for_docs(args):
     for model_key, model_info in modeldefs.items():
         if not isinstance(model_info, dict):
             continue
+        if model_info.get("available") is False:
+            continue
         category = model_info.get("category")
         if not category:
             continue
-        uidef = uidefs.get(model_key, {})
+        uidef = resolve_uidef_for_model(model_key, uidefs) or {}
         if is_legacy(uidef):
             continue
         group_key = classify_group(model_key, model_info, uidef)

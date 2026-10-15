@@ -741,7 +741,7 @@
       },
       {
         "name": "Channel",
-        "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the XXXXX and XXXXX channels.",
+        "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the Bright input of Channel 1 and the Normal input of Channel 2.",
         "default": "Ch1 Normal",
         "options": [
           "Ch1 Normal",

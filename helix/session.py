@@ -16,6 +16,7 @@ from .editbuffer import (
     flow_position_map,
     normalize_edit_buffer,
 )
+from .library_content import decode_library_content
 from .matrix_mixer import MATRIX_MIXER_PROPERTY, parse_matrix_mixer_state
 from .osc import build_osc, decode_osc_payloads
 from .zmtp import ZMTPStream, zmtp_handshake
@@ -162,10 +163,10 @@ class HelixSession:
         return service.host, port_2001, port_2002
 
     def _open_socket(self, host: str, port: int):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._set_socket_timeout(sock, self.timeout)
-        sock.connect((host, port))
-        return sock
+        # create_connection resolves both IPv4 and IPv6. Firmware 1.4 exposes
+        # the editor service over USB networking with an IPv6 address, while
+        # older Wi-Fi sessions may still resolve to IPv4.
+        return socket.create_connection((host, port), timeout=self.timeout)
 
     def _safe_close_socket(self, sock):
         if not sock:
@@ -285,6 +286,10 @@ class HelixSession:
                 if not decoded:
                     continue
                 addr, _tt, vals = decoded
+                if addr == "/error" and vals and vals[0] == cmd_id:
+                    if self.strict_status:
+                        raise HelixStatusError(address, cmd_id, vals[1:])
+                    return None
                 if addr == expect_addr and vals and int(vals[0]) == cmd_id:
                     return vals
         return self._handle_timeout(address, cmd_id, expect_addr)
@@ -375,6 +380,49 @@ class HelixSession:
         prop = self.get_property(MATRIX_MIXER_PROPERTY)
         return parse_matrix_mixer_state(prop)
 
+    def get_expression_pedal_position(self, pedal_index: int):
+        """Read 1.4 pedal telemetry; position and detail are raw device values."""
+        if type(pedal_index) is not int or not 0 <= pedal_index <= 2:
+            raise ValueError("pedal_index must be 0, 1, or 2")
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id, "/ExpressionPedalPosGet", "ii", [cmd_id, pedal_index],
+            "/getExpressionPedalPos",
+        )
+        if not vals or len(vals) != 4 or any(type(value) is not int for value in vals):
+            return None
+        if vals[1] != pedal_index:
+            return None
+        return {"pedal_index": vals[1], "position": vals[2], "detail": vals[3]}
+
+    def get_library_content(self, library: int, sku: str | None = None):
+        """Read preset-library content, optionally using the 1.4 SKU filter."""
+        cmd_id = self.next_cmd_id
+        address = "/LibraryContentGet" if sku is None else "/LibraryContentGetWithSku"
+        args: list[int | str] = [cmd_id, int(library)]
+        if sku is not None:
+            if not isinstance(sku, str) or not sku.strip():
+                raise ValueError("sku must be a non-empty string")
+            args.append(sku)
+        vals = self.request(
+            cmd_id, address, "ii" if sku is None else "iis", args,
+            "/getPresetLibraryContent",
+        )
+        blob = self._raw_blob_response(vals, 2)
+        return decode_library_content(blob) if blob is not None else None
+
+    def get_ir_spectrum(self, flow: int, block: int, slot: int = 0):
+        """Request the raw 1.4 cab/IR spectrum blob; unsupported targets error."""
+        for name, value, maximum in (("flow", flow, 1), ("block", block, 27), ("slot", slot, 1)):
+            if type(value) is not int or not 0 <= value <= maximum:
+                raise ValueError(f"{name} must be an integer between 0 and {maximum}")
+        cmd_id = self.next_cmd_id
+        vals = self.request(
+            cmd_id, "/IrSpectrumGet", "iiii", [cmd_id, flow, block, slot],
+            "/xxxIrxSpectrum1",
+        )
+        return self._raw_blob_response(vals, 1)
+
     def get_active_preset_content_id(self):
         value = self.get_property("server.active.preset.id")
         if not isinstance(value, dict):
@@ -397,13 +445,19 @@ class HelixSession:
         vals = self.request(cmd_id, "/GetContentRef", "ii", [cmd_id, int(content_id)], "/GetContentRef")
         return self._raw_blob_response(vals, 1)
 
-    def get_container_contents(self, container_id: int):
+    def get_container_contents(self, container_id: int, sku: str | None = None):
+        """Read a container; an explicit SKU filter requires firmware 1.4."""
         cmd_id = self.next_cmd_id
+        args: list[int | str] = [cmd_id, int(container_id)]
+        if sku is not None:
+            if not isinstance(sku, str) or not sku.strip():
+                raise ValueError("sku must be a non-empty string")
+            args.append(sku)
         vals = self.request(
             cmd_id,
-            "/GetContainerContents",
-            "ii",
-            [cmd_id, int(container_id)],
+            "/GetContainerContents" if sku is None else "/GetContainerContentsWithSku",
+            "ii" if sku is None else "iis",
+            args,
             "/GetContainerContents",
         )
         decoded = self._decode_blob_response(vals, 1)

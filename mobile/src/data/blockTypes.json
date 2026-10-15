@@ -191,14 +191,14 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 612,
         "name": "A30 Fawn Brt",
         "key": "HD2_AmpA30FawnBrt",
         "category": "amp",
-        "usage": 10.1,
+        "usage": 10.0,
         "params": [
           {
             "id": 1,
@@ -382,14 +382,14 @@
           }
         ],
         "based_on": "Vox AC-30 Fawn (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 613,
         "name": "A30 Fawn Nrm",
         "key": "HD2_AmpA30FawnNrm",
         "category": "amp",
-        "usage": 10.1,
+        "usage": 10.0,
         "params": [
           {
             "id": 1,
@@ -573,7 +573,7 @@
           }
         ],
         "based_on": "Vox AC-30 Fawn (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 610,
@@ -782,7 +782,7 @@
           }
         ],
         "based_on": "ENGL Fireball 100",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 663,
@@ -919,7 +919,7 @@
           }
         ],
         "based_on": "Aguilar DB51",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 809,
@@ -1071,7 +1071,7 @@
           }
         ],
         "based_on": "Aguilar DB751",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 726,
@@ -1202,7 +1202,7 @@
           }
         ],
         "based_on": "Aguilar Tone Hammer",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 542,
@@ -1393,7 +1393,7 @@
           }
         ],
         "based_on": "Ampeg B-15NF Portaflex",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 759,
@@ -1539,7 +1539,7 @@
           }
         ],
         "based_on": "Ampeg B-15NF Portaflex",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 805,
@@ -1567,7 +1567,7 @@
               "Ch2 Bright",
               "Jumped"
             ],
-            "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the XXXXX and XXXXX channels."
+            "description": "Selects the amp channel or which input is connected. \"Jumped\" jumps between the Bright input of Channel 1 and the Normal input of Channel 2."
           },
           {
             "id": 2,
@@ -1858,7 +1858,7 @@
           }
         ],
         "based_on": "Ampeg Heritage\u00e2\u0084\u00a2 50th Anniversary SVT (Ch 1 Normal, Ch1 Bright, Ch2 Normal, Ch2 Bright & Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 554,
@@ -2053,7 +2053,7 @@
           }
         ],
         "based_on": "Ampeg SVT (bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 555,
@@ -2248,7 +2248,7 @@
           }
         ],
         "based_on": "Ampeg SVT (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 673,
@@ -2592,7 +2592,7 @@
           }
         ],
         "based_on": "Ampeg SVT-4 PRO",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 637,
@@ -2816,7 +2816,7 @@
           }
         ],
         "based_on": "Paul Reed Smith Archon (Clean channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 635,
@@ -3022,7 +3022,7 @@
           }
         ],
         "based_on": "Paul Reed Smith Archon (Lead channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 713,
@@ -3201,7 +3201,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 643,
@@ -3377,7 +3377,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 735,
@@ -3586,14 +3586,14 @@
           }
         ],
         "based_on": "Marshall JCM-800, 2203, 100W",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 758,
         "name": "Brit 2203MV",
         "key": "Agoura_AmpBrit2203MV",
         "category": "amp",
-        "usage": 21.0,
+        "usage": 21.6,
         "params": [
           {
             "id": 1,
@@ -3780,7 +3780,7 @@
           }
         ],
         "based_on": "Marshall JCM-800, 100W, 2203 (Low and High inputs)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 608,
@@ -3971,7 +3971,7 @@
           }
         ],
         "based_on": "Marshall JCM-800, 2204, 50W",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 604,
@@ -4162,7 +4162,7 @@
           }
         ],
         "based_on": "Marshall JTM-45 (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 605,
@@ -4353,7 +4353,7 @@
           }
         ],
         "based_on": "Marshall JTM-45 (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 834,
@@ -4470,7 +4470,7 @@
             "display_def": 4.12,
             "unit": "unitless",
             "options": null,
-            "description": ""
+            "description": "Controls the gain level of the Lead channel. This level is after the Drive control and before the Master Volume."
           },
           {
             "id": 8,
@@ -4564,7 +4564,7 @@
           }
         ],
         "based_on": "Marshall Silver Jubilee (Rhythm, Rhythm Clip, & Lead channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 757,
@@ -4774,7 +4774,7 @@
           }
         ],
         "based_on": "Marshall Super Bass 1992 (Normal, Bright & Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 600,
@@ -4965,7 +4965,7 @@
           }
         ],
         "based_on": "Park 75 (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 601,
@@ -5156,14 +5156,14 @@
           }
         ],
         "based_on": "Park 75 (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 756,
         "name": "Brit Plexi",
         "key": "Agoura_AmpBritPlexi",
         "category": "amp",
-        "usage": 23.0,
+        "usage": 21.8,
         "params": [
           {
             "id": 1,
@@ -5366,7 +5366,7 @@
           }
         ],
         "based_on": "Marshall Super Lead 100 (Normal, Bright & Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 594,
@@ -5557,7 +5557,7 @@
           }
         ],
         "based_on": "Marshall Super Lead 100 (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 595,
@@ -5763,7 +5763,7 @@
           }
         ],
         "based_on": "Marshall Super Lead 100 (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 596,
@@ -5954,7 +5954,7 @@
           }
         ],
         "based_on": "Marshall Super Lead 100 (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 657,
@@ -6145,7 +6145,7 @@
           }
         ],
         "based_on": "Marshall JTM-50 (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 658,
@@ -6351,7 +6351,7 @@
           }
         ],
         "based_on": "Marshall JTM-50 (Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 659,
@@ -6542,7 +6542,7 @@
           }
         ],
         "based_on": "Marshall JTM-50 (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 649,
@@ -6728,7 +6728,7 @@
           }
         ],
         "based_on": "Pearce BC-1 preamp (Channel 1)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 647,
@@ -6914,7 +6914,7 @@
           }
         ],
         "based_on": "Pearce BC-1 preamp (Channel 2)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 645,
@@ -7208,14 +7208,14 @@
           }
         ],
         "based_on": "Pearce BC-1 preamp (Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 832,
         "name": "Cali 2C+",
         "key": "Agoura_AmpCali2CPlus",
         "category": "amp",
-        "usage": 24.7,
+        "usage": 26.5,
         "params": [
           {
             "id": 1,
@@ -7278,7 +7278,7 @@
             "display_def": 3.24,
             "unit": "unitless",
             "options": null,
-            "description": ""
+            "description": "Controls the midrange frequency EQ of the tonestack."
           },
           {
             "id": 5,
@@ -7377,7 +7377,7 @@
               "Off",
               "On"
             ],
-            "description": ""
+            "description": "When on, shifts the treble frequencies of the tone stack lower."
           },
           {
             "id": 11,
@@ -7443,7 +7443,7 @@
             "display_def": 3.68,
             "unit": "unitless",
             "options": null,
-            "description": ""
+            "description": "Controls the Master Volume of the Lead channel of the amplifier."
           },
           {
             "id": 15,
@@ -7525,7 +7525,7 @@
           },
           {
             "id": 20,
-            "key": "2.2 KHz",
+            "key": "2_2 KHz",
             "name": "2200 Hz",
             "type": "f",
             "min": -10,
@@ -7540,7 +7540,7 @@
           },
           {
             "id": 21,
-            "key": "6.6 KHz",
+            "key": "6_6 KHz",
             "name": "6600 Hz",
             "type": "f",
             "min": -11,
@@ -7615,7 +7615,7 @@
           }
         ],
         "based_on": "Mesa/Boogie Mark IIC (Normal & Lead channels, all switches)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 590,
@@ -7806,7 +7806,7 @@
           }
         ],
         "based_on": "MESA/Boogie Bass 400+ (channel 1)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 591,
@@ -7997,7 +7997,7 @@
           }
         ],
         "based_on": "MESA/Boogie Bass 400+ (channel 2)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 588,
@@ -8149,7 +8149,7 @@
           }
         ],
         "based_on": "MESA/Boogie M9 Carbine",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 626,
@@ -8415,7 +8415,7 @@
           }
         ],
         "based_on": "MESA/Boogie Mark IV (Lead channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 622,
@@ -8666,7 +8666,7 @@
           }
         ],
         "based_on": "MESA/Boogie Mark IV (Channel I)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 623,
@@ -8917,7 +8917,7 @@
           }
         ],
         "based_on": "MESA/Boogie Mark IV (Channel II)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 586,
@@ -9108,7 +9108,7 @@
           }
         ],
         "based_on": "MESA/Boogie Dual Rectifier",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 671,
@@ -9284,7 +9284,7 @@
           }
         ],
         "based_on": "MESA/Boogie Lone Star (Clean channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 667,
@@ -9494,7 +9494,7 @@
           }
         ],
         "based_on": "MESA/Boogie Lone Star (Drive channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 712,
@@ -9673,7 +9673,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 655,
@@ -9930,14 +9930,14 @@
           }
         ],
         "based_on": "Ben Adrian Cartographer",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 710,
         "name": "Clarity",
         "key": "HD2_AmpLine6Clarity",
         "category": "amp",
-        "usage": 8.6,
+        "usage": 8.4,
         "params": [
           {
             "id": 1,
@@ -10079,7 +10079,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 693,
@@ -10270,7 +10270,7 @@
           }
         ],
         "based_on": "Diezel VH4 (Lead channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 695,
@@ -10461,7 +10461,7 @@
           }
         ],
         "based_on": "Diezel VH4 (Mega channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 639,
@@ -10658,7 +10658,7 @@
           }
         ],
         "based_on": "Sunn Coliseum 300",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 651,
@@ -10864,7 +10864,7 @@
           }
         ],
         "based_on": "Trainwreck Circuits Express",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 584,
@@ -11055,7 +11055,7 @@
           }
         ],
         "based_on": "\u00c3\u00b713 JRT 9/15",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 568,
@@ -11246,14 +11246,14 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 811,
         "name": "EV Panama Blue",
         "key": "Agoura_AmpEVPanamaBlue",
         "category": "amp",
-        "usage": 26.8,
+        "usage": 25.5,
         "params": [
           {
             "id": 1,
@@ -11422,7 +11422,7 @@
           }
         ],
         "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 746,
@@ -11613,14 +11613,14 @@
           }
         ],
         "based_on": "EVH 5150III 100, 6L6 (Blue channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 823,
         "name": "EV Panama Red",
         "key": "Agoura_AmpEVPanamaRed",
         "category": "amp",
-        "usage": 27.0,
+        "usage": 27.5,
         "params": [
           {
             "id": 1,
@@ -11789,7 +11789,7 @@
           }
         ],
         "based_on": "EVH 5150III 100, 6L6 (Red channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 745,
@@ -11980,7 +11980,7 @@
           }
         ],
         "based_on": "EVH 5150III 100, 6L6 (Red channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 566,
@@ -12156,7 +12156,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 725,
@@ -12377,7 +12377,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 564,
@@ -12568,7 +12568,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 582,
@@ -12759,7 +12759,7 @@
           }
         ],
         "based_on": "Vox AC-15",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 580,
@@ -12950,14 +12950,14 @@
           }
         ],
         "based_on": "Vox AC-30 with Top Boost",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 810,
         "name": "Essex TB30CC",
         "key": "Agoura_AmpEssexTB30CC",
         "category": "amp",
-        "usage": 22.5,
+        "usage": 21.5,
         "params": [
           {
             "id": 1,
@@ -13144,7 +13144,7 @@
           }
         ],
         "based_on": "Vox AC-30CC (Normal and Top Boost channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 630,
@@ -13320,7 +13320,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 682,
@@ -13511,7 +13511,7 @@
           }
         ],
         "based_on": "Fender Tweed Deluxe 5C3 (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 683,
@@ -13702,7 +13702,7 @@
           }
         ],
         "based_on": "Fender Tweed Deluxe 5C3 (Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 684,
@@ -13893,7 +13893,7 @@
           }
         ],
         "based_on": "Fender Tweed Deluxe 5C3 (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 578,
@@ -14042,7 +14042,7 @@
           }
         ],
         "based_on": "Gallien-Krueger GK 800RB",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 576,
@@ -14233,7 +14233,7 @@
           }
         ],
         "based_on": "Bogner Shiva",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 574,
@@ -14409,14 +14409,14 @@
           }
         ],
         "based_on": "Bogner \u00c3\u009cerschall",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 818,
         "name": "German Xtra Blue",
         "key": "Agoura_AmpGermanXtraBlue",
         "category": "amp",
-        "usage": 22.2,
+        "usage": 22.6,
         "params": [
           {
             "id": 1,
@@ -14677,7 +14677,7 @@
           }
         ],
         "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 741,
@@ -14963,14 +14963,14 @@
           }
         ],
         "based_on": "Bogner Ecstacy 101B, EL34 (Blue channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 819,
         "name": "German Xtra Red",
         "key": "Agoura_AmpGermanXtraRed",
         "category": "amp",
-        "usage": 23.7,
+        "usage": 24.6,
         "params": [
           {
             "id": 1,
@@ -15231,7 +15231,7 @@
           }
         ],
         "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 742,
@@ -15517,7 +15517,7 @@
           }
         ],
         "based_on": "Bogner Ecstacy 101B, EL34 (Red channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 731,
@@ -15847,7 +15847,7 @@
           }
         ],
         "based_on": "Grammatico GSG100",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 676,
@@ -16038,7 +16038,7 @@
           }
         ],
         "based_on": "Grammatico LaGrange (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 677,
@@ -16229,7 +16229,7 @@
           }
         ],
         "based_on": "Grammatico LaGrange (Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 678,
@@ -16420,7 +16420,7 @@
           }
         ],
         "based_on": "Grammatico LaGrange (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 572,
@@ -16611,7 +16611,7 @@
           }
         ],
         "based_on": "Dr Z Route 66",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 570,
@@ -16742,7 +16742,7 @@
           }
         ],
         "based_on": "Roland JC-120 Jazz Chorus",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 711,
@@ -16921,7 +16921,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 633,
@@ -17112,7 +17112,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 562,
@@ -17303,7 +17303,7 @@
           }
         ],
         "based_on": "Silvertone 1484",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 560,
@@ -17516,7 +17516,7 @@
           }
         ],
         "based_on": "Orange OR80",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 733,
@@ -17692,7 +17692,7 @@
           }
         ],
         "based_on": "Orange AD200 MkIII",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 754,
@@ -17871,7 +17871,7 @@
           }
         ],
         "based_on": "Orange AD200 MkIII (Passive & Active inputs)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 697,
@@ -18047,7 +18047,7 @@
           }
         ],
         "based_on": "Orange Rockerverb 100 MkIII (dirty channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 616,
@@ -18238,7 +18238,7 @@
           }
         ],
         "based_on": "Matchless DC30 (Channel 1)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 617,
@@ -18421,7 +18421,7 @@
           }
         ],
         "based_on": "Matchless DC30 (Channel 2)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 618,
@@ -18649,7 +18649,7 @@
           }
         ],
         "based_on": "Matchless DC30 (Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 703,
@@ -18855,7 +18855,7 @@
           }
         ],
         "based_on": "Sunn Model T (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 702,
@@ -19061,7 +19061,7 @@
           }
         ],
         "based_on": "Sunn Model T (Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 701,
@@ -19267,7 +19267,7 @@
           }
         ],
         "based_on": "Sunn Model T (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 714,
@@ -19446,7 +19446,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 558,
@@ -19652,7 +19652,7 @@
           }
         ],
         "based_on": "Peavey 5150",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 723,
@@ -19873,7 +19873,7 @@
           }
         ],
         "based_on": "Peavey Invective (Clean channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 708,
@@ -20094,7 +20094,7 @@
           }
         ],
         "based_on": "Peavey Invective (Crunch channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 707,
@@ -20315,7 +20315,7 @@
           }
         ],
         "based_on": "Peavey Invective (Lead channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 669,
@@ -20495,7 +20495,7 @@
           }
         ],
         "based_on": "Friedman BE-100 (clean channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 665,
@@ -20743,7 +20743,7 @@
           }
         ],
         "based_on": "Friedman BE-100 (BE/HBE channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 817,
@@ -21018,7 +21018,7 @@
           }
         ],
         "based_on": "Revv Generator 120 (Purple/Gain Channel 3)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 806,
@@ -21293,7 +21293,7 @@
           }
         ],
         "based_on": "Revv Generator 120 (Red/High Gain Channel 4)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 689,
@@ -21514,7 +21514,7 @@
           }
         ],
         "based_on": "Revv Generator 120 (Purple/Gain Ch. 3)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 675,
@@ -21735,14 +21735,14 @@
           }
         ],
         "based_on": "Revv Generator 120 (Red/High Gain Ch. 4)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 753,
         "name": "Solid 100",
         "key": "Agoura_AmpSolid100",
         "category": "amp",
-        "usage": 22.5,
+        "usage": 23.0,
         "params": [
           {
             "id": 1,
@@ -21965,7 +21965,7 @@
           }
         ],
         "based_on": "Soldano SLO-100 (Normal & Overdrive channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 550,
@@ -22156,7 +22156,7 @@
           }
         ],
         "based_on": "Soldano SLO-100 (Clean channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 551,
@@ -22347,7 +22347,7 @@
           }
         ],
         "based_on": "Soldano SLO-100 (Crunch channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 548,
@@ -22538,14 +22538,14 @@
           }
         ],
         "based_on": "Soldano SLO-100 (Overdrive channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 546,
         "name": "Soup Pro",
         "key": "HD2_AmpSoupPro",
         "category": "amp",
-        "usage": 8.0,
+        "usage": 7.8,
         "params": [
           {
             "id": 1,
@@ -22729,7 +22729,7 @@
           }
         ],
         "based_on": "Supro S6616",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 544,
@@ -22920,7 +22920,7 @@
           }
         ],
         "based_on": "Gibson EH-185",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 538,
@@ -23111,7 +23111,7 @@
           }
         ],
         "based_on": "Fender Bassman (Bright channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 539,
@@ -23302,14 +23302,14 @@
           }
         ],
         "based_on": "Fender Bassman (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 752,
         "name": "US 5W Tweed",
         "key": "Agoura_AmpUS5WTweed",
         "category": "amp",
-        "usage": 20.5,
+        "usage": 21.0,
         "params": [
           {
             "id": 1,
@@ -23454,7 +23454,7 @@
           }
         ],
         "based_on": "Fender Champ 5F1 (Low & High inputs)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 536,
@@ -23645,7 +23645,7 @@
           }
         ],
         "based_on": "Fender Deluxe Reverb (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 534,
@@ -23836,14 +23836,14 @@
           }
         ],
         "based_on": "Fender Deluxe Reverb (Vibrato channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 807,
         "name": "US Double Black",
         "key": "Agoura_AmpUSDoubleBlack",
         "category": "amp",
-        "usage": 19.5,
+        "usage": 20.5,
         "params": [
           {
             "id": 1,
@@ -24033,7 +24033,7 @@
           }
         ],
         "based_on": "Fender Twin Reverb AB763 (Normal & Vibrato channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 532,
@@ -24224,7 +24224,7 @@
           }
         ],
         "based_on": "Fender Twin Reverb (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 530,
@@ -24415,7 +24415,7 @@
           }
         ],
         "based_on": "Fender Twin Reverb (Vibrato channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 812,
@@ -24661,7 +24661,7 @@
           }
         ],
         "based_on": "Fender Bassman Silverface (Bass, Normal, & Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 729,
@@ -24855,7 +24855,7 @@
           }
         ],
         "based_on": "Marshall JCM-800 (2203)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 751,
@@ -25019,7 +25019,7 @@
           }
         ],
         "based_on": "Fender Deluxe Reverb AB763 (Normal & Vibrato channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 691,
@@ -25210,7 +25210,7 @@
           }
         ],
         "based_on": "Fender Princeton Reverb",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 750,
@@ -25356,7 +25356,7 @@
           }
         ],
         "based_on": "Fender Princeton Reverb AA1164",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 528,
@@ -25547,7 +25547,7 @@
           }
         ],
         "based_on": "Fender Champ",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 833,
@@ -25744,7 +25744,7 @@
           }
         ],
         "based_on": "Fender Super Reverb (Normal & Vibrato channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 737,
@@ -25953,7 +25953,7 @@
           }
         ],
         "based_on": "Fender Super Reverb (Normal channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 739,
@@ -26162,14 +26162,14 @@
           }
         ],
         "based_on": "Fender Super Reverb (Vibrato channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 749,
         "name": "US Tweedman",
         "key": "Agoura_AmpUSTweedman",
         "category": "amp",
-        "usage": 23.5,
+        "usage": 21.5,
         "params": [
           {
             "id": 1,
@@ -26372,7 +26372,7 @@
           }
         ],
         "based_on": "Fender Bassman 5F6A (Normal, Bright, & Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 700,
@@ -26563,7 +26563,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 709,
@@ -26742,7 +26742,7 @@
           }
         ],
         "based_on": "Line 6 Original",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 653,
@@ -26933,7 +26933,7 @@
           }
         ],
         "based_on": "Victoria Electro King",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 526,
@@ -27124,14 +27124,14 @@
           }
         ],
         "based_on": "Hiwatt DR-103 (Brilliant channel)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 808,
         "name": "WhoWatt 103",
         "key": "Agoura_AmpWhoWatt103",
         "category": "amp",
-        "usage": 26.5,
+        "usage": 23.5,
         "params": [
           {
             "id": 1,
@@ -27334,7 +27334,7 @@
           }
         ],
         "based_on": "Hiwatt DR-103 (Normal, Bright, & Jumped channels)",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 641,
@@ -27534,14 +27534,14 @@
           }
         ],
         "based_on": "Acoustic 360",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 835,
         "name": "Matchstick 30",
         "key": "Agoura_AmpMatchstick30",
         "category": "amp",
-        "usage": 25.5,
+        "usage": 23.5,
         "params": [
           {
             "id": 1,
@@ -27751,14 +27751,14 @@
           }
         ],
         "based_on": "Matchless DC30",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 844,
         "name": "Mandarin Rock 3",
         "key": "Agoura_AmpMandarinRockerMk3",
         "category": "amp",
-        "usage": 27.0,
+        "usage": 24.5,
         "params": [
           {
             "id": 1,
@@ -27945,7 +27945,7 @@
           }
         ],
         "based_on": "Orange Rockerverb 100MKIII",
-        "auto_cab_usage": 3.0
+        "auto_cab_usage": 2.8
       },
       {
         "id": 836,
@@ -28176,6 +28176,693 @@
           }
         ],
         "based_on": null
+      },
+      {
+        "id": 846,
+        "name": "Prosecutor",
+        "based_on": null,
+        "key": "Agoura_AmpLine6Prosecutor",
+        "category": "amp",
+        "usage": 21.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain applied to the signal, which influences the level of distortion."
+          },
+          {
+            "id": 2,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.6,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 6,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of the tonestack."
+          },
+          {
+            "id": 3,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.55,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the midrange frequency EQ of the tonestack."
+          },
+          {
+            "id": 4,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.45,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 4.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of the tonestack."
+          },
+          {
+            "id": 5,
+            "key": "Presence",
+            "name": "Presence",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.2,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 2,
+            "unit": "unitless",
+            "options": null,
+            "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite."
+          },
+          {
+            "id": 6,
+            "key": "Master",
+            "name": "Master",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag."
+          },
+          {
+            "id": 7,
+            "key": "Sag",
+            "name": "Sag",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0.5,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel."
+          },
+          {
+            "id": 8,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": -9.9999,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": -9.9999,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
+          },
+          {
+            "id": 9,
+            "key": "Ripple",
+            "name": "Ripple",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings."
+          },
+          {
+            "id": 10,
+            "key": "ZPrePost",
+            "name": "Z PrePost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.3,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 3,
+            "unit": "unitless",
+            "options": null,
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
+          },
+          {
+            "id": 11,
+            "key": "Hype",
+            "name": "Hype",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Off",
+            "options": null,
+            "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
+          }
+        ],
+        "auto_cab_usage": 2.8
+      },
+      {
+        "id": 845,
+        "name": "Brit SL100",
+        "based_on": null,
+        "key": "Agoura_AmpBritSL100",
+        "category": "amp",
+        "usage": 23.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Channel",
+            "name": "Channel",
+            "type": "i",
+            "min": 0,
+            "max": 2,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 2,
+            "display_def": 1,
+            "unit": "unitless",
+            "options": [
+              "Normal",
+              "Bright",
+              "Jumped"
+            ],
+            "description": "Selects the channel\u2014Normal, Bright, or Jumped. Given that there are four distinct amp models (1967, 1968, 1970, and 1971, chosen from the Era knob), this Agoura model includes 12 amp channels total."
+          },
+          {
+            "id": 2,
+            "key": "Era",
+            "name": "Era",
+            "type": "i",
+            "min": 0,
+            "max": 3,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 3,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": [
+              "'67",
+              "'68",
+              "'70",
+              "'71"
+            ],
+            "description": "Determines which year of Super 100 amp is selected\u20141967, 1968, 1970, or 1971."
+          },
+          {
+            "id": 3,
+            "key": "NormDrv",
+            "name": "Nrm Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of Normal channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions."
+          },
+          {
+            "id": 4,
+            "key": "BrightDrv",
+            "name": "Brt Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of Bright channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions."
+          },
+          {
+            "id": 5,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.66,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 6.6,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of the tonestack."
+          },
+          {
+            "id": 6,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the midrange frequency EQ of the tonestack."
+          },
+          {
+            "id": 7,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of the tonestack."
+          },
+          {
+            "id": 8,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": -10,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": -10,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
+          },
+          {
+            "id": 9,
+            "key": "Bright",
+            "name": "Bright Cap",
+            "type": "i",
+            "min": 0,
+            "max": 4,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 4,
+            "display_def": 1,
+            "unit": "unitless",
+            "options": [
+              "None",
+              "120pF",
+              "470pF",
+              "1000pF",
+              "4700pF"
+            ],
+            "description": "Controls the amount of capacitor-based treble bleed on the Brt Drive knob, set in picofarads (pF). At lower gain settings, this setting can add brightness and bite; Bright Cap is more subtle at higher gain settings. Does not apply to the Normal channel."
+          },
+          {
+            "id": 10,
+            "key": "Master",
+            "name": "Master",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag."
+          },
+          {
+            "id": 11,
+            "key": "Presence",
+            "name": "Presence",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite."
+          },
+          {
+            "id": 12,
+            "key": "Sag",
+            "name": "Sag",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel."
+          },
+          {
+            "id": 13,
+            "key": "Ripple",
+            "name": "Ripple",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings."
+          },
+          {
+            "id": 14,
+            "key": "ZPrePost",
+            "name": "Z PrePost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.35,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 3.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
+          },
+          {
+            "id": 15,
+            "key": "Hype",
+            "name": "Hype",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Off",
+            "options": null,
+            "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
+          }
+        ],
+        "auto_cab_usage": 2.8
+      },
+      {
+        "id": 847,
+        "name": "Omega Granophyre",
+        "based_on": null,
+        "key": "Agoura_AmpOmegaGrano",
+        "category": "amp",
+        "usage": 24.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Jack",
+            "name": "Jack",
+            "type": "i",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 1,
+            "display_def": 1,
+            "unit": "unitless",
+            "options": [
+              "Low",
+              "High"
+            ],
+            "description": "Sets the input jack on the amp\u2014Low or High."
+          },
+          {
+            "id": 2,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain applied to the signal, which influences the level of distortion."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of the tonestack."
+          },
+          {
+            "id": 4,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.4,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 4,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the midrange frequency EQ of the tonestack."
+          },
+          {
+            "id": 5,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.45,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 4.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of the tonestack."
+          },
+          {
+            "id": 6,
+            "key": "Voice",
+            "name": "Voice",
+            "type": "i",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 1,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": [
+              "Low Mid",
+              "High Mid"
+            ],
+            "description": "Switches the voicing of the midrange knob between lower mid focus and higher mid focus."
+          },
+          {
+            "id": 7,
+            "key": "Volume",
+            "name": "Volume",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the level of the preamp into the phase inverter before the power amp. Turn Volume down and Master up for big, chunky low end or turn Volume up and Master down for a darker response with a bit of midrange grit."
+          },
+          {
+            "id": 8,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -40,
+            "max": 10,
+            "def": -16,
+            "display_min": -40,
+            "display_max": 10,
+            "display_def": -16,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone."
+          },
+          {
+            "id": 9,
+            "key": "Presence",
+            "name": "Presence",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.154,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 1.54,
+            "unit": "unitless",
+            "options": null,
+            "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite."
+          },
+          {
+            "id": 10,
+            "key": "Depth",
+            "name": "Depth",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency response in the power amp."
+          },
+          {
+            "id": 11,
+            "key": "NFB",
+            "name": "NFB",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": true,
+            "display_min": false,
+            "display_max": true,
+            "display_def": true,
+            "unit": "unitless",
+            "options": [
+              "Open",
+              "Closed"
+            ],
+            "description": "Controls the amount of NFB (Negative Feedback) within the power section. \u201cOpen\u201d is a bit smoother and darker; \u201cClosed\u201d slightly increases aggression and attack."
+          },
+          {
+            "id": 12,
+            "key": "Master",
+            "name": "Master",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag."
+          },
+          {
+            "id": 13,
+            "key": "Sag",
+            "name": "Sag",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel."
+          },
+          {
+            "id": 14,
+            "key": "Ripple",
+            "name": "Ripple",
+            "type": "f",
+            "min": -1,
+            "max": 1,
+            "def": 0,
+            "display_min": -10,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Stock",
+            "options": null,
+            "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings."
+          },
+          {
+            "id": 15,
+            "key": "ZPrePost",
+            "name": "Z PrePost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.3,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 3,
+            "unit": "unitless",
+            "options": null,
+            "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre)."
+          },
+          {
+            "id": 16,
+            "key": "Hype",
+            "name": "Hype",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 0,
+            "unit": "Off",
+            "options": null,
+            "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy."
+          }
+        ],
+        "auto_cab_usage": 2.8
       }
     ]
   },
@@ -28332,7 +29019,7 @@
         "name": "A30 Fawn Brt",
         "key": "HD2_PreampA30FawnBrt",
         "category": "preamp",
-        "usage": 5.7,
+        "usage": 5.2,
         "params": [
           {
             "id": 1,
@@ -28447,7 +29134,7 @@
         "name": "A30 Fawn Nrm",
         "key": "HD2_PreampA30FawnNrm",
         "category": "preamp",
-        "usage": 6.0,
+        "usage": 5.2,
         "params": [
           {
             "id": 1,
@@ -28562,7 +29249,7 @@
         "name": "ANGL Meteor",
         "key": "HD2_PreampANGLMeteor",
         "category": "preamp",
-        "usage": 9.6,
+        "usage": 9.0,
         "params": [
           {
             "id": 1,
@@ -28710,7 +29397,7 @@
         "name": "Agua 51",
         "key": "HD2_PreampAgua51",
         "category": "preamp",
-        "usage": 9.4,
+        "usage": 8.6,
         "params": [
           {
             "id": 1,
@@ -28976,7 +29663,7 @@
         "name": "Ampeg B-15NF",
         "key": "HD2_PreampTucknGo",
         "category": "preamp",
-        "usage": 6.9,
+        "usage": 6.0,
         "params": [
           {
             "id": 1,
@@ -29121,7 +29808,7 @@
         "name": "Ampeg SVT Brt",
         "key": "HD2_PreampSVBeastBrt",
         "category": "preamp",
-        "usage": 11.0,
+        "usage": 9.8,
         "params": [
           {
             "id": 1,
@@ -29270,7 +29957,7 @@
         "name": "Ampeg SVT Nrm",
         "key": "HD2_PreampSVBeastNrm",
         "category": "preamp",
-        "usage": 11.0,
+        "usage": 9.8,
         "params": [
           {
             "id": 1,
@@ -29762,7 +30449,7 @@
         "name": "Archetype Clean",
         "key": "HD2_PreampArchetypeClean",
         "category": "preamp",
-        "usage": 7.9,
+        "usage": 7.4,
         "params": [
           {
             "id": 1,
@@ -29910,7 +30597,7 @@
         "name": "Archetype Lead",
         "key": "HD2_PreampArchetypeLead",
         "category": "preamp",
-        "usage": 9.1,
+        "usage": 8.8,
         "params": [
           {
             "id": 1,
@@ -30288,7 +30975,7 @@
         "name": "Brit 2203",
         "key": "HD2_PreampBrit2203",
         "category": "preamp",
-        "usage": 14.5,
+        "usage": 13.8,
         "params": [
           {
             "id": 1,
@@ -34353,7 +35040,7 @@
         "name": "Clarity",
         "key": "HD2_PreampLine6Clarity",
         "category": "preamp",
-        "usage": 8.8,
+        "usage": 8.2,
         "params": [
           {
             "id": 1,
@@ -36082,7 +36769,7 @@
         "name": "Essex A30",
         "key": "HD2_PreampEssexA30",
         "category": "preamp",
-        "usage": 7.4,
+        "usage": 6.7,
         "params": [
           {
             "id": 1,
@@ -37055,7 +37742,7 @@
         "name": "German Ubersonic",
         "key": "HD2_PreampGermanUbersonic",
         "category": "preamp",
-        "usage": 9.1,
+        "usage": 8.6,
         "params": [
           {
             "id": 1,
@@ -38562,7 +39249,7 @@
         "name": "Litigator",
         "key": "HD2_PreampLine6Litigator",
         "category": "preamp",
-        "usage": 9.3,
+        "usage": 9.0,
         "params": [
           {
             "id": 1,
@@ -38974,7 +39661,7 @@
         "name": "Mandarin Bass 200",
         "key": "HD2_PreampMandarinBass200",
         "category": "preamp",
-        "usage": 7.4,
+        "usage": 6.2,
         "params": [
           {
             "id": 1,
@@ -39104,7 +39791,7 @@
         "name": "Mandarin Rocker",
         "key": "HD2_PreampMandarinRocker",
         "category": "preamp",
-        "usage": 9.9,
+        "usage": 9.4,
         "params": [
           {
             "id": 1,
@@ -39234,7 +39921,7 @@
         "name": "Matchstick Ch1",
         "key": "HD2_PreampMatchstickCh1",
         "category": "preamp",
-        "usage": 6.8,
+        "usage": 6.3,
         "params": [
           {
             "id": 1,
@@ -39349,7 +40036,7 @@
         "name": "Matchstick Ch2",
         "key": "HD2_PreampMatchstickCh2",
         "category": "preamp",
-        "usage": 6.6,
+        "usage": 6.0,
         "params": [
           {
             "id": 1,
@@ -39456,7 +40143,7 @@
         "name": "Matchstick Jump",
         "key": "HD2_PreampMatchstickJump",
         "category": "preamp",
-        "usage": 9.7,
+        "usage": 9.2,
         "params": [
           {
             "id": 1,
@@ -40786,7 +41473,7 @@
         "name": "Placater Clean",
         "key": "HD2_PreampPlacaterClean",
         "category": "preamp",
-        "usage": 6.7,
+        "usage": 6.2,
         "params": [
           {
             "id": 1,
@@ -40905,7 +41592,7 @@
         "name": "Placater Dirty",
         "key": "HD2_PreampPlacaterDirty",
         "category": "preamp",
-        "usage": 10.7,
+        "usage": 10.2,
         "params": [
           {
             "id": 1,
@@ -41382,7 +42069,7 @@
         "name": "Solo Lead Clean",
         "key": "HD2_PreampSoloLeadClean",
         "category": "preamp",
-        "usage": 8.9,
+        "usage": 7.6,
         "params": [
           {
             "id": 1,
@@ -41512,7 +42199,7 @@
         "name": "Solo Lead Crunch",
         "key": "HD2_PreampSoloLeadCrunch",
         "category": "preamp",
-        "usage": 8.6,
+        "usage": 7.6,
         "params": [
           {
             "id": 1,
@@ -41642,7 +42329,7 @@
         "name": "Solo Lead OD",
         "key": "HD2_PreampSoloLeadOD",
         "category": "preamp",
-        "usage": 10.5,
+        "usage": 9.3,
         "params": [
           {
             "id": 1,
@@ -41772,7 +42459,7 @@
         "name": "Soup Pro",
         "key": "HD2_PreampSoupPro",
         "category": "preamp",
-        "usage": 7.7,
+        "usage": 7.3,
         "params": [
           {
             "id": 1,
@@ -41902,7 +42589,7 @@
         "name": "Stone Age 185",
         "key": "HD2_PreampStoneAge185",
         "category": "preamp",
-        "usage": 8.1,
+        "usage": 7.8,
         "params": [
           {
             "id": 1,
@@ -42032,7 +42719,7 @@
         "name": "Studio Tube Pre",
         "key": "HD2_PreampVintagePre",
         "category": "preamp",
-        "usage": 5.5,
+        "usage": 4.2,
         "params": [
           {
             "id": 1,
@@ -42398,7 +43085,7 @@
         "name": "US Deluxe Nrm",
         "key": "HD2_PreampUSDeluxeNrm",
         "category": "preamp",
-        "usage": 6.6,
+        "usage": 6.3,
         "params": [
           {
             "id": 1,
@@ -42528,7 +43215,7 @@
         "name": "US Deluxe Vib",
         "key": "HD2_PreampUSDeluxeVib",
         "category": "preamp",
-        "usage": 8.1,
+        "usage": 7.7,
         "params": [
           {
             "id": 1,
@@ -42658,7 +43345,7 @@
         "name": "US Double Nrm",
         "key": "HD2_PreampUSDoubleNrm",
         "category": "preamp",
-        "usage": 6.7,
+        "usage": 6.3,
         "params": [
           {
             "id": 1,
@@ -42788,7 +43475,7 @@
         "name": "US Double Vib",
         "key": "HD2_PreampUSDoubleVib",
         "category": "preamp",
-        "usage": 7.9,
+        "usage": 7.4,
         "params": [
           {
             "id": 1,
@@ -42918,7 +43605,7 @@
         "name": "US Dripman Norm",
         "key": "HD2_PreampUSDripmanNorm",
         "category": "preamp",
-        "usage": 9.2,
+        "usage": 8.3,
         "params": [
           {
             "id": 1,
@@ -43066,7 +43753,7 @@
         "name": "US Princess",
         "key": "HD2_PreampUSPrincess",
         "category": "preamp",
-        "usage": 8.3,
+        "usage": 7.4,
         "params": [
           {
             "id": 1,
@@ -43196,7 +43883,7 @@
         "name": "US Small Tweed",
         "key": "HD2_PreampUSSmallTweed",
         "category": "preamp",
-        "usage": 7.1,
+        "usage": 6.3,
         "params": [
           {
             "id": 1,
@@ -43326,7 +44013,7 @@
         "name": "US Super Norm",
         "key": "HD2_PreampUSSuperNorm",
         "category": "preamp",
-        "usage": 6.8,
+        "usage": 6.0,
         "params": [
           {
             "id": 1,
@@ -43474,7 +44161,7 @@
         "name": "US Super Vib",
         "key": "HD2_PreampUSSuperVib",
         "category": "preamp",
-        "usage": 8.1,
+        "usage": 7.5,
         "params": [
           {
             "id": 1,
@@ -43900,7 +44587,7 @@
         "name": "Voltage Queen",
         "key": "HD2_PreampVoltageQueen",
         "category": "preamp",
-        "usage": 9.2,
+        "usage": 9.0,
         "params": [
           {
             "id": 1,
@@ -44509,7 +45196,7 @@
         "name": "1x10 US Princess",
         "key": "HD2_CabMicIr_1x10USPrincessWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -44667,7 +45354,7 @@
         "name": "1x12 Blue Bell",
         "key": "HD2_CabMicIr_1x12BlueBellWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -44825,7 +45512,7 @@
         "name": "1x12 Cali EXT",
         "key": "HD2_CabMicIr_1x12CaliEXTWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -44983,7 +45670,7 @@
         "name": "1x12 Cali IV",
         "key": "HD2_CabMicIr_1x12CaliIVWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -45141,7 +45828,7 @@
         "name": "1x12 Epicenter",
         "key": "HD2_CabMicIr_1x12EpicenterWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -45299,7 +45986,7 @@
         "name": "1x12 Fullerton",
         "key": "HD2_CabMicIr_1x12FullertonWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -45457,7 +46144,7 @@
         "name": "1x12 Grammatico",
         "key": "HD2_CabMicIr_1x12GrammaticoWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -45615,7 +46302,7 @@
         "name": "1x12 Open Cast",
         "key": "HD2_CabMicIr_1x12OpenCastWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -45773,7 +46460,7 @@
         "name": "1x12 Open Cream",
         "key": "HD2_CabMicIr_1x12OpenCreamWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -45931,7 +46618,7 @@
         "name": "1x12 US Deluxe",
         "key": "HD2_CabMicIr_1x12USDeluxeWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -46089,7 +46776,7 @@
         "name": "1x15 Ampeg B-15",
         "key": "HD2_CabMicIr_1x15AmpegB15WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -46247,7 +46934,7 @@
         "name": "1x8 Small Tweed",
         "key": "HD2_CabMicIr_1x8SmallTweedWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -46405,7 +47092,7 @@
         "name": "2x12 Blue Bell",
         "key": "HD2_CabMicIr_2x12BlueBellWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -46563,7 +47250,7 @@
         "name": "2x12 Double C12N",
         "key": "HD2_CabMicIr_2x12DoubleC12NWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -46721,7 +47408,7 @@
         "name": "2x12 Interstate",
         "key": "HD2_CabMicIr_2x12InterstateWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -46879,7 +47566,7 @@
         "name": "2x12 Jazz Rivet",
         "key": "HD2_CabMicIr_2x12JazzRivetWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47037,7 +47724,7 @@
         "name": "2x12 Mail C12Q",
         "key": "HD2_CabMicIr_2x12MailC12QWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47195,7 +47882,7 @@
         "name": "2x12 Mandarin 30",
         "key": "HD2_CabMicIr_2x12MandarinWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47353,7 +48040,7 @@
         "name": "2x12 Match G25",
         "key": "HD2_CabMicIr_2x12MatchG25WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47511,7 +48198,7 @@
         "name": "2x12 Match H30",
         "key": "HD2_CabMicIr_2x12MatchH30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47669,7 +48356,7 @@
         "name": "2x12 Silver Bell",
         "key": "HD2_CabMicIr_2x12SilverBellWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47827,7 +48514,7 @@
         "name": "2x15 Brute",
         "key": "HD2_CabMicIr_2x15BruteWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -47985,7 +48672,7 @@
         "name": "2x15 US Dripman",
         "key": "HD2_CabMicIr_2x15USDripmanWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -48143,7 +48830,7 @@
         "name": "4x10 Ampeg Pro",
         "key": "HD2_CabMicIr_4x10AmpegProWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -48301,7 +48988,7 @@
         "name": "4x10 Garden",
         "key": "HD2_CabMicIr_4x10GardenWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -48459,7 +49146,7 @@
         "name": "4x10 Tweed P10R",
         "key": "HD2_CabMicIr_4x10TweedP10RWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -48617,7 +49304,7 @@
         "name": "4x10 US Super",
         "key": "HD2_CabMicIr_4x10USSuperWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -48775,7 +49462,7 @@
         "name": "4x12 1960A T75",
         "key": "HD2_CabMicIr_4x121960AT75WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -48933,7 +49620,7 @@
         "name": "4x12 Blackback H30",
         "key": "HD2_CabMicIr_4x12BlackbackH30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -49091,7 +49778,7 @@
         "name": "4x12 Brit V30",
         "key": "HD2_CabMicIr_4x12BritV30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -49249,7 +49936,7 @@
         "name": "4x12 Cali V30",
         "key": "HD2_CabMicIr_4x12CaliV30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -49407,7 +50094,7 @@
         "name": "4x12 Cartog C90",
         "key": "HD2_CabMicIr_4x12CartogC90WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -49565,7 +50252,7 @@
         "name": "4x12 Cartog Guv",
         "key": "HD2_CabMicIr_4x12CartogGuvWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -49723,7 +50410,7 @@
         "name": "4x12 Greenback 20",
         "key": "HD2_CabMicIr_4x12Greenback20WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -49881,7 +50568,7 @@
         "name": "4x12 Greenback 25",
         "key": "HD2_CabMicIr_4x12Greenback25WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50039,7 +50726,7 @@
         "name": "4x12 Greenback 30",
         "key": "HD2_CabMicIr_4x12Greenback30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50197,7 +50884,7 @@
         "name": "4x12 MOO)))N T75",
         "key": "HD2_CabMicIr_4x12MOONT75WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50355,7 +51042,7 @@
         "name": "4x12 Mandarin EM",
         "key": "HD2_CabMicIr_4x12MandarinWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50513,7 +51200,7 @@
         "name": "4x12 SoloLead EM",
         "key": "HD2_CabMicIr_4x12SoloLeadEMWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50671,7 +51358,7 @@
         "name": "4x12 Uber T75",
         "key": "HD2_CabMicIr_4x12UberT75WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50829,7 +51516,7 @@
         "name": "4x12 Uber V30",
         "key": "HD2_CabMicIr_4x12UberV30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -50987,7 +51674,7 @@
         "name": "4x12 WhoWatt 100",
         "key": "HD2_CabMicIr_4x12WhoWatt100WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -51145,7 +51832,7 @@
         "name": "4x12 XXL V30",
         "key": "HD2_CabMicIr_4x12XXLV30WithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -51303,7 +51990,7 @@
         "name": "6x10 Cali Power",
         "key": "HD2_CabMicIr_6x10CaliPowerWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -51461,7 +52148,7 @@
         "name": "8x10 SVT AV",
         "key": "HD2_CabMicIr_8x10SVTAVWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -51737,7 +52424,7 @@
         "name": "No Cab",
         "key": "HD2_CabMicIr_NoCab",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [],
         "based_on": null
       },
@@ -51746,7 +52433,7 @@
         "name": "Soup Pro Ellipse",
         "key": "HD2_CabMicIr_SoupProEllipseWithPan",
         "category": "cab_ir_interp",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -51909,7 +52596,7 @@
         "name": "Alpaca Rouge",
         "key": "HD2_DistAlpacaRougeMono",
         "category": "distortion",
-        "usage": 3.6,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -51964,7 +52651,7 @@
         "name": "Ampeg Scrambler",
         "key": "HD2_DistAmpegScramblerODMono",
         "category": "distortion",
-        "usage": 6.7,
+        "usage": 6.5,
         "params": [
           {
             "id": 1,
@@ -52034,7 +52721,7 @@
         "name": "Arbitrator Fuzz",
         "key": "HD2_DistArbitratorFuzzMono",
         "category": "distortion",
-        "usage": 2.5,
+        "usage": 2.1,
         "params": [
           {
             "id": 1,
@@ -52074,7 +52761,7 @@
         "name": "Ballistic Fuzz",
         "key": "HD2_DistBallisticFuzzMono",
         "category": "distortion",
-        "usage": 6.2,
+        "usage": 5.9,
         "params": [
           {
             "id": 1,
@@ -52129,7 +52816,7 @@
         "name": "Bighorn Fuzz",
         "key": "HD2_DistRamsHeadMono",
         "category": "distortion",
-        "usage": 4.0,
+        "usage": 3.6,
         "params": [
           {
             "id": 1,
@@ -52184,7 +52871,7 @@
         "name": "Bitcrusher",
         "key": "HD2_DistBitcrusherMono",
         "category": "distortion",
-        "usage": 2.6,
+        "usage": 2.2,
         "params": [
           {
             "id": 1,
@@ -52359,7 +53046,7 @@
         "name": "Bronze Master",
         "key": "Line6BronzeMaster",
         "category": "distortion",
-        "usage": 2.4,
+        "usage": 1.8,
         "params": [
           {
             "id": 2,
@@ -52429,7 +53116,7 @@
         "name": "Buzz Saw",
         "key": "HD2_DM4BuzzSaw",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -52514,7 +53201,7 @@
         "name": "Classic Dist",
         "key": "HD2_DM4ClassicDistortion",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -52753,7 +53440,7 @@
         "name": "Colordrive",
         "key": "HD2_DM4ColorDrive",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -52838,7 +53525,7 @@
         "name": "Compulsive Drive",
         "key": "HD2_DistCompulsiveDriveMono",
         "category": "distortion",
-        "usage": 2.1,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -52929,7 +53616,7 @@
         "name": "Dark Dove Fuzz",
         "key": "HD2_DistDarkDoveFuzzMono",
         "category": "distortion",
-        "usage": 4.9,
+        "usage": 4.6,
         "params": [
           {
             "id": 1,
@@ -52984,7 +53671,7 @@
         "name": "Deez One Mod",
         "key": "HD2_DistDeezOneModMono",
         "category": "distortion",
-        "usage": 4.0,
+        "usage": 3.9,
         "params": [
           {
             "id": 1,
@@ -53057,7 +53744,7 @@
         "name": "Deez One Vintage",
         "key": "HD2_DistDeezOneVintageMono",
         "category": "distortion",
-        "usage": 4.3,
+        "usage": 4.1,
         "params": [
           {
             "id": 1,
@@ -53112,7 +53799,7 @@
         "name": "Deranged Master",
         "key": "HD2_DistDerangedMasterMono",
         "category": "distortion",
-        "usage": 2.7,
+        "usage": 2.3,
         "params": [
           {
             "id": 1,
@@ -53182,7 +53869,7 @@
         "name": "Dyhana Drive",
         "key": "HD2_DistDhyanaDriveMono",
         "category": "distortion",
-        "usage": 3.2,
+        "usage": 2.8,
         "params": [
           {
             "id": 1,
@@ -53252,7 +53939,7 @@
         "name": "Facial Fuzz",
         "key": "HD2_DM4FacialFuzz",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -53337,7 +54024,7 @@
         "name": "Fuzz Pi",
         "key": "HD2_DM4FuzzPi",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -53422,7 +54109,7 @@
         "name": "Heavy Dist",
         "key": "HD2_DM4HeavyDistortion",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -53507,7 +54194,7 @@
         "name": "Hedgehog D9",
         "key": "HD2_DistHedgehogD9Mono",
         "category": "distortion",
-        "usage": 2.6,
+        "usage": 2.2,
         "params": [
           {
             "id": 1,
@@ -53562,7 +54249,7 @@
         "name": "Heir Apparent",
         "key": "HD2_DistHeirApparentMono",
         "category": "distortion",
-        "usage": 3.5,
+        "usage": 3.4,
         "params": [
           {
             "id": 1,
@@ -53687,7 +54374,7 @@
         "name": "Horizon Drive",
         "key": "HD2_DistHorizonDriveMono",
         "category": "distortion",
-        "usage": 6.1,
+        "usage": 5.6,
         "params": [
           {
             "id": 1,
@@ -53797,7 +54484,7 @@
         "name": "Industrial Fuzz",
         "key": "HD2_DistIndustrialFuzzMono",
         "category": "distortion",
-        "usage": 5.8,
+        "usage": 4.5,
         "params": [
           {
             "id": 1,
@@ -53900,7 +54587,7 @@
         "name": "Jet Fuzz",
         "key": "HD2_DM4JetFuzz",
         "category": "distortion",
-        "usage": 3.8,
+        "usage": 3.2,
         "params": [
           {
             "id": 1,
@@ -53985,7 +54672,7 @@
         "name": "Jumbo Fuzz",
         "key": "HD2_DM4JumboFuzz",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -54070,7 +54757,7 @@
         "name": "KWB",
         "key": "HD2_DistKWBMono",
         "category": "distortion",
-        "usage": 3.5,
+        "usage": 3.2,
         "params": [
           {
             "id": 1,
@@ -54195,7 +54882,7 @@
         "name": "Killer Z",
         "key": "KillerZ",
         "category": "distortion",
-        "usage": 2.3,
+        "usage": 1.8,
         "params": [
           {
             "id": 2,
@@ -54280,7 +54967,7 @@
         "name": "Kinky Boost",
         "key": "HD2_DistKinkyBoostMono",
         "category": "distortion",
-        "usage": 3.2,
+        "usage": 2.6,
         "params": [
           {
             "id": 1,
@@ -54341,7 +55028,7 @@
         "name": "L6 Distortion",
         "key": "HD2_DM4Line6Distortion",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -54426,7 +55113,7 @@
         "name": "L6 Drive",
         "key": "HD2_DM4Line6Drive",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -54511,7 +55198,7 @@
         "name": "Legendary Drive",
         "key": "HD2_DistLegendaryDriveMono",
         "category": "distortion",
-        "usage": 7.4,
+        "usage": 7.2,
         "params": [
           {
             "id": 1,
@@ -54611,7 +55298,7 @@
         "name": "Megaphone",
         "key": "HD2_DistMegaphoneMono",
         "category": "distortion",
-        "usage": 1.6,
+        "usage": 1.2,
         "params": [
           {
             "id": 1,
@@ -54711,7 +55398,7 @@
         "name": "Minotaur",
         "key": "HD2_DistMinotaurMono",
         "category": "distortion",
-        "usage": 4.8,
+        "usage": 4.4,
         "params": [
           {
             "id": 1,
@@ -54766,7 +55453,7 @@
         "name": "Obsidian 7000",
         "key": "HD2_DistObsidian7000Mono",
         "category": "distortion",
-        "usage": 4.8,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -54990,7 +55677,7 @@
         "name": "Octave Fuzz",
         "key": "HD2_DM4OctaveFuzz",
         "category": "distortion",
-        "usage": 4.2,
+        "usage": 3.8,
         "params": [
           {
             "id": 1,
@@ -55075,7 +55762,7 @@
         "name": "Overdrive",
         "key": "HD2_DM4Overdrive",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -55160,7 +55847,7 @@
         "name": "Pillars",
         "key": "HD2_DistPillarsMono",
         "category": "distortion",
-        "usage": 3.8,
+        "usage": 3.5,
         "params": [
           {
             "id": 1,
@@ -55234,7 +55921,7 @@
         "name": "Pocket Fuzz",
         "key": "HD2_DistPocketFuzzMono",
         "category": "distortion",
-        "usage": 2.5,
+        "usage": 2.2,
         "params": [
           {
             "id": 1,
@@ -55274,7 +55961,7 @@
         "name": "Prize Drive",
         "key": "HD2_DistPrizeDriveMono",
         "category": "distortion",
-        "usage": 7.2,
+        "usage": 7.0,
         "params": [
           {
             "id": 1,
@@ -55420,7 +56107,7 @@
         "name": "Regal Bass DI",
         "key": "HD2_DistRegalBassDIMono",
         "category": "distortion",
-        "usage": 3.7,
+        "usage": 3.3,
         "params": [
           {
             "id": 1,
@@ -55493,7 +56180,7 @@
         "name": "Scream 808",
         "key": "HD2_DistScream808Mono",
         "category": "distortion",
-        "usage": 3.3,
+        "usage": 2.6,
         "params": [
           {
             "id": 1,
@@ -55633,7 +56320,7 @@
         "name": "Stupor OD",
         "key": "HD2_DistStuporODMono",
         "category": "distortion",
-        "usage": 3.1,
+        "usage": 2.6,
         "params": [
           {
             "id": 1,
@@ -55688,7 +56375,7 @@
         "name": "Sub Oct Fuzz",
         "key": "HD2_DM4SubOctFuzz",
         "category": "distortion",
-        "usage": 3.6,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -55773,7 +56460,7 @@
         "name": "Swedish Chainsaw",
         "key": "HD2_DistSwedishChainsawMono",
         "category": "distortion",
-        "usage": 2.9,
+        "usage": 2.4,
         "params": [
           {
             "id": 1,
@@ -55843,7 +56530,7 @@
         "name": "Teemah!",
         "key": "HD2_DistTeemahMono",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.6,
         "params": [
           {
             "id": 1,
@@ -55932,7 +56619,7 @@
         "name": "Thrifter Fuzz",
         "key": "HD2_DistThrifterFuzzMono",
         "category": "distortion",
-        "usage": 5.1,
+        "usage": 4.7,
         "params": [
           {
             "id": 1,
@@ -56257,7 +56944,7 @@
         "name": "Top Secret OD",
         "key": "HD2_DistTopSecretODMono",
         "category": "distortion",
-        "usage": 2.4,
+        "usage": 1.9,
         "params": [
           {
             "id": 1,
@@ -56297,7 +56984,7 @@
         "name": "Triangle Fuzz",
         "key": "HD2_DistTriangleFuzzMono",
         "category": "distortion",
-        "usage": 3.5,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -56352,7 +57039,7 @@
         "name": "Tube Drive",
         "key": "HD2_DM4TubeDrive",
         "category": "distortion",
-        "usage": 3.0,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -56437,7 +57124,7 @@
         "name": "Tycoctavia Fuzz",
         "key": "HD2_DistTycoctaviaFuzzMono",
         "category": "distortion",
-        "usage": 2.9,
+        "usage": 2.3,
         "params": [
           {
             "id": 1,
@@ -56477,7 +57164,7 @@
         "name": "Valve Driver",
         "key": "HD2_DistValveDriverMono",
         "category": "distortion",
-        "usage": 5.3,
+        "usage": 5.0,
         "params": [
           {
             "id": 1,
@@ -56547,7 +57234,7 @@
         "name": "Vermin Dist",
         "key": "HD2_DistVerminDistMono",
         "category": "distortion",
-        "usage": 2.5,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -56602,7 +57289,7 @@
         "name": "Vital Boost",
         "key": "HD2_DistVitalBoostMono",
         "category": "distortion",
-        "usage": 2.9,
+        "usage": 2.5,
         "params": [
           {
             "id": 1,
@@ -56804,7 +57491,7 @@
         "name": "Xenomorph Fuzz",
         "key": "HD2_DistXenomorphFuzzMono",
         "category": "distortion",
-        "usage": 4.6,
+        "usage": 4.2,
         "params": [
           {
             "id": 1,
@@ -56971,7 +57658,7 @@
         "name": "ZeroAmp Bass DI",
         "key": "HD2_DistZeroAmpBassDIMono",
         "category": "distortion",
-        "usage": 3.5,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -57126,7 +57813,7 @@
         "name": "Ampeg Scrambler",
         "key": "HD2_DistAmpegScramblerODStereo",
         "category": "distortion",
-        "usage": 12.9,
+        "usage": 12.5,
         "params": [
           {
             "id": 1,
@@ -57196,7 +57883,7 @@
         "name": "Arbitrator Fuzz",
         "key": "HD2_DistArbitratorFuzzStereo",
         "category": "distortion",
-        "usage": 3.9,
+        "usage": 3.7,
         "params": [
           {
             "id": 1,
@@ -57236,7 +57923,7 @@
         "name": "Ballistic Fuzz",
         "key": "HD2_DistBallisticFuzzStereo",
         "category": "distortion",
-        "usage": 11.7,
+        "usage": 11.4,
         "params": [
           {
             "id": 1,
@@ -57291,7 +57978,7 @@
         "name": "Bitcrusher",
         "key": "HD2_DistBitcrusherStereo",
         "category": "distortion",
-        "usage": 4.4,
+        "usage": 3.9,
         "params": [
           {
             "id": 1,
@@ -57620,7 +58307,7 @@
         "name": "Compulsive Drive",
         "key": "HD2_DistCompulsiveDriveStereo",
         "category": "distortion",
-        "usage": 3.7,
+        "usage": 3.5,
         "params": [
           {
             "id": 1,
@@ -57766,7 +58453,7 @@
         "name": "Deez One Mod",
         "key": "HD2_DistDeezOneModStereo",
         "category": "distortion",
-        "usage": 6.4,
+        "usage": 6.2,
         "params": [
           {
             "id": 1,
@@ -57964,7 +58651,7 @@
         "name": "Dyhana Drive",
         "key": "HD2_DistDhyanaDriveStereo",
         "category": "distortion",
-        "usage": 5.1,
+        "usage": 5.0,
         "params": [
           {
             "id": 1,
@@ -58034,7 +58721,7 @@
         "name": "Hedgehog D9",
         "key": "HD2_DistHedgehogD9Stereo",
         "category": "distortion",
-        "usage": 4.2,
+        "usage": 3.9,
         "params": [
           {
             "id": 1,
@@ -58214,7 +58901,7 @@
         "name": "Horizon Drive",
         "key": "HD2_DistHorizonDriveStereo",
         "category": "distortion",
-        "usage": 11.2,
+        "usage": 10.8,
         "params": [
           {
             "id": 1,
@@ -58324,7 +59011,7 @@
         "name": "Industrial Fuzz",
         "key": "HD2_DistIndustrialFuzzStereo",
         "category": "distortion",
-        "usage": 10.8,
+        "usage": 8.8,
         "params": [
           {
             "id": 1,
@@ -58427,7 +59114,7 @@
         "name": "KWB",
         "key": "HD2_DistKWBStereo",
         "category": "distortion",
-        "usage": 5.9,
+        "usage": 5.8,
         "params": [
           {
             "id": 1,
@@ -58552,7 +59239,7 @@
         "name": "Kinky Boost",
         "key": "HD2_DistKinkyBoostStereo",
         "category": "distortion",
-        "usage": 5.3,
+        "usage": 4.6,
         "params": [
           {
             "id": 1,
@@ -58613,7 +59300,7 @@
         "name": "Legendary Drive",
         "key": "HD2_DistLegendaryDriveStereo",
         "category": "distortion",
-        "usage": 14.0,
+        "usage": 13.9,
         "params": [
           {
             "id": 1,
@@ -58713,7 +59400,7 @@
         "name": "Megaphone",
         "key": "HD2_DistMegaphoneStereo",
         "category": "distortion",
-        "usage": 2.5,
+        "usage": 1.8,
         "params": [
           {
             "id": 1,
@@ -58813,7 +59500,7 @@
         "name": "Minotaur",
         "key": "HD2_DistMinotaurStereo",
         "category": "distortion",
-        "usage": 8.6,
+        "usage": 8.3,
         "params": [
           {
             "id": 1,
@@ -58868,7 +59555,7 @@
         "name": "Obsidian 7000",
         "key": "HD2_DistObsidian7000Stereo",
         "category": "distortion",
-        "usage": 8.1,
+        "usage": 7.5,
         "params": [
           {
             "id": 1,
@@ -59166,7 +59853,7 @@
         "name": "Pocket Fuzz",
         "key": "HD2_DistPocketFuzzStereo",
         "category": "distortion",
-        "usage": 4.0,
+        "usage": 3.8,
         "params": [
           {
             "id": 1,
@@ -59206,7 +59893,7 @@
         "name": "Prize Drive",
         "key": "HD2_DistPrizeDriveStereo",
         "category": "distortion",
-        "usage": 13.7,
+        "usage": 13.5,
         "params": [
           {
             "id": 1,
@@ -59407,7 +60094,7 @@
         "name": "Regal Bass DI",
         "key": "HD2_DistRegalBassDIStereo",
         "category": "distortion",
-        "usage": 6.2,
+        "usage": 6.0,
         "params": [
           {
             "id": 1,
@@ -59480,7 +60167,7 @@
         "name": "Scream 808",
         "key": "HD2_DistScream808Stereo",
         "category": "distortion",
-        "usage": 4.8,
+        "usage": 4.7,
         "params": [
           {
             "id": 1,
@@ -59535,7 +60222,7 @@
         "name": "Stupor OD",
         "key": "HD2_DistStuporODStereo",
         "category": "distortion",
-        "usage": 5.2,
+        "usage": 4.8,
         "params": [
           {
             "id": 1,
@@ -59590,7 +60277,7 @@
         "name": "Swedish Chainsaw",
         "key": "HD2_DistSwedishChainsawStereo",
         "category": "distortion",
-        "usage": 4.7,
+        "usage": 4.4,
         "params": [
           {
             "id": 1,
@@ -59660,7 +60347,7 @@
         "name": "Teemah!",
         "key": "HD2_DistTeemahStereo",
         "category": "distortion",
-        "usage": 4.8,
+        "usage": 4.6,
         "params": [
           {
             "id": 1,
@@ -60074,7 +60761,7 @@
         "name": "Top Secret OD",
         "key": "HD2_DistTopSecretODStereo",
         "category": "distortion",
-        "usage": 3.7,
+        "usage": 3.4,
         "params": [
           {
             "id": 1,
@@ -60114,7 +60801,7 @@
         "name": "Triangle Fuzz",
         "key": "HD2_DistTriangleFuzzStereo",
         "category": "distortion",
-        "usage": 5.3,
+        "usage": 5.2,
         "params": [
           {
             "id": 1,
@@ -60169,7 +60856,7 @@
         "name": "Tycoctavia Fuzz",
         "key": "HD2_DistTycoctaviaFuzzStereo",
         "category": "distortion",
-        "usage": 4.3,
+        "usage": 4.1,
         "params": [
           {
             "id": 1,
@@ -60209,7 +60896,7 @@
         "name": "Valve Driver",
         "key": "HD2_DistValveDriverStereo",
         "category": "distortion",
-        "usage": 9.6,
+        "usage": 9.7,
         "params": [
           {
             "id": 1,
@@ -60334,7 +61021,7 @@
         "name": "Vital Boost",
         "key": "HD2_DistVitalBoostStereo",
         "category": "distortion",
-        "usage": 4.6,
+        "usage": 4.3,
         "params": [
           {
             "id": 1,
@@ -60703,7 +61390,7 @@
         "name": "ZeroAmp Bass DI",
         "key": "HD2_DistZeroAmpBassDIStereo",
         "category": "distortion",
-        "usage": 5.4,
+        "usage": 5.3,
         "params": [
           {
             "id": 1,
@@ -60909,6 +61596,638 @@
             "unit": "dB",
             "options": null,
             "description": ""
+          }
+        ],
+        "based_on": null
+      },
+      {
+        "id": 857,
+        "name": "Rock Box Dist",
+        "based_on": null,
+        "key": "HD2_DistRockBoxMono",
+        "category": "distortion",
+        "usage": 2.7,
+        "params": [
+          {
+            "id": 1,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of distortion applied to the signal."
+          },
+          {
+            "id": 2,
+            "key": "Tone",
+            "name": "Tone",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.75,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 7.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the overall tonal balance of the distortion. Lower values are darker and higher values are brighter."
+          },
+          {
+            "id": 3,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ]
+      },
+      {
+        "id": 855,
+        "name": "Rock Box Boost",
+        "based_on": null,
+        "key": "HD2_DistRockBoxBoostMono",
+        "category": "distortion",
+        "usage": 4.8,
+        "params": [
+          {
+            "id": 1,
+            "key": "Boost",
+            "name": "Boost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.522,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5.22,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the output level of the boost circuit."
+          },
+          {
+            "id": 2,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ]
+      },
+      {
+        "id": 870,
+        "name": "PortaBox 424",
+        "based_on": null,
+        "key": "HD2_DistPortaBox424Mono",
+        "category": "distortion",
+        "usage": 2.7,
+        "params": [
+          {
+            "id": 1,
+            "key": "Gain1",
+            "name": "Gain 1",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the preamp's input trim level."
+          },
+          {
+            "id": 2,
+            "key": "Gain2",
+            "name": "Gain 2",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the 2nd gain stage's level, or the original 4-track tape recorder's channel fader."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": -14,
+            "max": 14,
+            "def": 0,
+            "display_min": -14,
+            "display_max": 14,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the low frequency EQ of the block."
+          },
+          {
+            "id": 4,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": -14,
+            "max": 14,
+            "def": 0,
+            "display_min": -14,
+            "display_max": 14,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the high frequency EQ of the block."
+          },
+          {
+            "id": 5,
+            "key": "Volume",
+            "name": "Level",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block, not unlike the original 4-track tape recorder's Master fader."
+          }
+        ]
+      },
+      {
+        "id": 868,
+        "name": "Mercator Dist",
+        "based_on": null,
+        "key": "HD2_DistMercatorMono",
+        "category": "distortion",
+        "usage": 5.3,
+        "params": [
+          {
+            "id": 1,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.55,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain between the first and second tube gain stages. The character of the distortion changes depending on where Drive and Drive2 are set in relation to one another."
+          },
+          {
+            "id": 2,
+            "key": "Drive2",
+            "name": "Drive2",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain between the second and third tube gain stages. The character of the distortion changes depending on where Drive and Drive2 are set in relation to one another."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of the distortion."
+          },
+          {
+            "id": 4,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the midrange frequency EQ of the distortion."
+          },
+          {
+            "id": 5,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of the distortion."
+          },
+          {
+            "id": 6,
+            "key": "Volume",
+            "name": "Volume",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.375,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 3.75,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          },
+          {
+            "id": 7,
+            "key": "Bright1",
+            "name": "Bright 1",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Off",
+              "On"
+            ],
+            "description": "When on, adds a high boost after the first tube stage, affecting the character and harmonics of the preamp gain. Can be subtle, especially at higher Drive settings."
+          },
+          {
+            "id": 8,
+            "key": "Bright2",
+            "name": "Bright 2",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Off",
+              "On"
+            ],
+            "description": "When on, adds a high boost after the second tube stage, affecting the character and harmonics of the preamp gain. Can be subtle, especially at higher Drive settings."
+          }
+        ]
+      },
+      {
+        "id": 869,
+        "name": "Mercator Dist",
+        "key": "HD2_DistMercatorStereo",
+        "category": "distortion",
+        "usage": 10.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.55,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain between the first and second tube gain stages. The character of the distortion changes depending on where Drive and Drive2 are set in relation to one another."
+          },
+          {
+            "id": 2,
+            "key": "Drive2",
+            "name": "Drive2",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of gain between the second and third tube gain stages. The character of the distortion changes depending on where Drive and Drive2 are set in relation to one another."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the low frequency EQ of the distortion."
+          },
+          {
+            "id": 4,
+            "key": "Mid",
+            "name": "Mid",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the midrange frequency EQ of the distortion."
+          },
+          {
+            "id": 5,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the high frequency EQ of the distortion."
+          },
+          {
+            "id": 6,
+            "key": "Volume",
+            "name": "Volume",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.375,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 3.75,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          },
+          {
+            "id": 7,
+            "key": "Bright1",
+            "name": "Bright 1",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Off",
+              "On"
+            ],
+            "description": "When on, adds a high boost after the first tube stage, affecting the character and harmonics of the preamp gain. Can be subtle, especially at higher Drive settings."
+          },
+          {
+            "id": 8,
+            "key": "Bright2",
+            "name": "Bright 2",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "Off",
+              "On"
+            ],
+            "description": "When on, adds a high boost after the second tube stage, affecting the character and harmonics of the preamp gain. Can be subtle, especially at higher Drive settings."
+          }
+        ],
+        "based_on": null
+      },
+      {
+        "id": 871,
+        "name": "PortaBox 424",
+        "key": "HD2_DistPortaBox424Stereo",
+        "category": "distortion",
+        "usage": 5.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Gain1",
+            "name": "Gain 1",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the preamp's input trim level."
+          },
+          {
+            "id": 2,
+            "key": "Gain2",
+            "name": "Gain 2",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the 2nd gain stage's level, or the original 4-track tape recorder's channel fader."
+          },
+          {
+            "id": 3,
+            "key": "Bass",
+            "name": "Bass",
+            "type": "f",
+            "min": -14,
+            "max": 14,
+            "def": 0,
+            "display_min": -14,
+            "display_max": 14,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the low frequency EQ of the block."
+          },
+          {
+            "id": 4,
+            "key": "Treble",
+            "name": "Treble",
+            "type": "f",
+            "min": -14,
+            "max": 14,
+            "def": 0,
+            "display_min": -14,
+            "display_max": 14,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Controls the high frequency EQ of the block."
+          },
+          {
+            "id": 5,
+            "key": "Volume",
+            "name": "Level",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block, not unlike the original 4-track tape recorder's Master fader."
+          }
+        ],
+        "based_on": null
+      },
+      {
+        "id": 856,
+        "name": "Rock Box Boost",
+        "key": "HD2_DistRockBoxBoostStereo",
+        "category": "distortion",
+        "usage": 9.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Boost",
+            "name": "Boost",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the output level of the boost circuit."
+          },
+          {
+            "id": 2,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ],
+        "based_on": null
+      },
+      {
+        "id": 858,
+        "name": "Rock Box Dist",
+        "key": "HD2_DistRockBoxStereo",
+        "category": "distortion",
+        "usage": 4.7,
+        "params": [
+          {
+            "id": 1,
+            "key": "Drive",
+            "name": "Drive",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the amount of distortion applied to the signal."
+          },
+          {
+            "id": 2,
+            "key": "Tone",
+            "name": "Tone",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.75,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 7.5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the overall tonal balance of the distortion. Lower values are darker and higher values are brighter."
+          },
+          {
+            "id": 3,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Sets the overall level of the block."
           }
         ],
         "based_on": null
@@ -73048,7 +74367,7 @@
         "name": "'63 Spring",
         "key": "HD2_Reverb63SpringStereo",
         "category": "reverb",
-        "usage": 9.7,
+        "usage": 9.3,
         "params": [
           {
             "id": 1,
@@ -73167,7 +74486,7 @@
         "name": "Cave",
         "key": "HD2_ReverbCaveStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -73286,7 +74605,7 @@
         "name": "Chamber",
         "key": "HD2_ReverbChamberStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -73554,7 +74873,7 @@
         "name": "Ducking",
         "key": "HD2_ReverbDuckingStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -75087,7 +76406,7 @@
         "name": "Hall",
         "key": "HD2_ReverbHallStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -75547,7 +76866,7 @@
         "name": "Octo",
         "key": "HD2_ReverbOctoStereo",
         "category": "reverb",
-        "usage": 4.5,
+        "usage": 4.2,
         "params": [
           {
             "id": 1,
@@ -75666,7 +76985,7 @@
         "name": "Particle Verb",
         "key": "HD2_ReverbParticleStereo",
         "category": "reverb",
-        "usage": 5.4,
+        "usage": 4.7,
         "params": [
           {
             "id": 1,
@@ -75759,7 +77078,7 @@
         "name": "Plate",
         "key": "HD2_ReverbPlateStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -76072,7 +77391,7 @@
         "name": "Room",
         "key": "HD2_ReverbRoomStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -76631,7 +77950,7 @@
         "name": "Spring",
         "key": "HD2_ReverbSpringStereo",
         "category": "reverb",
-        "usage": 9.7,
+        "usage": 9.3,
         "params": [
           {
             "id": 1,
@@ -76750,7 +78069,7 @@
         "name": "Tile",
         "key": "HD2_ReverbTileStereo",
         "category": "reverb",
-        "usage": 4.3,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -80940,7 +82259,7 @@
             "display_def": 6.6,
             "unit": "unitless",
             "options": null,
-            "description": "Controls hot long it takes for the vibrato effect to fade in."
+            "description": "Controls how long it takes for the vibrato effect to fade in."
           },
           {
             "id": 4,
@@ -88149,7 +89468,7 @@
             "display_def": 6.6,
             "unit": "unitless",
             "options": null,
-            "description": "Controls hot long it takes for the vibrato effect to fade in."
+            "description": "Controls how long it takes for the vibrato effect to fade in."
           },
           {
             "id": 4,
@@ -88313,6 +89632,365 @@
           }
         ],
         "based_on": "Line 6 Original"
+      },
+      {
+        "id": 853,
+        "name": "Essex Vibe",
+        "based_on": null,
+        "key": "HD2_VibratoEssexVibeMono",
+        "category": "modulation",
+        "usage": 1.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Rate",
+            "name": "Rate",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.3,
+            "display_min": 0.1,
+            "display_max": 10,
+            "display_def": 3,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the speed or rate of the effect. When set to note values, Rate follows the system tempo."
+          },
+          {
+            "id": 2,
+            "key": "Depth",
+            "name": "Depth",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the depth or intensity of the vibrato effect."
+          },
+          {
+            "id": 3,
+            "key": "Trem",
+            "name": "Trem",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.2,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 2,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the depth of the tremolo, or the intensity of the volume fluctuations."
+          },
+          {
+            "id": 4,
+            "key": "Stages",
+            "name": "Stages",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "1",
+              "2"
+            ],
+            "description": "Determines whether 1 or 2 capacitor/resistor-based phase shift stages are applied."
+          },
+          {
+            "id": 5,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ]
+      },
+      {
+        "id": 859,
+        "name": "Dimension W",
+        "based_on": null,
+        "key": "HD2_ChorusDimensionWMono",
+        "category": "modulation",
+        "usage": 3.0,
+        "params": [
+          {
+            "id": 1,
+            "key": "Version",
+            "name": "Version",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "C (Pedal)",
+              "D (Rack)"
+            ],
+            "description": "Determines whether the effect emulates the \u201cC\u201d pedal version (1985) or the classic \u201cD\u201d rackmount version (1979)."
+          },
+          {
+            "id": 2,
+            "key": "Mode",
+            "name": "Mode",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 9,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "1+2",
+              "1+3",
+              "1+4",
+              "2+3",
+              "2+4",
+              "3+4"
+            ],
+            "description": "Determines which dimension mode is used. Higher numbers provide more effect. Select a value with two modes (1+2, 1+3, 1+4, 2+3, 2+4, 3+4) for even deeper modulation."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 50,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the blend between the dimension effect and the dry signal. At 0%, no effect is heard; at 100%, no dry signal is heard."
+          },
+          {
+            "id": 4,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ]
+      },
+      {
+        "id": 860,
+        "name": "Dimension W",
+        "key": "HD2_ChorusDimensionWStereo",
+        "category": "modulation",
+        "usage": 3.3,
+        "params": [
+          {
+            "id": 1,
+            "key": "Version",
+            "name": "Version",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "C (Pedal)",
+              "D (Rack)"
+            ],
+            "description": "Determines whether the effect emulates the \u201cC\u201d pedal version (1985) or the classic \u201cD\u201d rackmount version (1979)."
+          },
+          {
+            "id": 2,
+            "key": "Mode",
+            "name": "Mode",
+            "type": "i",
+            "min": 0,
+            "max": 9,
+            "def": 0,
+            "display_min": 0,
+            "display_max": 9,
+            "display_def": 0,
+            "unit": "unitless",
+            "options": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "1+2",
+              "1+3",
+              "1+4",
+              "2+3",
+              "2+4",
+              "3+4"
+            ],
+            "description": "Determines which dimension mode is used. Higher numbers provide more effect. Select a value with two modes (1+2, 1+3, 1+4, 2+3, 2+4, 3+4) for even deeper modulation."
+          },
+          {
+            "id": 3,
+            "key": "Mix",
+            "name": "Mix",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 100,
+            "display_def": 50,
+            "unit": "%",
+            "options": null,
+            "description": "Controls the blend between the dimension effect and the dry signal. At 0%, no effect is heard; at 100%, no dry signal is heard."
+          },
+          {
+            "id": 4,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ],
+        "based_on": null
+      },
+      {
+        "id": 854,
+        "name": "Essex Vibe",
+        "key": "HD2_VibratoEssexVibeStereo",
+        "category": "modulation",
+        "usage": 1.6,
+        "params": [
+          {
+            "id": 1,
+            "key": "Rate",
+            "name": "Rate",
+            "type": "f",
+            "min": 0.01,
+            "max": 1,
+            "def": 0.3,
+            "display_min": 0.1,
+            "display_max": 10,
+            "display_def": 3,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the speed or rate of the effect. When set to note values, Rate follows the system tempo."
+          },
+          {
+            "id": 2,
+            "key": "Depth",
+            "name": "Depth",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 1,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 10,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the depth or intensity of the vibrato effect."
+          },
+          {
+            "id": 3,
+            "key": "Trem",
+            "name": "Trem",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.2,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 2,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the depth of the tremolo, or the intensity of the volume fluctuations."
+          },
+          {
+            "id": 4,
+            "key": "Stages",
+            "name": "Stages",
+            "type": "b",
+            "min": false,
+            "max": true,
+            "def": false,
+            "display_min": false,
+            "display_max": true,
+            "display_def": false,
+            "unit": "unitless",
+            "options": [
+              "1",
+              "2"
+            ],
+            "description": "Determines whether 1 or 2 capacitor/resistor-based phase shift stages are applied."
+          },
+          {
+            "id": 5,
+            "key": "Spread",
+            "name": "Spread",
+            "type": "f",
+            "min": 0,
+            "max": 1,
+            "def": 0.5,
+            "display_min": 0,
+            "display_max": 10,
+            "display_def": 5,
+            "unit": "unitless",
+            "options": null,
+            "description": "Controls the apparent stereo width of the tremolo effect."
+          },
+          {
+            "id": 6,
+            "key": "Level",
+            "name": "Level",
+            "type": "f",
+            "min": -60,
+            "max": 6,
+            "def": 0,
+            "display_min": -60,
+            "display_max": 6,
+            "display_def": 0,
+            "unit": "dB",
+            "options": null,
+            "description": "Sets the overall level of the block."
+          }
+        ],
+        "based_on": null
       }
     ]
   },
@@ -88324,7 +90002,7 @@
         "name": "3-Band Comp",
         "key": "HX2_Compressor3BandCompMono",
         "category": "dynamics",
-        "usage": 3.2,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -88553,7 +90231,7 @@
         "name": "Ampeg Opto Comp",
         "key": "HX2_CompressorOptoCompMono",
         "category": "dynamics",
-        "usage": 4.0,
+        "usage": 3.3,
         "params": [
           {
             "id": 1,
@@ -88654,7 +90332,7 @@
         "name": "Auto Swell",
         "key": "HX2_CompressorAutoSwellMono",
         "category": "dynamics",
-        "usage": 2.0,
+        "usage": 1.0,
         "params": [
           {
             "id": 1,
@@ -88788,7 +90466,7 @@
         "name": "Blue Comp",
         "key": "HX2_DM4BlueComp",
         "category": "dynamics",
-        "usage": 2.8,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -88859,7 +90537,7 @@
         "name": "Blue Comp Treb",
         "key": "HX2_DM4BlueCompTreb",
         "category": "dynamics",
-        "usage": 2.8,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -88930,7 +90608,7 @@
         "name": "Boost Comp",
         "key": "HX2_DM4BoostComp",
         "category": "dynamics",
-        "usage": 3.5,
+        "usage": 2.7,
         "params": [
           {
             "id": 1,
@@ -89046,7 +90724,7 @@
         "name": "Deluxe Comp",
         "key": "HX2_CompressorDeluxeCompMono",
         "category": "dynamics",
-        "usage": 2.1,
+        "usage": 1.2,
         "params": [
           {
             "id": 1,
@@ -89415,7 +91093,7 @@
         "name": "Hard Gate",
         "key": "HX2_GateHardGateMono",
         "category": "dynamics",
-        "usage": 1.2,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -89531,7 +91209,7 @@
         "name": "Horizon Gate",
         "key": "HX2_GateHorizonGateMono",
         "category": "dynamics",
-        "usage": 1.7,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -89638,7 +91316,7 @@
         "name": "Kinky Comp",
         "key": "HX2_CompressorKinkyCompMono",
         "category": "dynamics",
-        "usage": 4.2,
+        "usage": 3.6,
         "params": [
           {
             "id": 1,
@@ -89754,7 +91432,7 @@
         "name": "LA Studio Comp",
         "key": "HX2_CompressorLAStudioCompMono",
         "category": "dynamics",
-        "usage": 3.9,
+        "usage": 3.2,
         "params": [
           {
             "id": 1,
@@ -89888,7 +91566,7 @@
         "name": "Noise Gate",
         "key": "HX2_GateNoiseGateMono",
         "category": "dynamics",
-        "usage": 1.1,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -89974,7 +91652,7 @@
         "name": "Red Comp",
         "key": "HX2_DM4RedComp",
         "category": "dynamics",
-        "usage": 2.8,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -90045,7 +91723,7 @@
         "name": "Red Squeeze",
         "key": "HX2_CompressorRedSqueezeMono",
         "category": "dynamics",
-        "usage": 5.0,
+        "usage": 4.4,
         "params": [
           {
             "id": 1,
@@ -90131,7 +91809,7 @@
         "name": "Rochester Comp",
         "key": "HX2_CompressorRochesterCompMono",
         "category": "dynamics",
-        "usage": 2.5,
+        "usage": 2.1,
         "params": [
           {
             "id": 1,
@@ -90292,7 +91970,7 @@
         "name": "Tube Comp",
         "key": "HX2_DM4TubeComp",
         "category": "dynamics",
-        "usage": 2.7,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -90363,7 +92041,7 @@
         "name": "Vetta Comp",
         "key": "HX2_DM4VettaComp",
         "category": "dynamics",
-        "usage": 2.7,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -90434,7 +92112,7 @@
         "name": "Vetta Juice",
         "key": "HX2_DM4VettaJuice",
         "category": "dynamics",
-        "usage": 2.7,
+        "usage": 2.2,
         "params": [
           {
             "id": 1,
@@ -90505,7 +92183,7 @@
         "name": "3-Band Comp",
         "key": "HX2_Compressor3BandCompStereo",
         "category": "dynamics",
-        "usage": 5.8,
+        "usage": 5.5,
         "params": [
           {
             "id": 1,
@@ -90752,7 +92430,7 @@
         "name": "Auto Swell",
         "key": "HX2_CompressorAutoSwellStereo",
         "category": "dynamics",
-        "usage": 1.7,
+        "usage": 1.2,
         "params": [
           {
             "id": 1,
@@ -90886,7 +92564,7 @@
         "name": "Deluxe Comp",
         "key": "HX2_CompressorDeluxeCompStereo",
         "category": "dynamics",
-        "usage": 2.6,
+        "usage": 2.0,
         "params": [
           {
             "id": 1,
@@ -91039,7 +92717,7 @@
         "name": "Kinky Comp",
         "key": "HX2_CompressorKinkyCompStereo",
         "category": "dynamics",
-        "usage": 7.3,
+        "usage": 6.8,
         "params": [
           {
             "id": 1,
@@ -91155,7 +92833,7 @@
         "name": "LA Studio Comp",
         "key": "HX2_CompressorLAStudioCompStereo",
         "category": "dynamics",
-        "usage": 6.5,
+        "usage": 6.0,
         "params": [
           {
             "id": 1,
@@ -91289,7 +92967,7 @@
         "name": "Ampeg Opto Comp",
         "key": "HX2_CompressorOptoCompStereo",
         "category": "dynamics",
-        "usage": 6.5,
+        "usage": 5.9,
         "params": [
           {
             "id": 1,
@@ -91390,7 +93068,7 @@
         "name": "Red Squeeze",
         "key": "HX2_CompressorRedSqueezeStereo",
         "category": "dynamics",
-        "usage": 8.8,
+        "usage": 8.0,
         "params": [
           {
             "id": 1,
@@ -91476,7 +93154,7 @@
         "name": "Rochester Comp",
         "key": "HX2_CompressorRochesterCompStereo",
         "category": "dynamics",
-        "usage": 3.5,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -91637,7 +93315,7 @@
         "name": "Hard Gate",
         "key": "HX2_GateHardGateStereo",
         "category": "dynamics",
-        "usage": 1.8,
+        "usage": 1.3,
         "params": [
           {
             "id": 1,
@@ -91753,7 +93431,7 @@
         "name": "Horizon Gate",
         "key": "HX2_GateHorizonGateStereo",
         "category": "dynamics",
-        "usage": 2.4,
+        "usage": 2.3,
         "params": [
           {
             "id": 1,
@@ -91860,7 +93538,7 @@
         "name": "Noise Gate",
         "key": "HX2_GateNoiseGateStereo",
         "category": "dynamics",
-        "usage": 1.3,
+        "usage": 1.1,
         "params": [
           {
             "id": 1,
@@ -91951,7 +93629,7 @@
         "name": "10 Band Graphic",
         "key": "HD2_EQGraphic10BandMono",
         "category": "eq",
-        "usage": 1.7,
+        "usage": 1.0,
         "params": [
           {
             "id": 1,
@@ -92216,7 +93894,7 @@
         "name": "Cali Q Graphic",
         "key": "HD2_CaliQMono",
         "category": "eq",
-        "usage": 1.9,
+        "usage": 1.2,
         "params": [
           {
             "id": 1,
@@ -92316,7 +93994,7 @@
         "name": "Parametric",
         "key": "HX2_EQParametricMono",
         "category": "eq",
-        "usage": 1.9,
+        "usage": 1.1,
         "params": [
           {
             "id": 1,
@@ -92732,7 +94410,7 @@
         "name": "Tilt",
         "key": "HD2_EQSimpleTiltMono",
         "category": "eq",
-        "usage": 1.5,
+        "usage": 0.9,
         "params": [
           {
             "id": 1,
@@ -92787,7 +94465,7 @@
         "name": "Cali Q Graphic",
         "key": "HD2_CaliQStereo",
         "category": "eq",
-        "usage": 2.4,
+        "usage": 1.6,
         "params": [
           {
             "id": 1,
@@ -92887,7 +94565,7 @@
         "name": "10 Band Graphic",
         "key": "HD2_EQGraphic10BandStereo",
         "category": "eq",
-        "usage": 2.2,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -93062,7 +94740,7 @@
         "name": "Tilt",
         "key": "HD2_EQSimpleTiltStereo",
         "category": "eq",
-        "usage": 1.5,
+        "usage": 1.0,
         "params": [
           {
             "id": 1,
@@ -93117,7 +94795,7 @@
         "name": "Parametric",
         "key": "HX2_EQParametricStereo",
         "category": "eq",
-        "usage": 2.0,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -94069,7 +95747,7 @@
         "name": "3 OSC Synth",
         "key": "HD2_SynthSubtractiveStereo",
         "category": "synth",
-        "usage": 8.5,
+        "usage": 8.0,
         "params": [
           {
             "id": 1,
@@ -94986,7 +96664,7 @@
         "name": "Boctaver",
         "key": "VIC_PitchBoctaverMono",
         "category": "pitch",
-        "usage": 2.5,
+        "usage": 1.8,
         "params": [
           {
             "id": 1,
@@ -95564,7 +97242,7 @@
         "name": "Pitch Wham",
         "key": "HD2_PitchPitchWhamMono",
         "category": "pitch",
-        "usage": 3.5,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -96270,7 +97948,7 @@
         "name": "Simple Pitch",
         "key": "HD2_PitchSimplePitchMono",
         "category": "pitch",
-        "usage": 3.5,
+        "usage": 3.2,
         "params": [
           {
             "id": 1,
@@ -97544,7 +99222,7 @@
         "name": "Pitch Wham",
         "key": "HD2_PitchPitchWhamStereo",
         "category": "pitch",
-        "usage": 4.2,
+        "usage": 4.0,
         "params": [
           {
             "id": 1,
@@ -99356,7 +101034,7 @@
         "name": "Chrome",
         "key": "HD2_WahChromeMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -99441,7 +101119,7 @@
         "name": "Chrome Custom",
         "key": "HD2_WahChromeCustomMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -99526,7 +101204,7 @@
         "name": "Colorful",
         "key": "HD2_WahColorfulMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -99711,7 +101389,7 @@
         "name": "Conductor",
         "key": "HD2_WahConductorMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -99796,7 +101474,7 @@
         "name": "Fassel",
         "key": "HD2_WahFasselMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -100703,7 +102381,7 @@
         "name": "Teardrop 310",
         "key": "HD2_WahTeardrop310Mono",
         "category": "wah",
-        "usage": 2.3,
+        "usage": 1.7,
         "params": [
           {
             "id": 1,
@@ -100758,7 +102436,7 @@
         "name": "Teardrop Bass Q",
         "key": "HD2_WahTeardropBassQMono",
         "category": "wah",
-        "usage": 1.5,
+        "usage": 1.4,
         "params": [
           {
             "id": 1,
@@ -100843,7 +102521,7 @@
         "name": "Throaty",
         "key": "HD2_WahThroatyMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -101247,7 +102925,7 @@
         "name": "UK Wah 846",
         "key": "HD2_WahUKWah846Mono",
         "category": "wah",
-        "usage": 2.3,
+        "usage": 1.6,
         "params": [
           {
             "id": 1,
@@ -101417,7 +103095,7 @@
         "name": "Vetta Wah",
         "key": "HD2_WahVettaWahMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -101619,7 +103297,7 @@
         "name": "Weeper",
         "key": "HD2_WahWeeperMono",
         "category": "wah",
-        "usage": 1.3,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -102012,7 +103690,7 @@
         "name": "Chrome Custom",
         "key": "HD2_WahChromeCustomStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102097,7 +103775,7 @@
         "name": "Chrome",
         "key": "HD2_WahChromeStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102182,7 +103860,7 @@
         "name": "Colorful",
         "key": "HD2_WahColorfulStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102267,7 +103945,7 @@
         "name": "Conductor",
         "key": "HD2_WahConductorStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102352,7 +104030,7 @@
         "name": "Fassel",
         "key": "HD2_WahFasselStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102437,7 +104115,7 @@
         "name": "Teardrop 310",
         "key": "HD2_WahTeardrop310Stereo",
         "category": "wah",
-        "usage": 3.1,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -102492,7 +104170,7 @@
         "name": "Teardrop Bass Q",
         "key": "HD2_WahTeardropBassQStereo",
         "category": "wah",
-        "usage": 2.0,
+        "usage": 1.6,
         "params": [
           {
             "id": 1,
@@ -102577,7 +104255,7 @@
         "name": "Throaty",
         "key": "HD2_WahThroatyStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102662,7 +104340,7 @@
         "name": "UK Wah 846",
         "key": "HD2_WahUKWah846Stereo",
         "category": "wah",
-        "usage": 3.1,
+        "usage": 3.0,
         "params": [
           {
             "id": 1,
@@ -102717,7 +104395,7 @@
         "name": "Vetta Wah",
         "key": "HD2_WahVettaWahStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -102802,7 +104480,7 @@
         "name": "Weeper",
         "key": "HD2_WahWeeperStereo",
         "category": "wah",
-        "usage": 1.9,
+        "usage": 1.5,
         "params": [
           {
             "id": 1,
@@ -103407,7 +105085,7 @@
         "name": "Gain",
         "key": "HD2_VolPanGainMono",
         "category": "volume",
-        "usage": 0.8,
+        "usage": 0.5,
         "params": [
           {
             "id": 1,
@@ -103432,7 +105110,7 @@
         "name": "Pan",
         "key": "HD2_VolPanPanStereo",
         "category": "volume",
-        "usage": 0.9,
+        "usage": 0.6,
         "params": [
           {
             "id": 1,
@@ -103530,7 +105208,7 @@
         "name": "Stereo Width",
         "key": "HD2_VolPanStereoWidthStereo",
         "category": "volume",
-        "usage": 1.1,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
@@ -103621,7 +105299,7 @@
         "name": "Volume Pedal",
         "key": "HD2_VolPanVolMono",
         "category": "volume",
-        "usage": 0.8,
+        "usage": 0.5,
         "params": [
           {
             "id": 1,
@@ -103664,7 +105342,7 @@
         "name": "Gain",
         "key": "HD2_VolPanGainStereo",
         "category": "volume",
-        "usage": 0.9,
+        "usage": 0.6,
         "params": [
           {
             "id": 1,
@@ -103689,7 +105367,7 @@
         "name": "Volume Pedal",
         "key": "HD2_VolPanVolStereo",
         "category": "volume",
-        "usage": 0.9,
+        "usage": 0.6,
         "params": [
           {
             "id": 1,
@@ -103737,17 +105415,17 @@
         "name": "FX Loop 1",
         "key": "HD2_FXLoopMono1",
         "category": "fxloop",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
             "key": "Send",
             "name": "Send",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103759,10 +105437,10 @@
             "key": "Return",
             "name": "Return",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103782,7 +105460,7 @@
             "display_def": 100,
             "unit": "%",
             "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+            "description": "Controls the amount of signal sent through the FX Loop. For time-based effects like delays or reverbs, set the pedal's Mix to 100% and adjust the effect amount from this block's Mix knob to minimize phase issues and latency. For pedals like distortion, fuzz, or compression, keep Mix at 100% so the full signal is processed, though parallel processing is possible at lower values."
           },
           {
             "id": 1,
@@ -103811,17 +105489,17 @@
         "name": "FX Loop 1/2",
         "key": "HD2_FXLoopStereo1_2",
         "category": "fxloop",
-        "usage": 1.5,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
             "key": "Send",
             "name": "Send",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103833,10 +105511,10 @@
             "key": "Return",
             "name": "Return",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103856,7 +105534,7 @@
             "display_def": 100,
             "unit": "%",
             "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+            "description": "Controls the amount of signal sent through the FX Loop. For time-based effects like delays or reverbs, set the pedal's Mix to 100% and adjust the effect amount from this block's Mix knob to minimize phase issues and latency. For pedals like distortion, fuzz, or compression, keep Mix at 100% so the full signal is processed, though parallel processing is possible at lower values."
           },
           {
             "id": 1,
@@ -103885,17 +105563,17 @@
         "name": "FX Loop 2",
         "key": "HD2_FXLoopMono2",
         "category": "fxloop",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
             "key": "Send",
             "name": "Send",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103907,10 +105585,10 @@
             "key": "Return",
             "name": "Return",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103930,7 +105608,7 @@
             "display_def": 100,
             "unit": "%",
             "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+            "description": "Controls the amount of signal sent through the FX Loop. For time-based effects like delays or reverbs, set the pedal's Mix to 100% and adjust the effect amount from this block's Mix knob to minimize phase issues and latency. For pedals like distortion, fuzz, or compression, keep Mix at 100% so the full signal is processed, though parallel processing is possible at lower values."
           },
           {
             "id": 1,
@@ -103959,17 +105637,17 @@
         "name": "FX Loop 3",
         "key": "HD2_FXLoopMono3",
         "category": "fxloop",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
             "key": "Send",
             "name": "Send",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -103981,10 +105659,10 @@
             "key": "Return",
             "name": "Return",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -104004,7 +105682,7 @@
             "display_def": 100,
             "unit": "%",
             "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+            "description": "Controls the amount of signal sent through the FX Loop. For time-based effects like delays or reverbs, set the pedal's Mix to 100% and adjust the effect amount from this block's Mix knob to minimize phase issues and latency. For pedals like distortion, fuzz, or compression, keep Mix at 100% so the full signal is processed, though parallel processing is possible at lower values."
           },
           {
             "id": 1,
@@ -104033,17 +105711,17 @@
         "name": "FX Loop 3/4",
         "key": "HD2_FXLoopStereo3_4",
         "category": "fxloop",
-        "usage": 1.5,
+        "usage": 0.8,
         "params": [
           {
             "id": 1,
             "key": "Send",
             "name": "Send",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -104055,10 +105733,10 @@
             "key": "Return",
             "name": "Return",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -104078,7 +105756,7 @@
             "display_def": 100,
             "unit": "%",
             "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+            "description": "Controls the amount of signal sent through the FX Loop. For time-based effects like delays or reverbs, set the pedal's Mix to 100% and adjust the effect amount from this block's Mix knob to minimize phase issues and latency. For pedals like distortion, fuzz, or compression, keep Mix at 100% so the full signal is processed, though parallel processing is possible at lower values."
           },
           {
             "id": 1,
@@ -104107,17 +105785,17 @@
         "name": "FX Loop 4",
         "key": "HD2_FXLoopMono4",
         "category": "fxloop",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
             "key": "Send",
             "name": "Send",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -104129,10 +105807,10 @@
             "key": "Return",
             "name": "Return",
             "type": "f",
-            "min": -60,
+            "min": -120,
             "max": 6,
             "def": 0,
-            "display_min": -60,
+            "display_min": -120,
             "display_max": 6,
             "display_def": 0,
             "unit": "dB",
@@ -104152,7 +105830,7 @@
             "display_def": 100,
             "unit": "%",
             "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
+            "description": "Controls the amount of signal sent through the FX Loop. For time-based effects like delays or reverbs, set the pedal's Mix to 100% and adjust the effect amount from this block's Mix knob to minimize phase issues and latency. For pedals like distortion, fuzz, or compression, keep Mix at 100% so the full signal is processed, though parallel processing is possible at lower values."
           },
           {
             "id": 1,
@@ -104177,341 +105855,11 @@
         "based_on": "Line 6 Original"
       },
       {
-        "id": 416,
-        "name": "Plugin 1",
-        "key": "HD2_PluginMono1",
-        "category": "fxloop",
-        "usage": 0.0,
-        "params": [
-          {
-            "id": 1,
-            "key": "Send",
-            "name": "Send",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Send 1 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 2,
-            "key": "Return",
-            "name": "Return",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Return 1 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 3,
-            "key": "Mix",
-            "name": "Mix",
-            "type": "f",
-            "min": 0,
-            "max": 1,
-            "def": 1,
-            "display_min": 0,
-            "display_max": 100,
-            "display_def": 100,
-            "unit": "%",
-            "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
-          }
-        ],
-        "based_on": "Line 6 Original"
-      },
-      {
-        "id": 262,
-        "name": "Plugin 1/2",
-        "key": "HD2_PluginStereo1_2",
-        "category": "fxloop",
-        "usage": 0.0,
-        "params": [
-          {
-            "id": 1,
-            "key": "Send",
-            "name": "Send",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Send 1/2 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 2,
-            "key": "Return",
-            "name": "Return",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Return 1/2 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 3,
-            "key": "Mix",
-            "name": "Mix",
-            "type": "f",
-            "min": 0,
-            "max": 1,
-            "def": 1,
-            "display_min": 0,
-            "display_max": 100,
-            "display_def": 100,
-            "unit": "%",
-            "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
-          }
-        ],
-        "based_on": null
-      },
-      {
-        "id": 419,
-        "name": "Plugin 2",
-        "key": "HD2_PluginMono2",
-        "category": "fxloop",
-        "usage": 0.0,
-        "params": [
-          {
-            "id": 1,
-            "key": "Send",
-            "name": "Send",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Send 2 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 2,
-            "key": "Return",
-            "name": "Return",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Return 2 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 3,
-            "key": "Mix",
-            "name": "Mix",
-            "type": "f",
-            "min": 0,
-            "max": 1,
-            "def": 1,
-            "display_min": 0,
-            "display_max": 100,
-            "display_def": 100,
-            "unit": "%",
-            "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
-          }
-        ],
-        "based_on": "2x15\" MESA/Boogie 2x15 EV"
-      },
-      {
-        "id": 417,
-        "name": "Plugin 3",
-        "key": "HD2_PluginMono3",
-        "category": "fxloop",
-        "usage": 0.0,
-        "params": [
-          {
-            "id": 1,
-            "key": "Send",
-            "name": "Send",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Send 3 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 2,
-            "key": "Return",
-            "name": "Return",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Return 3 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 3,
-            "key": "Mix",
-            "name": "Mix",
-            "type": "f",
-            "min": 0,
-            "max": 1,
-            "def": 1,
-            "display_min": 0,
-            "display_max": 100,
-            "display_def": 100,
-            "unit": "%",
-            "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
-          }
-        ],
-        "based_on": null
-      },
-      {
-        "id": 263,
-        "name": "Plugin 3/4",
-        "key": "HD2_PluginStereo3_4",
-        "category": "fxloop",
-        "usage": 0.0,
-        "params": [
-          {
-            "id": 1,
-            "key": "Send",
-            "name": "Send",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Send signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 2,
-            "key": "Return",
-            "name": "Return",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Return signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 3,
-            "key": "Mix",
-            "name": "Mix",
-            "type": "f",
-            "min": 0,
-            "max": 1,
-            "def": 1,
-            "display_min": 0,
-            "display_max": 100,
-            "display_def": 100,
-            "unit": "%",
-            "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
-          }
-        ],
-        "based_on": "MXR 10-Band Graphic EQ"
-      },
-      {
-        "id": 418,
-        "name": "Plugin 4",
-        "key": "HD2_PluginMono4",
-        "category": "fxloop",
-        "usage": 0.0,
-        "params": [
-          {
-            "id": 1,
-            "key": "Send",
-            "name": "Send",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Send 4 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 2,
-            "key": "Return",
-            "name": "Return",
-            "type": "f",
-            "min": -60,
-            "max": 6,
-            "def": 0,
-            "display_min": -60,
-            "display_max": 6,
-            "display_def": 0,
-            "unit": "dB",
-            "options": null,
-            "description": "Sets the level of the Return 4 signal. 0.0 dB is unity gain."
-          },
-          {
-            "id": 3,
-            "key": "Mix",
-            "name": "Mix",
-            "type": "f",
-            "min": 0,
-            "max": 1,
-            "def": 1,
-            "display_min": 0,
-            "display_max": 100,
-            "display_def": 100,
-            "unit": "%",
-            "options": null,
-            "description": "Controls the amount of signal sent through the FX Loop. When connecting time-based pedals like delays or reverbs, it's best to leave the pedal's Mix at 100% and control the amount of the pedal's effect from the FX Loop block's Mix knob; this helps minimize phase issues and latency. For pedals like distortion, fuzz, or compression, it's common to keep the FX Loop's Mix knob at 100% so the entire signal is effected, although parallel processing can be accomplished at lower values."
-          }
-        ],
-        "based_on": null
-      },
-      {
         "id": 273,
         "name": "Return 1",
         "key": "HD2_ReturnMono1",
         "category": "return",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104551,7 +105899,7 @@
         "name": "Return 1/2",
         "key": "HD2_ReturnStereo1_2",
         "category": "return",
-        "usage": 1.5,
+        "usage": 0.9,
         "params": [
           {
             "id": 1,
@@ -104591,7 +105939,7 @@
         "name": "Return 2",
         "key": "HD2_ReturnMono2",
         "category": "return",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104631,7 +105979,7 @@
         "name": "Return 3",
         "key": "HD2_ReturnMono3",
         "category": "return",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104671,7 +106019,7 @@
         "name": "Return 3/4",
         "key": "HD2_ReturnStereo3_4",
         "category": "return",
-        "usage": 1.5,
+        "usage": 0.9,
         "params": [
           {
             "id": 1,
@@ -104711,7 +106059,7 @@
         "name": "Return 4",
         "key": "HD2_ReturnMono4",
         "category": "return",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104751,7 +106099,7 @@
         "name": "Send 1",
         "key": "HD2_SendMono1",
         "category": "send",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104791,7 +106139,7 @@
         "name": "Send 1/2",
         "key": "HD2_SendStereo1_2",
         "category": "send",
-        "usage": 1.5,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104831,7 +106179,7 @@
         "name": "Send 2",
         "key": "HD2_SendMono2",
         "category": "send",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104871,7 +106219,7 @@
         "name": "Send 3",
         "key": "HD2_SendMono3",
         "category": "send",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104911,7 +106259,7 @@
         "name": "Send 3/4",
         "key": "HD2_SendStereo3_4",
         "category": "send",
-        "usage": 1.5,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,
@@ -104951,7 +106299,7 @@
         "name": "Send 4",
         "key": "HD2_SendMono4",
         "category": "send",
-        "usage": 1.3,
+        "usage": 0.7,
         "params": [
           {
             "id": 1,

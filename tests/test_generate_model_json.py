@@ -1,5 +1,8 @@
+import json
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import scripts.generate_helix_model_json as generate_helix_model_json
 from scripts.generate_helix_model_json import (
@@ -11,6 +14,32 @@ from scripts.generate_helix_model_json import (
 
 
 class TestGenerateModelJsonHelpers(unittest.TestCase):
+    def test_catalog_resolves_stereo_ui_and_uses_stereo_parameters(self):
+        modeldefs = {"VibeStereo": {
+            "id": 2, "category": "modulation", "params": {
+                "Spread": {"id": 5, "min": 0, "max": 1, "def": 0.5, "type": "f"},
+                "Hidden": {"id": 9, "min": 0, "max": 10, "def": 1, "type": "f"},
+            },
+        }}
+        ui = {"VibeMono": {"name": "Vibe", "params": [
+            {"id": "Spread", "name": "Stereo Spread", "display_tag": "percent"},
+        ]}}
+        with tempfile.TemporaryDirectory() as directory:
+            with patch("sys.argv", ["generate", "--out-dir", directory]), \
+                    patch.object(generate_helix_model_json, "load_modeldefs", return_value=modeldefs), \
+                    patch.object(generate_helix_model_json, "load_uidefs", return_value=ui), \
+                    patch.object(generate_helix_model_json, "load_controls", return_value={}), \
+                    patch.object(generate_helix_model_json, "load_param_meta", return_value=({}, {})), \
+                    patch.object(generate_helix_model_json, "load_based_on_db", return_value=({}, {})), \
+                    patch.object(generate_helix_model_json, "load_based_on_overrides", return_value={}):
+                generate_helix_model_json.main()
+            effects = json.loads((Path(directory) / "effects.json").read_text())
+        self.assertEqual(len(effects), 1)
+        self.assertEqual(effects[0]["name"], "Vibe")
+        self.assertEqual(len(effects[0]["params"]), 1)
+        self.assertEqual(effects[0]["params"][0]["name"], "Stereo Spread")
+        self.assertEqual(effects[0]["params"][0]["default"], 0.5)
+
     def test_default_output_dir_is_repo_relative(self):
         repo_root = Path(generate_helix_model_json.__file__).resolve().parents[1]
         self.assertEqual(DEFAULT_OUT_DIR, repo_root / "generated" / "helix-models")
@@ -34,6 +63,8 @@ class TestGenerateModelJsonHelpers(unittest.TestCase):
         self.assertIn("HD2_PluginMono1", augmented)
         self.assertEqual(augmented["HD2_PluginMono1"]["id"], 416)
         self.assertEqual(augmented["HD2_PluginMono1"]["usage"], 0.0)
+        self.assertFalse(augmented["HD2_PluginMono1"]["available"])
+        self.assertTrue(augmented["HD2_PluginMono1"]["synthetic_fallback"])
         self.assertEqual(augmented["HD2_PluginMono1"]["params"]["Mix"]["id"], 3)
         self.assertEqual(augmented["HD2_FXLoopMono1"]["id"], 277)
         self.assertEqual(augmented["HD2_FXLoopMono1"]["usage"], 1.3)

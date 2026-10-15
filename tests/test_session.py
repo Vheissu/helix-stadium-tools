@@ -94,15 +94,18 @@ class TestSession(unittest.TestCase):
         FakeZMTPStream.instances = []
         sockets = [FakeSocket(), FakeSocket()]
 
-        def fake_socket(*_args, **_kwargs):
-            return sockets.pop(0)
+        def fake_create_connection(address, timeout=None):
+            sock = sockets.pop(0)
+            sock.connected = address
+            sock.timeout = timeout
+            return sock
 
         handshake_calls = []
 
         def fake_handshake(stream, socket_type, identity=None):
             handshake_calls.append((stream, socket_type, identity))
 
-        with mock.patch("helix.session.socket.socket", side_effect=fake_socket), \
+        with mock.patch("helix.session.socket.create_connection", side_effect=fake_create_connection), \
             mock.patch("helix.session.ZMTPStream", FakeZMTPStream), \
             mock.patch("helix.session.zmtp_handshake", side_effect=fake_handshake):
             session = HelixSession("host", port_2001=1111, port_2002=2222)
@@ -124,12 +127,15 @@ class TestSession(unittest.TestCase):
         FakeZMTPStream.instances = []
         sockets = [FakeSocket(), FakeSocket()]
 
-        def fake_socket(*_args, **_kwargs):
-            return sockets.pop(0)
+        def fake_create_connection(address, timeout=None):
+            sock = sockets.pop(0)
+            sock.connected = address
+            sock.timeout = timeout
+            return sock
 
         service = HelixService(instance="p35x1", host="p35x1.local", port=2001, interface=14)
 
-        with mock.patch("helix.session.socket.socket", side_effect=fake_socket), \
+        with mock.patch("helix.session.socket.create_connection", side_effect=fake_create_connection), \
             mock.patch("helix.session.ZMTPStream", FakeZMTPStream), \
             mock.patch("helix.session.zmtp_handshake"), \
             mock.patch("helix.session.discover_first_service", return_value=service):
@@ -324,14 +330,17 @@ class TestSession(unittest.TestCase):
         FakeZMTPStream.instances = []
         sockets = [FakeSocket(), FakeSocket()]
 
-        def fake_socket(*_args, **_kwargs):
-            return sockets.pop(0)
+        def fake_create_connection(address, timeout=None):
+            sock = sockets.pop(0)
+            sock.connected = address
+            sock.timeout = timeout
+            return sock
 
         def fake_handshake(stream, socket_type, identity=None):
             if socket_type == "DEALER":
                 raise ConnectionError("boom")
 
-        with mock.patch("helix.session.socket.socket", side_effect=fake_socket), \
+        with mock.patch("helix.session.socket.create_connection", side_effect=fake_create_connection), \
             mock.patch("helix.session.ZMTPStream", FakeZMTPStream), \
             mock.patch("helix.session.zmtp_handshake", side_effect=fake_handshake):
             session = HelixSession("host", port_2001=1111, port_2002=2222)

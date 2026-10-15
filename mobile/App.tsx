@@ -8,12 +8,14 @@ import {
   TextInput,
   View,
   Pressable,
+  Platform,
   Switch,
   useWindowDimensions,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { HelixClient, type HelixEvent, type HelixPathClipboard } from './src/protocol/helixClient';
+import { formatLibraryActivity, updateLibraryActivity, type LibraryActivity } from './src/protocol/stadium14';
 import blockTypes from './src/data/blockTypes.json';
 import ioModels from './src/data/ioModels.json';
 import { useFonts } from 'expo-font';
@@ -33,6 +35,10 @@ import { getParamHelp } from './src/utils/paramHelp';
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 import { buildConnectionFailureStatus } from './src/utils/connection';
+import {
+  getNetworkInterfacePreference,
+  type ConnectionTransport,
+} from './src/utils/connectionTransport';
 import { formatTempoBpm } from './src/utils/format';
 import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
 import {
@@ -192,6 +198,8 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 );
 
 export default function App() {
+  const [libraryActivity, setLibraryActivity] = useState<LibraryActivity>({});
+  const libraryActivityLabel = formatLibraryActivity(libraryActivity);
   const [_fontsLoaded] = useFonts({
     'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
     'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
@@ -211,6 +219,7 @@ export default function App() {
   const knobDraggingRef = useRef(false);
   const [editorScrollEnabled, setEditorScrollEnabled] = useState(true);
   const [host, setHost] = useState('p35x1.local');
+  const [connectionTransport, setConnectionTransport] = useState<ConnectionTransport>('auto');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
   const [notesVisible, setNotesVisible] = useState(false);
@@ -606,6 +615,11 @@ export default function App() {
   };
 
   const handleClientEvent = (event: HelixEvent) => {
+    if (event.libraryOperation) {
+      const operation = event.libraryOperation;
+      setLibraryActivity((active) => updateLibraryActivity(active, operation));
+      return;
+    }
     const addr = event.addr.toLowerCase();
     const property = event.property;
     const key = property?.key;
@@ -729,7 +743,8 @@ export default function App() {
     if (connecting || connected) return;
     setConnecting(true);
     try {
-      const client = new HelixClient(host.trim());
+      const networkInterface = getNetworkInterfacePreference(connectionTransport, Platform.OS);
+      const client = new HelixClient(host.trim(), 2001, 2002, networkInterface);
       await client.connect();
       client.startListener(handleClientEvent);
       clientRef.current = client;
@@ -744,6 +759,7 @@ export default function App() {
   };
 
   const disconnect = () => {
+    setLibraryActivity({});
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
       syncTimerRef.current = null;
@@ -3096,7 +3112,7 @@ export default function App() {
           <View
             style={[styles.statusDot, { backgroundColor: connected ? COLORS.success : COLORS.danger }]}
           />
-          <Text style={styles.statusText}>{status}</Text>
+          <Text style={styles.statusText} accessibilityLiveRegion="polite">{libraryActivityLabel ?? status}</Text>
         </View>
       </Section>
 
@@ -3377,7 +3393,7 @@ export default function App() {
               <View style={styles.performanceSectionHeader}>
                 <Text style={styles.performanceSectionTitle}>Quick Actions</Text>
                 <Text style={styles.performanceSectionMeta}>
-                  {presetEdited ? 'Unsaved changes' : status}
+                  {presetEdited ? 'Unsaved changes' : libraryActivityLabel ?? status}
                 </Text>
               </View>
               <View style={styles.performanceActionGrid}>
@@ -4307,6 +4323,8 @@ export default function App() {
       <ConnectionGate
         host={host}
         onHostChange={setHost}
+        transport={connectionTransport}
+        onTransportChange={setConnectionTransport}
         onConnect={connect}
         connecting={connecting}
         status={status}

@@ -182,6 +182,8 @@ class BulkEndpoint:
 def class_name(class_code: int, subclass: int) -> str:
     if class_code == 0x01 and subclass == 0x03:
         return "Audio / MIDI Streaming"
+    if class_code == 0x02 and subclass == 0x0D:
+        return "CDC Communications / NCM"
     return {
         0x01: "Audio",
         0x02: "CDC Communications",

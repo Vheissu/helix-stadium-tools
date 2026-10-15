@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Python tooling and an Expo-based mobile companion for exploring the Helix
-Stadium editor protocol, controlling a device over Wi-Fi, and working with
+Stadium editor protocol, controlling a device over USB or Wi-Fi, and working with
 structured model metadata.
 
 ## This is an unofficial community project
@@ -56,9 +56,19 @@ from a newer desktop app install, or when decoding a capture with local
 - `generated/helix-models/` — JSON catalogues used by downstream tools.
 - `generated/helix-gpt-knowledge/` — Markdown, PDF, and upload-plan files for
   AI/project knowledge use.
-- `mobile/` — Expo mobile app for connecting to a Helix Stadium over Wi-Fi.
+- `mobile/` — Expo mobile app for connecting to a Helix Stadium over USB or Wi-Fi.
 - `mobile/src/data/` — checked-in JSON data used by the mobile app.
 - `docs/` — protocol and transport notes, and the full CLI reference.
+
+## Firmware 1.4
+
+The model resources are regenerated from public desktop app 1.4.0.20. They
+include the three new amps and six new effects. Python and mobile clients
+support USB networking, expression-pedal readings, optional device-specific
+library queries, and IR/clone operation notifications.
+
+See [1.4 support and verification](docs/FIRMWARE_1_4_SUPPORT.md) for the
+new APIs, compatibility details, and features still to investigate.
 
 ## Quick start
 

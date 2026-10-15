@@ -1,6 +1,6 @@
 # Stadium Remote
 
-Expo app for connecting to a Helix Stadium over Wi-Fi and editing presets from a phone or tablet.
+Expo app for connecting to a Helix Stadium over USB or Wi-Fi and editing presets from a phone or tablet.
 
 ## Unofficial community project
 
@@ -16,7 +16,8 @@ for the full notice.
 
 - Node.js 20+
 - Xcode for iOS builds or Android Studio for Android builds
-- A Helix Stadium on the same Wi-Fi network with Remote Access enabled
+- A Helix Stadium with firmware 1.4 or later for USB editing, or a device on the
+  same Wi-Fi network, with Remote Access enabled
 
 ## Setup
 
@@ -80,6 +81,12 @@ tool must sign it before a device will install it.
 ## App notes
 
 - Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address.
+- Automatic mode lets the operating system select USB or Wi-Fi. USB mode asks
+  Android to prefer its wired Ethernet route; Apple platforms select the route
+  for the device address automatically.
+- Direct phone support depends on the phone acting as USB host. USB-C iPhones
+  support USB Ethernet; Android support varies by device and firmware. Physical
+  phone testing is still required before treating either platform as universal.
 - The app shares the same underlying protocol path as the desktop editor, but the UI keeps language focused on the device and user actions.
 - DSP meters and block-picker availability use conservative estimates from the extracted model metadata, and are intended to stay within the same practical limits as the device/editor. When Auto-cab is enabled, amp insertion checks also include the linked cab usage.
 - This project only targets native mobile builds; there is no separate web target to maintain.
@@ -95,7 +102,16 @@ python3 scripts/generate_io_models_json.py
 python3 scripts/generate_mobile_block_types_json.py
 python3 scripts/add_missing_mobile_models.py
 python3 scripts/generate_mobile_models_json.py
+python3 scripts/extract_param_help.py
 ```
+
+The importer reads each stereo model's own parameter IDs, defaults, and DSP
+estimate. Only its display labels come from the mono model when the desktop
+app shares those definitions. IO definitions without desktop display metadata
+are excluded from the picker.
+
+See [the 1.4 catalogue update](../docs/APP_1_4_CATALOG_UPDATE.md) for the models
+and import corrections verified against the public desktop release.
 
 ## Current feature set
 
@@ -111,3 +127,23 @@ python3 scripts/generate_mobile_models_json.py
 - Toggle and edit preset notes
 - Toggle auto-cab and transport-related global settings
 - Open and close the tuner remotely, while leaving live tuning feedback on the device display
+
+## Firmware 1.4 support
+
+The catalogue is regenerated from public desktop app 1.4.0.20 and includes
+Brit SL100, Prosecutor, Omega Granophyre, and the six new effects. USB mode
+uses the device's USB Ethernet connection; physical Android/iOS cable support
+still needs testing on each phone.
+
+The protocol client adds `getExpressionPedalPosition(index)`,
+`getLibraryContent(library, sku?)`, and an optional `sku` argument to
+`getContainerContents`. Existing calls keep their original wire format.
+Pedal readings preserve the raw position and detail values.
+
+IR and clone import/delete notifications appear as activity in the device
+status area. The client also supplies a typed `libraryOperation` event with
+the complete payload. Counter meanings are not assumed, and an end event
+is not presented as proof that every file succeeded.
+
+See [the 1.4 support notes](../docs/FIRMWARE_1_4_SUPPORT.md) for validation
+and remaining work.

@@ -2425,7 +2425,7 @@
       },
       {
         "name": "Lead Master",
-        "description": "",
+        "description": "Controls the gain level of the Lead channel. This level is after the Drive control and before the Master Volume.",
         "min": 0,
         "max": 10,
         "default": 4.12,
@@ -3508,6 +3508,143 @@
     ]
   },
   {
+    "name": "Brit SL100",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": null,
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6.6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Bright Cap",
+        "description": "Controls the amount of capacitor-based treble bleed on the Brt Drive knob, set in picofarads (pF). At lower gain settings, this setting can add brightness and bite; Bright Cap is more subtle at higher gain settings. Does not apply to the Normal channel.",
+        "default": "120pF",
+        "options": [
+          "None",
+          "120pF",
+          "470pF",
+          "1000pF",
+          "4700pF"
+        ]
+      },
+      {
+        "name": "Brt Drive",
+        "description": "Controls the amount of Bright channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Channel",
+        "description": "Selects the channel\u2014Normal, Bright, or Jumped. Given that there are four distinct amp models (1967, 1968, 1970, and 1971, chosen from the Era knob), this Agoura model includes 12 amp channels total.",
+        "default": "Bright",
+        "options": [
+          "Normal",
+          "Bright",
+          "Jumped"
+        ]
+      },
+      {
+        "name": "Era",
+        "description": "Determines which year of Super 100 amp is selected\u20141967, 1968, 1970, or 1971.",
+        "default": "'67",
+        "options": [
+          "'67",
+          "'68",
+          "'70",
+          "'71"
+        ]
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -10,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag.",
+        "min": 0,
+        "max": 10,
+        "default": 10,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Nrm Drive",
+        "description": "Controls the amount of Normal channel gain applied to the signal. The inactive channel can sometimes \"bleed into\" the active channel, resulting in interesting interactions.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Presence",
+        "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
+        "min": 0,
+        "max": 10,
+        "default": 3.5,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
     "name": "Brit Trem Brt",
     "type": "Amp",
     "is_agoura": false,
@@ -4058,19 +4195,19 @@
     "based_on": "Mesa/Boogie Mark IIC (Normal & Lead channels, all switches)",
     "params": [
       {
-        "name": "2200 Hz",
-        "description": "The amount of boost and cut is not equal for all bands. This is consistent with the real amp.",
-        "min": -10,
-        "max": 10,
-        "default": 2,
-        "unit": "dB"
-      },
-      {
         "name": "240 Hz",
         "description": "The amount of boost and cut is not equal for all bands. This is consistent with the real amp.",
         "min": -14,
         "max": 14,
         "default": 0,
+        "unit": "dB"
+      },
+      {
+        "name": "2200 Hz",
+        "description": "The amount of boost and cut is not equal for all bands. This is consistent with the real amp.",
+        "min": -10,
+        "max": 10,
+        "default": 2,
         "unit": "dB"
       },
       {
@@ -4165,7 +4302,7 @@
       },
       {
         "name": "Lead Master",
-        "description": "",
+        "description": "Controls the Master Volume of the Lead channel of the amplifier.",
         "min": 0,
         "max": 10,
         "default": 3.68,
@@ -4189,7 +4326,7 @@
       },
       {
         "name": "Middle",
-        "description": "",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
         "min": 0,
         "max": 10,
         "default": 3.24,
@@ -4237,7 +4374,7 @@
       },
       {
         "name": "Treble Shift",
-        "description": "",
+        "description": "When on, shifts the treble frequencies of the tone stack lower.",
         "min": false,
         "max": true,
         "default": false,
@@ -13941,6 +14078,145 @@
     ]
   },
   {
+    "name": "Omega Granophyre",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": null,
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Depth",
+        "description": "Controls the low frequency response in the power amp.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Jack",
+        "description": "Sets the input jack on the amp\u2014Low or High.",
+        "default": "High",
+        "options": [
+          "Low",
+          "High"
+        ]
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -16,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4,
+        "unit": "unitless"
+      },
+      {
+        "name": "NFB",
+        "description": "Controls the amount of NFB (Negative Feedback) within the power section. \u201cOpen\u201d is a bit smoother and darker; \u201cClosed\u201d slightly increases aggression and attack.",
+        "default": "Closed",
+        "options": [
+          "Open",
+          "Closed"
+        ]
+      },
+      {
+        "name": "Presence",
+        "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.",
+        "min": 0,
+        "max": 10,
+        "default": 1.54,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Voice",
+        "description": "Switches the voicing of the midrange knob between lower mid focus and higher mid focus.",
+        "default": "Low Mid",
+        "options": [
+          "Low Mid",
+          "High Mid"
+        ]
+      },
+      {
+        "name": "Volume",
+        "description": "Controls the level of the preamp into the phase inverter before the power amp. Turn Volume down and Master up for big, chunky low end or turn Volume up and Master down for a darker response with a bit of midrange grit.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
+      }
+    ]
+  },
+  {
     "name": "PV Panama",
     "type": "Amp",
     "is_agoura": false,
@@ -15173,6 +15449,102 @@
         "max": 10,
         "default": 0,
         "unit": "dB"
+      }
+    ]
+  },
+  {
+    "name": "Prosecutor",
+    "type": "Amp",
+    "is_agoura": true,
+    "based_on": null,
+    "params": [
+      {
+        "name": "Bass",
+        "description": "Controls the low frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 6,
+        "unit": "unitless"
+      },
+      {
+        "name": "Drive",
+        "description": "Controls the amount of gain applied to the signal, which influences the level of distortion.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Hype",
+        "description": "Depending on the amp and/or amp settings, increasing Hype may subtly or dramatically adjust various behind-the-scenes parameters to make the amp sound and feel smoother, fuller, punchier, tighter, and/or more forgiving, but at the expense of accuracy.",
+        "min": 0,
+        "max": 10,
+        "default": 0,
+        "unit": "Off"
+      },
+      {
+        "name": "Level",
+        "description": "Controls the overall level of the Amp block. Unlike Master Volume, it has no effect on the block's tone.",
+        "min": -40,
+        "max": 10,
+        "default": -9.9999,
+        "unit": "dB"
+      },
+      {
+        "name": "Master",
+        "description": "Controls the Master Volume of the amplifier. As with the real thing, higher values can introduce power amp saturation that affects intensity and sag.",
+        "min": 0,
+        "max": 10,
+        "default": 5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Mid",
+        "description": "Controls the midrange frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 5.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Presence",
+        "description": "Boosts upper mid and high frequencies in the power amp, resulting in additional punch and bite.",
+        "min": 0,
+        "max": 10,
+        "default": 2,
+        "unit": "unitless"
+      },
+      {
+        "name": "Ripple",
+        "description": "Controls how much AC ripple interacts with your tone. Power amp circuits will sometimes let a little bit of rectified 120Hz hum (that the power supply filter caps can't quite fully remove) into the audio signal when the power supply is being pushed hard. Much like Hum, Ripple provides a bit of non-musical distortion to the power amp at distorted settings.",
+        "min": -10,
+        "max": 10,
+        "default": 0,
+        "unit": "Stock"
+      },
+      {
+        "name": "Sag",
+        "description": "Controls the amount of sag, or how much the power supply compresses or \"droops\" in response to striking the strings hard. Higher values provide more touch dynamics, sustain, and organic feel that's inherent in vintage tube amps; lower values offer a \"tighter\" responsiveness for a more modern feel.",
+        "min": -10,
+        "max": 10,
+        "default": 0.5,
+        "unit": "Stock"
+      },
+      {
+        "name": "Treble",
+        "description": "Controls the high frequency EQ of the tonestack.",
+        "min": 0,
+        "max": 10,
+        "default": 4.5,
+        "unit": "unitless"
+      },
+      {
+        "name": "Z PrePost",
+        "description": "Determines the location of speaker impedance characteristics in the power amp, primarily due to negative feedback. Higher values mean the effects of the interaction appear at the output of the power amp (Post) and lower values mean more of the effect is fed back to the input of the power amp (Pre).",
+        "min": 0,
+        "max": 10,
+        "default": 3,
+        "unit": "unitless"
       }
     ]
   },

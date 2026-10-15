@@ -4,6 +4,7 @@ import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake } from './zmtp';
 import { coerceHelixBoolean, extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
 import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } from '../utils/matrixMixer';
+import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
 
 const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
 
@@ -101,6 +102,7 @@ export type HelixEvent = {
   typetags: string | null;
   vals: Array<any>;
   property?: HelixPropertyValue | null;
+  libraryOperation?: LibraryOperation | null;
 };
 
 const ROUTING_MODEL_IDS = new Set([474, 475, 476, 477, 478]);
@@ -111,24 +113,31 @@ export class HelixClient {
   private host: string;
   private port2001: number;
   private port2002: number;
+  private networkInterface: 'ethernet' | 'wifi' | undefined;
   private stream2001 = new ZmtpSocket();
   private stream2002 = new ZmtpSocket();
   private cmdId = 1;
   private listening = false;
   private onEvent: ((event: HelixEvent) => void) | null = null;
   private listening2002 = false;
-  private pendingResponses = new Map<string, (vals: Array<any>) => void>();
+  private pendingResponses = new Map<string, (vals: Array<any>, responseAddr?: string) => void>();
   private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
 
-  constructor(host: string, port2001 = 2001, port2002 = 2002) {
+  constructor(
+    host: string,
+    port2001 = 2001,
+    port2002 = 2002,
+    networkInterface?: 'ethernet' | 'wifi'
+  ) {
     this.host = host;
     this.port2001 = port2001;
     this.port2002 = port2002;
+    this.networkInterface = networkInterface;
   }
 
   async connect() {
-    await this.stream2001.connect(this.host, this.port2001);
-    await this.stream2002.connect(this.host, this.port2002);
+    await this.stream2001.connect(this.host, this.port2001, this.networkInterface);
+    await this.stream2002.connect(this.host, this.port2002, this.networkInterface);
     await zmtpHandshake(this.stream2001, 'SUB');
     this.stream2001.sendFrame(Buffer.from([0x01]));
     await zmtpHandshake(this.stream2002, 'DEALER', Buffer.from(''));
@@ -223,13 +232,22 @@ export class HelixClient {
     this.resolvePending(event.addr, event.vals);
     const propertyBlob = event.addr === '/setPropertyValue' ? extractFirstBlob(event.vals) : null;
     const property = propertyBlob ? decodePropertyBlob(propertyBlob) : null;
-    this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []), property });
+    const libraryOperation = parseLibraryOperation(event.addr, event.vals);
+    this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []), property, libraryOperation });
   }
 
   private resolvePending(addr: string, vals: Array<any>) {
     if (!Array.isArray(vals) || vals.length === 0) return false;
     const cmdId = vals[0];
     if (typeof cmdId !== 'number') return false;
+    if (addr === '/error') {
+      for (const [pendingKey, pendingResolver] of this.pendingResponses) {
+        if (!pendingKey.endsWith(`:${cmdId}`)) continue;
+        this.pendingResponses.delete(pendingKey);
+        pendingResolver(vals, addr);
+        return true;
+      }
+    }
     const key = buildRequestKey(addr, cmdId);
     const resolver = this.pendingResponses.get(key);
     if (resolver) {
@@ -254,9 +272,13 @@ export class HelixClient {
   private waitForResponse(expectAddr: string, cmdId: number, timeoutMs: number) {
     const key = buildRequestKey(expectAddr, cmdId);
     let timer: ReturnType<typeof setTimeout> | null = null;
-    return new Promise<Array<any> | null>((resolve) => {
-      const resolver = (vals: Array<any>) => {
+    return new Promise<Array<any> | null>((resolve, reject) => {
+      const resolver = (vals: Array<any>, responseAddr?: string) => {
         if (timer) clearTimeout(timer);
+        if (responseAddr === '/error') {
+          reject(new Error(formatStatusFailure(expectAddr, vals)));
+          return;
+        }
         resolve(vals);
       };
       this.pendingResponses.set(key, resolver);
@@ -493,6 +515,39 @@ export class HelixClient {
     return parseMatrixMixerState(property);
   }
 
+  async getExpressionPedalPosition(pedalIndex: number) {
+    if (!Number.isInteger(pedalIndex) || pedalIndex < 0 || pedalIndex > 2) {
+      throw new Error('Pedal index must be 0, 1, or 2.');
+    }
+    const vals = await this.request('/ExpressionPedalPosGet', 'i', [pedalIndex], '/getExpressionPedalPos', 2500);
+    return parseExpressionPedalPosition(vals, pedalIndex);
+  }
+
+  async getIrSpectrum(flow: number, block: number, slot = 0): Promise<Buffer | null> {
+    for (const [name, value, maximum] of [['flow', flow, 1], ['block', block, 27], ['slot', slot, 1]] as const) {
+      if (!Number.isInteger(value) || value < 0 || value > maximum) {
+        throw new Error(`${name} must be an integer between 0 and ${maximum}.`);
+      }
+    }
+    const vals = await this.request('/IrSpectrumGet', 'iii', [flow, block, slot], '/xxxIrxSpectrum1', 3000);
+    const blob = extractFirstBlob(vals);
+    return blob ? Buffer.from(blob) : null;
+  }
+
+  async getLibraryContent(library: number, sku?: string) {
+    if (sku !== undefined && (typeof sku !== 'string' || !sku.trim())) {
+      throw new Error('Device SKU must be a non-empty string.');
+    }
+    const vals = await this.request(
+      sku === undefined ? '/LibraryContentGet' : '/LibraryContentGetWithSku',
+      sku === undefined ? 'i' : 'is',
+      sku === undefined ? [library] : [library, sku],
+      '/getPresetLibraryContent', 3000
+    );
+    const blob = extractFirstBlob(vals);
+    return blob ? decodeLibraryContent(blob) : null;
+  }
+
   async getPropertyDefinitionWithKey(key: string) {
     const vals = await this.request('/PropertyDefWithKeyGet', 's', [key], '/keyPropertyDefinition', 2500);
     const blob = extractFirstBlob(vals);
@@ -548,8 +603,16 @@ export class HelixClient {
     return vals[1];
   }
 
-  async getContainerContents(containerId: number) {
-    const vals = await this.request('/GetContainerContents', 'i', [containerId], '/GetContainerContents', 3000);
+  async getContainerContents(containerId: number, sku?: string) {
+    if (sku !== undefined && (typeof sku !== 'string' || !sku.trim())) {
+      throw new Error('Device SKU must be a non-empty string.');
+    }
+    const vals = await this.request(
+      sku === undefined ? '/GetContainerContents' : '/GetContainerContentsWithSku',
+      sku === undefined ? 'i' : 'is',
+      sku === undefined ? [containerId] : [containerId, sku],
+      '/GetContainerContents', 3000
+    );
     const decoded = decodeCommandBlob(vals);
     return Array.isArray(decoded) ? decoded : [];
   }

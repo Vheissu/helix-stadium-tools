@@ -1,16 +1,7 @@
 {
-  "count": 811,
-  "generated_at": "2026-04-29T09:42:05.036456+00:00",
+  "count": 838,
+  "generated_at": "2026-10-15T13:25:19.030720+00:00",
   "models": [
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 44,
-      "key": "EuclideanDelayStereo_Victoria",
-      "name": null,
-      "stereo_model": null
-    },
     {
       "category": "none",
       "class": null,
@@ -26,1167 +17,6 @@
       "dsp": null,
       "id": 96,
       "key": "HD2_AppNullModelStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "eq",
-      "class": null,
-      "dsp": null,
-      "id": 196,
-      "key": "HD2_CaliQStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 257,
-      "key": "HD2_Chorus4VoiceStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 167,
-      "key": "HD2_Chorus70sChorusStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 252,
-      "key": "HD2_ChorusAmpegLiquifierStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 199,
-      "key": "HD2_ChorusPlastiChorusStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 134,
-      "key": "HD2_ChorusStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 95,
-      "key": "HD2_DelayADTStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 93,
-      "key": "HD2_DelayAdriaticDelayStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 92,
-      "key": "HD2_DelayBucketBrigadeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 91,
-      "key": "HD2_DelayCosmosEchoStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 90,
-      "key": "HD2_DelayCrissCrossStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 203,
-      "key": "HD2_DelayDoubleDoubleStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 86,
-      "key": "HD2_DelayDuckedDelayStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 94,
-      "key": "HD2_DelayElephantManStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 493,
-      "key": "HD2_DelayHeliosphereStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 88,
-      "key": "HD2_DelayModChorusEchoStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 84,
-      "key": "HD2_DelayMultiPassStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 492,
-      "key": "HD2_DelayPitchStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 82,
-      "key": "HD2_DelayReverseDelayStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 87,
-      "key": "HD2_DelaySimpleDelayStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 80,
-      "key": "HD2_DelaySweepEchoStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 79,
-      "key": "HD2_DelaySwellAdriaticStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 78,
-      "key": "HD2_DelaySwellVintageDigitalStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 77,
-      "key": "HD2_DelayTransistorTapeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "delay",
-      "class": null,
-      "dsp": null,
-      "id": 76,
-      "key": "HD2_DelayVintageDigitalStereoV2",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 243,
-      "key": "HD2_DistAlpacaRougeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 509,
-      "key": "HD2_DistAmpegScramblerODStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 173,
-      "key": "HD2_DistArbitratorFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 514,
-      "key": "HD2_DistBallisticFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 185,
-      "key": "HD2_DistBitcrusherStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 508,
-      "key": "HD2_DistClawthornDriveStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 170,
-      "key": "HD2_DistCompulsiveDriveStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 516,
-      "key": "HD2_DistDarkDoveFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 236,
-      "key": "HD2_DistDeezOneModStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 235,
-      "key": "HD2_DistDeezOneVintageStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 234,
-      "key": "HD2_DistDerangedMasterStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 237,
-      "key": "HD2_DistDhyanaDriveStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 149,
-      "key": "HD2_DistHedgehogD9Stereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 242,
-      "key": "HD2_DistHeirApparentStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 513,
-      "key": "HD2_DistHorizonDriveStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 148,
-      "key": "HD2_DistIndustrialFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 187,
-      "key": "HD2_DistKWBStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 202,
-      "key": "HD2_DistKinkyBoostStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 512,
-      "key": "HD2_DistLegendaryDriveStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 138,
-      "key": "HD2_DistMegaphoneStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 507,
-      "key": "HD2_DistMinotaurStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 198,
-      "key": "HD2_DistObsidian7000Stereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 255,
-      "key": "HD2_DistPillarsStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 249,
-      "key": "HD2_DistPocketFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 517,
-      "key": "HD2_DistPrizeDriveStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 245,
-      "key": "HD2_DistRamsHeadStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 251,
-      "key": "HD2_DistRatatouilleDistStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 518,
-      "key": "HD2_DistRegalBassDIStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 176,
-      "key": "HD2_DistScream808Stereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 197,
-      "key": "HD2_DistStuporODStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 248,
-      "key": "HD2_DistSwedishChainsawStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 191,
-      "key": "HD2_DistTeemahStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 200,
-      "key": "HD2_DistThrifterFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 510,
-      "key": "HD2_DistToneSovereignStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 171,
-      "key": "HD2_DistTopSecretODStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 169,
-      "key": "HD2_DistTriangleFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 174,
-      "key": "HD2_DistTycoctaviaFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 506,
-      "key": "HD2_DistValveDriverStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 172,
-      "key": "HD2_DistVerminDistStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 254,
-      "key": "HD2_DistVitalBoostStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 515,
-      "key": "HD2_DistVitalDistStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 195,
-      "key": "HD2_DistWringerFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 511,
-      "key": "HD2_DistXenomorphFuzzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "distortion",
-      "class": null,
-      "dsp": null,
-      "id": 241,
-      "key": "HD2_DistZeroAmpBassDIStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "eq",
-      "class": null,
-      "dsp": null,
-      "id": 137,
-      "key": "HD2_EQGraphic10BandStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "eq",
-      "class": null,
-      "dsp": null,
-      "id": 238,
-      "key": "HD2_EQSimpleTiltStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "filter",
-      "class": null,
-      "dsp": null,
-      "id": 240,
-      "key": "HD2_FilterAshevillePattrnStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 163,
-      "key": "HD2_FlangerCourtesanFlangeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 188,
-      "key": "HD2_FlangerDynamixFlangerStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 164,
-      "key": "HD2_FlangerGrayFlangerStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 165,
-      "key": "HD2_FlangerHarmonicFlangerStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 189,
-      "key": "HD2_PhaserDeluxePhaserStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 244,
-      "key": "HD2_PhaserPebblePhaserStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 162,
-      "key": "HD2_PhaserScriptModPhaseStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 152,
-      "key": "HD2_PhaserUbiquitousVibeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "pitch",
-      "class": null,
-      "dsp": null,
-      "id": 192,
-      "key": "HD2_PitchDualPitchStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "pitch",
-      "class": null,
-      "dsp": null,
-      "id": 156,
-      "key": "HD2_PitchPitchWhamStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "pitch",
-      "class": null,
-      "dsp": null,
-      "id": 193,
-      "key": "HD2_PitchSimplePitchStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "pitch",
-      "class": null,
-      "dsp": null,
-      "id": 155,
-      "key": "HD2_PitchTwinHarmonyStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 250,
-      "key": "HD2_RetroReelStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 75,
-      "key": "HD2_ReverbDoubleTankStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 74,
-      "key": "HD2_ReverbGanymedeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 73,
-      "key": "HD2_ReverbGlitzStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 490,
-      "key": "HD2_ReverbHxSpringStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 489,
-      "key": "HD2_ReverbNonLinearStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 70,
-      "key": "HD2_ReverbPlateauxStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "reverb",
-      "class": null,
-      "dsp": null,
-      "id": 61,
-      "key": "HD2_ReverbSearchlightsStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 161,
-      "key": "HD2_RingModulatorAMRingModStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "synth",
-      "class": null,
-      "dsp": null,
-      "id": 422,
-      "key": "HD2_Synth3NoteGeneratorStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "synth",
-      "class": null,
-      "dsp": null,
-      "id": 421,
-      "key": "HD2_Synth4OSCGeneratorStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 150,
-      "key": "HD2_Tremolo60sBiasTremStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 194,
-      "key": "HD2_TremoloHarmonicStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 151,
-      "key": "HD2_TremoloOpticalTremStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 204,
-      "key": "HD2_TremoloPatternStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "modulation",
-      "class": null,
-      "dsp": null,
-      "id": 168,
-      "key": "HD2_VibratoBubbleVibratoStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "volume",
-      "class": null,
-      "dsp": null,
-      "id": 146,
-      "key": "HD2_VolPanGainStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "volume",
-      "class": null,
-      "dsp": null,
-      "id": 136,
-      "key": "HD2_VolPanVolStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 177,
-      "key": "HD2_WahChromeCustomStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 178,
-      "key": "HD2_WahChromeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 179,
-      "key": "HD2_WahColorfulStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 180,
-      "key": "HD2_WahConductorStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 181,
-      "key": "HD2_WahFasselStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 153,
-      "key": "HD2_WahTeardrop310Stereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 261,
-      "key": "HD2_WahTeardropBassQStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 182,
-      "key": "HD2_WahThroatyStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 154,
-      "key": "HD2_WahUKWah846Stereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 183,
-      "key": "HD2_WahVettaWahStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "wah",
-      "class": null,
-      "dsp": null,
-      "id": 184,
-      "key": "HD2_WahWeeperStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 16,
-      "key": "HX2_Compressor3BandCompStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 15,
-      "key": "HX2_CompressorAutoSwellStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 9,
-      "key": "HX2_CompressorDeluxeCompStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 12,
-      "key": "HX2_CompressorKinkyCompStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 13,
-      "key": "HX2_CompressorLAStudioCompStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 11,
-      "key": "HX2_CompressorOptoCompStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 14,
-      "key": "HX2_CompressorRedSqueezeStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 10,
-      "key": "HX2_CompressorRochesterCompStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "eq",
-      "class": null,
-      "dsp": null,
-      "id": 259,
-      "key": "HX2_EQParametricStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "filter",
-      "class": null,
-      "dsp": null,
-      "id": 7,
-      "key": "HX2_FilterAutoFilterStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "filter",
-      "class": null,
-      "dsp": null,
-      "id": 8,
-      "key": "HX2_FilterMutantFilterStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "filter",
-      "class": null,
-      "dsp": null,
-      "id": 6,
-      "key": "HX2_FilterMysterFilterStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 5,
-      "key": "HX2_GateHardGateStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 4,
-      "key": "HX2_GateHorizonGateStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "dynamics",
-      "class": null,
-      "dsp": null,
-      "id": 3,
-      "key": "HX2_GateNoiseGateStereo",
-      "name": null,
-      "stereo_model": null
-    },
-    {
-      "category": "eq",
-      "class": null,
-      "dsp": null,
-      "id": 246,
-      "key": "L6SPB_AcousGtrSimStereo",
       "name": null,
       "stereo_model": null
     },
@@ -1407,128 +237,128 @@
       "stereo_model": null
     },
     {
-      "category": "looper",
+      "category": "input",
       "class": null,
       "dsp": null,
-      "id": 826,
-      "key": "P35_LooperHelixOneSwitchStereo",
+      "id": 776,
+      "key": "P35_InputVariax",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "looper",
+      "category": "input",
       "class": null,
       "dsp": null,
-      "id": 827,
-      "key": "P35_LooperHelixStereo",
+      "id": 861,
+      "key": "P35_InputVariaxB",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "delay",
+      "category": "input",
       "class": null,
       "dsp": null,
-      "id": 43,
-      "key": "VIC_DelayGlitchStereo",
+      "id": 862,
+      "key": "P35_InputVariaxBMags",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "delay",
+      "category": "input",
       "class": null,
       "dsp": null,
-      "id": 41,
-      "key": "VIC_DelayRatchetStereo",
+      "id": 777,
+      "key": "P35_InputVariaxMags",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "delay",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 42,
-      "key": "VIC_DelayStutterEditStereo",
+      "id": 863,
+      "key": "P35_OutputNexusBL6L",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "reverb",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 486,
-      "key": "VIC_DynPlateStereo",
+      "id": 864,
+      "key": "P35_OutputNexusBOptical1_2",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "modulation",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 256,
-      "key": "VIC_FlexoVibeStereo",
+      "id": 865,
+      "key": "P35_OutputNexusBOptical3_4",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "looper",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 815,
-      "key": "VIC_LooperShufflingStereo",
+      "id": 866,
+      "key": "P35_OutputNexusBOptical5_6",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "pitch",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 258,
-      "key": "VIC_PitchBoctaverStereo",
+      "id": 867,
+      "key": "P35_OutputNexusBOptical7_8",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "reverb",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 60,
-      "key": "VIC_ReverbDynAmbienceStereo",
+      "id": 848,
+      "key": "P35_OutputNexusL6L",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "reverb",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 494,
-      "key": "VIC_ReverbDynBloomStereo",
+      "id": 849,
+      "key": "P35_OutputNexusOptical1_2",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "reverb",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 59,
-      "key": "VIC_ReverbDynRoomStereo",
+      "id": 850,
+      "key": "P35_OutputNexusOptical3_4",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "reverb",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 485,
-      "key": "VIC_ReverbRotatingStereo",
+      "id": 851,
+      "key": "P35_OutputNexusOptical5_6",
       "name": null,
       "stereo_model": null
     },
     {
-      "category": "reverb",
+      "category": "output",
       "class": null,
       "dsp": null,
-      "id": 484,
-      "key": "VIC_ReverbShimmerStereo",
+      "id": 852,
+      "key": "P35_OutputNexusOptical7_8",
       "name": null,
       "stereo_model": null
     },
@@ -1551,6 +381,15 @@
       "stereo_model": "P35_LooperHelixOneSwitchStereo"
     },
     {
+      "category": "looper",
+      "class": null,
+      "dsp": "hd2",
+      "id": 826,
+      "key": "P35_LooperHelixOneSwitchStereo",
+      "name": "1 Switch Looper",
+      "stereo_model": "P35_LooperHelixOneSwitchStereo"
+    },
+    {
       "category": "output",
       "class": null,
       "dsp": "hd2",
@@ -1565,6 +404,15 @@
       "dsp": "hd2",
       "id": 265,
       "key": "HD2_EQGraphic10BandMono",
+      "name": "10 Band Graphic",
+      "stereo_model": "HD2_EQGraphic10BandStereo"
+    },
+    {
+      "category": "eq",
+      "class": "Graphic",
+      "dsp": "hd2",
+      "id": 137,
+      "key": "HD2_EQGraphic10BandStereo",
       "name": "10 Band Graphic",
       "stereo_model": "HD2_EQGraphic10BandStereo"
     },
@@ -1831,6 +679,15 @@
     },
     {
       "category": "synth",
+      "class": "Generator",
+      "dsp": "hd2",
+      "id": 422,
+      "key": "HD2_Synth3NoteGeneratorStereo",
+      "name": "3 Note Generator",
+      "stereo_model": "HD2_Synth3NoteGeneratorStereo"
+    },
+    {
+      "category": "synth",
       "class": "Synth",
       "dsp": "hd2",
       "id": 505,
@@ -1848,6 +705,15 @@
       "stereo_model": "HX2_Compressor3BandCompStereo"
     },
     {
+      "category": "dynamics",
+      "class": "3-Band",
+      "dsp": "hd2",
+      "id": 16,
+      "key": "HX2_Compressor3BandCompStereo",
+      "name": "3-Band Comp",
+      "stereo_model": "HX2_Compressor3BandCompStereo"
+    },
+    {
       "category": "synth",
       "class": "Generator",
       "dsp": "hd2",
@@ -1857,11 +723,29 @@
       "stereo_model": "HD2_Synth4OSCGeneratorStereo"
     },
     {
+      "category": "synth",
+      "class": "Generator",
+      "dsp": "hd2",
+      "id": 421,
+      "key": "HD2_Synth4OSCGeneratorStereo",
+      "name": "4 OSC Generator",
+      "stereo_model": "HD2_Synth4OSCGeneratorStereo"
+    },
+    {
       "category": "modulation",
       "class": "Chorus",
       "dsp": "hd2",
       "id": 408,
       "key": "HD2_Chorus4VoiceMono",
+      "name": "4-Voice Chorus",
+      "stereo_model": "HD2_Chorus4VoiceStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 257,
+      "key": "HD2_Chorus4VoiceStereo",
       "name": "4-Voice Chorus",
       "stereo_model": "HD2_Chorus4VoiceStereo"
     },
@@ -2055,6 +939,15 @@
       "stereo_model": "HD2_Tremolo60sBiasTremStereo"
     },
     {
+      "category": "modulation",
+      "class": "Tremolo",
+      "dsp": "hd2",
+      "id": 150,
+      "key": "HD2_Tremolo60sBiasTremStereo",
+      "name": "60s Bias Trem",
+      "stereo_model": "HD2_Tremolo60sBiasTremStereo"
+    },
+    {
       "category": "cab_ir_interp",
       "class": "Bass",
       "dsp": "hd2",
@@ -2069,6 +962,15 @@
       "dsp": "hd2",
       "id": 298,
       "key": "HD2_Chorus70sChorusMono",
+      "name": "70s Chorus",
+      "stereo_model": "HD2_Chorus70sChorusStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 167,
+      "key": "HD2_Chorus70sChorusStereo",
       "name": "70s Chorus",
       "stereo_model": "HD2_Chorus70sChorusStereo"
     },
@@ -2154,11 +1056,29 @@
       "stereo_model": "HD2_DelayADTStereo"
     },
     {
+      "category": "delay",
+      "class": "Tape",
+      "dsp": "hd2",
+      "id": 95,
+      "key": "HD2_DelayADTStereo",
+      "name": "ADT",
+      "stereo_model": "HD2_DelayADTStereo"
+    },
+    {
       "category": "modulation",
       "class": "Ring Mod",
       "dsp": "hd2",
       "id": 293,
       "key": "HD2_RingModulatorAMRingModMono",
+      "name": "AM Ring Mod",
+      "stereo_model": "HD2_RingModulatorAMRingModStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Ring Mod",
+      "dsp": "hd2",
+      "id": 161,
+      "key": "HD2_RingModulatorAMRingModStereo",
       "name": "AM Ring Mod",
       "stereo_model": "HD2_RingModulatorAMRingModStereo"
     },
@@ -2190,6 +1110,15 @@
       "stereo_model": "L6SPB_AcousGtrSimStereo"
     },
     {
+      "category": "eq",
+      "class": "Acoustic Sim",
+      "dsp": "hd2",
+      "id": 246,
+      "key": "L6SPB_AcousGtrSimStereo",
+      "name": "Acoustic Sim",
+      "stereo_model": "L6SPB_AcousGtrSimStereo"
+    },
+    {
       "category": "delay",
       "class": "Analog",
       "dsp": "hd2",
@@ -2202,8 +1131,26 @@
       "category": "delay",
       "class": "Analog",
       "dsp": "hd2",
+      "id": 93,
+      "key": "HD2_DelayAdriaticDelayStereo",
+      "name": "Adriatic Delay",
+      "stereo_model": "HD2_DelayAdriaticDelayStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Analog",
+      "dsp": "hd2",
       "id": 118,
       "key": "HD2_DelaySwellAdriaticMono",
+      "name": "Adriatic Swell",
+      "stereo_model": "HD2_DelaySwellAdriaticStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Analog",
+      "dsp": "hd2",
+      "id": 79,
+      "key": "HD2_DelaySwellAdriaticStereo",
       "name": "Adriatic Swell",
       "stereo_model": "HD2_DelaySwellAdriaticStereo"
     },
@@ -2262,6 +1209,15 @@
       "stereo_model": "HD2_DistAlpacaRougeStereo"
     },
     {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 243,
+      "key": "HD2_DistAlpacaRougeStereo",
+      "name": "Alpaca Rouge",
+      "stereo_model": "HD2_DistAlpacaRougeStereo"
+    },
+    {
       "category": "amp",
       "class": "Clone",
       "dsp": "agoura",
@@ -2316,11 +1272,29 @@
       "stereo_model": "HD2_ChorusAmpegLiquifierStereo"
     },
     {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 252,
+      "key": "HD2_ChorusAmpegLiquifierStereo",
+      "name": "Ampeg Liquifier",
+      "stereo_model": "HD2_ChorusAmpegLiquifierStereo"
+    },
+    {
       "category": "dynamics",
       "class": "Compress",
       "dsp": "hd2",
       "id": 32,
       "key": "HX2_CompressorOptoCompMono",
+      "name": "Ampeg Opto Comp",
+      "stereo_model": "HX2_CompressorOptoCompStereo"
+    },
+    {
+      "category": "dynamics",
+      "class": "Compress",
+      "dsp": "hd2",
+      "id": 11,
+      "key": "HX2_CompressorOptoCompStereo",
       "name": "Ampeg Opto Comp",
       "stereo_model": "HX2_CompressorOptoCompStereo"
     },
@@ -2397,6 +1371,15 @@
       "stereo_model": "HD2_DistAmpegScramblerODStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 509,
+      "key": "HD2_DistAmpegScramblerODStereo",
+      "name": "Ampeg Scrambler",
+      "stereo_model": "HD2_DistAmpegScramblerODStereo"
+    },
+    {
       "category": "modulation",
       "class": "Chorus",
       "dsp": "xt",
@@ -2447,6 +1430,15 @@
       "dsp": "hd2",
       "id": 308,
       "key": "HD2_DistArbitratorFuzzMono",
+      "name": "Arbitrator Fuzz",
+      "stereo_model": "HD2_DistArbitratorFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 173,
+      "key": "HD2_DistArbitratorFuzzStereo",
       "name": "Arbitrator Fuzz",
       "stereo_model": "HD2_DistArbitratorFuzzStereo"
     },
@@ -2514,6 +1506,15 @@
       "stereo_model": "HD2_FilterAshevillePattrnStereo"
     },
     {
+      "category": "filter",
+      "class": "Filter",
+      "dsp": "hd2",
+      "id": 240,
+      "key": "HD2_FilterAshevillePattrnStereo",
+      "name": "Asheville Pattrn",
+      "stereo_model": "HD2_FilterAshevillePattrnStereo"
+    },
+    {
       "category": "synth",
       "class": "Synth",
       "dsp": "xt",
@@ -2541,11 +1542,29 @@
       "stereo_model": "HX2_FilterAutoFilterStereo"
     },
     {
+      "category": "filter",
+      "class": "Filter",
+      "dsp": "hd2",
+      "id": 7,
+      "key": "HX2_FilterAutoFilterStereo",
+      "name": "Autofilter",
+      "stereo_model": "HX2_FilterAutoFilterStereo"
+    },
+    {
       "category": "dynamics",
       "class": "Swell",
       "dsp": "hd2",
       "id": 37,
       "key": "HX2_CompressorAutoSwellMono",
+      "name": "Autoswell",
+      "stereo_model": "HX2_CompressorAutoSwellStereo"
+    },
+    {
+      "category": "dynamics",
+      "class": "Swell",
+      "dsp": "hd2",
+      "id": 15,
+      "key": "HX2_CompressorAutoSwellStereo",
       "name": "Autoswell",
       "stereo_model": "HX2_CompressorAutoSwellStereo"
     },
@@ -2573,6 +1592,15 @@
       "dsp": "hd2",
       "id": 387,
       "key": "HD2_DistBallisticFuzzMono",
+      "name": "Ballistic Fuzz",
+      "stereo_model": "HD2_DistBallisticFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 514,
+      "key": "HD2_DistBallisticFuzzStereo",
       "name": "Ballistic Fuzz",
       "stereo_model": "HD2_DistBallisticFuzzStereo"
     },
@@ -2614,10 +1642,28 @@
     },
     {
       "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 245,
+      "key": "HD2_DistRamsHeadStereo",
+      "name": "Bighorn Fuzz",
+      "stereo_model": "HD2_DistRamsHeadStereo"
+    },
+    {
+      "category": "distortion",
       "class": "Bitcrusher",
       "dsp": "hd2",
       "id": 321,
       "key": "HD2_DistBitcrusherMono",
+      "name": "Bitcrusher",
+      "stereo_model": "HD2_DistBitcrusherStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Bitcrusher",
+      "dsp": "hd2",
+      "id": 185,
+      "key": "HD2_DistBitcrusherStereo",
       "name": "Bitcrusher",
       "stereo_model": "HD2_DistBitcrusherStereo"
     },
@@ -2627,6 +1673,15 @@
       "dsp": "hd2",
       "id": 341,
       "key": "HD2_TremoloPatternMono",
+      "name": "Bleat Chop Trem",
+      "stereo_model": "HD2_TremoloPatternStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Tremolo",
+      "dsp": "hd2",
+      "id": 204,
+      "key": "HD2_TremoloPatternStereo",
       "name": "Bleat Chop Trem",
       "stereo_model": "HD2_TremoloPatternStereo"
     },
@@ -2654,6 +1709,15 @@
       "dsp": "hd2",
       "id": 409,
       "key": "VIC_PitchBoctaverMono",
+      "name": "Boctaver",
+      "stereo_model": "VIC_PitchBoctaverStereo"
+    },
+    {
+      "category": "pitch",
+      "class": "Pitch",
+      "dsp": "hd2",
+      "id": 258,
+      "key": "VIC_PitchBoctaverStereo",
       "name": "Boctaver",
       "stereo_model": "VIC_PitchBoctaverStereo"
     },
@@ -2867,6 +1931,15 @@
     {
       "category": "amp",
       "class": "Guitar",
+      "dsp": "agoura",
+      "id": 845,
+      "key": "Agoura_AmpBritSL100",
+      "name": "Brit SL100",
+      "stereo_model": null
+    },
+    {
+      "category": "amp",
+      "class": "Guitar",
       "dsp": "hd2",
       "id": 657,
       "key": "HD2_AmpBritTremBrt",
@@ -2946,11 +2019,29 @@
       "stereo_model": "HD2_VibratoBubbleVibratoStereo"
     },
     {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 168,
+      "key": "HD2_VibratoBubbleVibratoStereo",
+      "name": "Bubble Vibrato",
+      "stereo_model": "HD2_VibratoBubbleVibratoStereo"
+    },
+    {
       "category": "delay",
       "class": "Analog",
       "dsp": "hd2",
       "id": 128,
       "key": "HD2_DelayBucketBrigadeMono",
+      "name": "Bucket Brigade",
+      "stereo_model": "HD2_DelayBucketBrigadeStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Analog",
+      "dsp": "hd2",
+      "id": 92,
+      "key": "HD2_DelayBucketBrigadeStereo",
       "name": "Bucket Brigade",
       "stereo_model": "HD2_DelayBucketBrigadeStereo"
     },
@@ -3153,6 +2244,15 @@
       "stereo_model": "HD2_CaliQStereo"
     },
     {
+      "category": "eq",
+      "class": "Graphic",
+      "dsp": "hd2",
+      "id": 196,
+      "key": "HD2_CaliQStereo",
+      "name": "Cali Q Graphic",
+      "stereo_model": "HD2_CaliQStereo"
+    },
+    {
       "category": "amp",
       "class": "Guitar",
       "dsp": "hd2",
@@ -3270,6 +2370,15 @@
       "stereo_model": "HD2_ChorusStereo"
     },
     {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 134,
+      "key": "HD2_ChorusStereo",
+      "name": "Chorus",
+      "stereo_model": "HD2_ChorusStereo"
+    },
+    {
       "category": "wah",
       "class": "Wah",
       "dsp": "hd2",
@@ -3282,8 +2391,26 @@
       "category": "wah",
       "class": "Wah",
       "dsp": "hd2",
+      "id": 178,
+      "key": "HD2_WahChromeStereo",
+      "name": "Chrome",
+      "stereo_model": "HD2_WahChromeStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
       "id": 313,
       "key": "HD2_WahChromeCustomMono",
+      "name": "Chrome Custom",
+      "stereo_model": "HD2_WahChromeCustomStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 177,
+      "key": "HD2_WahChromeCustomStereo",
       "name": "Chrome Custom",
       "stereo_model": "HD2_WahChromeCustomStereo"
     },
@@ -3325,6 +2452,15 @@
     },
     {
       "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 508,
+      "key": "HD2_DistClawthornDriveStereo",
+      "name": "Clawthorn Drive",
+      "stereo_model": "HD2_DistClawthornDriveStereo"
+    },
+    {
+      "category": "distortion",
       "class": "Overdrive",
       "dsp": "xt",
       "id": 357,
@@ -3338,6 +2474,15 @@
       "dsp": "hd2",
       "id": 315,
       "key": "HD2_WahColorfulMono",
+      "name": "Colorful",
+      "stereo_model": "HD2_WahColorfulStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 179,
+      "key": "HD2_WahColorfulStereo",
       "name": "Colorful",
       "stereo_model": "HD2_WahColorfulStereo"
     },
@@ -3360,11 +2505,29 @@
       "stereo_model": "HD2_DistCompulsiveDriveStereo"
     },
     {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 170,
+      "key": "HD2_DistCompulsiveDriveStereo",
+      "name": "Compulsive Drive",
+      "stereo_model": "HD2_DistCompulsiveDriveStereo"
+    },
+    {
       "category": "wah",
       "class": "Wah",
       "dsp": "hd2",
       "id": 316,
       "key": "HD2_WahConductorMono",
+      "name": "Conductor",
+      "stereo_model": "HD2_WahConductorStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 180,
+      "key": "HD2_WahConductorStereo",
       "name": "Conductor",
       "stereo_model": "HD2_WahConductorStereo"
     },
@@ -3378,6 +2541,15 @@
       "stereo_model": "HD2_DelayCosmosEchoStereo"
     },
     {
+      "category": "delay",
+      "class": "Tape",
+      "dsp": "hd2",
+      "id": 91,
+      "key": "HD2_DelayCosmosEchoStereo",
+      "name": "Cosmos Echo",
+      "stereo_model": "HD2_DelayCosmosEchoStereo"
+    },
+    {
       "category": "modulation",
       "class": "Flanger/Tape",
       "dsp": "hd2",
@@ -3387,11 +2559,29 @@
       "stereo_model": "HD2_FlangerCourtesanFlangeStereo"
     },
     {
+      "category": "modulation",
+      "class": "Flanger/Tape",
+      "dsp": "hd2",
+      "id": 163,
+      "key": "HD2_FlangerCourtesanFlangeStereo",
+      "name": "Courtesan Flange",
+      "stereo_model": "HD2_FlangerCourtesanFlangeStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "hd2",
       "id": 126,
       "key": "HD2_DelayCrissCrossMono",
+      "name": "Crisscross",
+      "stereo_model": "HD2_DelayCrissCrossStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 90,
+      "key": "HD2_DelayCrissCrossStereo",
       "name": "Crisscross",
       "stereo_model": "HD2_DelayCrissCrossStereo"
     },
@@ -3410,6 +2600,15 @@
       "dsp": "hd2",
       "id": 410,
       "key": "HD2_DistDarkDoveFuzzMono",
+      "name": "Dark Dove Fuzz",
+      "stereo_model": "HD2_DistDarkDoveFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 516,
+      "key": "HD2_DistDarkDoveFuzzStereo",
       "name": "Dark Dove Fuzz",
       "stereo_model": "HD2_DistDarkDoveFuzzStereo"
     },
@@ -3462,8 +2661,26 @@
       "category": "distortion",
       "class": "Distortion",
       "dsp": "hd2",
+      "id": 236,
+      "key": "HD2_DistDeezOneModStereo",
+      "name": "Deez One Mod",
+      "stereo_model": "HD2_DistDeezOneModStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
       "id": 369,
       "key": "HD2_DistDeezOneVintageMono",
+      "name": "Deez One Vintage",
+      "stereo_model": "HD2_DistDeezOneVintageStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 235,
+      "key": "HD2_DistDeezOneVintageStereo",
       "name": "Deez One Vintage",
       "stereo_model": "HD2_DistDeezOneVintageStereo"
     },
@@ -3495,6 +2712,15 @@
       "stereo_model": "HX2_CompressorDeluxeCompStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Compress",
+      "dsp": "hd2",
+      "id": 9,
+      "key": "HX2_CompressorDeluxeCompStereo",
+      "name": "Deluxe Comp",
+      "stereo_model": "HX2_CompressorDeluxeCompStereo"
+    },
+    {
       "category": "looper",
       "class": null,
       "dsp": "hd2",
@@ -3504,11 +2730,29 @@
       "stereo_model": "P35_LooperHelixStereo"
     },
     {
+      "category": "looper",
+      "class": null,
+      "dsp": "hd2",
+      "id": 827,
+      "key": "P35_LooperHelixStereo",
+      "name": "Deluxe Looper",
+      "stereo_model": "P35_LooperHelixStereo"
+    },
+    {
       "category": "modulation",
       "class": "Phaser",
       "dsp": "hd2",
       "id": 326,
       "key": "HD2_PhaserDeluxePhaserMono",
+      "name": "Deluxe Phaser",
+      "stereo_model": "HD2_PhaserDeluxePhaserStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Phaser",
+      "dsp": "hd2",
+      "id": 189,
+      "key": "HD2_PhaserDeluxePhaserStereo",
       "name": "Deluxe Phaser",
       "stereo_model": "HD2_PhaserDeluxePhaserStereo"
     },
@@ -3540,6 +2784,15 @@
       "stereo_model": "HD2_DistDerangedMasterStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 234,
+      "key": "HD2_DistDerangedMasterStereo",
+      "name": "Deranged Master",
+      "stereo_model": "HD2_DistDerangedMasterStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "xt",
@@ -3565,6 +2818,24 @@
       "key": "HD2_MM4Dimension",
       "name": "Dimension",
       "stereo_model": null
+    },
+    {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 859,
+      "key": "HD2_ChorusDimensionWMono",
+      "name": "Dimension W",
+      "stereo_model": "HD2_ChorusDimensionWStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 860,
+      "key": "HD2_ChorusDimensionWStereo",
+      "name": "Dimension W",
+      "stereo_model": "HD2_ChorusDimensionWStereo"
     },
     {
       "category": "distortion",
@@ -3630,11 +2901,29 @@
       "stereo_model": "HD2_DelayDoubleDoubleStereo"
     },
     {
+      "category": "modulation",
+      "class": "Flanger/Tape",
+      "dsp": "hd2",
+      "id": 203,
+      "key": "HD2_DelayDoubleDoubleStereo",
+      "name": "Double Take",
+      "stereo_model": "HD2_DelayDoubleDoubleStereo"
+    },
+    {
       "category": "reverb",
       "class": "Spaces",
       "dsp": "hd2",
       "id": 102,
       "key": "HD2_ReverbDoubleTankMono",
+      "name": "Double Tank",
+      "stereo_model": "HD2_ReverbDoubleTankStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 75,
+      "key": "HD2_ReverbDoubleTankStereo",
       "name": "Double Tank",
       "stereo_model": "HD2_ReverbDoubleTankStereo"
     },
@@ -3666,11 +2955,29 @@
       "stereo_model": "HD2_PitchDualPitchStereo"
     },
     {
+      "category": "pitch",
+      "class": "Pitch",
+      "dsp": "hd2",
+      "id": 192,
+      "key": "HD2_PitchDualPitchStereo",
+      "name": "Dual Pitch",
+      "stereo_model": "HD2_PitchDualPitchStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "hd2",
       "id": 123,
       "key": "HD2_DelayDuckedDelayMono",
+      "name": "Ducked Delay",
+      "stereo_model": "HD2_DelayDuckedDelayStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 86,
+      "key": "HD2_DelayDuckedDelayStereo",
       "name": "Ducked Delay",
       "stereo_model": "HD2_DelayDuckedDelayStereo"
     },
@@ -3689,6 +2996,15 @@
       "dsp": "hd2",
       "id": 371,
       "key": "HD2_DistDhyanaDriveMono",
+      "name": "Dyhana Drive",
+      "stereo_model": "HD2_DistDhyanaDriveStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 237,
+      "key": "HD2_DistDhyanaDriveStereo",
       "name": "Dyhana Drive",
       "stereo_model": "HD2_DistDhyanaDriveStereo"
     },
@@ -3723,8 +3039,26 @@
       "category": "reverb",
       "class": "Spaces",
       "dsp": "hd2",
+      "id": 60,
+      "key": "VIC_ReverbDynAmbienceStereo",
+      "name": "Dynamic Ambience",
+      "stereo_model": "VIC_ReverbDynAmbienceStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
       "id": 500,
       "key": "VIC_ReverbDynBloomMono",
+      "name": "Dynamic Bloom",
+      "stereo_model": "VIC_ReverbDynBloomStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 494,
+      "key": "VIC_ReverbDynBloomStereo",
       "name": "Dynamic Bloom",
       "stereo_model": "VIC_ReverbDynBloomStereo"
     },
@@ -3739,10 +3073,28 @@
     },
     {
       "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 485,
+      "key": "VIC_ReverbRotatingStereo",
+      "name": "Dynamic Hall",
+      "stereo_model": "VIC_ReverbRotatingStereo"
+    },
+    {
+      "category": "reverb",
       "class": "Plate",
       "dsp": "hd2",
       "id": 501,
       "key": "VIC_DynPlateMono",
+      "name": "Dynamic Plate",
+      "stereo_model": "VIC_DynPlateStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Plate",
+      "dsp": "hd2",
+      "id": 486,
+      "key": "VIC_DynPlateStereo",
       "name": "Dynamic Plate",
       "stereo_model": "VIC_DynPlateStereo"
     },
@@ -3756,11 +3108,29 @@
       "stereo_model": "VIC_ReverbDynRoomStereo"
     },
     {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 59,
+      "key": "VIC_ReverbDynRoomStereo",
+      "name": "Dynamic Room",
+      "stereo_model": "VIC_ReverbDynRoomStereo"
+    },
+    {
       "category": "modulation",
       "class": "Flanger/Tape",
       "dsp": "hd2",
       "id": 325,
       "key": "HD2_FlangerDynamixFlangerMono",
+      "name": "Dynamix Flanger",
+      "stereo_model": "HD2_FlangerDynamixFlangerStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Flanger/Tape",
+      "dsp": "hd2",
+      "id": 188,
+      "key": "HD2_FlangerDynamixFlangerStereo",
       "name": "Dynamix Flanger",
       "stereo_model": "HD2_FlangerDynamixFlangerStereo"
     },
@@ -3864,6 +3234,15 @@
       "stereo_model": "HD2_DelayElephantManStereo"
     },
     {
+      "category": "delay",
+      "class": "Analog",
+      "dsp": "hd2",
+      "id": 94,
+      "key": "HD2_DelayElephantManStereo",
+      "name": "Elephant Man",
+      "stereo_model": "HD2_DelayElephantManStereo"
+    },
+    {
       "category": "amp",
       "class": "Guitar",
       "dsp": "hd2",
@@ -3945,11 +3324,38 @@
       "stereo_model": null
     },
     {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 853,
+      "key": "HD2_VibratoEssexVibeMono",
+      "name": "Essex Vibe",
+      "stereo_model": "HD2_VibratoEssexVibeStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 854,
+      "key": "HD2_VibratoEssexVibeStereo",
+      "name": "Essex Vibe",
+      "stereo_model": "HD2_VibratoEssexVibeStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "hd2",
       "id": 105,
       "key": "EuclideanDelayMono_Victoria",
+      "name": "Euclidean Delay",
+      "stereo_model": "EuclideanDelayStereo_Victoria"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 44,
+      "key": "EuclideanDelayStereo_Victoria",
       "name": "Euclidean Delay",
       "stereo_model": "EuclideanDelayStereo_Victoria"
     },
@@ -4026,6 +3432,15 @@
       "stereo_model": "HD2_WahFasselStereo"
     },
     {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 181,
+      "key": "HD2_WahFasselStereo",
+      "name": "Fassel",
+      "stereo_model": "HD2_WahFasselStereo"
+    },
+    {
       "category": "amp",
       "class": "Guitar",
       "dsp": "hd2",
@@ -4058,6 +3473,15 @@
       "dsp": "hd2",
       "id": 407,
       "key": "VIC_FlexoVibeMono",
+      "name": "FlexoVibe",
+      "stereo_model": "VIC_FlexoVibeStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Phaser",
+      "dsp": "hd2",
+      "id": 256,
+      "key": "VIC_FlexoVibeStereo",
       "name": "FlexoVibe",
       "stereo_model": "VIC_FlexoVibeStereo"
     },
@@ -4161,11 +3585,29 @@
       "stereo_model": "HD2_VolPanGainStereo"
     },
     {
+      "category": "volume",
+      "class": "Gain",
+      "dsp": "hd2",
+      "id": 146,
+      "key": "HD2_VolPanGainStereo",
+      "name": "Gain",
+      "stereo_model": "HD2_VolPanGainStereo"
+    },
+    {
       "category": "reverb",
       "class": "Spaces",
       "dsp": "hd2",
       "id": 101,
       "key": "HD2_ReverbGanymedeMono",
+      "name": "Ganymede",
+      "stereo_model": "HD2_ReverbGanymedeStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 74,
+      "key": "HD2_ReverbGanymedeStereo",
       "name": "Ganymede",
       "stereo_model": "HD2_ReverbGanymedeStereo"
     },
@@ -4269,11 +3711,29 @@
       "stereo_model": "VIC_DelayGlitchStereo"
     },
     {
+      "category": "delay",
+      "class": "Special FX",
+      "dsp": "hd2",
+      "id": 43,
+      "key": "VIC_DelayGlitchStereo",
+      "name": "Glitch Delay",
+      "stereo_model": "VIC_DelayGlitchStereo"
+    },
+    {
       "category": "reverb",
       "class": "Spaces",
       "dsp": "hd2",
       "id": 100,
       "key": "HD2_ReverbGlitzMono",
+      "name": "Glitz",
+      "stereo_model": "HD2_ReverbGlitzStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 73,
+      "key": "HD2_ReverbGlitzStereo",
       "name": "Glitz",
       "stereo_model": "HD2_ReverbGlitzStereo"
     },
@@ -4359,6 +3819,15 @@
       "stereo_model": "HD2_FlangerGrayFlangerStereo"
     },
     {
+      "category": "modulation",
+      "class": "Flanger/Tape",
+      "dsp": "hd2",
+      "id": 164,
+      "key": "HD2_FlangerGrayFlangerStereo",
+      "name": "Gray Flanger",
+      "stereo_model": "HD2_FlangerGrayFlangerStereo"
+    },
+    {
       "category": "synth",
       "class": "Synth",
       "dsp": "xt",
@@ -4386,6 +3855,15 @@
       "stereo_model": "HX2_GateHardGateStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Gate",
+      "dsp": "hd2",
+      "id": 5,
+      "key": "HX2_GateHardGateStereo",
+      "name": "Hard Gate",
+      "stereo_model": "HX2_GateHardGateStereo"
+    },
+    {
       "category": "modulation",
       "class": "Flanger/Tape",
       "dsp": "hd2",
@@ -4396,10 +3874,28 @@
     },
     {
       "category": "modulation",
+      "class": "Flanger/Tape",
+      "dsp": "hd2",
+      "id": 165,
+      "key": "HD2_FlangerHarmonicFlangerStereo",
+      "name": "Harmonic Flanger",
+      "stereo_model": "HD2_FlangerHarmonicFlangerStereo"
+    },
+    {
+      "category": "modulation",
       "class": "Tremolo",
       "dsp": "hd2",
       "id": 329,
       "key": "HD2_TremoloHarmonicMono",
+      "name": "Harmonic Tremolo",
+      "stereo_model": "HD2_TremoloHarmonicStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Tremolo",
+      "dsp": "hd2",
+      "id": 194,
+      "key": "HD2_TremoloHarmonicStereo",
       "name": "Harmonic Tremolo",
       "stereo_model": "HD2_TremoloHarmonicStereo"
     },
@@ -4434,8 +3930,26 @@
       "category": "distortion",
       "class": "Distortion",
       "dsp": "hd2",
+      "id": 149,
+      "key": "HD2_DistHedgehogD9Stereo",
+      "name": "Hedgehog D9",
+      "stereo_model": "HD2_DistHedgehogD9Stereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
       "id": 378,
       "key": "HD2_DistHeirApparentMono",
+      "name": "Heir Apparent",
+      "stereo_model": "HD2_DistHeirApparentStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 242,
+      "key": "HD2_DistHeirApparentStereo",
       "name": "Heir Apparent",
       "stereo_model": "HD2_DistHeirApparentStereo"
     },
@@ -4449,11 +3963,29 @@
       "stereo_model": "HD2_DelayHeliosphereStereo"
     },
     {
+      "category": "delay",
+      "class": "Special FX",
+      "dsp": "hd2",
+      "id": 493,
+      "key": "HD2_DelayHeliosphereStereo",
+      "name": "Heliosphere",
+      "stereo_model": "HD2_DelayHeliosphereStereo"
+    },
+    {
       "category": "distortion",
       "class": "Overdrive",
       "dsp": "hd2",
       "id": 386,
       "key": "HD2_DistHorizonDriveMono",
+      "name": "Horizon Drive",
+      "stereo_model": "HD2_DistHorizonDriveStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 513,
+      "key": "HD2_DistHorizonDriveStereo",
       "name": "Horizon Drive",
       "stereo_model": "HD2_DistHorizonDriveStereo"
     },
@@ -4467,6 +3999,16 @@
       "stereo_model": "HX2_GateHorizonGateStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Gate",
+      "dsp": "hd2",
+      "id": 4,
+      "key": "HX2_GateHorizonGateStereo",
+      "name": "Horizon Gate",
+      "stereo_model": "HX2_GateHorizonGateStereo"
+    },
+    {
+      "available": false,
       "category": null,
       "class": null,
       "dsp": "hd2",
@@ -4476,6 +4018,7 @@
       "stereo_model": null
     },
     {
+      "available": false,
       "category": null,
       "class": null,
       "dsp": "hd2",
@@ -4494,6 +4037,15 @@
       "stereo_model": "HD2_ReverbHxSpringStereo"
     },
     {
+      "category": "reverb",
+      "class": "Spring",
+      "dsp": "hd2",
+      "id": 490,
+      "key": "HD2_ReverbHxSpringStereo",
+      "name": "Hot Springs",
+      "stereo_model": "HD2_ReverbHxSpringStereo"
+    },
+    {
       "category": "ir",
       "class": "IR",
       "dsp": "hd2",
@@ -4508,6 +4060,15 @@
       "dsp": "hd2",
       "id": 288,
       "key": "HD2_DistIndustrialFuzzMono",
+      "name": "Industrial Fuzz",
+      "stereo_model": "HD2_DistIndustrialFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 148,
+      "key": "HD2_DistIndustrialFuzzStereo",
       "name": "Industrial Fuzz",
       "stereo_model": "HD2_DistIndustrialFuzzStereo"
     },
@@ -4613,6 +4174,15 @@
     {
       "category": "distortion",
       "class": "Distortion",
+      "dsp": "hd2",
+      "id": 187,
+      "key": "HD2_DistKWBStereo",
+      "name": "KWB",
+      "stereo_model": "HD2_DistKWBStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
       "dsp": "xt",
       "id": 391,
       "key": "KillerZ",
@@ -4647,11 +4217,29 @@
       "stereo_model": "HD2_DistKinkyBoostStereo"
     },
     {
+      "category": "distortion",
+      "class": "Boost",
+      "dsp": "hd2",
+      "id": 202,
+      "key": "HD2_DistKinkyBoostStereo",
+      "name": "Kinky Boost",
+      "stereo_model": "HD2_DistKinkyBoostStereo"
+    },
+    {
       "category": "dynamics",
       "class": "Compress",
       "dsp": "hd2",
       "id": 34,
       "key": "HX2_CompressorKinkyCompMono",
+      "name": "Kinky Comp",
+      "stereo_model": "HX2_CompressorKinkyCompStereo"
+    },
+    {
+      "category": "dynamics",
+      "class": "Compress",
+      "dsp": "hd2",
+      "id": 12,
+      "key": "HX2_CompressorKinkyCompStereo",
       "name": "Kinky Comp",
       "stereo_model": "HX2_CompressorKinkyCompStereo"
     },
@@ -4683,6 +4271,15 @@
       "stereo_model": "HX2_CompressorLAStudioCompStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Compress",
+      "dsp": "hd2",
+      "id": 13,
+      "key": "HX2_CompressorLAStudioCompStereo",
+      "name": "LA Studio Comp",
+      "stereo_model": "HX2_CompressorLAStudioCompStereo"
+    },
+    {
       "category": "distortion",
       "class": "Overdrive",
       "dsp": "hd2",
@@ -4692,9 +4289,18 @@
       "stereo_model": "HD2_DistLegendaryDriveStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 512,
+      "key": "HD2_DistLegendaryDriveStereo",
+      "name": "Legendary Drive",
+      "stereo_model": "HD2_DistLegendaryDriveStereo"
+    },
+    {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "hd2-legacy",
       "id": 633,
       "key": "HD2_AmpLine6Litigator",
       "name": "Litigator",
@@ -4703,7 +4309,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 634,
       "key": "HD2_PreampLine6Litigator",
       "name": "Litigator",
@@ -4793,7 +4399,7 @@
     {
       "category": "amp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "hd2-legacy",
       "id": 697,
       "key": "HD2_AmpMandarinRocker",
       "name": "Mandarin Rocker",
@@ -4802,7 +4408,7 @@
     {
       "category": "preamp",
       "class": "Guitar",
-      "dsp": "hd2",
+      "dsp": "xt",
       "id": 698,
       "key": "HD2_PreampMandarinRocker",
       "name": "Mandarin Rocker",
@@ -4890,6 +4496,33 @@
       "stereo_model": "HD2_DistMegaphoneStereo"
     },
     {
+      "category": "distortion",
+      "class": "Megaphone",
+      "dsp": "hd2",
+      "id": 138,
+      "key": "HD2_DistMegaphoneStereo",
+      "name": "Megaphone",
+      "stereo_model": "HD2_DistMegaphoneStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 868,
+      "key": "HD2_DistMercatorMono",
+      "name": "Mercator Dist",
+      "stereo_model": "HD2_DistMercatorStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 869,
+      "key": "HD2_DistMercatorStereo",
+      "name": "Mercator Dist",
+      "stereo_model": "HD2_DistMercatorStereo"
+    },
+    {
       "category": "input",
       "class": null,
       "dsp": "hd2",
@@ -4908,6 +4541,15 @@
       "stereo_model": "HD2_DistMinotaurStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 507,
+      "key": "HD2_DistMinotaurStereo",
+      "name": "Minotaur",
+      "stereo_model": "HD2_DistMinotaurStereo"
+    },
+    {
       "category": "join",
       "class": null,
       "dsp": "hd2",
@@ -4922,6 +4564,15 @@
       "dsp": "hd2",
       "id": 124,
       "key": "HD2_DelayModChorusEchoMono",
+      "name": "Mod/Chorus Echo",
+      "stereo_model": "HD2_DelayModChorusEchoStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Analog",
+      "dsp": "hd2",
+      "id": 88,
+      "key": "HD2_DelayModChorusEchoStereo",
       "name": "Mod/Chorus Echo",
       "stereo_model": "HD2_DelayModChorusEchoStereo"
     },
@@ -4990,6 +4641,15 @@
     },
     {
       "category": "delay",
+      "class": "Special FX",
+      "dsp": "hd2",
+      "id": 84,
+      "key": "HD2_DelayMultiPassStereo",
+      "name": "Multi Pass",
+      "stereo_model": "HD2_DelayMultiPassStereo"
+    },
+    {
+      "category": "delay",
       "class": "Analog",
       "dsp": "xt",
       "id": 49,
@@ -5028,28 +4688,28 @@
       "category": "filter",
       "class": "Filter",
       "dsp": "hd2",
+      "id": 8,
+      "key": "HX2_FilterMutantFilterStereo",
+      "name": "Mutant Filter",
+      "stereo_model": "HX2_FilterMutantFilterStereo"
+    },
+    {
+      "category": "filter",
+      "class": "Filter",
+      "dsp": "hd2",
       "id": 20,
       "key": "HX2_FilterMysterFilterMono",
       "name": "Mystery Filter",
       "stereo_model": "HX2_FilterMysterFilterStereo"
     },
     {
-      "category": "input",
-      "class": null,
+      "category": "filter",
+      "class": "Filter",
       "dsp": "hd2",
-      "id": 776,
-      "key": "P35_InputNexus1",
-      "name": "Nexus 1",
-      "stereo_model": null
-    },
-    {
-      "category": "input",
-      "class": null,
-      "dsp": "hd2",
-      "id": 777,
-      "key": "P35_InputNexus2",
-      "name": "Nexus 2",
-      "stereo_model": null
+      "id": 6,
+      "key": "HX2_FilterMysterFilterStereo",
+      "name": "Mystery Filter",
+      "stereo_model": "HX2_FilterMysterFilterStereo"
     },
     {
       "category": "cab_ir_interp",
@@ -5070,6 +4730,16 @@
       "stereo_model": "HX2_GateNoiseGateStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Gate",
+      "dsp": "hd2",
+      "id": 3,
+      "key": "HX2_GateNoiseGateStereo",
+      "name": "Noise Gate",
+      "stereo_model": "HX2_GateNoiseGateStereo"
+    },
+    {
+      "available": false,
       "category": null,
       "class": null,
       "dsp": "hd2",
@@ -5079,6 +4749,7 @@
       "stereo_model": null
     },
     {
+      "available": false,
       "category": null,
       "class": null,
       "dsp": "hd2",
@@ -5111,6 +4782,15 @@
       "dsp": "hd2",
       "id": 496,
       "key": "HD2_ReverbNonLinearMono",
+      "name": "Nonlinear",
+      "stereo_model": "HD2_ReverbNonLinearStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 489,
+      "key": "HD2_ReverbNonLinearStereo",
       "name": "Nonlinear",
       "stereo_model": "HD2_ReverbNonLinearStereo"
     },
@@ -5152,6 +4832,15 @@
     },
     {
       "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 198,
+      "key": "HD2_DistObsidian7000Stereo",
+      "name": "Obsidian 7000",
+      "stereo_model": "HD2_DistObsidian7000Stereo"
+    },
+    {
+      "category": "distortion",
       "class": "Fuzz",
       "dsp": "xt",
       "id": 353,
@@ -5178,11 +4867,29 @@
       "stereo_model": null
     },
     {
+      "category": "amp",
+      "class": "Guitar",
+      "dsp": "agoura",
+      "id": 847,
+      "key": "Agoura_AmpOmegaGrano",
+      "name": "Omega Granophyre",
+      "stereo_model": null
+    },
+    {
       "category": "modulation",
       "class": "Tremolo",
       "dsp": "hd2",
       "id": 311,
       "key": "HD2_TremoloOpticalTremMono",
+      "name": "Optical Trem",
+      "stereo_model": "HD2_TremoloOpticalTremStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Tremolo",
+      "dsp": "hd2",
+      "id": 151,
+      "key": "HD2_TremoloOpticalTremStereo",
       "name": "Optical Trem",
       "stereo_model": "HD2_TremoloOpticalTremStereo"
     },
@@ -5313,6 +5020,15 @@
       "stereo_model": "HX2_EQParametricStereo"
     },
     {
+      "category": "eq",
+      "class": "Parametric",
+      "dsp": "hd2",
+      "id": 259,
+      "key": "HX2_EQParametricStereo",
+      "name": "Parametric",
+      "stereo_model": "HX2_EQParametricStereo"
+    },
+    {
       "category": "reverb",
       "class": "Special FX",
       "dsp": "xt",
@@ -5369,6 +5085,15 @@
     {
       "category": "modulation",
       "class": "Phaser",
+      "dsp": "hd2",
+      "id": 244,
+      "key": "HD2_PhaserPebblePhaserStereo",
+      "name": "Pebble Phaser",
+      "stereo_model": "HD2_PhaserPebblePhaserStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Phaser",
       "dsp": "xt",
       "id": 223,
       "key": "HD2_MM4Phaser",
@@ -5403,6 +5128,15 @@
       "stereo_model": "HD2_DistPillarsStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 255,
+      "key": "HD2_DistPillarsStereo",
+      "name": "Pillars",
+      "stereo_model": "HD2_DistPillarsStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "xt",
@@ -5430,6 +5164,15 @@
       "stereo_model": "HD2_DelayPitchStereo"
     },
     {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 492,
+      "key": "HD2_DelayPitchStereo",
+      "name": "Pitch Echo",
+      "stereo_model": "HD2_DelayPitchStereo"
+    },
+    {
       "category": "modulation",
       "class": "Ring Mod",
       "dsp": "hd2",
@@ -5453,6 +5196,15 @@
       "dsp": "hd2",
       "id": 292,
       "key": "HD2_PitchPitchWhamMono",
+      "name": "Pitch Wham",
+      "stereo_model": "HD2_PitchPitchWhamStereo"
+    },
+    {
+      "category": "pitch",
+      "class": "Wham",
+      "dsp": "hd2",
+      "id": 156,
+      "key": "HD2_PitchPitchWhamStereo",
       "name": "Pitch Wham",
       "stereo_model": "HD2_PitchPitchWhamStereo"
     },
@@ -5502,6 +5254,15 @@
       "stereo_model": "HD2_ChorusPlastiChorusStereo"
     },
     {
+      "category": "modulation",
+      "class": "Chorus",
+      "dsp": "hd2",
+      "id": 199,
+      "key": "HD2_ChorusPlastiChorusStereo",
+      "name": "PlastiChorus",
+      "stereo_model": "HD2_ChorusPlastiChorusStereo"
+    },
+    {
       "category": "reverb",
       "class": "Plate",
       "dsp": "xt",
@@ -5520,58 +5281,79 @@
       "stereo_model": "HD2_ReverbPlateauxStereo"
     },
     {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 70,
+      "key": "HD2_ReverbPlateauxStereo",
+      "name": "Plateaux",
+      "stereo_model": "HD2_ReverbPlateauxStereo"
+    },
+    {
+      "available": false,
       "category": "fxloop",
       "class": "FX Loop",
       "dsp": "hd2",
       "id": 416,
       "key": "HD2_PluginMono1",
       "name": "Plugin 1",
-      "stereo_model": null
+      "stereo_model": null,
+      "synthetic_fallback": true
     },
     {
+      "available": false,
       "category": "fxloop",
       "class": "FX Loop",
       "dsp": "hd2",
       "id": 262,
       "key": "HD2_PluginStereo1_2",
       "name": "Plugin 1/2",
-      "stereo_model": null
+      "stereo_model": null,
+      "synthetic_fallback": true
     },
     {
+      "available": false,
       "category": "fxloop",
       "class": "FX Loop",
       "dsp": "hd2",
       "id": 419,
       "key": "HD2_PluginMono2",
       "name": "Plugin 2",
-      "stereo_model": null
+      "stereo_model": null,
+      "synthetic_fallback": true
     },
     {
+      "available": false,
       "category": "fxloop",
       "class": "FX Loop",
       "dsp": "hd2",
       "id": 417,
       "key": "HD2_PluginMono3",
       "name": "Plugin 3",
-      "stereo_model": null
+      "stereo_model": null,
+      "synthetic_fallback": true
     },
     {
+      "available": false,
       "category": "fxloop",
       "class": "FX Loop",
       "dsp": "hd2",
       "id": 263,
       "key": "HD2_PluginStereo3_4",
       "name": "Plugin 3/4",
-      "stereo_model": null
+      "stereo_model": null,
+      "synthetic_fallback": true
     },
     {
+      "available": false,
       "category": "fxloop",
       "class": "FX Loop",
       "dsp": "hd2",
       "id": 418,
       "key": "HD2_PluginMono4",
       "name": "Plugin 4",
-      "stereo_model": null
+      "stereo_model": null,
+      "synthetic_fallback": true
     },
     {
       "category": "distortion",
@@ -5579,6 +5361,15 @@
       "dsp": "hd2",
       "id": 388,
       "key": "HD2_DistPocketFuzzMono",
+      "name": "Pocket Fuzz",
+      "stereo_model": "HD2_DistPocketFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 249,
+      "key": "HD2_DistPocketFuzzStereo",
       "name": "Pocket Fuzz",
       "stereo_model": "HD2_DistPocketFuzzStereo"
     },
@@ -5628,6 +5419,24 @@
       "stereo_model": null
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 870,
+      "key": "HD2_DistPortaBox424Mono",
+      "name": "PortaBox 424",
+      "stereo_model": "HD2_DistPortaBox424Stereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 871,
+      "key": "HD2_DistPortaBox424Stereo",
+      "name": "PortaBox 424",
+      "stereo_model": "HD2_DistPortaBox424Stereo"
+    },
+    {
       "category": "preamp",
       "class": "Clone",
       "dsp": "agoura",
@@ -5644,6 +5453,24 @@
       "key": "HD2_DistPrizeDriveMono",
       "name": "Prize Drive",
       "stereo_model": "HD2_DistPrizeDriveStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 517,
+      "key": "HD2_DistPrizeDriveStereo",
+      "name": "Prize Drive",
+      "stereo_model": "HD2_DistPrizeDriveStereo"
+    },
+    {
+      "category": "amp",
+      "class": "Guitar",
+      "dsp": "agoura",
+      "id": 846,
+      "key": "Agoura_AmpLine6Prosecutor",
+      "name": "Prosecutor",
+      "stereo_model": null
     },
     {
       "category": "filter",
@@ -5673,11 +5500,29 @@
       "stereo_model": "HD2_DistRatatouilleDistStereo"
     },
     {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 251,
+      "key": "HD2_DistRatatouilleDistStereo",
+      "name": "Ratatouille Dist",
+      "stereo_model": "HD2_DistRatatouilleDistStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "hd2",
       "id": 107,
       "key": "VIC_DelayRatchetMono",
+      "name": "Ratchet",
+      "stereo_model": "VIC_DelayRatchetStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 41,
+      "key": "VIC_DelayRatchetStereo",
       "name": "Ratchet",
       "stereo_model": "VIC_DelayRatchetStereo"
     },
@@ -5700,6 +5545,15 @@
       "stereo_model": "HX2_CompressorRedSqueezeStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Compress",
+      "dsp": "hd2",
+      "id": 14,
+      "key": "HX2_CompressorRedSqueezeStereo",
+      "name": "Red Squeeze",
+      "stereo_model": "HX2_CompressorRedSqueezeStereo"
+    },
+    {
       "category": "distortion",
       "class": "Overdrive",
       "dsp": "hd2",
@@ -5709,11 +5563,29 @@
       "stereo_model": "HD2_DistRegalBassDIStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 518,
+      "key": "HD2_DistRegalBassDIStereo",
+      "name": "Regal Bass DI",
+      "stereo_model": "HD2_DistRegalBassDIStereo"
+    },
+    {
       "category": "modulation",
       "class": "Flanger/Tape",
       "dsp": "hd2",
       "id": 389,
       "key": "HD2_RetroReelMono",
+      "name": "Retro Reel",
+      "stereo_model": "HD2_RetroReelStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Flanger/Tape",
+      "dsp": "hd2",
+      "id": 250,
+      "key": "HD2_RetroReelStereo",
       "name": "Retro Reel",
       "stereo_model": "HD2_RetroReelStereo"
     },
@@ -5844,6 +5716,15 @@
       "stereo_model": "HD2_DelayReverseDelayStereo"
     },
     {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 82,
+      "key": "HD2_DelayReverseDelayStereo",
+      "name": "Reverse Delay",
+      "stereo_model": "HD2_DelayReverseDelayStereo"
+    },
+    {
       "category": "amp",
       "class": "Guitar",
       "dsp": "agoura",
@@ -5925,6 +5806,51 @@
       "stereo_model": "HX2_CompressorRochesterCompStereo"
     },
     {
+      "category": "dynamics",
+      "class": "Compress",
+      "dsp": "hd2",
+      "id": 10,
+      "key": "HX2_CompressorRochesterCompStereo",
+      "name": "Rochester Comp",
+      "stereo_model": "HX2_CompressorRochesterCompStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Boost",
+      "dsp": "hd2",
+      "id": 855,
+      "key": "HD2_DistRockBoxBoostMono",
+      "name": "Rock Box Boost",
+      "stereo_model": "HD2_DistRockBoxBoostStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Boost",
+      "dsp": "hd2",
+      "id": 856,
+      "key": "HD2_DistRockBoxBoostStereo",
+      "name": "Rock Box Boost",
+      "stereo_model": "HD2_DistRockBoxBoostStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 857,
+      "key": "HD2_DistRockBoxMono",
+      "name": "Rock Box Dist",
+      "stereo_model": "HD2_DistRockBoxStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 858,
+      "key": "HD2_DistRockBoxStereo",
+      "name": "Rock Box Dist",
+      "stereo_model": "HD2_DistRockBoxStereo"
+    },
+    {
       "category": "reverb",
       "class": "Spaces",
       "dsp": "xt",
@@ -5990,6 +5916,15 @@
     {
       "category": "distortion",
       "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 176,
+      "key": "HD2_DistScream808Stereo",
+      "name": "Scream 808",
+      "stereo_model": "HD2_DistScream808Stereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
       "dsp": "xt",
       "id": 354,
       "key": "HD2_DM4Screamer",
@@ -6008,6 +5943,15 @@
     {
       "category": "modulation",
       "class": "Phaser",
+      "dsp": "hd2",
+      "id": 162,
+      "key": "HD2_PhaserScriptModPhaseStereo",
+      "name": "Script Mod Phase",
+      "stereo_model": "HD2_PhaserScriptModPhaseStereo"
+    },
+    {
+      "category": "modulation",
+      "class": "Phaser",
       "dsp": "xt",
       "id": 205,
       "key": "HD2_MM4ScriptPhase",
@@ -6020,6 +5964,15 @@
       "dsp": "hd2",
       "id": 98,
       "key": "HD2_ReverbSearchlightsMono",
+      "name": "Searchlights",
+      "stereo_model": "HD2_ReverbSearchlightsStereo"
+    },
+    {
+      "category": "reverb",
+      "class": "Spaces",
+      "dsp": "hd2",
+      "id": 61,
+      "key": "HD2_ReverbSearchlightsStereo",
       "name": "Searchlights",
       "stereo_model": "HD2_ReverbSearchlightsStereo"
     },
@@ -6123,11 +6076,29 @@
       "stereo_model": "VIC_ReverbShimmerStereo"
     },
     {
+      "category": "reverb",
+      "class": "Special FX",
+      "dsp": "hd2",
+      "id": 484,
+      "key": "VIC_ReverbShimmerStereo",
+      "name": "Shimmer",
+      "stereo_model": "VIC_ReverbShimmerStereo"
+    },
+    {
       "category": "looper",
       "class": null,
       "dsp": "hd2",
       "id": 814,
       "key": "VIC_LooperShufflingMono",
+      "name": "Shuffling Looper",
+      "stereo_model": "VIC_LooperShufflingStereo"
+    },
+    {
+      "category": "looper",
+      "class": null,
+      "dsp": "hd2",
+      "id": 815,
+      "key": "VIC_LooperShufflingStereo",
       "name": "Shuffling Looper",
       "stereo_model": "VIC_LooperShufflingStereo"
     },
@@ -6141,11 +6112,29 @@
       "stereo_model": "HD2_DelaySimpleDelayStereo"
     },
     {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 87,
+      "key": "HD2_DelaySimpleDelayStereo",
+      "name": "Simple Delay",
+      "stereo_model": "HD2_DelaySimpleDelayStereo"
+    },
+    {
       "category": "pitch",
       "class": "Pitch",
       "dsp": "hd2",
       "id": 328,
       "key": "HD2_PitchSimplePitchMono",
+      "name": "Simple Pitch",
+      "stereo_model": "HD2_PitchSimplePitchStereo"
+    },
+    {
+      "category": "pitch",
+      "class": "Pitch",
+      "dsp": "hd2",
+      "id": 193,
+      "key": "HD2_PitchSimplePitchStereo",
       "name": "Simple Pitch",
       "stereo_model": "HD2_PitchSimplePitchStereo"
     },
@@ -6349,6 +6338,15 @@
     },
     {
       "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 197,
+      "key": "HD2_DistStuporODStereo",
+      "name": "Stupor OD",
+      "stereo_model": "HD2_DistStuporODStereo"
+    },
+    {
+      "category": "distortion",
       "class": "Fuzz",
       "dsp": "xt",
       "id": 350,
@@ -6362,6 +6360,15 @@
       "dsp": "hd2",
       "id": 385,
       "key": "HD2_DistSwedishChainsawMono",
+      "name": "Swedish Chainsaw",
+      "stereo_model": "HD2_DistSwedishChainsawStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 248,
+      "key": "HD2_DistSwedishChainsawStereo",
       "name": "Swedish Chainsaw",
       "stereo_model": "HD2_DistSwedishChainsawStereo"
     },
@@ -6380,6 +6387,15 @@
       "dsp": "hd2",
       "id": 119,
       "key": "HD2_DelaySweepEchoMono",
+      "name": "Sweep Echo",
+      "stereo_model": "HD2_DelaySweepEchoStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Special FX",
+      "dsp": "hd2",
+      "id": 80,
+      "key": "HD2_DelaySweepEchoStereo",
       "name": "Sweep Echo",
       "stereo_model": "HD2_DelaySweepEchoStereo"
     },
@@ -6468,8 +6484,26 @@
       "category": "wah",
       "class": "Wah",
       "dsp": "hd2",
+      "id": 153,
+      "key": "HD2_WahTeardrop310Stereo",
+      "name": "Teardrop 310",
+      "stereo_model": "HD2_WahTeardrop310Stereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
       "id": 415,
       "key": "HD2_WahTeardropBassQMono",
+      "name": "Teardrop Bass Q",
+      "stereo_model": "HD2_WahTeardropBassQStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 261,
+      "key": "HD2_WahTeardropBassQStereo",
       "name": "Teardrop Bass Q",
       "stereo_model": "HD2_WahTeardropBassQStereo"
     },
@@ -6483,11 +6517,29 @@
       "stereo_model": "HD2_DistTeemahStereo"
     },
     {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 191,
+      "key": "HD2_DistTeemahStereo",
+      "name": "Teemah!",
+      "stereo_model": "HD2_DistTeemahStereo"
+    },
+    {
       "category": "delay",
       "class": "Digital",
       "dsp": "hd2",
       "id": 106,
       "key": "VIC_DelayStutterEditMono",
+      "name": "Tesselator",
+      "stereo_model": "VIC_DelayStutterEditStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 42,
+      "key": "VIC_DelayStutterEditStereo",
       "name": "Tesselator",
       "stereo_model": "VIC_DelayStutterEditStereo"
     },
@@ -6501,11 +6553,29 @@
       "stereo_model": "HD2_DistThrifterFuzzStereo"
     },
     {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 200,
+      "key": "HD2_DistThrifterFuzzStereo",
+      "name": "Thrifter Fuzz",
+      "stereo_model": "HD2_DistThrifterFuzzStereo"
+    },
+    {
       "category": "wah",
       "class": "Wah",
       "dsp": "hd2",
       "id": 318,
       "key": "HD2_WahThroatyMono",
+      "name": "Throaty",
+      "stereo_model": "HD2_WahThroatyStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 182,
+      "key": "HD2_WahThroatyStereo",
       "name": "Throaty",
       "stereo_model": "HD2_WahThroatyStereo"
     },
@@ -6537,11 +6607,29 @@
       "stereo_model": "HD2_EQSimpleTiltStereo"
     },
     {
+      "category": "eq",
+      "class": "Tilt",
+      "dsp": "hd2",
+      "id": 238,
+      "key": "HD2_EQSimpleTiltStereo",
+      "name": "Tilt",
+      "stereo_model": "HD2_EQSimpleTiltStereo"
+    },
+    {
       "category": "distortion",
       "class": "Distortion",
       "dsp": "hd2",
       "id": 377,
       "key": "HD2_DistToneSovereignMono",
+      "name": "Tone Sovereign",
+      "stereo_model": "HD2_DistToneSovereignStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 510,
+      "key": "HD2_DistToneSovereignStereo",
       "name": "Tone Sovereign",
       "stereo_model": "HD2_DistToneSovereignStereo"
     },
@@ -6555,11 +6643,29 @@
       "stereo_model": "HD2_DistTopSecretODStereo"
     },
     {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 171,
+      "key": "HD2_DistTopSecretODStereo",
+      "name": "Top Secret OD",
+      "stereo_model": "HD2_DistTopSecretODStereo"
+    },
+    {
       "category": "delay",
       "class": "Tape",
       "dsp": "hd2",
       "id": 116,
       "key": "HD2_DelayTransistorTapeMono",
+      "name": "Transistor Tape",
+      "stereo_model": "HD2_DelayTransistorTapeStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Tape",
+      "dsp": "hd2",
+      "id": 77,
+      "key": "HD2_DelayTransistorTapeStereo",
       "name": "Transistor Tape",
       "stereo_model": "HD2_DelayTransistorTapeStereo"
     },
@@ -6596,6 +6702,15 @@
       "dsp": "hd2",
       "id": 300,
       "key": "HD2_DistTriangleFuzzMono",
+      "name": "Triangle Fuzz",
+      "stereo_model": "HD2_DistTriangleFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 169,
+      "key": "HD2_DistTriangleFuzzStereo",
       "name": "Triangle Fuzz",
       "stereo_model": "HD2_DistTriangleFuzzStereo"
     },
@@ -6708,11 +6823,29 @@
       "stereo_model": "HD2_PitchTwinHarmonyStereo"
     },
     {
+      "category": "pitch",
+      "class": "Pitch",
+      "dsp": "hd2",
+      "id": 155,
+      "key": "HD2_PitchTwinHarmonyStereo",
+      "name": "Twin Harmony",
+      "stereo_model": "HD2_PitchTwinHarmonyStereo"
+    },
+    {
       "category": "distortion",
       "class": "Fuzz",
       "dsp": "hd2",
       "id": 309,
       "key": "HD2_DistTycoctaviaFuzzMono",
+      "name": "Tycoctavia Fuzz",
+      "stereo_model": "HD2_DistTycoctaviaFuzzStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 174,
+      "key": "HD2_DistTycoctaviaFuzzStereo",
       "name": "Tycoctavia Fuzz",
       "stereo_model": "HD2_DistTycoctaviaFuzzStereo"
     },
@@ -6731,6 +6864,15 @@
       "dsp": "hd2",
       "id": 290,
       "key": "HD2_WahUKWah846Mono",
+      "name": "UK Wah 846",
+      "stereo_model": "HD2_WahUKWah846Stereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 154,
+      "key": "HD2_WahUKWah846Stereo",
       "name": "UK Wah 846",
       "stereo_model": "HD2_WahUKWah846Stereo"
     },
@@ -7023,6 +7165,15 @@
       "stereo_model": "HD2_PhaserUbiquitousVibeStereo"
     },
     {
+      "category": "modulation",
+      "class": "Phaser",
+      "dsp": "hd2",
+      "id": 152,
+      "key": "HD2_PhaserUbiquitousVibeStereo",
+      "name": "Ubiquitous Vibe",
+      "stereo_model": "HD2_PhaserUbiquitousVibeStereo"
+    },
+    {
       "category": "filter",
       "class": "Filter",
       "dsp": "xt",
@@ -7037,6 +7188,15 @@
       "dsp": "hd2",
       "id": 286,
       "key": "HD2_DistValveDriverMono",
+      "name": "Valve Driver",
+      "stereo_model": "HD2_DistValveDriverStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 506,
+      "key": "HD2_DistValveDriverStereo",
       "name": "Valve Driver",
       "stereo_model": "HD2_DistValveDriverStereo"
     },
@@ -7068,6 +7228,15 @@
       "stereo_model": "HD2_DistVerminDistStereo"
     },
     {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 172,
+      "key": "HD2_DistVerminDistStereo",
+      "name": "Vermin Dist",
+      "stereo_model": "HD2_DistVerminDistStereo"
+    },
+    {
       "category": "dynamics",
       "class": "Compress",
       "dsp": "xt",
@@ -7095,6 +7264,15 @@
       "stereo_model": "HD2_WahVettaWahStereo"
     },
     {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 183,
+      "key": "HD2_WahVettaWahStereo",
+      "name": "Vetta Wah",
+      "stereo_model": "HD2_WahVettaWahStereo"
+    },
+    {
       "category": "modulation",
       "class": "Rotary",
       "dsp": "hd2",
@@ -7116,8 +7294,26 @@
       "category": "delay",
       "class": "Digital",
       "dsp": "hd2",
+      "id": 76,
+      "key": "HD2_DelayVintageDigitalStereoV2",
+      "name": "Vintage Digital",
+      "stereo_model": "HD2_DelayVintageDigitalStereoV2"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
       "id": 117,
       "key": "HD2_DelaySwellVintageDigitalMono",
+      "name": "Vintage Swell",
+      "stereo_model": "HD2_DelaySwellVintageDigitalStereo"
+    },
+    {
+      "category": "delay",
+      "class": "Digital",
+      "dsp": "hd2",
+      "id": 78,
+      "key": "HD2_DelaySwellVintageDigitalStereo",
       "name": "Vintage Swell",
       "stereo_model": "HD2_DelaySwellVintageDigitalStereo"
     },
@@ -7132,10 +7328,28 @@
     },
     {
       "category": "distortion",
+      "class": "Boost",
+      "dsp": "hd2",
+      "id": 254,
+      "key": "HD2_DistVitalBoostStereo",
+      "name": "Vital Boost",
+      "stereo_model": "HD2_DistVitalBoostStereo"
+    },
+    {
+      "category": "distortion",
       "class": "Distortion",
       "dsp": "hd2",
       "id": 404,
       "key": "HD2_DistVitalDistMono",
+      "name": "Vital Dist",
+      "stereo_model": "HD2_DistVitalDistStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Distortion",
+      "dsp": "hd2",
+      "id": 515,
+      "key": "HD2_DistVitalDistStereo",
       "name": "Vital Dist",
       "stereo_model": "HD2_DistVitalDistStereo"
     },
@@ -7194,6 +7408,15 @@
       "stereo_model": "HD2_VolPanVolStereo"
     },
     {
+      "category": "volume",
+      "class": "Volume Pedal",
+      "dsp": "hd2",
+      "id": 136,
+      "key": "HD2_VolPanVolStereo",
+      "name": "Volume Pedal",
+      "stereo_model": "HD2_VolPanVolStereo"
+    },
+    {
       "category": "modulation",
       "class": "Flanger/Tape",
       "dsp": "xt",
@@ -7208,6 +7431,15 @@
       "dsp": "hd2",
       "id": 320,
       "key": "HD2_WahWeeperMono",
+      "name": "Weeper",
+      "stereo_model": "HD2_WahWeeperStereo"
+    },
+    {
+      "category": "wah",
+      "class": "Wah",
+      "dsp": "hd2",
+      "id": 184,
+      "key": "HD2_WahWeeperStereo",
       "name": "Weeper",
       "stereo_model": "HD2_WahWeeperStereo"
     },
@@ -7266,6 +7498,15 @@
       "stereo_model": "HD2_DistWringerFuzzStereo"
     },
     {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 195,
+      "key": "HD2_DistWringerFuzzStereo",
+      "name": "Wringer Fuzz",
+      "stereo_model": "HD2_DistWringerFuzzStereo"
+    },
+    {
       "category": "output",
       "class": null,
       "dsp": "hd2",
@@ -7284,6 +7525,15 @@
       "stereo_model": "HD2_DistXenomorphFuzzStereo"
     },
     {
+      "category": "distortion",
+      "class": "Fuzz",
+      "dsp": "hd2",
+      "id": 511,
+      "key": "HD2_DistXenomorphFuzzStereo",
+      "name": "Xenomorph Fuzz",
+      "stereo_model": "HD2_DistXenomorphFuzzStereo"
+    },
+    {
       "category": "split",
       "class": null,
       "dsp": "hd2",
@@ -7298,6 +7548,15 @@
       "dsp": "hd2",
       "id": 376,
       "key": "HD2_DistZeroAmpBassDIMono",
+      "name": "ZeroAmp Bass DI",
+      "stereo_model": "HD2_DistZeroAmpBassDIStereo"
+    },
+    {
+      "category": "distortion",
+      "class": "Overdrive",
+      "dsp": "hd2",
+      "id": 241,
+      "key": "HD2_DistZeroAmpBassDIStereo",
       "name": "ZeroAmp Bass DI",
       "stereo_model": "HD2_DistZeroAmpBassDIStereo"
     }

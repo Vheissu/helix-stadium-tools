@@ -12,6 +12,8 @@ from .discovery import (  # noqa: F401
     discover_first_service,
     resolve_service,
 )
+from .library_content import decode_library_content  # noqa: F401
+from .library_events import parse_library_operation  # noqa: F401
 from .matrix_mixer import (  # noqa: F401
     MATRIX_CHANNEL_LABELS,
     MATRIX_LAYER_LABELS,

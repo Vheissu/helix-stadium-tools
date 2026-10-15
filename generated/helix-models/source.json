@@ -1,0 +1,20 @@
+{
+  "desktop_app_version": "1.4.0.20",
+  "firmware_verified": "1.4.0.1341",
+  "release_date": "2026-10-13",
+  "generated_on": "2026-10-15",
+  "source_files": {
+    "modeldefs/p35md-1_4_0_0.bin": {
+      "sha256": "7d8d347f3d576ce5639dddee540bacbff81a8bf5164d854e5c7a61e4346dd69a"
+    },
+    "P35ModelUIDefs.json": {
+      "sha256": "d62939522707ae0bf2ff21622e68718449830fccd26b3cfe76d2376cc0f0cada"
+    },
+    "P35ModelCatalog.json": {
+      "sha256": "fc86d098f71d3ddc4f89708711c6b630c0d74324728dc0dda1bef7442f3d055b"
+    },
+    "P35Controls.json": {
+      "sha256": "7b81dc3ee3350ac57988f9a8d7604eb4e5d32319c75409986887c2e7884c7c9b"
+    }
+  }
+}

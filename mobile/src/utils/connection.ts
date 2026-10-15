@@ -19,7 +19,7 @@ export const formatConnectionError = (error: unknown) => {
     return 'Connection was refused. Make sure Remote Access is enabled on your Helix Stadium.';
   }
   if (normalized.includes('timed out') || normalized.includes('timeout')) {
-    return 'Connection timed out. Make sure your Helix Stadium is on the same Wi-Fi network.';
+    return 'Connection timed out. Check the USB cable or make sure your Helix Stadium is on the same Wi-Fi network.';
   }
   if (
     normalized.includes('socket') ||
@@ -30,7 +30,7 @@ export const formatConnectionError = (error: unknown) => {
     normalized.includes('port') ||
     normalized.includes('reset')
   ) {
-    return 'Could not finish connecting. Make sure your Helix Stadium is on the same Wi-Fi network and that Remote Access is enabled.';
+    return 'Could not finish connecting. Check the USB cable or Wi-Fi connection, and make sure Remote Access is enabled.';
   }
   return 'Could not connect to your Helix Stadium. Check the device name or IP address and try again.';
 };

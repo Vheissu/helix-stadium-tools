@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocalNetworkUsageDescription": "Connect to Helix Stadium XL on your local network."
+        "NSLocalNetworkUsageDescription": "Connect to Helix Stadium over USB or your local Wi-Fi network."
       },
       "bundleIdentifier": "com.beggars.stadium-remote"
     },

@@ -12,9 +12,12 @@ test('formatConnectionError maps DNS failures to a device-not-found message', ()
   assert.equal(message, 'Device not found. Check the device name or IP address and try again.');
 });
 
-test('formatConnectionError maps timeouts to a Wi-Fi guidance message', () => {
+test('formatConnectionError maps timeouts to USB and Wi-Fi guidance', () => {
   const message = formatConnectionError(new Error('socket timed out'));
-  assert.equal(message, 'Connection timed out. Make sure your Helix Stadium is on the same Wi-Fi network.');
+  assert.equal(
+    message,
+    'Connection timed out. Check the USB cable or make sure your Helix Stadium is on the same Wi-Fi network.'
+  );
 });
 
 test('buildConnectionFailureStatus and getConnectionErrorMessage round-trip cleanly', () => {

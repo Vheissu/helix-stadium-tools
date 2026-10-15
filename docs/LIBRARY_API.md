@@ -106,6 +106,20 @@ HelixSession(
 Query helpers return decoded Python structures, or `None` when the device does
 not answer (unless `raise_on_timeout=True`).
 
+Firmware 1.4 adds `get_expression_pedal_position(index)`,
+`get_library_content(library, sku=None)`, `get_ir_spectrum(flow, block, slot=0)`,
+and an optional `sku` argument to `get_container_contents`. Omitting the SKU
+keeps the legacy request. Pedal values and spectrum bytes are preserved
+without guessing their calibration or encoding. Explicit device `/error`
+replies raise `HelixStatusError` when strict status handling is enabled.
+
+`parse_library_operation(address, values)`, exported from `helix`, classifies
+the twelve IR/clone import/delete notifications as `kind`, `operation`, and
+`phase`, while retaining `command_id`, `sequence`, and all payload `fields`.
+It returns `None` for unrelated or malformed messages. An end event is not
+interpreted as success. See [1.4 support](FIRMWARE_1_4_SUPPORT.md) for examples
+and verification limits.
+
 ### Snapshots
 
 | Method | Description |

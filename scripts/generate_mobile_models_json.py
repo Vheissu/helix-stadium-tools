@@ -48,7 +48,9 @@ def main():
     output = build_mobile_models(block_types)
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(output, indent=2, sort_keys=False), encoding="utf-8")
+    output_path.write_text(
+        json.dumps(output, indent=2, sort_keys=False) + "\n", encoding="utf-8"
+    )
     print(
         f"Wrote {output_path} "
         f"({len(output['amps'])} amps, {len(output['preamps'])} preamps, {len(output['cabs'])} cabs)"

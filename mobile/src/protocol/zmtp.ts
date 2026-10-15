@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import TcpSocket from 'react-native-tcp-socket';
 
 type Socket = ReturnType<typeof TcpSocket.createConnection>;
+export type NetworkInterfacePreference = 'ethernet' | 'wifi' | undefined;
 
 const CLIENT_GREETING = Buffer.from(
   'ff00000000000000017f03004e554c4c' +
@@ -72,10 +73,13 @@ export class ZmtpSocket {
   private socket: Socket | null = null;
   private queue = new BufferQueue();
 
-  async connect(host: string, port: number) {
+  async connect(host: string, port: number, networkInterface?: NetworkInterfacePreference) {
     if (this.socket) return;
     await new Promise<void>((resolve, reject) => {
-      const sock = TcpSocket.createConnection({ host, port }, () => undefined);
+      const options = networkInterface
+        ? { host, port, interface: networkInterface }
+        : { host, port };
+      const sock = TcpSocket.createConnection(options, () => undefined);
       this.socket = sock;
       sock.once('connect', () => resolve());
       sock.once('error', (err) => reject(err));

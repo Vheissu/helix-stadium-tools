@@ -110,6 +110,8 @@ def build_catalog_model_entry(
     uidef = resolve_uidef_for_model(model_key, uidefs)
     if not isinstance(model_info, dict) or not isinstance(uidef, dict):
         return None
+    if model_info.get("available") is False:
+        return None
 
     category = model_info.get("category")
     display_name = uidef.get("name") or model_key
@@ -287,6 +289,25 @@ def preserve_missing_model_entry(model):
         model["usage"] = 0
 
 
+def prune_unavailable_synthetic_models(block_types, modeldefs):
+    """Remove research-only fallback models from the user-facing picker."""
+    removed = []
+    for group in block_types.values():
+        models = group.get("models", [])
+        if not isinstance(models, list):
+            continue
+        kept = []
+        for model in models:
+            model_key = model.get("key") if isinstance(model, dict) else None
+            model_info = modeldefs.get(model_key) if model_key else None
+            if isinstance(model_info, dict) and model_info.get("available") is False:
+                removed.append(model_key)
+                continue
+            kept.append(model)
+        group["models"] = kept
+    return removed
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", default=str(DEFAULT_INPUT))
@@ -302,6 +323,7 @@ def main():
 
     block_types = json.loads(Path(args.input).read_text(encoding="utf-8"))
     modeldefs = load_modeldefs(args.modeldefs)
+    removed_unavailable = prune_unavailable_synthetic_models(block_types, modeldefs)
     modeldefs_by_id = index_modeldefs_by_id(modeldefs)
     uidefs = load_uidefs(args.uidefs)
     catalog_categories = load_model_catalog(args.catalog)
@@ -399,11 +421,14 @@ def main():
     )
 
     output_path = Path(args.output)
-    output_path.write_text(json.dumps(block_types, indent=2, sort_keys=False), encoding="utf-8")
+    output_path.write_text(
+        json.dumps(block_types, indent=2, sort_keys=False) + "\n", encoding="utf-8"
+    )
     print(
         f"Wrote {output_path} "
         f"({updated} models updated, {added + added_from_modeldefs} models added, "
-        f"{len(missing_models)} inherited entries preserved)"
+        f"{len(missing_models)} inherited entries preserved, "
+        f"{len(removed_unavailable)} unavailable synthetic models removed)"
     )
     if missing_models:
         print("Inherited entries without standalone modeldefs:")

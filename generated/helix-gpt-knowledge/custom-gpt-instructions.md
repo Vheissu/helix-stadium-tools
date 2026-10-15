@@ -2,7 +2,7 @@
 
 Paste the block below into the GPT Instructions field.
 
-Knowledge snapshot generated on 2026-05-07T22:33:14.224003+00:00.
+Knowledge snapshot generated on 2026-10-15T13:25:19.538466+00:00.
 
 ## Role
 

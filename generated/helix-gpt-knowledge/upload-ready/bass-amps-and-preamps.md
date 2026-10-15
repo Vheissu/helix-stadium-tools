@@ -2,7 +2,7 @@
 
 Upload-ready knowledge for bass amp and preamp blocks.
 
-Generated from the installed Helix Stadium desktop app bundle on 2026-05-07T22:33:14.224003+00:00.
+Generated from the installed Helix Stadium desktop app bundle on 2026-10-15T13:25:19.538466+00:00.
 
 Use display values for normal user-facing answers. Use model keys, IDs, and raw ranges only when the user asks for automation or low-level control details.
 
@@ -41,7 +41,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 9.4
+- DSP usage estimate: 8.6
 - Based on: Aguilar DB51
 - Agoura model: No
 
@@ -166,7 +166,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 6.9
+- DSP usage estimate: 6.0
 - Based on: Ampeg B-15NF Portaflex
 - Agoura model: No
 
@@ -222,7 +222,7 @@ Model count: 40
 
 ### Parameters
 
-- `Channel` (`key: Channel`, `id: 1`, `type: i`): valid values `Ch1 Normal`, `Ch1 Bright`, `Ch2 Normal`, `Ch2 Bright`, `Jumped`; default `Ch1 Normal`. Raw range `0` to `4`; raw default `0`. Selects the amp channel or which input is connected. "Jumped" jumps between the XXXXX and XXXXX channels.
+- `Channel` (`key: Channel`, `id: 1`, `type: i`): valid values `Ch1 Normal`, `Ch1 Bright`, `Ch2 Normal`, `Ch2 Bright`, `Jumped`; default `Ch1 Normal`. Raw range `0` to `4`; raw default `0`. Selects the amp channel or which input is connected. "Jumped" jumps between the Bright input of Channel 1 and the Normal input of Channel 2.
 - `1 Drive` (`key: 1Drive`, `id: 2`, `type: f`): display range `0` to `10` unitless; default `4.2`. Raw range `0` to `1`; raw default `0.42`. Controls the amount of Channel 1 gain applied to the signal, which influences the level of distortion.
 - `1 Bass` (`key: 1Bass`, `id: 3`, `type: f`): display range `0` to `10` unitless; default `4.4`. Raw range `0` to `1`; raw default `0.44`. Controls the low frequency EQ (40 Hz) of the tonestack for Channel 1.
 - `1 Mid` (`key: 1Mid`, `id: 4`, `type: f`): display range `0` to `10` unitless; default `6.3`. Raw range `0` to `1`; raw default `0.63`. Controls the midrange frequency EQ of the tonestack for Channel 1.
@@ -279,7 +279,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 11.0
+- DSP usage estimate: 9.8
 - Based on: Ampeg SVT (bright channel)
 - Agoura model: No
 
@@ -332,7 +332,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 11.0
+- DSP usage estimate: 9.8
 - Based on: Ampeg SVT (Normal channel)
 - Agoura model: No
 
@@ -925,7 +925,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 7.4
+- DSP usage estimate: 6.2
 - Based on: Orange AD200 MkIII
 - Agoura model: No
 
@@ -1035,7 +1035,7 @@ Model count: 40
 - Type: Preamp
 - Category: `preamp`
 - Class: Bass
-- DSP usage estimate: 9.2
+- DSP usage estimate: 8.3
 - Based on: Marshall JCM-800 (2203)
 - Agoura model: No
 

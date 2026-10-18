@@ -12,6 +12,23 @@ const AmpIcon = ({ color, size }: { color: string; size: number }) => (
   </Svg>
 );
 
+export const NamIcon = ({ color, size }: { color: string; size: number }) => (
+  <Svg viewBox="0 0 24 24" {...iconSize(size)}>
+    <Rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke={color} strokeWidth="1.6" fill="none" />
+    <Line x1="5.5" y1="8" x2="18.5" y2="8" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+    <Path
+      d="M5 14h2.2l1.8-3.2 2.3 6.2 2.2-5 1.7 2H19"
+      stroke={color}
+      strokeWidth="1.6"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Circle cx="5" cy="14" r="1" fill={color} />
+    <Circle cx="19" cy="14" r="1" fill={color} />
+  </Svg>
+);
+
 const PreampIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg viewBox="0 0 24 24" {...iconSize(size)}>
     <Rect x="4" y="6" width="16" height="12" rx="2" stroke={color} strokeWidth="1.5" fill="none" />

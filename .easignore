@@ -1,0 +1,29 @@
+# EAS archives start at the Git root. Upload only the mobile application.
+/*
+!/package.json
+!/mobile
+!/mobile/**
+/mobile/node_modules
+/mobile/ios
+/mobile/android
+/mobile/.expo
+/mobile/build-artifacts
+/mobile/dist
+/mobile/store
+**/.DS_Store
+**/.env*
+**/credentials.json
+**/*service-account*.json
+**/*.jks
+**/*.keystore
+**/*.p8
+**/*.p12
+**/*.mobileprovision
+**/*.pem
+**/*.key
+**/*.log
+
+# Native mobile module build outputs
+/mobile/modules/**/android/build/
+/mobile/modules/**/android/.cxx/
+/mobile/modules/**/android/.gradle/

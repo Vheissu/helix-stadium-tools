@@ -1,5 +1,7 @@
-import React from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+import { getLastAction, useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
+import React, { useEffect, useRef } from 'react';
+import { AccessibilityInfo, Keyboard, KeyboardAvoidingView, Platform, Modal, Pressable, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { COLORS, FONTS } from '../theme/colors';
 
 interface BottomSheetProps {
@@ -16,28 +18,41 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   title,
   subtitle,
   children,
-}) => (
-  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-    <View style={styles.backdrop}>
-      <Pressable style={styles.dismiss} onPress={onClose} />
-      <View style={styles.sheet}>
-        <View style={styles.handleBar} />
-        {title && (
-          <View style={styles.header}>
-            <View style={styles.headerText}>
-              <Text style={styles.title}>{title}</Text>
-              {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-            </View>
-            <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="Close" style={styles.closeBtn}>
-              <Text style={styles.close}>{'\u00d7'}</Text>
-            </Pressable>
+}) => {
+  const { screenReader, reduceMotion } = useAccessibilityPreferences();
+  const heading = useRef<ViewInstance>(null);
+  const opener = useRef<ViewInstance | null>(null);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (visible && !wasOpen.current) opener.current = getLastAction();
+    const closing = wasOpen.current && !visible;
+    wasOpen.current = visible;
+    if (closing) Keyboard.dismiss();
+    if (closing && screenReader) {
+      const timer = setTimeout(() => { if (opener.current) AccessibilityInfo.sendAccessibilityEvent(opener.current, 'focus'); }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [visible, screenReader]);
+  return <Modal visible={visible} transparent animationType={reduceMotion ? 'none' : 'slide'} onRequestClose={onClose}
+    onShow={() => { if (screenReader && heading.current) AccessibilityInfo.sendAccessibilityEvent(heading.current, 'focus'); }}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.backdrop}>
+      <Pressable accessible={false} importantForAccessibility="no" style={styles.dismiss} onPress={onClose} />
+      <View style={styles.sheet} accessibilityViewIsModal onAccessibilityEscape={onClose}>
+        <View style={styles.handleBar} accessible={false} />
+        <View style={styles.header}>
+          <View style={styles.headerText} ref={heading} accessible accessibilityRole="header" accessibilityLabel={title ?? 'Options'}>
+            <Text style={styles.title}>{title ?? 'Options'}</Text>
+            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
           </View>
-        )}
+          <Pressable accessibilityRole="button" onPress={onClose} accessibilityLabel={`Close ${title ?? 'options'}`} style={styles.closeBtn}>
+            <Svg width={20} height={20} viewBox="0 0 24 24" accessible={false}><Path d="M6 6l12 12M18 6L6 18" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" /></Svg>
+          </Pressable>
+        </View>
         {children}
       </View>
-    </View>
-  </Modal>
-);
+    </KeyboardAvoidingView>
+  </Modal>;
+};
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -70,6 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   header: {
+    flexShrink: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -92,8 +108,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   closeBtn: {
-    width: 32,
-    height: 32,
+    width: 48,
+    height: 48,
     borderRadius: 16,
     backgroundColor: COLORS.panelAlt,
     borderWidth: 1,

@@ -4,14 +4,16 @@ import { SignalPath } from './SignalPath';
 import { COLORS, FONTS } from '../../theme/colors';
 import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from '../../types/signalFlow';
 
-const DSP_CAP = 66;
+// Vendor modeldefs provide relative usage values. A budget of 66 is inferred
+// from shipped factory presets; it is not a confirmed hard device limit.
+const EMPIRICAL_DSP_BUDGET = 66;
 const DSP_WARN_RATIO = 0.85;
 
 const buildUsageMeta = (value: number) => {
-  const ratio = DSP_CAP > 0 ? value / DSP_CAP : 0;
+  const ratio = EMPIRICAL_DSP_BUDGET > 0 ? value / EMPIRICAL_DSP_BUDGET : 0;
   const clamped = Math.min(ratio, 1);
-  const remaining = Math.max(DSP_CAP - value, 0);
-  const over = Math.max(value - DSP_CAP, 0);
+  const remaining = Math.max(EMPIRICAL_DSP_BUDGET - value, 0);
+  const over = Math.max(value - EMPIRICAL_DSP_BUDGET, 0);
   const isOver = over > 0;
   const isNear = !isOver && ratio >= DSP_WARN_RATIO;
   const fillColor = isOver ? COLORS.danger : isNear ? COLORS.warn : COLORS.accent;
@@ -53,7 +55,7 @@ export const SignalFlowSection: React.FC<SignalFlowSectionProps> = ({
         <View style={styles.usageHeaderRow}>
           <Text style={styles.usageTitle}>{label}</Text>
           <Text style={[styles.usageValue, meta.isOver && styles.usageValueOver]}>
-            {value.toFixed(1)}/{DSP_CAP}
+            {value.toFixed(1)}/{EMPIRICAL_DSP_BUDGET}
           </Text>
         </View>
         <View style={styles.usageTrack}>
@@ -65,7 +67,9 @@ export const SignalFlowSection: React.FC<SignalFlowSectionProps> = ({
           />
         </View>
         <Text style={[styles.usageMeta, meta.isOver && styles.usageValueOver]}>
-          {meta.isOver ? `Over by ${meta.over.toFixed(1)}` : `Headroom ${meta.remaining.toFixed(1)}`}
+          {meta.isOver
+            ? `Estimated over by ${meta.over.toFixed(1)}`
+            : `Estimated headroom ${meta.remaining.toFixed(1)}`}
         </Text>
       </View>
     );
@@ -81,8 +85,8 @@ export const SignalFlowSection: React.FC<SignalFlowSectionProps> = ({
       </View>
 
       <View style={styles.usageGroup}>
-        {renderUsage('Path 1 DSP', usage.path1)}
-        {renderUsage('Path 2 DSP', usage.path2)}
+        {renderUsage('Path 1 DSP estimate', usage.path1)}
+        {renderUsage('Path 2 DSP estimate', usage.path2)}
       </View>
 
       <View style={styles.paths}>

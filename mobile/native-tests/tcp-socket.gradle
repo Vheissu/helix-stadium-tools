@@ -1,0 +1,12 @@
+// Run from a generated Android project:
+// ./gradlew -I ../native-tests/tcp-socket.gradle :react-native-tcp-socket:testDebugUnitTest
+allprojects { project ->
+    project.afterEvaluate {
+        if (project.name == 'react-native-tcp-socket') {
+            project.android.testOptions.unitTests.returnDefaultValues = true
+            project.android.sourceSets.test.java.srcDir(new File(rootProject.projectDir, '../native-tests/java'))
+            project.dependencies.add('testImplementation', 'junit:junit:4.13.2')
+            project.dependencies.add('testImplementation', 'org.mockito:mockito-core:5.18.0')
+        }
+    }
+}

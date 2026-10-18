@@ -1,3 +1,5 @@
+import { AccessibleParameter } from '../accessibility/AccessibleParameter';
+import { useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -46,7 +48,7 @@ const MARKER_WIDTH = 10;
  * Accent color is the block's category color. The fill is a tinted overlay so
  * the label/value text stays legible even on bright categories.
  */
-export const ParamSlider: React.FC<ParamSliderProps> = React.memo(({
+const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
   label,
   value,
   min,
@@ -438,3 +440,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+
+export function ParamSlider(props: ParamSliderProps) {
+  const { accessibleLayout, screenReader } = useAccessibilityPreferences();
+  return accessibleLayout || screenReader ? <AccessibleParameter {...props} /> : <VisualParamSlider {...props} />;
+}

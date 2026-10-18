@@ -1,35 +1,62 @@
 {
   "expo": {
-    "name": "Stadium Remote",
-    "slug": "stadium-remote",
+    "name": "HELYON",
+    "slug": "helyon",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "orientation": "default",
+    "icon": "./assets/helyon-icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    "backgroundColor": "#0a0a0c",
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocalNetworkUsageDescription": "Connect to Helix Stadium over USB or your local Wi-Fi network."
+        "NSLocalNetworkUsageDescription": "Find and edit your Helix Stadium on your local network or through a compatible USB connection.",
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.beggars.stadium-remote"
+      "bundleIdentifier": "com.beggars.stadium-remote",
+      "buildNumber": "1",
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyCollectedDataTypes": []
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/brand/helyon-mark.png",
+        "monochromeImage": "./assets/brand/helyon-monochrome.png",
+        "backgroundColor": "#161616"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.beggars.stadiumremote"
+      "package": "com.beggars.stadiumremote",
+      "versionCode": 1,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
     },
     "plugins": [
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/brand/helyon-mark.png",
+          "imageWidth": 280,
+          "resizeMode": "contain",
+          "backgroundColor": "#0a0a0c",
+          "android": {
+            "imageWidth": 240
+          }
+        }
+      ]
+    ],
+    "owner": "beggars",
+    "extra": {
+      "eas": {
+        "projectId": "407fa171-3b6b-4c1a-a828-cf2976ca1591"
+      }
+    }
   }
 }

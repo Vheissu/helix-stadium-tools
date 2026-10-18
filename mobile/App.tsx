@@ -1,13 +1,16 @@
+import { AccessibleText as Text, ScreenHeading } from './src/accessibility/AccessibleText';
+import { Action as Pressable, AccessibilitySettings } from './src/accessibility/controls';
+import { AccessibilityProvider, useAccessibilityPreferences, announce } from './src/accessibility/AccessibilityPreferences';
+import { AccessibleParameter } from './src/accessibility/AccessibleParameter';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   View,
-  Pressable,
   Platform,
   Switch,
   useWindowDimensions,
@@ -19,6 +22,7 @@ import { formatLibraryActivity, updateLibraryActivity, type LibraryActivity } fr
 import blockTypes from './src/data/blockTypes.json';
 import ioModels from './src/data/ioModels.json';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { BlockIcon } from './src/icons/BlockIcons';
 import { BLOCK_IMAGES } from './src/icons/CategoryImages';
 import { TabBar } from './src/components/TabBar';
@@ -30,6 +34,7 @@ import { ParamSlider } from './src/components/ParamSlider';
 import { ParamHelpButton } from './src/components/ParamHelpButton';
 import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
 import { PathChainStrip } from './src/components/signalFlow/PathChainStrip';
+import { VirtualNamBlock } from './src/components/signalFlow/VirtualNamBlock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getParamHelp } from './src/utils/paramHelp';
 import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
@@ -51,14 +56,20 @@ import {
   type MatrixMixerState,
 } from './src/utils/matrixMixer';
 import { groupModelsByChannel, type ModelSection } from './src/utils/modelSections';
+import { detectVirtualNamRoute } from './src/utils/virtualNam';
+import { STANDARD_DSP_CAP, EXTENDED_DSP_CAP, getDspLimit, getDspHeadroom, fitsDspBudget } from './src/utils/dspBudget';
+import { AppInfo } from './src/components/AppInfo';
+import { OfflinePreview } from './src/components/OfflinePreview';
 
 const COLORS = THEME_COLORS;
+
+// Keep the native launch screen visible until the first frame has its fonts.
+void SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const FONT_BODY = FONTS.body;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 const FONT_DISPLAY = FONTS.display;
-const STANDARD_DSP_CAP = 66;
 const AUTO_SYNC_INTERVAL_MS = 4500;
 
 type HelixParamType = 'i' | 'f' | 'b';
@@ -192,20 +203,38 @@ const CONTROL_STYLE_KEY = 'helix.controlStyle';
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <View style={styles.section}>
-    <Text style={styles.sectionTitle}>{title}</Text>
+    <Text accessibilityRole="header" style={styles.sectionTitle}>{title}</Text>
     <View style={styles.sectionBody}>{children}</View>
   </View>
 );
 
 export default function App() {
-  const [libraryActivity, setLibraryActivity] = useState<LibraryActivity>({});
-  const libraryActivityLabel = formatLibraryActivity(libraryActivity);
-  const [_fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
     'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
     'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
     'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
   });
+
+  const onReadyLayout = useCallback(() => {
+    void SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
+  // A font failure must not trap the user on the launch screen.
+  if (!fontsLoaded && !fontError) return null;
+
+  return (
+    <View style={{ flex: 1, backgroundColor: COLORS.bg }} onLayout={onReadyLayout}>
+      <AccessibilityProvider><EditorApp /></AccessibilityProvider>
+    </View>
+  );
+}
+
+function EditorApp() {
+  const { accessibleLayout, screenReader } = useAccessibilityPreferences();
+  const linearControls = accessibleLayout || screenReader;
+  const [libraryActivity, setLibraryActivity] = useState<LibraryActivity>({});
+  const libraryActivityLabel = formatLibraryActivity(libraryActivity);
 
   const clientRef = useRef<HelixClient | null>(null);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -222,6 +251,23 @@ export default function App() {
   const [connectionTransport, setConnectionTransport] = useState<ConnectionTransport>('auto');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [extendedDspEnabled, setExtendedDspEnabled] = useState(false);
+  const dspLimit = getDspLimit(extendedDspEnabled);
+  const handleExtendedDsp = (enabled: boolean) => {
+    if (!enabled) {
+      setExtendedDspEnabled(false);
+      return;
+    }
+    Alert.alert(
+      'Allow extended DSP budget?',
+      `Raise the app’s estimated budget from ${STANDARD_DSP_CAP} to ${EXTENDED_DSP_CAP} per path for this connection. This does not add processing power. Edits may be rejected, audio may drop out, or the device may become unstable. Back up your presets and use a spare preset. Turning this off will not remove blocks already added.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Enable for this connection', style: 'destructive', onPress: () => { if (clientRef.current) setExtendedDspEnabled(true); } },
+      ]
+    );
+  };
   const [notesVisible, setNotesVisible] = useState(false);
   const [autoCab, setAutoCab] = useState(true);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
@@ -364,6 +410,11 @@ export default function App() {
     };
   }, [grid]);
 
+  const virtualNamRoute = useMemo(
+    () => detectVirtualNamRoute(grid, ioGrid),
+    [grid, ioGrid]
+  );
+
   const hasSplit1 = useMemo(() => {
     const hasBlocks = grid[1]?.some((b) => b !== null) ?? false;
     const hasIO = (ioGrid[1]?.input?.modelId ?? null) !== null || (ioGrid[1]?.output?.modelId ?? null) !== null;
@@ -492,10 +543,12 @@ export default function App() {
     row.map((block) => (block ? { ...block, name: getBlockDisplayName(block) } : null));
   const targetBlock = grid[targetSlot.path]?.[targetSlot.block] ?? null;
   const availableUsage = useMemo(() => {
-    const remaining =
-      targetSlot.path < 2 ? STANDARD_DSP_CAP - pathUsage.path1 : STANDARD_DSP_CAP - pathUsage.path2;
-    return Math.max(0, remaining + (targetBlock?.usage ?? 0));
-  }, [pathUsage, targetBlock?.usage, targetSlot.path]);
+    return getDspHeadroom(
+      targetSlot.path < 2 ? pathUsage.path1 : pathUsage.path2,
+      targetBlock?.usage ?? 0,
+      extendedDspEnabled
+    );
+  }, [extendedDspEnabled, pathUsage, targetBlock?.usage, targetSlot.path]);
   const shouldBudgetAutoCab = useCallback(
     (model: Pick<BlockModel, 'category' | 'auto_cab_usage'>) => {
       if (!autoCab || model.category !== 'amp' || !model.auto_cab_usage || targetBlock) {
@@ -741,12 +794,21 @@ export default function App() {
 
   const connect = async () => {
     if (connecting || connected) return;
+    if (!host.trim() && !(Platform.OS === 'android' && connectionTransport === 'usb')) {
+      setStatus('Connection failed: Enter your device name or IP address.');
+      return;
+    }
+    setExtendedDspEnabled(false);
     setConnecting(true);
     try {
       const networkInterface = getNetworkInterfacePreference(connectionTransport, Platform.OS);
       const client = new HelixClient(host.trim(), 2001, 2002, networkInterface);
       await client.connect();
-      client.startListener(handleClientEvent);
+      client.startListener(handleClientEvent, () => {
+        if (clientRef.current !== client) return;
+        disconnect();
+        setStatus('Connection failed: Connection lost. Check the USB cable or Wi-Fi and reconnect.');
+      });
       clientRef.current = client;
       setConnected(true);
       setStatus('Connected');
@@ -766,8 +828,14 @@ export default function App() {
     }
     clientRef.current?.close();
     clientRef.current = null;
+    flowSyncInFlightRef.current = false;
     setConnected(false);
+    setExtendedDspEnabled(false);
     setStatus('Idle');
+    setGrid(Array.from({ length: 4 }, () => Array.from({ length: 12 }, () => null)));
+    setIoGrid(Array.from({ length: 4 }, () => ({ input: null, output: null })));
+    setPickerOpen(false);
+    setBlockEditorOpen(false);
     setActiveTab('flow');
     setScreen('main');
     setTunerReturnScreen('main');
@@ -1639,7 +1707,7 @@ export default function App() {
     const meta = modelLookup.get(model.id);
     const usage = model.usage ?? 0;
     const requiredUsage = getProjectedInsertUsage(model);
-    if (requiredUsage > availableUsage) {
+    if (!fitsDspBudget(requiredUsage, availableUsage)) {
       setStatus('Not enough processing headroom for that block');
       return;
     }
@@ -1823,6 +1891,7 @@ export default function App() {
     // Splice the visible portion to get new order
     const lastPop = currentBlocks.reduce((last: number, b: BlockData | null, i: number) => (b ? i : last), -1);
     const visCount = Math.min(lastPop + 2, 12);
+    if (!Number.isInteger(fromDisplay) || !Number.isInteger(toDisplay) || fromDisplay < 0 || toDisplay < 0 || fromDisplay >= visCount || toDisplay >= visCount || !currentBlocks[fromDisplay]) return;
     const visible = currentBlocks.slice(0, visCount);
     const [moved] = visible.splice(fromDisplay, 1);
     visible.splice(toDisplay, 0, moved);
@@ -1842,7 +1911,7 @@ export default function App() {
       return next;
     });
 
-    setStatus(`Reordered block in ${rowLabels[pIdx]}`);
+    setStatus(`Moving ${moved?.name ?? 'block'} in path ${rowLabels[pIdx]}...`);
 
     // Send protocol commands to the device
     try {
@@ -1882,9 +1951,11 @@ export default function App() {
           }
         }
       }
+      setSelectedSlot({ path: pIdx, block: toDisplay as BlockSlot['block'] });
+      setStatus(`Moved ${moved?.name ?? 'block'} to path ${rowLabels[pIdx]}, position ${toDisplay + 1}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setStatus(`Reorder sync failed: ${msg}`);
+      setStatus(`Could not finish moving the block: ${msg}`);
     }
 
     scheduleSync(800);
@@ -2106,6 +2177,7 @@ export default function App() {
     }
     try {
       const state = await client.getEditBufferState();
+      if (clientRef.current !== client) return false;
       if (!state) {
         if (!silent) setStatus('Sync failed: no response');
         return false;
@@ -2311,6 +2383,7 @@ export default function App() {
       setIoGrid(nextIO);
       try {
         const notes = await client.getProperty('preset.meta.info');
+        if (clientRef.current !== client) return false;
         if (notes && typeof notes.value === 'string') {
           setNotesText(notes.value);
         } else if (notes && notes.value === null) {
@@ -2319,18 +2392,20 @@ export default function App() {
       } catch (_err) {
         // Ignore notes sync failures; block sync succeeded.
       }
+      if (clientRef.current !== client) return false;
       if (!silent) {
         setStatus('Synced');
       }
       return true;
     } catch (err) {
+      if (clientRef.current !== client) return false;
       const message = err instanceof Error ? err.message : String(err);
       if (!silent) {
         setStatus(`Sync failed: ${message}`);
       }
       return false;
     } finally {
-      flowSyncInFlightRef.current = false;
+      if (clientRef.current === client) flowSyncInFlightRef.current = false;
     }
   };
 
@@ -2392,6 +2467,7 @@ export default function App() {
     const disabled = isInput && rowIndex % 2 === 1;
     return (
       <Pressable
+        accessibilityLabel={`Path ${rowLabels[rowIndex]} ${isInput ? 'input' : 'output'}, ${disabled ? 'From split' : (entry?.name ?? 'None')}`}
         style={[styles.ioRow, disabled && { opacity: 0.4 }]}
         onPress={disabled ? undefined : () => selectIO(rowIndex, ioType)}
         disabled={disabled}
@@ -2434,7 +2510,7 @@ export default function App() {
         {/* Path header — title + numeric DSP readout */}
         <View style={styles.pathHeader}>
           <View style={styles.pathHeaderCopy}>
-            <Text style={styles.pathTitle}>Path {pathNum}</Text>
+            <Text accessibilityRole="header" style={styles.pathTitle}>Path {pathNum}</Text>
             {clipboardMatches && <Text style={styles.pathClipboardBadge}>copied</Text>}
           </View>
           <View style={styles.pathHeaderRight}>
@@ -2442,18 +2518,20 @@ export default function App() {
             <Text style={styles.pathDspLimit}>/{STANDARD_DSP_CAP}</Text>
           </View>
         </View>
+        {extendedDspEnabled && <Text style={styles.labelHint}>Extended budget on · normal limit {STANDARD_DSP_CAP}, maximum estimate {EXTENDED_DSP_CAP}</Text>}
         {/* Hairline DSP meter */}
         <View style={styles.dspTrack}>
           <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
         </View>
         {/* Inline text actions — no pill shapes */}
         <View style={styles.pathActionRow}>
-          <Pressable hitSlop={6} onPress={() => { void handleCopyPath(pathNum); }}>
+          <Pressable accessibilityLabel={`Copy path ${pathNum}`} hitSlop={6} onPress={() => { void handleCopyPath(pathNum); }}>
             <Text style={styles.pathActionText}>Copy</Text>
           </Pressable>
           <View style={styles.pathActionDivider} />
           <Pressable
             hitSlop={6}
+            accessibilityLabel={`Paste copied path into path ${pathNum}`}
             disabled={!canPasteClipboard}
             onPress={() => { void handlePastePath(pathNum); }}
           >
@@ -2463,8 +2541,10 @@ export default function App() {
           </Pressable>
         </View>
 
+        {pathNum === 1 && virtualNamRoute && <VirtualNamBlock route={virtualNamRoute} />}
+
         {/* Helix-Editor-style horizontal chain strip — primary visual */}
-        <PathChainStrip
+        {!linearControls && <PathChainStrip
           rowLabel={`${pathNum}A`}
           blocks={decorateDisplayBlocks(grid[primary])}
           pathIndex={primary}
@@ -2476,7 +2556,7 @@ export default function App() {
           onSelectInput={() => selectIO(primary, 'input')}
           onSelectOutput={() => selectIO(primary, 'output')}
           tileSize={isTablet ? 76 : 56}
-        />
+        />}
 
         {/* Detail list — drag-to-reorder, power toggles, names */}
         <DraggableEffectList
@@ -2504,7 +2584,7 @@ export default function App() {
               <Text style={styles.splitLabel}>Split path</Text>
               <View style={styles.splitLine} />
             </View>
-            <PathChainStrip
+            {!linearControls && <PathChainStrip
               rowLabel={`${pathNum}B`}
               blocks={decorateDisplayBlocks(grid[split])}
               pathIndex={split}
@@ -2517,7 +2597,7 @@ export default function App() {
               onSelectOutput={() => selectIO(split, 'output')}
               inputDisabled
               tileSize={isTablet ? 76 : 56}
-            />
+            />}
             <DraggableEffectList
               blocks={decorateDisplayBlocks(grid[split])}
               pathIndex={split}
@@ -2539,7 +2619,7 @@ export default function App() {
   };
 
   const renderFlowTab = () => (
-    <ScrollView
+    <ScrollView keyboardShouldPersistTaps="handled"
       style={styles.tabContent}
       contentContainerStyle={styles.flowPadding}
       showsVerticalScrollIndicator={false}
@@ -2551,7 +2631,7 @@ export default function App() {
   );
 
   const renderPresetTab = () => (
-    <ScrollView
+    <ScrollView keyboardShouldPersistTaps="handled"
       style={styles.tabContent}
       contentContainerStyle={styles.tabPadding}
       showsVerticalScrollIndicator={false}
@@ -2560,21 +2640,21 @@ export default function App() {
         {/* Compact active preset bar */}
         <View style={styles.activePresetBar}>
           <View style={styles.activePresetInfo}>
-            <Text style={styles.activePresetBarName} numberOfLines={1}>{activePresetName}</Text>
+            <Text style={styles.activePresetBarName} numberOfLines={linearControls ? undefined : 1}>{activePresetName}</Text>
             <Text style={styles.libraryMeta}>
               {activePresetRef
                 ? `Slot ${typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014'}${presetEdited ? ' \u00b7 Unsaved' : ''}`
                 : 'No active preset'}
             </Text>
           </View>
-          <Pressable style={styles.compactIconBtn} onPress={refreshPresetContext} hitSlop={8}>
+          <Pressable accessibilityLabel="Refresh presets and snapshots" style={styles.compactIconBtn} onPress={refreshPresetContext} hitSlop={8}>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
           {activePresetStorageId !== null && presetEdited && (
-            <Pressable style={styles.compactSaveBtn} onPress={handleSavePreset}>
+            <Pressable accessibilityLabel="Save current preset" style={styles.compactSaveBtn} onPress={handleSavePreset}>
               <Text style={styles.compactSaveBtnText}>Save</Text>
             </Pressable>
           )}
@@ -2587,7 +2667,7 @@ export default function App() {
           ] as Array<[PresetLibraryRoot, string]>).map(([key, label], idx) => {
             const active = libraryRoot === key;
             return (
-              <Pressable
+              <Pressable accessibilityState={{ selected: active }}
                 key={key}
                 style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
                 onPress={() => {
@@ -2627,7 +2707,7 @@ export default function App() {
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
             </Svg>
-            <TextInput
+            <TextInput accessibilityLabel="Search presets"
               style={styles.searchInputInline}
               value={presetFilter}
               onChangeText={setPresetFilter}
@@ -2635,7 +2715,7 @@ export default function App() {
               placeholderTextColor={COLORS.muted}
             />
             {presetFilter.trim().length > 0 && (
-              <Pressable onPress={() => setPresetFilter('')} hitSlop={8}>
+              <Pressable accessibilityLabel="Clear search" onPress={() => setPresetFilter('')} hitSlop={8}>
                 <Text style={styles.searchClearText}>Clear</Text>
               </Pressable>
             )}
@@ -2651,9 +2731,9 @@ export default function App() {
                 (libraryRoot === 'user' || libraryRoot === 'factory') && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
               const hasActions = active;
               return (
-                <Pressable
-                  key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`}
-                  style={[styles.libraryRow, active && styles.libraryRowActive]}
+                <View key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${typeof item.posi === 'number' ? item.posi + 1 : 'unknown'}`}
+
+                  style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
                   onPress={() => {
                     void handlePresetLoad(item);
                   }}
@@ -2663,13 +2743,13 @@ export default function App() {
                     {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
                   </Text>
                   <View style={styles.libraryRowCopy}>
-                    <Text style={styles.sheetListText} numberOfLines={1}>
+                    <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
                       {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
                     </Text>
                   </View>
                   {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  {canAddToSetlist && (
-                    <Pressable
+                  </Pressable>{canAddToSetlist && (
+                    <Pressable accessibilityLabel={`Add ${item.name ?? 'preset'} to ${targetSetlist?.name ?? 'setlist'}`}
                       style={styles.setlistAddButton}
                       hitSlop={8}
                       onPress={() => {
@@ -2680,7 +2760,7 @@ export default function App() {
                     </Pressable>
                   )}
                   {hasActions && (
-                    <Pressable
+                    <Pressable accessibilityLabel={`Options for ${item.name ?? 'preset'}`}
                       style={styles.presetMoreButton}
                       hitSlop={8}
                       onPress={() => setPresetActionTarget(item)}
@@ -2688,7 +2768,7 @@ export default function App() {
                       <Text style={styles.presetMoreText}>{'\u22EF'}</Text>
                     </Pressable>
                   )}
-                </Pressable>
+                </View>
               );
             })
           )}
@@ -2714,8 +2794,8 @@ export default function App() {
                     ? SNAPSHOT_COLOR_OPTIONS.find((o) => o.value === snapshot.colr) ?? null
                     : null;
                 return (
-                  <Pressable
-                    key={`snapshot-${index}`}
+                  <View key={index}><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Activate snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`}
+
                     style={[styles.libraryRow, active && styles.libraryRowActive]}
                     onPress={() => handleSnapshotActivate(index)}
                     onLongPress={() => setSnapshotActionIndex(index)}
@@ -2727,12 +2807,12 @@ export default function App() {
                       ]}
                     />
                     <View style={styles.libraryRowCopy}>
-                      <Text style={styles.sheetListText} numberOfLines={1}>
+                      <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
                         {index + 1}. {snapshot?.name ?? `Snapshot ${index + 1}`}
                       </Text>
                     </View>
                     {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  </Pressable>
+                  </Pressable><Pressable accessibilityLabel={`Options for snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`} onPress={() => setSnapshotActionIndex(index)}><Text style={styles.pathActionText}>Snapshot options</Text></Pressable></View>
                 );
               })}
             </View>
@@ -2742,7 +2822,7 @@ export default function App() {
                 <Text style={styles.label}>Snapshot Color</Text>
                 <View style={styles.libraryPills}>
                   {SNAPSHOT_COLOR_OPTIONS.map((option) => (
-                    <Pressable
+                    <Pressable accessibilityState={{ selected: activeSnapshot?.colr === option.value }} accessibilityLabel={`Snapshot colour, ${option.label}`}
                       key={`snapshot-color-${option.value}`}
                       style={[
                         styles.togglePill,
@@ -2777,7 +2857,7 @@ export default function App() {
                     {Array.from({ length: snapshotCount }, (_item, index) => {
                       const active = snapshotCopySource === index;
                       return (
-                        <Pressable
+                        <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Copy from snapshot ${index + 1}`}
                           key={`copy-source-${index}`}
                           style={[styles.togglePill, active && styles.togglePillActive]}
                           onPress={() => setSnapshotCopySource(index)}
@@ -2796,7 +2876,7 @@ export default function App() {
                     {Array.from({ length: snapshotCount }, (_item, index) => {
                       const active = snapshotCopyTarget === index;
                       return (
-                        <Pressable
+                        <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Copy to snapshot ${index + 1}`}
                           key={`copy-target-${index}`}
                           style={[styles.togglePill, active && styles.togglePillActive]}
                           onPress={() => setSnapshotCopyTarget(index)}
@@ -2823,10 +2903,11 @@ export default function App() {
       <Section title="Notes">
         <View style={styles.rowBetween}>
           <Text style={styles.label}>Show on device</Text>
-          <Switch value={notesVisible} onValueChange={handleNotesToggle} />
+          <Switch accessibilityLabel="Show preset notes on device" value={notesVisible} onValueChange={handleNotesToggle} />
         </View>
         <TextInput
           style={styles.textArea}
+          accessibilityLabel="Preset notes"
           value={notesText}
           onChangeText={setNotesText}
           multiline
@@ -2843,7 +2924,7 @@ export default function App() {
   );
 
   const renderSetlistsTab = () => (
-    <ScrollView
+    <ScrollView keyboardShouldPersistTaps="handled"
       style={styles.tabContent}
       contentContainerStyle={styles.tabPadding}
       showsVerticalScrollIndicator={false}
@@ -2861,7 +2942,7 @@ export default function App() {
               <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
             </Pressable>
             <View style={styles.sheetRenameRow}>
-              <TextInput
+              <TextInput accessibilityLabel="Setlist name"
                 style={[styles.input, styles.inlineInput]}
                 value={setlistRenameText}
                 onChangeText={setSetlistRenameText}
@@ -2906,7 +2987,7 @@ export default function App() {
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
             </Svg>
-            <TextInput
+            <TextInput accessibilityLabel="Search presets"
               style={styles.searchInputInline}
               value={presetFilter}
               onChangeText={setPresetFilter}
@@ -2914,7 +2995,7 @@ export default function App() {
               placeholderTextColor={COLORS.muted}
             />
             {presetFilter.trim().length > 0 && (
-              <Pressable onPress={() => setPresetFilter('')} hitSlop={8}>
+              <Pressable accessibilityLabel="Clear search" onPress={() => setPresetFilter('')} hitSlop={8}>
                 <Text style={styles.searchClearText}>Clear</Text>
               </Pressable>
             )}
@@ -2929,9 +3010,9 @@ export default function App() {
               const canMoveUp = typeof item.posi === 'number' && item.posi > 0;
               const canMoveDown = typeof item.posi === 'number' && item.posi < presetItems.length - 1;
               return (
-                <Pressable
-                  key={`${String(item.cid_ ?? 'setlist-preset')}-${String(item.posi ?? 'slot')}`}
-                  style={[styles.libraryRow, active && styles.libraryRowActive]}
+                <View key={`${String(item.cid_ ?? 'setlist-preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${typeof item.posi === 'number' ? item.posi + 1 : 'unknown'}`}
+
+                  style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
                   onPress={() => {
                     void handlePresetLoad(item);
                   }}
@@ -2941,13 +3022,13 @@ export default function App() {
                     {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
                   </Text>
                   <View style={styles.libraryRowCopy}>
-                    <Text style={styles.sheetListText} numberOfLines={1}>
+                    <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
                       {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
                     </Text>
                   </View>
                   {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  <View style={styles.setlistRowActions}>
-                    <Pressable
+                  </Pressable><View style={styles.setlistRowActions}>
+                    <Pressable accessibilityLabel={`Move ${item.name ?? 'preset'} earlier in setlist`}
                       style={[styles.setlistRowActionButton, !canMoveUp && styles.setlistRowActionButtonDisabled]}
                       hitSlop={8}
                       disabled={!canMoveUp}
@@ -2957,7 +3038,7 @@ export default function App() {
                     >
                       <Text style={[styles.setlistRowActionText, !canMoveUp && styles.setlistRowActionTextDisabled]}>Up</Text>
                     </Pressable>
-                    <Pressable
+                    <Pressable accessibilityLabel={`Move ${item.name ?? 'preset'} later in setlist`}
                       style={[styles.setlistRowActionButton, !canMoveDown && styles.setlistRowActionButtonDisabled]}
                       hitSlop={8}
                       disabled={!canMoveDown}
@@ -2967,7 +3048,7 @@ export default function App() {
                     >
                       <Text style={[styles.setlistRowActionText, !canMoveDown && styles.setlistRowActionTextDisabled]}>Down</Text>
                     </Pressable>
-                    <Pressable
+                    <Pressable accessibilityLabel={`Remove ${item.name ?? 'preset'} from setlist`}
                       style={[styles.setlistRowActionButton, styles.setlistRowActionDanger]}
                       hitSlop={8}
                       onPress={() => {
@@ -2978,7 +3059,7 @@ export default function App() {
                     </Pressable>
                   </View>
                   {active && (
-                    <Pressable
+                    <Pressable accessibilityLabel={`Options for ${item.name ?? 'preset'}`}
                       style={styles.presetMoreButton}
                       hitSlop={8}
                       onPress={() => setPresetActionTarget(item)}
@@ -2986,7 +3067,7 @@ export default function App() {
                       <Text style={styles.presetMoreText}>{'\u22EF'}</Text>
                     </Pressable>
                   )}
-                </Pressable>
+                </View>
               );
             })
           )}
@@ -2996,7 +3077,7 @@ export default function App() {
   );
 
   const renderMatrixTab = () => (
-    <ScrollView
+    <ScrollView keyboardShouldPersistTaps="handled"
       style={styles.tabContent}
       contentContainerStyle={styles.tabPadding}
       showsVerticalScrollIndicator={false}
@@ -3011,7 +3092,7 @@ export default function App() {
           {MATRIX_LAYERS.map((layer, idx) => {
             const active = selectedMatrixLayerId === layer.id;
             return (
-              <Pressable
+              <Pressable accessibilityState={{ selected: active }}
                 key={`matrix-layer-${layer.id}`}
                 style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
                 onPress={() => setSelectedMatrixLayerId(layer.id)}
@@ -3041,10 +3122,11 @@ export default function App() {
               return (
                 <View
                   key={`matrix-channel-${selectedMatrixLayer.id}-${channel.id}`}
+                  accessible accessibilityLabel={`${channel.label}, ${muted ? 'muted' : 'open'}${solo ? ', solo' : ''}, level ${formatMatrixVolume(channel.volumeDb)}, pan ${formatMatrixPan(channel.pan)}`}
                   style={[styles.matrixChannelRow, muted && styles.matrixChannelRowMuted]}
                 >
                   <View style={styles.matrixChannelMain}>
-                    <Text style={styles.matrixChannelName} numberOfLines={1}>{channel.label}</Text>
+                    <Text style={styles.matrixChannelName} numberOfLines={linearControls ? undefined : 1}>{channel.label}</Text>
                     <View style={styles.matrixFlags}>
                       <Text style={[styles.matrixFlagText, muted && styles.matrixFlagTextActive]}>
                         {muted ? 'Muted' : 'Open'}
@@ -3072,7 +3154,7 @@ export default function App() {
   );
 
   const renderSettingsTab = () => (
-    <ScrollView
+    <ScrollView keyboardShouldPersistTaps="handled"
       style={styles.tabContent}
       contentContainerStyle={styles.tabPadding}
       showsVerticalScrollIndicator={false}
@@ -3085,6 +3167,7 @@ export default function App() {
       <Section title="Connection">
         <TextInput
           style={styles.input}
+          accessibilityLabel="Device name or IP address"
           value={host}
           onChangeText={setHost}
           placeholder="p35x1.local or IP address"
@@ -3112,50 +3195,63 @@ export default function App() {
           <View
             style={[styles.statusDot, { backgroundColor: connected ? COLORS.success : COLORS.danger }]}
           />
-          <Text style={styles.statusText} accessibilityLiveRegion="polite">{libraryActivityLabel ?? status}</Text>
+          <Text style={styles.statusText} >{libraryActivityLabel ?? status}</Text>
         </View>
       </Section>
 
+      <AccessibilitySettings />
       <Section title="App Settings">
         <View style={styles.rowBetween}>
           <View>
             <Text style={styles.label}>Auto-Cab</Text>
             <Text style={styles.labelHint}>Add a matching cab with each amp</Text>
           </View>
-          <Switch value={autoCab} onValueChange={handleAutoCab} />
+          <Switch accessibilityLabel="Add a matching cab with each amp" value={autoCab} onValueChange={handleAutoCab} />
         </View>
         <View style={styles.rowBetween}>
           <View>
             <Text style={styles.label}>Background Sync</Text>
             <Text style={styles.labelHint}>Pick up edits from the device or desktop editor</Text>
           </View>
-          <Switch value={autoSyncEnabled} onValueChange={setAutoSyncEnabled} />
+          <Switch accessibilityLabel="Background sync" value={autoSyncEnabled} onValueChange={setAutoSyncEnabled} />
         </View>
         <View style={styles.rowBetween}>
           <View>
             <Text style={styles.label}>Source Model Names</Text>
             <Text style={styles.labelHint}>Show the original amp, cab, and pedal names</Text>
           </View>
-          <Switch value={showRealBlockNames} onValueChange={setShowRealBlockNames} />
+          <Switch accessibilityLabel="Show source model names" value={showRealBlockNames} onValueChange={setShowRealBlockNames} />
         </View>
         <View style={styles.rowBetween}>
           <View>
             <Text style={styles.label}>Block Labels</Text>
             <Text style={styles.labelHint}>Custom labels stay in the app</Text>
           </View>
-          <Switch value={blockLabelMode} onValueChange={setBlockLabelMode} />
+          <Switch accessibilityLabel="Custom block labels" value={blockLabelMode} onValueChange={setBlockLabelMode} />
         </View>
         <View style={styles.rowBetween}>
           <View style={styles.rowBetweenInfo}>
             <Text style={styles.label}>Knob Controls</Text>
             <Text style={styles.labelHint}>Use rotary knobs instead of sliders for parameters</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Knob controls"
             value={controlStyle === 'knobs'}
             onValueChange={(value) => setControlStyle(value ? 'knobs' : 'sliders')}
           />
         </View>
       </Section>
+
+      <Section title="Advanced">
+        <View style={styles.rowBetween}>
+          <View style={styles.rowBetweenInfo}>
+            <Text style={styles.label}>Extended DSP budget</Text>
+            <Text style={styles.labelHint}>Allow estimates up to {EXTENDED_DSP_CAP} per path for this connection. May cause audio dropouts or instability.</Text>
+          </View>
+          <Switch accessibilityLabel="Extended DSP budget" value={extendedDspEnabled} onValueChange={handleExtendedDsp} />
+        </View>
+        <Text style={styles.labelHint}>Estimates are not measured CPU load. The device can still reject edits. Disconnecting restores the normal budget.</Text>
+      </Section>
+      <Section title="Help & Privacy"><AppInfo /></Section>
 
       <Section title="Tempo">
         <View style={styles.transportHeroCard}>
@@ -3175,7 +3271,7 @@ export default function App() {
             { key: 'dev-tempo-+1', label: '+1', onPress: () => handleTempoAdjust(1) },
             { key: 'dev-tempo-+5', label: '+5', onPress: () => handleTempoAdjust(5) },
           ].map((action) => (
-            <Pressable
+            <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
               key={action.key}
               style={[
                 styles.transportAdjustButton,
@@ -3199,7 +3295,7 @@ export default function App() {
             <Text style={styles.label}>Follow External Tempo</Text>
             <Text style={styles.labelHint}>Use the device's tempo source instead of the app</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Follow external tempo"
             value={Boolean(tempoFollow)}
             onValueChange={handleTempoFollowToggle}
           />
@@ -3215,10 +3311,10 @@ export default function App() {
           <Text style={styles.transportHeroMeta}>{TUNER_REMOTE_META}</Text>
         </View>
         <View style={styles.transportAdjustRow}>
-          <Pressable style={styles.transportAdjustButton} onPress={() => handleTunerReferenceAdjust(-1)}>
+          <Pressable accessibilityLabel="Decrease reference pitch by 1 hertz" style={styles.transportAdjustButton} onPress={() => handleTunerReferenceAdjust(-1)}>
             <Text style={styles.transportAdjustButtonText}>-1 Hz</Text>
           </Pressable>
-          <Pressable style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]} onPress={() => handleTunerReferenceAdjust(1)}>
+          <Pressable accessibilityLabel="Increase reference pitch by 1 hertz" style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]} onPress={() => handleTunerReferenceAdjust(1)}>
             <Text style={[styles.transportAdjustButtonText, styles.transportAdjustButtonTextAccent]}>+1 Hz</Text>
           </Pressable>
           <Pressable style={styles.transportAdjustButton} onPress={handleExitTuner}>
@@ -3236,7 +3332,7 @@ export default function App() {
             <Text style={styles.label}>Always On In Stomp View</Text>
             <Text style={styles.labelHint}>Pin the tuner button in Stomp view</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Always show tuner in Stomp view"
             value={Boolean(tunerAlwaysOnStomp)}
             onValueChange={handleTunerAlwaysOnStompToggle}
           />
@@ -3246,7 +3342,7 @@ export default function App() {
             <Text style={styles.label}>Always On In Play View</Text>
             <Text style={styles.labelHint}>Pin the tuner button in Play view</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Always show tuner in Play view"
             value={Boolean(tunerAlwaysOnPlayView)}
             onValueChange={handleTunerAlwaysOnPlayViewToggle}
           />
@@ -3256,7 +3352,7 @@ export default function App() {
             <Text style={styles.label}>Volume Pedal Opens Tuner</Text>
             <Text style={styles.labelHint}>Heel-down the volume pedal to open the tuner</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Volume pedal opens tuner"
             value={Boolean(tunerVolPedalOpens)}
             onValueChange={handleTunerVolPedalOpensToggle}
           />
@@ -3266,7 +3362,7 @@ export default function App() {
             <Text style={styles.label}>Tuner Trails</Text>
             <Text style={styles.labelHint}>Let delays and reverbs decay when the tuner opens</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Tuner trails"
             value={Boolean(tunerTrails)}
             onValueChange={handleTunerTrailsToggle}
           />
@@ -3276,7 +3372,7 @@ export default function App() {
             <Text style={styles.label}>Per-String Offsets</Text>
             <Text style={styles.labelHint}>Custom offsets per string for alternate tunings</Text>
           </View>
-          <Switch
+          <Switch accessibilityLabel="Per-string tuner offsets"
             value={Boolean(tunerOffsetsEnabled)}
             onValueChange={handleTunerOffsetsEnabledToggle}
           />
@@ -3352,7 +3448,7 @@ export default function App() {
 
           <View style={styles.performanceHeader}>
             <View style={styles.performanceHeaderCopy}>
-              <Text style={styles.performanceEyebrow}>Performance Mode</Text>
+              <ScreenHeading focusKey="performance" style={styles.performanceEyebrow}>Performance Mode</ScreenHeading>
               <Text style={styles.performanceHost}>{host}</Text>
             </View>
             <Pressable style={styles.performanceExitButton} onPress={() => setScreen('main')}>
@@ -3360,7 +3456,7 @@ export default function App() {
             </Pressable>
           </View>
 
-          <ScrollView
+          <ScrollView keyboardShouldPersistTaps="handled"
             style={styles.tabContent}
             contentContainerStyle={styles.performanceContent}
             showsVerticalScrollIndicator={false}
@@ -3398,7 +3494,7 @@ export default function App() {
               </View>
               <View style={styles.performanceActionGrid}>
                 {quickActions.map((action) => (
-                  <Pressable
+                  <Pressable accessibilityState={{ selected: action.active }} accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
                     key={action.key}
                     style={[
                       styles.performanceActionCard,
@@ -3448,7 +3544,7 @@ export default function App() {
                   { key: 'tempo-+1', label: '+1', onPress: () => handleTempoAdjust(1) },
                   { key: 'tempo-+5', label: '+5', onPress: () => handleTempoAdjust(5) },
                 ].map((action) => (
-                  <Pressable
+                  <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
                     key={action.key}
                     style={[
                       styles.performanceChip,
@@ -3476,7 +3572,7 @@ export default function App() {
                   ].map((option) => {
                     const active = tempoFollow === option.value;
                     return (
-                      <Pressable
+                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Follow external tempo, ${option.label}`}
                         key={`tempo-follow-${option.label}`}
                         style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
                         onPress={() => handleTempoFollowToggle(option.value)}
@@ -3503,7 +3599,7 @@ export default function App() {
                   { key: 'tuner-open', label: 'Open On Helix', onPress: () => handleOpenTuner('performance'), accent: true },
                   { key: 'tuner-exit', label: 'Close On Helix', onPress: handleExitTuner },
                 ].map((action) => (
-                  <Pressable
+                  <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
                     key={action.key}
                     style={[
                       styles.performanceChip,
@@ -3531,7 +3627,7 @@ export default function App() {
                     { key: 'tuner-ref-value', label: `${tunerReferencePitch ?? 440} Hz`, onPress: () => {} },
                     { key: 'tuner-ref-+1', label: '+1', onPress: () => handleTunerReferenceAdjust(1) },
                   ].map((action, index) => (
-                    <Pressable
+                    <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
                       key={action.key}
                       style={[
                         styles.performanceInlinePill,
@@ -3587,7 +3683,7 @@ export default function App() {
                     ].map((option) => {
                       const active = item.value === option.value;
                       return (
-                        <Pressable
+                        <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`${item.label}, ${option.label}`}
                           key={`${item.key}-${option.label}`}
                           style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
                           onPress={() => item.onChange(option.value)}
@@ -3618,7 +3714,7 @@ export default function App() {
                     const swatch =
                       SNAPSHOT_COLOR_OPTIONS.find((option) => option.value === snapshot?.colr)?.swatch ?? COLORS.stroke;
                     return (
-                      <Pressable
+                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Activate snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`}
                         key={`performance-snapshot-${index}`}
                         style={[
                           styles.performanceSnapshotCard,
@@ -3667,7 +3763,7 @@ export default function App() {
                   {performancePresetWindow.map((item) => {
                     const active = isPresetActive(item);
                     return (
-                      <Pressable
+                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${typeof item.posi === 'number' ? item.posi + 1 : 'unknown'}`}
                         key={`performance-preset-${String(item.cid_ ?? item.posi ?? item.name)}`}
                         style={[
                           styles.performancePresetCard,
@@ -3742,9 +3838,9 @@ export default function App() {
       title={paramHelp?.title}
       subtitle={paramHelp?.subtitle}
     >
-      <View style={styles.helpSheetBody}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.helpSheetBody}>
         <Text style={styles.helpSheetText}>{paramHelp?.body}</Text>
-      </View>
+      </ScrollView>
     </BottomSheet>
   );
 
@@ -3760,6 +3856,13 @@ export default function App() {
     if (!params.length) {
       return <Text style={styles.paramHint}>{emptyHint}</Text>;
     }
+    if (linearControls) return <View style={styles.sliderStack}>{params.map((param, index) => {
+      const key = paramStateKey(param) ?? param.name;
+      return <AccessibleParameter key={`${key}-${index}`} label={param.name} value={values?.[key] ?? param.def ?? 0}
+        min={param.min} max={param.max} type={param.type} options={param.options} unit={param.unit}
+        displayMin={param.display_min} displayMax={param.display_max} onChange={(value) => onChange(param, value)}
+        helpAdornment={getParamHelp(param) ? <ParamHelpButton size={32} label={`Help for ${param.name}`} onPress={() => openParamHelp(param, modelName)} /> : undefined} />;
+    })}</View>;
     // Booleans and short option lists always render as pills regardless of
     // control style — sliders don't make sense for hard "stop" values.
     const mainParams: Array<{ param: EditorParam; index: number }> = [];
@@ -3776,11 +3879,12 @@ export default function App() {
     });
 
     const accent = blockColor ?? COLORS.accent;
-    const useSliders = controlStyle === 'sliders';
+    const useSliders = linearControls || controlStyle === 'sliders';
 
     const renderHelpButton = (param: EditorParam, color: string) =>
       getParamHelp(param) ? (
         <ParamHelpButton
+          label={`Help for ${param.name}`}
           accentColor={color}
           onPress={() => openParamHelp(param, modelName)}
         />
@@ -3861,7 +3965,7 @@ export default function App() {
                         const val = idx > 0;
                         const active = val === isOn;
                         return (
-                          <Pressable
+                          <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`${param.name}, ${lbl}`}
                             key={`${rowKey}-${idx}`}
                             style={[styles.togglePill, active && styles.togglePillActive]}
                             onPress={() => onChange(param, val)}
@@ -3898,7 +4002,7 @@ export default function App() {
                       const comparableValue = param.type === 'b' ? Boolean(value) : Number(value);
                       const isActive = comparableCurrent === comparableValue;
                       return (
-                        <Pressable
+                        <Pressable accessibilityState={{ selected: isActive }} accessibilityLabel={`${param.name}, ${optLabel}`}
                           key={`${rowKey}-${value}`}
                           style={[styles.togglePill, isActive && styles.togglePillActive]}
                           onPress={() => onChange(param, value)}
@@ -3961,15 +4065,15 @@ export default function App() {
 
         <View style={styles.performanceHeader}>
           <View style={styles.performanceHeaderCopy}>
-            <Text style={styles.performanceEyebrow}>Tuner Remote</Text>
+            <ScreenHeading focusKey="tuner" style={styles.performanceEyebrow}>Tuner Remote</ScreenHeading>
             <Text style={styles.performanceHost}>Tune on the Helix display</Text>
           </View>
-          <Pressable style={styles.performanceExitButton} onPress={closeTunerScreen}>
+          <Pressable accessibilityLabel="Back from tuner remote" style={styles.performanceExitButton} onPress={closeTunerScreen}>
             <Text style={styles.performanceExitText}>Back</Text>
           </Pressable>
         </View>
 
-        <ScrollView
+        <ScrollView keyboardShouldPersistTaps="handled"
           style={styles.tabContent}
           contentContainerStyle={styles.performanceContent}
           showsVerticalScrollIndicator={false}
@@ -3995,7 +4099,7 @@ export default function App() {
                 { key: 'tuner-hero-open', label: 'Open On Helix', onPress: () => handleOpenTuner(tunerReturnScreen) },
                 { key: 'tuner-hero-exit', label: 'Close On Helix', onPress: handleExitTuner },
               ].map((action) => (
-                <Pressable
+                <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
                   key={action.key}
                   style={[
                     styles.performanceChip,
@@ -4056,7 +4160,7 @@ export default function App() {
                   ].map((option) => {
                     const active = item.value === option.value;
                     return (
-                      <Pressable
+                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`${item.label}, ${option.label}`}
                         key={`${item.key}-${option.label}`}
                         style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
                         onPress={() => item.onChange(option.value)}
@@ -4088,7 +4192,7 @@ export default function App() {
                 ].map((option) => {
                   const active = tunerOffsetsEnabled === option.value;
                   return (
-                    <Pressable
+                    <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Per-string tuner offsets, ${option.label}`}
                       key={`tuner-offset-mode-${option.label}`}
                       style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
                       onPress={() => handleTunerOffsetsEnabledToggle(option.value)}
@@ -4121,14 +4225,14 @@ export default function App() {
                     </View>
                     <Text style={styles.tunerOffsetValue}>{formatSignedValue(value)}</Text>
                     <View style={styles.tunerOffsetAdjustRow}>
-                      <Pressable
+                      <Pressable accessibilityLabel={`Decrease string ${item.stringNumber} offset by one cent`}
                         style={styles.tunerOffsetAdjustButton}
                         disabled={tunerOffsetsEnabled !== true}
                         onPress={() => handleTunerStringOffsetAdjust(item.stringNumber, -1)}
                       >
                         <Text style={styles.tunerOffsetAdjustButtonText}>-1</Text>
                       </Pressable>
-                      <Pressable
+                      <Pressable accessibilityLabel={`Increase string ${item.stringNumber} offset by one cent`}
                         style={[styles.tunerOffsetAdjustButton, styles.tunerOffsetAdjustButtonAccent]}
                         disabled={tunerOffsetsEnabled !== true}
                         onPress={() => handleTunerStringOffsetAdjust(item.stringNumber, 1)}
@@ -4161,7 +4265,7 @@ export default function App() {
         <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
           {/* Editor header — back, title row, action icons */}
           <View style={styles.editorHeader}>
-            <Pressable style={styles.editorBack} onPress={closeEditor} hitSlop={12}>
+            <Pressable accessibilityLabel="Back to signal flow" style={styles.editorBack} onPress={closeEditor} hitSlop={12}>
               <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
                 <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
@@ -4170,10 +4274,11 @@ export default function App() {
               <Text style={[styles.editorEyebrow, { color: appearance.meta }]}>
                 {kindLabel(activeBlock.kind).toUpperCase()}
               </Text>
-              <Text style={styles.editorTitle} numberOfLines={1}>{displayName}</Text>
+              <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>
             </View>
             <View style={styles.editorActions}>
               <Pressable
+                accessibilityLabel={`Replace ${displayName}`}
                 style={styles.editorActionBtn}
                 onPress={() => {
                   closeEditor();
@@ -4186,6 +4291,7 @@ export default function App() {
                 </Svg>
               </Pressable>
               <Pressable
+                accessibilityLabel={`Remove ${displayName}`}
                 style={styles.editorActionBtn}
                 onPress={() => {
                   clearSlot(blockEditorSlot);
@@ -4218,9 +4324,9 @@ export default function App() {
             </View>
             <View style={styles.editorPlateCopy}>
               {metaName ? (
-                <Text style={styles.editorPlateModel} numberOfLines={1}>{metaName}</Text>
+                <Text style={styles.editorPlateModel} numberOfLines={linearControls ? undefined : 1}>{metaName}</Text>
               ) : (
-                <Text style={[styles.editorPlateModel, { color: COLORS.muted }]} numberOfLines={1}>
+                <Text style={[styles.editorPlateModel, { color: COLORS.muted }]} numberOfLines={linearControls ? undefined : 1}>
                   No model selected
                 </Text>
               )}
@@ -4229,7 +4335,7 @@ export default function App() {
                   styles.editorPlateStatus,
                   { color: isEnabled ? appearance.meta : COLORS.muted },
                 ]}
-                numberOfLines={1}
+                numberOfLines={linearControls ? undefined : 1}
               >
                 {isEnabled ? 'Active' : 'Bypassed'}
               </Text>
@@ -4242,6 +4348,9 @@ export default function App() {
                   backgroundColor: isEnabled ? appearance.selectedSurface : appearance.surface,
                 },
               ]}
+              accessibilityRole="switch"
+              accessibilityLabel={`${displayName} enabled`}
+              accessibilityState={{ checked: isEnabled }}
               onPress={() => {
                 void toggleBlockEnabled(blockEditorSlot);
               }}
@@ -4278,6 +4387,7 @@ export default function App() {
                 <View style={styles.inlineEditor}>
                   <TextInput
                     style={[styles.input, styles.inlineInput]}
+          accessibilityLabel="Block label"
                     value={blockLabelDraft}
                     onChangeText={setBlockLabelDraft}
                     placeholder={activeBlock.modelName ?? activeBlock.name}
@@ -4304,6 +4414,12 @@ export default function App() {
     );
   };
 
+  useEffect(() => {
+    if (!screenReader || /^(Synced|Syncing|Ready|Disconnected)$/.test(status)) return;
+    const timer = setTimeout(() => announce(status), 350);
+    return () => clearTimeout(timer);
+  }, [status, screenReader]);
+
   /* ── Full-screen editor takes over when active ─────────────────── */
   if (screen === 'editor' && blockEditorOpen) {
     return renderEditor();
@@ -4317,6 +4433,8 @@ export default function App() {
     return renderPerformanceMode();
   }
 
+  if (previewOpen) return <OfflinePreview onClose={() => setPreviewOpen(false)} />;
+
   /* ── Connection gate – must connect before using the app ──────── */
   if (!connected && screen !== 'editor') {
     return (
@@ -4326,6 +4444,7 @@ export default function App() {
         transport={connectionTransport}
         onTransportChange={setConnectionTransport}
         onConnect={connect}
+        onPreview={() => setPreviewOpen(true)}
         connecting={connecting}
         status={status}
       />
@@ -4337,7 +4456,7 @@ export default function App() {
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         {/* ── App bar ──────────────────────────────────────────── */}
         <View style={styles.appBar}>
-          <Text style={styles.appTitle}>Stadium</Text>
+          <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{linearControls ? ({ flow: 'Signal flow', preset: 'Presets', setlists: 'Setlists', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab]) : 'HELYON'}</ScreenHeading>
           <View style={styles.appBarActions}>
             <Pressable
               style={styles.appBarIconBtn}
@@ -4353,12 +4472,14 @@ export default function App() {
             <Pressable style={styles.performanceLaunchButton} onPress={() => setScreen('performance')}>
               <Text style={styles.performanceLaunchText}>Perform</Text>
             </Pressable>
-            <Pressable style={styles.statusPill} onPress={() => handleTabChange('settings')}>
+            <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={styles.statusPill} onPress={() => handleTabChange('settings')}>
               <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
               <Text style={styles.pillText}>{connected ? host : 'Offline'}</Text>
             </Pressable>
           </View>
         </View>
+
+        {linearControls && <Text style={styles.accessibilityStatus}>{libraryActivityLabel ?? status}</Text>}
 
         {/* ── Tab content ──────────────────────────────────────── */}
         {activeTab === 'flow' && renderFlowTab()}
@@ -4373,11 +4494,11 @@ export default function App() {
           onClose={() => setSetlistPickerOpen(false)}
           title="Select Setlist"
         >
-          <ScrollView style={styles.sheetList}>
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList}>
             {setlists.map((item) => {
               const active = item.cid_ === selectedContainerId;
               return (
-                <Pressable
+                <Pressable accessibilityState={{ selected: active }}
                   key={`setlist-pick-${String(item.cid_)}`}
                   style={[styles.sheetListItem, active && styles.sheetListItemActive]}
                   onPress={() => {
@@ -4393,7 +4514,7 @@ export default function App() {
           </ScrollView>
           {activeSetlist && (
             <View style={styles.sheetRenameRow}>
-              <TextInput
+              <TextInput accessibilityLabel="Setlist name"
                 style={[styles.input, styles.inlineInput]}
                 value={setlistRenameText}
                 onChangeText={setSetlistRenameText}
@@ -4420,11 +4541,11 @@ export default function App() {
           onClose={() => setTargetSetlistPickerOpen(false)}
           title="Add to Setlist"
         >
-          <ScrollView style={styles.sheetList}>
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList}>
             {setlists.map((item) => {
               const active = item.cid_ === targetSetlistId;
               return (
-                <Pressable
+                <Pressable accessibilityState={{ selected: active }}
                   key={`target-pick-${String(item.cid_)}`}
                   style={[styles.sheetListItem, active && styles.sheetListItemActive]}
                   onPress={() => {
@@ -4451,7 +4572,7 @@ export default function App() {
             {SETLIST_ADD_SOURCES.map((source, idx) => {
               const active = source.key === setlistAddSource;
               return (
-                <Pressable
+                <Pressable accessibilityState={{ selected: active }}
                   key={`setlist-add-source-${source.key}`}
                   style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
                   onPress={() => handleSetlistAddSourceChange(source.key)}
@@ -4465,7 +4586,7 @@ export default function App() {
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
             </Svg>
-            <TextInput
+            <TextInput accessibilityLabel="Search presets to add"
               style={styles.searchInputInline}
               value={setlistAddSearch}
               onChangeText={setSetlistAddSearch}
@@ -4473,7 +4594,7 @@ export default function App() {
               placeholderTextColor={COLORS.muted}
             />
             {setlistAddSearch.trim().length > 0 && (
-              <Pressable onPress={() => setSetlistAddSearch('')} hitSlop={8}>
+              <Pressable accessibilityLabel="Clear search" onPress={() => setSetlistAddSearch('')} hitSlop={8}>
                 <Text style={styles.searchClearText}>Clear</Text>
               </Pressable>
             )}
@@ -4486,7 +4607,7 @@ export default function App() {
               <Pressable onPress={handleSelectVisibleSetlistAddItems} hitSlop={8}>
                 <Text style={styles.searchClearText}>Select visible</Text>
               </Pressable>
-              <Pressable onPress={() => setSelectedSetlistAddIds([])} hitSlop={8}>
+              <Pressable accessibilityLabel="Clear selected presets" onPress={() => setSelectedSetlistAddIds([])} hitSlop={8}>
                 <Text style={styles.searchClearText}>Clear</Text>
               </Pressable>
             </View>
@@ -4508,7 +4629,7 @@ export default function App() {
                 const contentId = typeof item.cid_ === 'number' ? item.cid_ : null;
                 const selected = contentId !== null && selectedSetlistAddIds.includes(contentId);
                 return (
-                  <Pressable
+                  <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected }} accessibilityLabel={`${item.name ?? 'Preset'}, ${selected ? 'selected' : 'not selected'}`}
                     style={[styles.sheetListItem, selected && styles.sheetListItemActive, contentId === null && styles.sheetListItemDisabled]}
                     disabled={contentId === null}
                     onPress={() => {
@@ -4519,7 +4640,7 @@ export default function App() {
                       {selected && <Text style={styles.selectionDotText}>✓</Text>}
                     </View>
                     <View style={styles.libraryRowCopy}>
-                      <Text style={styles.sheetListText} numberOfLines={1}>
+                      <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
                         {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
                       </Text>
                       <Text style={styles.libraryMeta}>
@@ -4562,7 +4683,7 @@ export default function App() {
           <View style={styles.sheetActions}>
             {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
               <View style={styles.sheetRenameRow}>
-                <TextInput
+                <TextInput accessibilityLabel="Preset name"
                   style={[styles.input, styles.inlineInput]}
                   value={presetRenameText}
                   onChangeText={setPresetRenameText}
@@ -4648,7 +4769,7 @@ export default function App() {
           <View style={styles.sheetActions}>
             {snapshotActionIndex === activeSnapshotIndex && (
               <View style={styles.sheetRenameRow}>
-                <TextInput
+                <TextInput accessibilityLabel="Snapshot name"
                   style={[styles.input, styles.inlineInput]}
                   value={snapshotRenameText}
                   onChangeText={setSnapshotRenameText}
@@ -4728,18 +4849,18 @@ export default function App() {
           title={`${ioPickerType === 'input' ? 'Input' : 'Output'} Settings`}
           subtitle={`${rowLabels[ioPickerRow]} \u00b7 ${ioPickerType === 'input' ? 'Input' : 'Output'}`}
         >
-          <TextInput
+          <TextInput accessibilityLabel="Search input and output models"
             style={styles.searchInput}
             value={ioPickerQuery}
             onChangeText={setIoPickerQuery}
             placeholder={`Search ${ioPickerType === 'input' ? 'inputs' : 'outputs'}\u2026`}
             placeholderTextColor={COLORS.muted}
           />
-          <ScrollView style={styles.sheetList} nestedScrollEnabled>
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList} nestedScrollEnabled>
             {ioPickerModels.map((model) => {
               const isActive = activeIOModel?.modelId === model.id;
               return (
-                <Pressable
+                <Pressable accessibilityState={{ selected: isActive }}
                   key={model.id}
                   style={[styles.sheetListItem, isActive && styles.sheetListItemActive]}
                   onPress={() => setIOModel(model)}
@@ -4750,8 +4871,9 @@ export default function App() {
             })}
           </ScrollView>
           <Text style={styles.paramSectionTitle}>Parameters</Text>
-          <ScrollView style={styles.paramList} nestedScrollEnabled>
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.paramList} nestedScrollEnabled>
             {renderIOParams()}
+            {ioPickerOpen && renderParamHelpSheet()}
           </ScrollView>
         </BottomSheet>
 
@@ -4760,10 +4882,10 @@ export default function App() {
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
           title={pickerStep === 'type' ? (targetBlock ? 'Replace Block' : 'Add Block') : blockCatalog[pickerType ?? 'amp']?.label}
-          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${availableUsage.toFixed(1)}/${STANDARD_DSP_CAP}`}
+          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${Math.max(0, availableUsage).toFixed(1)}/${dspLimit}${extendedDspEnabled ? ' · Extended budget' : ''}`}
         >
           {pickerStep === 'type' ? (
-            <ScrollView style={styles.sheetList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+            <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
               <View style={styles.typeGrid}>
                 {blockTypeOrder.map((typeKey) => {
                   const group = blockCatalog[typeKey];
@@ -4793,21 +4915,21 @@ export default function App() {
           ) : (
             <>
               <View style={styles.pickerNav}>
-                <Pressable style={styles.backButton} onPress={() => setPickerStep('type')}>
+                <Pressable accessibilityLabel="Back to block categories" style={styles.backButton} onPress={() => setPickerStep('type')}>
                   <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                     <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                   </Svg>
                   <Text style={styles.backButtonText}>Back</Text>
                 </Pressable>
               </View>
-              <TextInput
+              <TextInput accessibilityLabel="Search block models"
                 style={styles.searchInput}
                 value={pickerQuery}
                 onChangeText={setPickerQuery}
                 placeholder="Search models\u2026"
                 placeholderTextColor={COLORS.muted}
               />
-              <ScrollView style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+              <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
                 {pickerModelSections.map((section, sectionIndex) => (
                   <View key={`${section.title ?? 'models'}-${sectionIndex}`}>
                     {section.title && (
@@ -4817,13 +4939,13 @@ export default function App() {
                     )}
                     {section.models.map((item) => {
                       const required = getProjectedInsertUsage(item);
-                      const canInsert = required <= availableUsage;
+                      const canInsert = fitsDspBudget(required, availableUsage);
                       const color = getBlockColor(pickerType ?? '');
                       const sourceName = isUsefulRealName(item.based_on) ? item.based_on!.trim() : null;
                       const primaryName = showRealBlockNames && sourceName ? sourceName : item.name;
                       const secondaryName = showRealBlockNames && sourceName ? item.name : sourceName;
                       return (
-                        <Pressable
+                        <Pressable accessibilityLabel={`${primaryName}${secondaryName ? ', ' + secondaryName : ''}${canInsert ? '' : ', not enough space or processing capacity'}`}
                           key={item.id}
                           style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
                           onPress={() => insertModel(item, pickerType ?? 'fx')}
@@ -4833,7 +4955,7 @@ export default function App() {
                           <View style={styles.modelInfo}>
                             <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>{primaryName}</Text>
                             {secondaryName && (
-                              <Text style={styles.modelMetaText} numberOfLines={1}>{secondaryName}</Text>
+                              <Text style={styles.modelMetaText} numberOfLines={linearControls ? undefined : 1}>{secondaryName}</Text>
                             )}
                           </View>
                           <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>
@@ -4850,7 +4972,7 @@ export default function App() {
         </BottomSheet>
 
         {/* ── Bottom Sheet: Parameter help ─────────────────────── */}
-        {renderParamHelpSheet()}
+        {!ioPickerOpen && renderParamHelpSheet()}
 
         {/* ── Tab bar ──────────────────────────────────────────── */}
         <TabBar activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />
@@ -4860,6 +4982,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  accessibilityStatus: { color: COLORS.text, paddingHorizontal: 20, paddingVertical: 8, fontSize: 16 },
   safe: { flex: 1, backgroundColor: COLORS.bg },
 
   /* ── App bar ──────────────────────────────────────────────────── */
@@ -4878,6 +5001,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.4,
   },
   appBarActions: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -4910,7 +5034,7 @@ const styles = StyleSheet.create({
   /* ── Performance mode ─────────────────────────────────────────── */
   performanceSafe: { flex: 1, backgroundColor: COLORS.bg },
   performanceBackdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     overflow: 'hidden',
   },
   performanceGlowA: { width: 0, height: 0 },
@@ -5125,6 +5249,7 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
   },
   performanceInlineToggleRow: {
+    flexWrap: 'wrap',
     gap: 10,
   },
   performanceInlineLabel: {
@@ -5392,6 +5517,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   pathHeader: {
+    flexWrap: 'wrap',
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline',
     paddingTop: 4, paddingBottom: 6,
   },
@@ -5413,6 +5539,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   pathHeaderRight: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     alignItems: 'baseline',
   },
@@ -5492,6 +5619,7 @@ const styles = StyleSheet.create({
 
   /* ── Full-screen editor ────────────────────────────────────────── */
   editorHeader: {
+    flexWrap: 'wrap',
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: 16, paddingTop: 6, paddingBottom: 10,
   },
@@ -5510,7 +5638,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 26,
   },
-  editorActions: { flexDirection: 'row', gap: 8 },
+  editorActions: {
+    flexWrap: 'wrap', flexDirection: 'row', gap: 8 },
   editorActionBtn: {
     width: 36, height: 36, borderRadius: 10,
     backgroundColor: COLORS.panel, borderWidth: 1, borderColor: COLORS.stroke,
@@ -5583,7 +5712,8 @@ const styles = StyleSheet.create({
   },
   sectionBody: { gap: 14 },
   row: { flexDirection: 'row', gap: 12, alignItems: 'center' },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  rowBetween: {
+    flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   rowBetweenInfo: { flex: 1, paddingRight: 12 },
 
   /* ── Inputs ───────────────────────────────────────────────────── */
@@ -5660,7 +5790,8 @@ const styles = StyleSheet.create({
   libraryCurrentName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 17 },
   libraryMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, lineHeight: 16 },
   libraryRefresh: { minWidth: 104, paddingVertical: 10, paddingHorizontal: 12 },
-  libraryPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  libraryPills: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 
   /* ── Segmented control ────────────────────────────────── */
   segmentedControl: {
@@ -5693,7 +5824,8 @@ const styles = StyleSheet.create({
   presetSlotNumActive: { color: COLORS.accent },
   presetMoreButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   presetMoreText: { color: COLORS.muted, fontSize: 18 },
-  setlistRowActions: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 },
+  setlistRowActions: {
+    flexWrap: 'wrap', flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 },
   setlistRowActionButton: {
     minWidth: 34,
     height: 30,
@@ -6009,7 +6141,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
-  toggleLabels: { flexDirection: 'row', gap: 6, flex: 1, flexWrap: 'wrap' },
+  toggleLabels: {
+    flexDirection: 'row', gap: 6, flex: 1, flexWrap: 'wrap' },
   togglePill: {
     paddingVertical: 8,
     paddingHorizontal: 14,

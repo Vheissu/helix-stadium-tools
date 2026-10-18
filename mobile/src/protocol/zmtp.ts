@@ -1,8 +1,11 @@
 import { Buffer } from 'buffer';
 import TcpSocket from 'react-native-tcp-socket';
+import { createUsbSocket } from './usbSocket';
+import type { UsbSocketSession } from './usbSocketSession';
+import type { NetworkInterfacePreference } from '../utils/connectionTransport';
+export type { NetworkInterfacePreference } from '../utils/connectionTransport';
 
 type Socket = ReturnType<typeof TcpSocket.createConnection>;
-export type NetworkInterfacePreference = 'ethernet' | 'wifi' | undefined;
 
 const CLIENT_GREETING = Buffer.from(
   'ff00000000000000017f03004e554c4c' +
@@ -32,21 +35,30 @@ const writeUint64BE = (value: number) => {
 
 class BufferQueue {
   private buffer = Buffer.alloc(0);
-  private waiters: Array<{ size: number; resolve: (b: Buffer) => void }> = [];
+  private waiters: Array<{ size: number; resolve: (b: Buffer) => void; reject: (error: Error) => void }> = [];
+  private failure: Error | null = null;
+
+  fail(error: Error) {
+    this.failure = error;
+    this.buffer = Buffer.alloc(0);
+    for (const waiter of this.waiters.splice(0)) waiter.reject(error);
+  }
 
   push(data: Buffer) {
+    if (this.failure) return;
     this.buffer = Buffer.concat([this.buffer, data]);
     this.flush();
   }
 
   read(size: number) {
+    if (this.failure) return Promise.reject(this.failure);
     if (this.buffer.length >= size) {
       const out = this.buffer.subarray(0, size);
       this.buffer = this.buffer.subarray(size);
       return Promise.resolve(out);
     }
-    return new Promise<Buffer>((resolve) => {
-      this.waiters.push({ size, resolve });
+    return new Promise<Buffer>((resolve, reject) => {
+      this.waiters.push({ size, resolve, reject });
     });
   }
 
@@ -71,10 +83,18 @@ class BufferQueue {
 
 export class ZmtpSocket {
   private socket: Socket | null = null;
+  private usb: UsbSocketSession | null = null;
   private queue = new BufferQueue();
 
   async connect(host: string, port: number, networkInterface?: NetworkInterfacePreference) {
-    if (this.socket) return;
+    if (this.socket || this.usb) return;
+    this.queue = new BufferQueue();
+    const queue = this.queue;
+    if (networkInterface === 'usb') {
+      this.usb = createUsbSocket((data) => queue.push(data), (error) => queue.fail(error));
+      await this.usb.connect(port);
+      return;
+    }
     await new Promise<void>((resolve, reject) => {
       const options = networkInterface
         ? { host, port, interface: networkInterface }
@@ -83,18 +103,27 @@ export class ZmtpSocket {
       this.socket = sock;
       sock.once('connect', () => resolve());
       sock.once('error', (err) => reject(err));
-      sock.on('data', (data) => this.queue.push(Buffer.from(data)));
-      sock.on('error', (err) => console.warn('socket error', err));
+      sock.on('data', (data) => queue.push(Buffer.from(data)));
+      sock.on('error', (err) => queue.fail(err));
+      sock.once('close', () => {
+        const error = new Error('Connection closed');
+        queue.fail(error);
+        reject(error);
+      });
     });
   }
 
   close() {
+    this.queue.fail(new Error('Connection closed'));
+    this.usb?.close();
+    this.usb = null;
     if (!this.socket) return;
     this.socket.destroy();
     this.socket = null;
   }
 
   write(payload: Buffer) {
+    if (this.usb) { this.usb.write(payload); return; }
     if (!this.socket) throw new Error('socket not connected');
     this.socket.write(payload);
   }
@@ -114,7 +143,7 @@ export class ZmtpSocket {
   async readFrame() {
     const flagsBuf = await this.readBytes(1);
     const flags = flagsBuf[0];
-    let size = 0;
+    let size: number;
     if (flags & 0x02) {
       const lenBuf = await this.readBytes(8);
       size = readUint64BE(lenBuf);

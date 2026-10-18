@@ -1,7 +1,8 @@
+import { withDeadline } from '../utils/deadline';
 import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
 import { buildOsc } from './osc';
-import { ZmtpSocket, zmtpHandshake } from './zmtp';
+import { ZmtpSocket, zmtpHandshake, type NetworkInterfacePreference } from './zmtp';
 import { coerceHelixBoolean, extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
 import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } from '../utils/matrixMixer';
 import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
@@ -113,12 +114,13 @@ export class HelixClient {
   private host: string;
   private port2001: number;
   private port2002: number;
-  private networkInterface: 'ethernet' | 'wifi' | undefined;
+  private networkInterface: NetworkInterfacePreference;
   private stream2001 = new ZmtpSocket();
   private stream2002 = new ZmtpSocket();
   private cmdId = 1;
   private listening = false;
   private onEvent: ((event: HelixEvent) => void) | null = null;
+  private onDisconnect: (() => void) | null = null;
   private listening2002 = false;
   private pendingResponses = new Map<string, (vals: Array<any>, responseAddr?: string) => void>();
   private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
@@ -127,7 +129,7 @@ export class HelixClient {
     host: string,
     port2001 = 2001,
     port2002 = 2002,
-    networkInterface?: 'ethernet' | 'wifi'
+    networkInterface?: NetworkInterfacePreference
   ) {
     this.host = host;
     this.port2001 = port2001;
@@ -136,6 +138,15 @@ export class HelixClient {
   }
 
   async connect() {
+    try {
+      await withDeadline(this.openConnection(), this.networkInterface === 'usb' ? 65000 : 12000);
+    } catch (error) {
+      this.close();
+      throw error;
+    }
+  }
+
+  private async openConnection() {
     await this.stream2001.connect(this.host, this.port2001, this.networkInterface);
     await this.stream2002.connect(this.host, this.port2002, this.networkInterface);
     await zmtpHandshake(this.stream2001, 'SUB');
@@ -147,6 +158,7 @@ export class HelixClient {
   close() {
     this.listening = false;
     this.listening2002 = false;
+    this.onDisconnect = null;
     this.pendingResponses.clear();
     this.lastEditBufferResponse = null;
     this.stream2001.close();
@@ -164,17 +176,25 @@ export class HelixClient {
     this.stream2002.sendFrame(msg);
   }
 
-  startListener(callback?: (event: HelixEvent) => void) {
+  startListener(callback?: (event: HelixEvent) => void, onDisconnect?: () => void) {
     this.onEvent = callback ?? null;
+    this.onDisconnect = onDisconnect ?? null;
     if (this.listening) return;
     this.listening = true;
-    this.listenLoop().catch((err) => console.warn('listen loop error', err));
+    this.listenLoop().catch(() => this.handleConnectionClosed());
   }
 
   private startListener2002() {
     if (this.listening2002) return;
     this.listening2002 = true;
-    this.listenLoop2002().catch((err) => console.warn('listen loop 2002 error', err));
+    this.listenLoop2002().catch(() => this.handleConnectionClosed());
+  }
+
+  private handleConnectionClosed() {
+    if (!this.listening && !this.listening2002) return;
+    const notify = this.onDisconnect;
+    this.close();
+    notify?.();
   }
 
   private async listenLoop() {
@@ -515,6 +535,20 @@ export class HelixClient {
     return parseMatrixMixerState(property);
   }
 
+  async getTransportState(): Promise<[number, number] | null> {
+    const vals = await this.request('/TransportStateGet', '', [], '/getTransportState', 2500);
+    if (!Array.isArray(vals) || vals.length < 3) return null;
+    const state = Number(vals[1]);
+    const detail = Number(vals[2]);
+    if (!Number.isFinite(state) || !Number.isFinite(detail)) return null;
+    return [state, detail];
+  }
+
+  async getCloneHierarchy() {
+    const vals = await this.request('/GetCloneHierarchy', '', [], '/GetCloneHierarchy', 3000);
+    return decodeCommandBlob(vals);
+  }
+
   async getExpressionPedalPosition(pedalIndex: number) {
     if (!Number.isInteger(pedalIndex) || pedalIndex < 0 || pedalIndex > 2) {
       throw new Error('Pedal index must be 0, 1, or 2.');
@@ -546,6 +580,11 @@ export class HelixClient {
     );
     const blob = extractFirstBlob(vals);
     return blob ? decodeLibraryContent(blob) : null;
+  }
+
+  async getCloneLockState() {
+    const vals = await this.request('/getCloneLockState', '', [], '/getCloneLockState', 2500);
+    return Array.isArray(vals) ? vals.slice(1) : null;
   }
 
   async getPropertyDefinitionWithKey(key: string) {

@@ -1,17 +1,24 @@
+import { useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
+import { AccessibleText as Text } from '../accessibility/AccessibleText';
+import { Action as Pressable } from '../accessibility/controls';
+import { AccessibilitySettings } from '../accessibility/controls';
 import React, { useEffect, useRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
+  ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import Svg, { Rect, Circle } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppInfo } from './AppInfo';
+import appConfig from '../../app.json';
 import { COLORS, FONTS } from '../theme/colors';
 import { getConnectionErrorMessage } from '../utils/connection';
 import {
@@ -25,6 +32,7 @@ interface ConnectionGateProps {
   transport: ConnectionTransport;
   onTransportChange: (value: ConnectionTransport) => void;
   onConnect: () => void;
+  onPreview: () => void;
   connecting: boolean;
   status: string;
 }
@@ -53,12 +61,19 @@ const DeviceMark = ({ pulse }: { pulse: boolean }) => {
         }),
       ])
     );
-    anim.start();
-    return () => anim.stop();
+    let disposed = false;
+    const updateMotion = (reduce: boolean) => {
+      anim.stop();
+      opacity.setValue(1);
+      if (!reduce && !disposed) anim.start();
+    };
+    void AccessibilityInfo.isReduceMotionEnabled().then(updateMotion);
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', updateMotion);
+    return () => { disposed = true; anim.stop(); subscription.remove(); };
   }, [pulse, opacity]);
 
   return (
-    <View style={styles.deviceMark}>
+    <View style={styles.deviceMark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Svg width={120} height={48} viewBox="0 0 120 48">
         <Rect x="2" y="6" width="116" height="36" rx="6" stroke={COLORS.stroke} strokeWidth={1} fill={COLORS.panel} />
         <Rect x="14" y="14" width="44" height="20" rx="3" fill={COLORS.bg} stroke={COLORS.stroke} strokeWidth={0.75} />
@@ -76,14 +91,16 @@ const SpinnerDot = () => {
   const rotation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.timing(rotation, {
         toValue: 1,
         duration: 1200,
         easing: Easing.linear,
         useNativeDriver: true,
       })
-    ).start();
+    );
+    animation.start();
+    return () => animation.stop();
   }, [rotation]);
 
   const spin = rotation.interpolate({
@@ -104,9 +121,13 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
   transport,
   onTransportChange,
   onConnect,
+  onPreview,
   connecting,
   status,
 }) => {
+  const { accessibleLayout, screenReader } = useAccessibilityPreferences();
+  const { fontScale } = useWindowDimensions();
+  const stackChoices = accessibleLayout || screenReader || fontScale > 1.3;
   const errorMessage = getConnectionErrorMessage(status);
 
   return (
@@ -116,26 +137,27 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
+          <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.spacer} />
 
           <DeviceMark pulse={!connecting} />
 
-          <Text style={styles.title}>Helix Stadium</Text>
+          <Text accessibilityRole="header" style={styles.title}>{appConfig.expo.name}</Text>
           <Text style={styles.subtitle}>
-            Edit and control your device over USB or Wi-Fi.
+            Unofficial mobile editor for the Helix Stadium
           </Text>
 
           <View style={styles.form}>
             <View style={styles.transportWrap}>
               <Text style={styles.inputLabel}>Connection</Text>
-              <View style={styles.transportRow}>
+              <View style={[styles.transportRow, stackChoices && { flexDirection: 'column' }]}>
                 {(['auto', 'usb', 'wifi'] as const).map((option) => {
                   const selected = transport === option;
                   const label = option === 'auto' ? 'Automatic' : option === 'usb' ? 'USB' : 'Wi-Fi';
                   return (
                     <Pressable
                       key={option}
-                      style={[styles.transportButton, selected && styles.transportButtonSelected]}
+                      style={[styles.transportButton, selected && styles.transportButtonSelected, stackChoices && { flex: 0, alignSelf: 'stretch' }]}
                       onPress={() => onTransportChange(option)}
                       disabled={connecting}
                       accessibilityRole="button"
@@ -150,9 +172,10 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
               </View>
             </View>
 
-            <View style={styles.inputWrap}>
+            {!(Platform.OS === 'android' && transport === 'usb') && <View style={styles.inputWrap}>
               <Text style={styles.inputLabel}>Device address</Text>
               <TextInput
+                accessibilityLabel="Device name or IP address"
                 style={styles.input}
                 value={host}
                 onChangeText={onHostChange}
@@ -164,9 +187,11 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
                 returnKeyType="go"
                 onSubmitEditing={onConnect}
               />
-            </View>
+            </View>}
 
             <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ disabled: connecting }}
               style={[styles.connectBtn, connecting && styles.connectBtnDisabled]}
               onPress={onConnect}
               disabled={connecting}
@@ -184,16 +209,22 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
             {errorMessage && (
               <View style={styles.errorRow}>
                 <View style={styles.errorDot} />
-                <Text style={styles.errorText}>{errorMessage}</Text>
+                <Text accessibilityRole="alert" style={styles.errorText}>{errorMessage}</Text>
               </View>
             )}
           </View>
 
+          <Pressable style={styles.previewButton} accessibilityRole="button" disabled={connecting} onPress={onPreview}>
+            <Text style={styles.transportText}>Try offline preview</Text>
+          </Pressable>
           <View style={styles.bottomInfo}>
             <Text style={styles.hint}>
               {getConnectionHint(transport)}
             </Text>
+            <AccessibilitySettings />
+          <AppInfo />
           </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -207,10 +238,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: 24,
   },
+  scrollContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 560, alignSelf: 'center' },
+  previewButton: { minHeight: 48, justifyContent: 'center', marginTop: 12 },
   spacer: {
     flex: 1,
     minHeight: 20,
@@ -266,7 +297,7 @@ const styles = StyleSheet.create({
   },
   transportButton: {
     flex: 1,
-    minHeight: 42,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,

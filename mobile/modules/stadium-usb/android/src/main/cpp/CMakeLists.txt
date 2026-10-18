@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.22)
+project(helyon_usb C)
+set(CMAKE_C_STANDARD 11)
+file(GLOB LWIP_CORE vendor/lwip/src/core/*.c vendor/lwip/src/core/ipv6/*.c)
+add_library(helyon_usb SHARED ${LWIP_CORE} vendor/lwip/src/netif/ethernet.c usb_stack.c usb_jni.c)
+target_include_directories(helyon_usb PRIVATE . vendor/lwip/src/include)
+target_compile_options(helyon_usb PRIVATE -Wall -Wextra)
+target_link_options(helyon_usb PRIVATE "-Wl,-z,max-page-size=16384")

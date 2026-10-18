@@ -1,10 +1,10 @@
-# Stadium Remote
+# HELYON
 
 Expo app for connecting to a Helix Stadium over USB or Wi-Fi and editing presets from a phone or tablet.
 
 ## Unofficial community project
 
-Stadium Remote is a fan-made app. It is **not** an official Line 6 or Yamaha
+HELYON is an independent app. It is **not** an official Line 6 or Yamaha
 product, and is not affiliated with or endorsed by Line 6, Yamaha Guitar
 Group, or Yamaha Corporation. "Helix", "Helix Stadium", "Line 6", and
 "Yamaha" are trademarks of their respective owners; they are referenced
@@ -14,7 +14,7 @@ for the full notice.
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 26 (see `.nvmrc`); Expo SDK 58 also supports recent Node 22/24 releases
 - Xcode for iOS builds or Android Studio for Android builds
 - A Helix Stadium with firmware 1.4 or later for USB editing, or a device on the
   same Wi-Fi network, with Remote Access enabled
@@ -80,16 +80,138 @@ tool must sign it before a device will install it.
 
 ## App notes
 
-- Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address.
-- Automatic mode lets the operating system select USB or Wi-Fi. USB mode asks
-  Android to prefer its wired Ethernet route; Apple platforms select the route
-  for the device address automatically.
+- Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address for Wi-Fi and Apple-platform connections.
+- On Android, select USB to use direct USB-host access and allow the Android
+  USB permission prompt. The plugged-in Stadium is found without an address.
+  This path does not require Android to provision an Ethernet network.
+- Automatic mode leaves route selection to the operating system. Select USB
+  explicitly on Android to use the direct transport. Apple platforms select
+  the route for the entered device address automatically.
 - Direct phone support depends on the phone acting as USB host. USB-C iPhones
   support USB Ethernet; Android support varies by device and firmware. Physical
   phone testing is still required before treating either platform as universal.
 - The app shares the same underlying protocol path as the desktop editor, but the UI keeps language focused on the device and user actions.
 - DSP meters and block-picker availability use conservative estimates from the extracted model metadata, and are intended to stay within the same practical limits as the device/editor. When Auto-cab is enabled, amp insertion checks also include the linked cab usage.
+- Advanced settings includes an **Extended DSP budget** option. It is off by
+  default, requires confirmation, and resets on disconnect. It raises the app's
+  per-path estimate from 66 to 82, keeps the normal meter warning, and does not
+  remove device validation or increase processing power. Use a spare preset.
+- Help, privacy information, third-party notices, and an offline block-editing
+  preview are available before connecting. The preview does not produce audio
+  or simulate the device's library, routing, snapshots, or save operations.
 - This project only targets native mobile builds; there is no separate web target to maintain.
+
+## Store builds
+
+The app is linked to [@beggars/helyon on Expo](https://expo.dev/accounts/beggars/projects/helyon).
+EAS builds run from this directory. The root `.easignore` includes only the
+mobile app and excludes local native projects, research files, and credentials.
+
+```bash
+nvm use
+npm ci
+npm run licenses:generate
+npm run typecheck
+npm test
+npm run lint
+npm run build:stores
+```
+
+The production profile builds an Android App Bundle and a signed iOS app.
+Version numbers are managed remotely by EAS. iOS signing uses Apple team
+`D88WFBKGJD`; submission targets App Store Connect app `6824149078`.
+Android retains `com.beggars.stadiumremote`, and iOS retains
+`com.beggars.stadium-remote` so existing installs keep their identities.
+
+After choosing and testing the intended build:
+
+```bash
+npm run submit:ios
+npm run submit:android
+```
+
+iOS submission uploads to App Store Connect/TestFlight. Android submission is
+configured for a draft internal-test release. Package registration, the first
+Play Console upload, and the Google Play service account are configured. The
+service account can release to HELYON's testing tracks and has no production
+or account-wide access. These commands do not publish a public release.
+
+As of 18 October 2026, both signed production builds have completed:
+
+- **iOS 1.0.0 (2):** available in TestFlight, in the owner-only
+  [Team (Expo) internal group](https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/50cba159-51de-41aa-b799-4d427cd95de2).
+- **Android 1.0.0 (5):** available through the
+  [internal testing link](https://play.google.com/apps/internaltest/4701590729869450330)
+  with direct Android USB-host transport. The same build is submitted to closed
+  Alpha testing and shown under Changes in review. It will roll out after
+  Google approval; managed publishing is off.
+
+Store descriptions, privacy declarations, age ratings, free pricing, artwork
+and screenshots are saved. Apple remains an unsubmitted public-release draft.
+Google has published the owner's closed-test listing and policy submission;
+production access is still unavailable.
+The hardware demonstration video is linked in Apple review notes. Complete the
+physical-device test matrix before public release. Google also requires a closed test
+with at least 12 opted-in testers for 14 continuous days before this account
+can apply for production access; internal testing does not meet that requirement.
+
+The store name is **HELYON for Helix Stadium**, with **Unofficial mobile editor**
+as the Apple subtitle to fit its 30-character limit. The full line, “Unofficial
+mobile editor for the Helix Stadium”, is used in the app and store description.
+Keep the app free under the confirmed permission for Stadium category icons.
+
+The app uses the HELYON square icon on iOS, with a separately padded Android
+adaptive icon and a monochrome version for themed home screens. The native
+splash shows the emblem on the app's dark background until its bundled fonts
+and first frame are ready. There is no artificial launch delay. Editable
+artwork and export notes are in [`assets/brand`](assets/brand/README.md).
+
+Store copy and remaining release requirements are in
+[`store/app-store.en-AU.json`](store/app-store.en-AU.json). The live
+[privacy policy](https://ilikekillnerds.com/helyon/privacy/) and
+[support page](https://ilikekillnerds.com/helyon/support/) are hosted on
+ilikekillnerds.com without analytics on those two pages.
+
+### Dependency and verification notes
+
+Expo SDK 58 uses React Native 0.88 and React 19.3.0. React and TypeScript stay on
+the versions supported by the installed Expo/tooling combination rather than
+forcing incompatible newer releases. AsyncStorage 3.1.1 is an intentional
+exception to Expo's suggested 2.x version; both native release builds compile.
+Expo Doctor reports one remaining React Native Directory warning because
+`react-native-tcp-socket` is not marked as tested with the New Architecture.
+This still needs physical-device validation.
+
+The dependency audit on 18 October 2026 reports 25 transitive advisories
+(17 high, 8 moderate, none critical), primarily in the Expo/Metro build
+toolchain. Do not use `npm audit fix --force`: its suggested resolution
+downgrades Expo to an unsupported old SDK. Review patched upstream releases
+before public submission.
+
+Local verification covers 43 unit tests, TypeScript, production JS exports,
+an Android release build, an iOS simulator release build, and the offline
+preview flow. ESLint has three existing hook-dependency warnings and no errors.
+The repository's 386 Python tests also pass. Signed EAS builds succeed on both
+platforms; the Google Play submission credential was checked against the API
+and the active internal release, without changing any published release.
+The owner reports working Android Wi-Fi and iOS USB-C connections. On a
+Galaxy S25 Ultra running Android 16, build 4 no longer crashed but could not
+connect over USB. The direct USB transport requires a new physical test;
+complete the remaining phone/tablet and connection combinations before public release.
+The Android USB crash was reproduced in an API 34 release build and fixed in
+the pinned TCP socket dependency. Five native regression tests pass, including
+IPv4/IPv6 connections, and five repeated USB attempts without a wired network
+show guidance without terminating the app. See [`patches/README.md`](patches/README.md)
+for the patch and native test command. The subsequent direct USB transport
+has 11 Java tests and a packet-level IPv6/TCP test covering two connections,
+10 KB transfers, reconnect, and dropped-packet recovery with sanitizers.
+See [`modules/stadium-usb`](modules/stadium-usb/README.md). These tests do not
+verify physical phone/USB compatibility.
+
+Record the phone, OS, Stadium firmware, cable/adapter, connection/reconnection,
+block edits, snapshots, and save/reload results. The owner supplied a [USB-C hardware demonstration](https://www.youtube.com/watch?v=pFTHOyUoGXY),
+which is linked in the Apple review notes and plays without signing in. The
+video does not replace the device and connection test matrix above.
 
 ## Refresh generated app data
 
@@ -147,3 +269,10 @@ is not presented as proof that every file succeeded.
 
 See [the 1.4 support notes](../docs/FIRMWARE_1_4_SUPPORT.md) for validation
 and remaining work.
+
+
+## Accessibility
+
+VoiceOver and TalkBack automatically enable a list layout with named block actions and adjustable parameters. You can also choose **Accessibility → List layout** on the connection screen, in Settings, or in offline preview. The setting is saved locally. Numeric entry, named option selection, block movement, preset actions, and snapshot options are available without dragging or long-pressing.
+
+See [accessibility support and verification](../docs/ACCESSIBILITY.md) for tested behaviour and the remaining physical-device usability checks. Tuner Remote controls settings; it cannot announce live pitch readings.

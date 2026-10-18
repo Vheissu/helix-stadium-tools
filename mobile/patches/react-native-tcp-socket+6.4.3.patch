@@ -1,0 +1,218 @@
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+index 7511570..3b60eb0 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+@@ -49,9 +49,12 @@ class TcpSocketClient extends TcpSocket {
+             socket = new Socket();
+         }
+         // Get the addresses
+-        final String localAddress = options.hasKey("localAddress") ? options.getString("localAddress") : "0.0.0.0";
++        // Resolve device names on the selected network without binding the whole process.
++        final InetAddress remoteInetAddress = network == null
++                ? InetAddress.getByName(address) : network.getByName(address);
++        final String localAddress = options.hasKey("localAddress") ? options.getString("localAddress")
++                : (remoteInetAddress instanceof java.net.Inet6Address ? "::" : "0.0.0.0");
+         final InetAddress localInetAddress = InetAddress.getByName(localAddress);
+-        final InetAddress remoteInetAddress = InetAddress.getByName(address);
+         if (network != null)
+             network.bindSocket(socket);
+         // setReuseAddress
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
+index 121edb4..576b3ed 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
+@@ -38,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
+ import java.util.concurrent.CountDownLatch;
+ import java.util.concurrent.ExecutorService;
+ import java.util.concurrent.Executors;
+-import java.util.concurrent.ScheduledThreadPoolExecutor;
+ import java.util.concurrent.TimeUnit;
+ 
+ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -48,7 +47,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+     private final ConcurrentHashMap<Integer, TcpSocket> socketMap = new ConcurrentHashMap<>();
+     private final ConcurrentHashMap<Integer, ReadableMap> pendingTLS = new ConcurrentHashMap<>();
+     private final ConcurrentHashMap<String, Network> mNetworkMap = new ConcurrentHashMap<>();
+-    private final CurrentNetwork currentNetwork = new CurrentNetwork();
+     private final ExecutorService executorService = Executors.newFixedThreadPool(N_THREADS);
+     private TcpEventListener tcpEvtListener;
+ 
+@@ -94,11 +92,11 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                     final String iface = options.hasKey("interface") ? options.getString("interface") : null;
+                     // Get ioT device host to retreive correct network in android concurrent connections
+                     final String iotDeviceHost = options.hasKey("host") ? options.getString("host") : null;
+-                    selectNetwork(iface, localAddress, iotDeviceHost);
++                    final Network network = selectNetwork(iface, localAddress, iotDeviceHost);
+                     TcpSocketClient client = new TcpSocketClient(tcpEvtListener, cId, null);
+                     socketMap.put(cId, client);
+                     ReadableMap tlsOptions = pendingTLS.get(cId);
+-                    client.connect(mReactContext, host, port, options, currentNetwork.getNetwork(), tlsOptions);
++                    client.connect(mReactContext, host, port, options, network, tlsOptions);
+                     tcpEvtListener.onConnect(cId, client);
+                 } catch (Exception e) {
+                     tcpEvtListener.onError(cId, e);
+@@ -140,8 +138,14 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+         executorService.execute(new Runnable() {
+             @Override
+             public void run() {
+-                TcpSocketClient socketClient = getTcpClient(cId);
+-                socketClient.destroy();
++                // Network selection can fail before a client is registered. JS still
++                // calls destroy() on that error; closing an absent socket is harmless.
++                TcpSocket socket = socketMap.get(cId);
++                if (socket instanceof TcpSocketClient) {
++                    ((TcpSocketClient) socket).destroy();
++                } else if (socket == null) {
++                    tcpEvtListener.onClose(cId, null);
++                }
+             }
+         });
+     }
+@@ -231,7 +235,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+         // Keep: Required for RN built in Event Emitter Calls.
+     }
+ 
+-    private void requestNetwork(final int transportType, @Nullable final String iotDeviceHost) throws InterruptedException {
++    private Network requestNetwork(final int transportType, @Nullable final String iotDeviceHost) throws InterruptedException {
++        final CurrentNetwork currentNetwork = new CurrentNetwork();
+         final NetworkRequest.Builder requestBuilder = new NetworkRequest.Builder();
+         requestBuilder.addTransportType(transportType);
+         final CountDownLatch awaitingNetwork = new CountDownLatch(1); // only needs to be counted down once to release waiting threads
+@@ -265,7 +270,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                     // Filter for retreive only networks based on selected transport type
+                     for (Network network : allNetworks) {
+                         NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+-                        if (nc != null && nc.hasTransport(transportType)) {
++                        if (matchesTransport(nc, transportType, android.os.Build.VERSION.SDK_INT)) {
+                             wifiNetworks.add(network);
+                         }
+                     }
+@@ -293,7 +298,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                             // Single network scenario --> // Use that network in any case
+                             Network network = wifiNetworks.get(0);
+                             currentNetwork.setNetwork(network);
+-                            cm.bindProcessToNetwork(network);
+                             networkFound = true;
+                         } else {
+                             // Multiple network scenario
+@@ -312,7 +316,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                         if (foundAddress != null && foundAddress.contains(iotDeviceHost)) {
+                                             // found ioT device network
+                                             currentNetwork.setNetwork(network);
+-                                            cm.bindProcessToNetwork(network);
+                                             networkFound = true;
+                                             break;
+                                         }
+@@ -326,7 +329,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                             if (address.getAddress().getHostAddress().startsWith(iotSubnetAddress)) {
+                                                 // Found IoT device network
+                                                 currentNetwork.setNetwork(network);
+-                                                cm.bindProcessToNetwork(network);
+                                                 networkFound = true;
+                                                 break;
+                                             }
+@@ -343,7 +345,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                             if(address.getAddress().getHostAddress().startsWith(iotSubnetAddress)) {
+                                                 // found ioT device network
+                                                 currentNetwork.setNetwork(network);
+-                                                cm.bindProcessToNetwork(network);
+                                                 networkFound = true;
+                                                 break;
+                                             }
+@@ -371,7 +372,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                                 if (matchedNetwork != null) {
+                                                     // Found IoT device network
+                                                     currentNetwork.setNetwork(matchedNetwork);
+-                                                    cm.bindProcessToNetwork(matchedNetwork);
+                                                     networkFound = true;
+                                                     break;
+                                                 }
+@@ -384,7 +384,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                 if (!networkFound && wifiNetworks.size() > 1) {
+                                     Network fallbackNetwork = wifiNetworks.get(wifiNetworks.size() - 1); // Get last network from the list
+                                     currentNetwork.setNetwork(fallbackNetwork);
+-                                    cm.bindProcessToNetwork(fallbackNetwork);
+                                 }
+                             }
+                         }
+@@ -393,7 +392,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                         if (!networkFound && wifiNetworks.size() > 1) {
+                             Network fallbackNetwork = wifiNetworks.get(wifiNetworks.size() - 1); // Get last network from the list
+                             currentNetwork.setNetwork(fallbackNetwork);
+-                            cm.bindProcessToNetwork(fallbackNetwork);
+                         }
+                     }
+ 
+@@ -407,14 +405,18 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+             // smartmedev - end
+         }
+ 
+-        // Timeout if there the network is unreachable
+-        ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+-        exec.schedule(new Runnable() {
+-            public void run() {
+-                awaitingNetwork.countDown(); // Stop waiting
+-            }
+-        }, 5, TimeUnit.SECONDS);
+-        awaitingNetwork.await();
++        // A bounded wait needs no per-connection executor (which would leak a thread).
++        awaitingNetwork.await(5, TimeUnit.SECONDS);
++        return currentNetwork.getNetwork();
++    }
++
++    static boolean matchesTransport(@Nullable NetworkCapabilities capabilities, int transport, int apiLevel) {
++        if (capabilities == null) return false;
++        if (capabilities.hasTransport(transport)) return true;
++        // Android 12+ can expose a wired USB adapter separately from Ethernet.
++        return transport == NetworkCapabilities.TRANSPORT_ETHERNET
++                && apiLevel >= android.os.Build.VERSION_CODES.S
++                && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_USB);
+     }
+ 
+     /**
+@@ -423,31 +425,31 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+      * "cellular" -> Cellular
+      * etc...
+      */
+-    private void selectNetwork(@Nullable final String iface, @Nullable final String ipAddress, @Nullable final String iotDeviceHost) throws InterruptedException, IOException {
+-        currentNetwork.setNetwork(null);
+-        if (iface == null) return;
++    private Network selectNetwork(@Nullable final String iface, @Nullable final String ipAddress, @Nullable final String iotDeviceHost) throws InterruptedException, IOException {
++        if (iface == null) return null;
+         if (ipAddress != null) {
+             final Network cachedNetwork = mNetworkMap.get(iface + ipAddress);
+-            if (cachedNetwork != null) {
+-                currentNetwork.setNetwork(cachedNetwork);
+-                return;
+-            }
++            if (cachedNetwork != null) return cachedNetwork;
+         }
++        final Network network;
+         switch (iface) {
+             case "wifi":
+-                requestNetwork(NetworkCapabilities.TRANSPORT_WIFI, iotDeviceHost);
++                network = requestNetwork(NetworkCapabilities.TRANSPORT_WIFI, iotDeviceHost);
+                 break;
+             case "cellular":
+-                requestNetwork(NetworkCapabilities.TRANSPORT_CELLULAR, iotDeviceHost);
++                network = requestNetwork(NetworkCapabilities.TRANSPORT_CELLULAR, iotDeviceHost);
+                 break;
+             case "ethernet":
+-                requestNetwork(NetworkCapabilities.TRANSPORT_ETHERNET, iotDeviceHost);
++                network = requestNetwork(NetworkCapabilities.TRANSPORT_ETHERNET, iotDeviceHost);
+                 break;
++            default:
++                network = null;
++        }
++        if (network == null) throw new IOException("Interface " + iface + " unreachable");
++        if (ipAddress != null && !ipAddress.equals("0.0.0.0")) {
++            mNetworkMap.put(iface + ipAddress, network);
+         }
+-        if (currentNetwork.getNetwork() == null) {
+-            throw new IOException("Interface " + iface + " unreachable");
+-        } else if (ipAddress != null && !ipAddress.equals("0.0.0.0"))
+-            mNetworkMap.put(iface + ipAddress, currentNetwork.getNetwork());
++        return network;
+     }
+ 
+     private TcpSocketClient getTcpClient(final int id) {

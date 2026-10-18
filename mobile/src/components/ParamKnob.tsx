@@ -1,3 +1,5 @@
+import { AccessibleParameter } from '../accessibility/AccessibleParameter';
+import { useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import React, { useCallback, useRef, useState } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, TextInput, View, Modal } from 'react-native';
 import Svg, { Circle, Path, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
@@ -119,7 +121,7 @@ const KnobBody: React.FC<KnobBodyProps> = ({ norm, accent, active = true }) => {
   );
 };
 
-export const ParamKnob: React.FC<ParamKnobProps> = React.memo(({
+const VisualParamKnob: React.FC<ParamKnobProps> = React.memo(({
   label, value, min, max, unit, displayMin, displayMax,
   options, type, onChange, accentColor = COLORS.accent, onDragChange, helpAdornment,
 }) => {
@@ -451,3 +453,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+
+export function ParamKnob(props: ParamKnobProps) {
+  const { accessibleLayout, screenReader } = useAccessibilityPreferences();
+  return accessibleLayout || screenReader ? <AccessibleParameter {...props} /> : <VisualParamKnob {...props} />;
+}

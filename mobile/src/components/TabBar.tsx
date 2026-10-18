@@ -1,5 +1,6 @@
+import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS } from '../theme/colors';
@@ -85,14 +86,15 @@ const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
 
 export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connected }) => {
   const insets = useSafeAreaInsets();
+  const { fontScale } = useWindowDimensions();
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 6) }]}>
       {TABS.map(({ key, label, Icon }) => {
         const active = activeTab === key;
         const color = active ? COLORS.text : COLORS.muted;
         return (
-          <Pressable key={key} style={styles.tab} onPress={() => onTabChange(key)}>
-            <View style={styles.iconWrap}>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={label} accessibilityValue={key === 'settings' ? { text: connected ? 'Connected' : 'Disconnected' } : undefined} key={key} style={[styles.tab, fontScale > 1.5 && { flexBasis: '33%', flexGrow: 1, flexShrink: 0, paddingVertical: 8 }]} onPress={() => onTabChange(key)}>
+            <View style={styles.iconWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
               <Icon color={color} size={22} />
               {key === 'settings' && (
                 <View
@@ -113,6 +115,7 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
 
 const styles = StyleSheet.create({
   container: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     backgroundColor: COLORS.bg,
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -120,6 +123,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   tab: {
+    minHeight: 48,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -131,6 +135,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   label: {
+    maxWidth: '100%',
+    textAlign: 'center',
     color: COLORS.muted,
     fontFamily: FONTS.body,
     fontSize: 11,

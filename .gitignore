@@ -28,3 +28,8 @@ mobile/build-artifacts/android/*.apk
 mobile/build-artifacts/android/*.apk.sha256
 mobile/build-artifacts/ios/*.ipa
 mobile/build-artifacts/ios/*.ipa.sha256
+
+# Native mobile module build outputs
+/mobile/modules/**/android/build/
+/mobile/modules/**/android/.cxx/
+/mobile/modules/**/android/.gradle/

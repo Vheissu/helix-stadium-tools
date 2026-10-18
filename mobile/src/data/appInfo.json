@@ -1,0 +1,50 @@
+{
+  "supportUrl": "https://ilikekillnerds.com/helyon/support/",
+  "supportEmail": "dwaynecharrington@gmail.com",
+  "privacy": [
+    {
+      "title": "Privacy policy",
+      "body": "HELYON is developed by Dwayne Charrington. It connects directly to your Helix Stadium to read and edit presets and device settings. No account is required. The app has no advertising, analytics, tracking, or developer-operated server."
+    },
+    {
+      "title": "What stays on your device",
+      "body": "Your control and accessibility layout preferences are saved on your phone or tablet until you change it or delete the app. Device addresses, preset names, settings, and edits are held in memory during use. Presets saved to your Helix Stadium remain there until you change or delete them on that device. Offline preview edits are discarded when you leave the preview."
+    },
+    {
+      "title": "Network access",
+      "body": "Local Network permission lets the app communicate with the Helix Stadium you choose over Wi-Fi or a compatible USB connection. The app does not send your presets, device address, or usage history to the developer. You can disconnect at any time or revoke Local Network permission in your device settings."
+    },
+    {
+      "title": "Support and diagnostics",
+      "body": "If you choose to email support or open a GitHub issue, that service receives what you send under its own privacy policy. Avoid including private preset notes or device addresses in public issues. Support messages are retained only as needed to resolve your request; email the developer to request deletion of messages they hold. Apple or Google may separately process store and crash diagnostics under their privacy settings."
+    },
+    {
+      "title": "Contact",
+      "body": "For privacy or support questions, email dwaynecharrington@gmail.com. Policy updated 18 October 2026."
+    }
+  ],
+  "help": [
+    {
+      "title": "Connect by Wi-Fi",
+      "body": "Put your phone or tablet and Helix Stadium on the same Wi-Fi network. Enable Remote Access on the Stadium. Enter its device name or IP address, then tap Connect. If prompted, allow Local Network access. Guest networks can prevent devices from finding each other."
+    },
+    {
+      "title": "Connect by USB",
+      "body": "USB editing requires Stadium firmware 1.4 or later and a data cable. Keep Remote Access enabled. On Android, select USB, connect the Stadium, and allow HELYON to access it when Android asks. No device address is needed in Android USB mode. On iPhone and iPad, the system chooses the connection for the entered address; selecting USB does not force a cable route. Turn Wi-Fi off when checking cable-only operation."
+    },
+    {
+      "title": "VoiceOver, TalkBack, and list layout",
+      "body": "With VoiceOver or TalkBack enabled, Automatic uses a list layout for the signal chain. You can also choose List layout under Accessibility on the connection screen, in Settings, or in offline preview. Each block has Edit, Enable or Bypass, Options, and move controls. Adjust parameters with screen-reader actions, increase and decrease buttons, or Enter value. Use Choose value for named options. Your device\u2019s text-size setting is supported. Tuner Remote controls the Stadium tuner settings; live pitch and note readings are not available in the app."
+    },
+    {
+      "title": "Before editing",
+      "body": "Back up important presets and start with a spare preset. Edits change the connected device. Extended DSP budget is optional, applies only to the current connection, and may cause rejected edits, audio dropouts, or instability. It does not add processing power."
+    },
+    {
+      "title": "Compatibility",
+      "body": "Requires Helix Stadium or Helix Stadium XL. This app does not support the original Helix Floor, Rack, LT, HX Stomp, or HX Effects. The offline preview lets you try block editing without hardware; it does not produce audio."
+    }
+  ],
+  "disclaimer": "An independent app, not affiliated with or endorsed by Line 6 or Yamaha. Helix, Helix Stadium, Line 6, and Yamaha are trademarks of their respective owners.",
+  "privacyUrl": "https://ilikekillnerds.com/helyon/privacy/"
+}

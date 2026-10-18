@@ -1,0 +1,18 @@
+apply plugin: 'com.android.library'
+android {
+    namespace 'com.helyon.usb'
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        consumerProguardFiles "consumer-rules.pro"
+        minSdk 24
+        targetSdk rootProject.ext.targetSdkVersion
+        externalNativeBuild { cmake { arguments '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON' } }
+    }
+    externalNativeBuild { cmake { path 'src/main/cpp/CMakeLists.txt' } }
+    testOptions { unitTests.returnDefaultValues = true }
+}
+dependencies {
+    implementation 'com.facebook.react:react-android'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.18.0'
+}

@@ -3,8 +3,8 @@ import test from 'node:test';
 
 import { getConnectionHint, getNetworkInterfacePreference } from './connectionTransport';
 
-test('Android can prefer the USB Ethernet or Wi-Fi route', () => {
-  assert.equal(getNetworkInterfacePreference('usb', 'android'), 'ethernet');
+test('Android selects direct USB separately from Wi-Fi routing', () => {
+  assert.equal(getNetworkInterfacePreference('usb', 'android'), 'usb');
   assert.equal(getNetworkInterfacePreference('wifi', 'android'), 'wifi');
   assert.equal(getNetworkInterfacePreference('auto', 'android'), undefined);
 });

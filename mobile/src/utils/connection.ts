@@ -1,11 +1,20 @@
+import { UsbConnectionError } from './usbConnectionError';
+
 const CONNECTION_FAILURE_PREFIX = 'Connection failed: ';
 
 export const formatConnectionError = (error: unknown) => {
+  if (error instanceof UsbConnectionError) return error.message;
   const message = error instanceof Error ? error.message : String(error ?? '');
   const normalized = message.trim().toLowerCase();
 
   if (!normalized) {
     return 'Could not connect. Check your device name or IP address and try again.';
+  }
+  if (normalized.includes('interface ethernet unreachable')) {
+    return 'No USB connection is available. Check your data cable and your phone’s USB Ethernet support, then try again.';
+  }
+  if (normalized.includes('interface wifi unreachable')) {
+    return 'Wi-Fi is not available. Connect your phone to the same Wi-Fi network as your Helix Stadium and try again.';
   }
   if (
     normalized.includes('enotfound') ||

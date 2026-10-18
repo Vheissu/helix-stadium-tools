@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Keep the emblem inside Android's central adaptive-icon safe circle. -->
+  <g transform="translate(512 512) scale(.7) translate(-512 -512)">
+    <path fill="#ECE9E1" d="M248 256 363 183V372L775 599V768L661 843V662L250 456Z"/>
+    <path fill="#FF481E" d="M659 249 776 177V455L674 511 531 437 660 369Z"/>
+    <path fill="#FF481E" d="M249 563 328 517 476 598 362 671V771L249 842Z"/>
+  </g>
+</svg>

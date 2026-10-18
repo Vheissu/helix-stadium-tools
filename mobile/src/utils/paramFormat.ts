@@ -12,7 +12,7 @@ export const formatParamValue = (
   type?: ParamValueType,
   options?: string[] | null,
 ): string => {
-  if (type === 'b') return val ? 'On' : 'Off';
+  if (type === 'b') return options?.length === 2 ? options[val ? 1 : 0] : val ? 'On' : 'Off';
   if (options && options.length) {
     const idx = typeof val === 'boolean' ? (val ? 1 : 0) : Math.round(Number(val)) - min;
     if (idx >= 0 && idx < options.length) return options[idx];

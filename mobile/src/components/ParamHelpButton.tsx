@@ -1,11 +1,14 @@
+import { AccessibleText as Text } from '../accessibility/AccessibleText';
+import { Action as Pressable } from '../accessibility/controls';
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { COLORS, FONTS, colorWithAlpha } from '../theme/colors';
 
 interface ParamHelpButtonProps {
   onPress: () => void;
   accentColor?: string;
   size?: number;
+  label?: string;
 }
 
 /**
@@ -16,6 +19,7 @@ export const ParamHelpButton: React.FC<ParamHelpButtonProps> = ({
   onPress,
   accentColor = COLORS.muted,
   size = 18,
+  label = "Show help for this parameter",
 }) => {
   return (
     <Pressable
@@ -24,8 +28,8 @@ export const ParamHelpButton: React.FC<ParamHelpButtonProps> = ({
       style={({ pressed }) => [
         styles.btn,
         {
-          width: size,
-          height: size,
+          width: Math.max(size, 48),
+          height: Math.max(size, 48),
           borderRadius: size / 2,
           borderColor: colorWithAlpha(accentColor, 0.55),
           backgroundColor: colorWithAlpha(accentColor, 0.08),
@@ -33,7 +37,7 @@ export const ParamHelpButton: React.FC<ParamHelpButtonProps> = ({
         },
       ]}
       accessibilityRole="button"
-      accessibilityLabel="Show help for this parameter"
+      accessibilityLabel={label}
     >
       <Text style={[styles.glyph, { color: accentColor, fontSize: size * 0.62 }]}>?</Text>
     </Pressable>

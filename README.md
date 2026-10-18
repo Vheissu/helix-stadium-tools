@@ -22,10 +22,10 @@ and product designs are trademarks or registered trademarks of their
 respective owners. They are referenced here solely for identification and
 interoperability. No affiliation or endorsement is implied or intended.
 
-No source code, firmware, or proprietary assets from the Helix editor app
-or the device firmware are included in this repository. Everything here is
-either independently written or generated from data on a Helix Stadium that
-the user already owns and is licensed to use.
+The mobile app uses Helix Stadium category icons with permission, on the
+condition that the app remains free. That permission does not imply endorsement
+or grant rights to other Line 6 or Yamaha assets. The tooling is independently
+written and includes model data extracted for interoperability.
 
 If anyone at Line 6 or Yamaha would prefer something here be removed,
 renamed, or clarified, please open an issue and I will be happy to work

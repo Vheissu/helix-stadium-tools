@@ -249,7 +249,7 @@ Practical notes:
 Additional live requests:
 
 ```
-/SavePresetWithCID ,ii [cmdId, contentId]
+/SavePresetWithCID ,iiii [cmdId, contentId, flow, block]
 /SetContentAttrs ,iib [cmdId, contentId, <msgpack attrs blob>]
 /SetContentData ,iib [cmdId, contentId, <msgpack blob>]
 /SetContentPath ,iis [cmdId, contentId, "<path>"]
@@ -257,7 +257,8 @@ Additional live requests:
 
 Observed behaviour:
 
-- `SavePresetWithCID` accepts the request but did not emit a synchronous `/status` acknowledgement during testing.
+- Whole-preset saves use `flow = -1` and `block = -1`. The public Stadium 1.4 editor serializer at `0x100206e98` writes four integer arguments including the command id; its callers explicitly supply both selectors. The previous two-integer request omitted required arguments. Its lack of acknowledgement was not evidence that saving worked.
+- The mobile save path now requires a successful `/status` response and a subsequent clean `volatile.preset.edited` value for the same active/backing preset. Missing, failed, or malformed acknowledgements and preset switches do not report success. This correction has packet and state-machine tests; a hardware save/reload validation is still required.
 - `SetContentAttrs` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - `SetContentData` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - `SetContentPath` responds with `/status ,iii [cmdId, 0, 1]` on success.

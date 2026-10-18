@@ -1,3 +1,4 @@
+import { presetStorageId } from './src/protocol/presetSave';
 import { AccessibleText as Text, ScreenHeading } from './src/accessibility/AccessibleText';
 import { Action as Pressable, AccessibilitySettings } from './src/accessibility/controls';
 import { AccessibilityProvider, useAccessibilityPreferences, announce } from './src/accessibility/AccessibilityPreferences';
@@ -44,7 +45,7 @@ import {
   getNetworkInterfacePreference,
   type ConnectionTransport,
 } from './src/utils/connectionTransport';
-import { formatTempoBpm } from './src/utils/format';
+import { formatTempoBpm, formatPresetPosition } from './src/utils/format';
 import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
 import {
   MATRIX_LAYERS,
@@ -340,6 +341,9 @@ function EditorApp() {
   const [_activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
   const [_libraryLoading, setLibraryLoading] = useState(false);
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
+  const [presetSaving, setPresetSaving] = useState(false);
+  const presetSaveOperation = useRef<symbol | null>(null);
+  const presetSaveRevision = useRef(0);
   const [presetRenameText, setPresetRenameText] = useState('');
   const [setlistRenameText, setSetlistRenameText] = useState('');
   const [snapshotRenameText, setSnapshotRenameText] = useState('');
@@ -519,8 +523,7 @@ function EditorApp() {
     : null;
   const activeBlockMeta = activeBlock?.id ? modelLookup.get(activeBlock.id) ?? null : null;
   const activePresetName = activePresetRef?.name ?? 'None';
-  const activePresetStorageId =
-    typeof activePresetRef?.rcid === 'number' ? activePresetRef.rcid : activePresetContentId;
+  const activePresetStorageId = presetStorageId(activePresetContentId, activePresetRef);
   const isUsefulRealName = (realName?: string | null) =>
     Boolean(realName && realName.trim() && realName.trim().toLowerCase() !== 'line 6 original');
   const getBlockLabelOverrideKey = (path: number, blockId: number | undefined, modelId: number) =>
@@ -582,7 +585,7 @@ function EditorApp() {
     return presetItems.filter((item) => {
       const name = item.name ?? '';
       const slot = typeof item.posi === 'number' ? String(item.posi + 1) : '';
-      return name.toLowerCase().includes(query) || slot.includes(query) || String(item.cid_ ?? '').includes(query);
+      return name.toLowerCase().includes(query) || slot.includes(query) || formatPresetPosition(item.posi).toLowerCase().includes(query);
     });
   }, [presetFilter, presetItems]);
   const filteredSetlistAddItems = useMemo(() => {
@@ -591,7 +594,7 @@ function EditorApp() {
     return setlistAddItems.filter((item) => {
       const name = item.name ?? '';
       const slot = typeof item.posi === 'number' ? String(item.posi + 1) : '';
-      return name.toLowerCase().includes(query) || slot.includes(query) || String(item.cid_ ?? '').includes(query);
+      return name.toLowerCase().includes(query) || slot.includes(query) || formatPresetPosition(item.posi).toLowerCase().includes(query);
     });
   }, [setlistAddItems, setlistAddSearch]);
   const visibleSetlistAddIds = useMemo(
@@ -773,7 +776,8 @@ function EditorApp() {
       return;
     }
     if (key === 'volatile.preset.edited') {
-      setPresetEdited(coerceBool(property?.value));
+      const edited = coerceBool(property?.value);
+      if (!presetSaveOperation.current || edited === true) setPresetEdited(edited);
       return;
     }
     if (key === 'preset.meta.info') {
@@ -852,6 +856,9 @@ function EditorApp() {
     setSnapshots([]);
     setActiveSnapshotTargets(null);
     setLibraryLoading(false);
+    presetSaveRevision.current++;
+    presetSaveOperation.current = null;
+    setPresetSaving(false);
     setPresetEdited(null);
     setPresetRenameText('');
     setSetlistRenameText('');
@@ -1040,6 +1047,7 @@ function EditorApp() {
   const refreshPresetContext = async () => {
     const client = requireClient();
     if (!client) return;
+    const saveRevision = presetSaveRevision.current;
     setLibraryLoading(true);
     try {
       const [activeId, snapshotTotal, snapshotIndex, setlistItems, edited, snapshotItems] = await Promise.all([
@@ -1067,7 +1075,8 @@ function EditorApp() {
       setSnapshotCount(snapshotTotal ?? nextSnapshots.length);
       setActiveSnapshotIndex(snapshotIndex);
       setSnapshots(nextSnapshots);
-      setPresetEdited(edited);
+      if (clientRef.current !== client) return;
+      if (!presetSaveOperation.current && saveRevision === presetSaveRevision.current) setPresetEdited(edited);
       await refreshTransportContext(client);
 
       if (libraryRoot === 'factory') {
@@ -1155,6 +1164,7 @@ function EditorApp() {
   };
 
   const handlePresetLoad = async (item: HelixContentRef) => {
+    if (presetSaveOperation.current) { setStatus('Wait for the current preset to finish saving.'); return; }
     const client = requireClient();
     if (!client) return;
     if (isPresetActive(item)) {
@@ -1394,17 +1404,40 @@ function EditorApp() {
       });
   };
 
-  const handleSavePreset = () => {
+  const handleSavePreset = async () => {
     const client = requireClient();
-    if (!client) return;
+    if (!client || presetSaveOperation.current) return;
     if (activePresetStorageId === null) {
-      setStatus('No active preset to save');
+      const message = 'This preset does not have a saved location yet. Save it to a User Preset location on the Stadium first, then sync the app.';
+      setStatus(message);
+      Alert.alert('Choose a preset location', message);
       return;
     }
-    client.savePresetWithCid(activePresetStorageId);
-    setPresetEdited(false);
+    const operation = Symbol('save preset');
+    presetSaveRevision.current++;
+    presetSaveOperation.current = operation;
+    setPresetSaving(true);
     setStatus(`Saving ${activePresetName}...`);
-    scheduleSync(1200);
+    try {
+      await client.savePresetWithCid(activePresetStorageId);
+      if (clientRef.current !== client) return;
+      setPresetEdited(false);
+      setStatus(`Saved ${activePresetName} to the Stadium`);
+      scheduleSync(350, { full: true, silent: true });
+    } catch (error) {
+      if (clientRef.current !== client) return;
+      const message = error instanceof Error ? error.message : 'The Stadium has not confirmed the save.';
+      setStatus(`Save not confirmed: ${message}`);
+      Alert.alert('Save not confirmed', message);
+      // Keep the device's existing dirty state. A timeout is not evidence of success.
+      scheduleSync(350, { full: true, silent: true });
+    } finally {
+      if (presetSaveOperation.current === operation) {
+        presetSaveRevision.current++;
+        presetSaveOperation.current = null;
+        setPresetSaving(false);
+      }
+    }
   };
 
   const handleRenameContent = async (contentId: number, name: string, label: string) => {
@@ -2643,7 +2676,7 @@ function EditorApp() {
             <Text style={styles.activePresetBarName} numberOfLines={linearControls ? undefined : 1}>{activePresetName}</Text>
             <Text style={styles.libraryMeta}>
               {activePresetRef
-                ? `Slot ${typeof activePresetRef.posi === 'number' ? activePresetRef.posi + 1 : '\u2014'}${presetEdited ? ' \u00b7 Unsaved' : ''}`
+                ? `Slot ${formatPresetPosition(activePresetRef.posi)}${presetSaving ? ' \u00b7 Saving…' : presetEdited ? ' \u00b7 Unsaved' : ''}`
                 : 'No active preset'}
             </Text>
           </View>
@@ -2653,9 +2686,9 @@ function EditorApp() {
               <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
-          {activePresetStorageId !== null && presetEdited && (
-            <Pressable accessibilityLabel="Save current preset" style={styles.compactSaveBtn} onPress={handleSavePreset}>
-              <Text style={styles.compactSaveBtnText}>Save</Text>
+          {(presetEdited || presetSaving) && (
+            <Pressable accessibilityLabel="Save current preset" accessibilityState={{ busy: presetSaving }} disabled={presetSaving} style={styles.compactSaveBtn} onPress={() => { void handleSavePreset(); }}>
+              <Text style={styles.compactSaveBtnText}>{presetSaving ? 'Saving…' : 'Save'}</Text>
             </Pressable>
           )}
         </View>
@@ -2731,7 +2764,7 @@ function EditorApp() {
                 (libraryRoot === 'user' || libraryRoot === 'factory') && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
               const hasActions = active;
               return (
-                <View key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${typeof item.posi === 'number' ? item.posi + 1 : 'unknown'}`}
+                <View key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
 
                   style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
                   onPress={() => {
@@ -2740,11 +2773,11 @@ function EditorApp() {
                   onLongPress={() => setPresetActionTarget(item)}
                 >
                   <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
-                    {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
+                    {formatPresetPosition(item.posi)}
                   </Text>
                   <View style={styles.libraryRowCopy}>
                     <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
-                      {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
+                      {item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
                     </Text>
                   </View>
                   {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
@@ -3010,7 +3043,7 @@ function EditorApp() {
               const canMoveUp = typeof item.posi === 'number' && item.posi > 0;
               const canMoveDown = typeof item.posi === 'number' && item.posi < presetItems.length - 1;
               return (
-                <View key={`${String(item.cid_ ?? 'setlist-preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${typeof item.posi === 'number' ? item.posi + 1 : 'unknown'}`}
+                <View key={`${String(item.cid_ ?? 'setlist-preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
 
                   style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
                   onPress={() => {
@@ -3019,11 +3052,11 @@ function EditorApp() {
                   onLongPress={() => setPresetActionTarget(item)}
                 >
                   <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
-                    {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
+                    {formatPresetPosition(item.posi)}
                   </Text>
                   <View style={styles.libraryRowCopy}>
                     <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
-                      {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
+                      {item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
                     </Text>
                   </View>
                   {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
@@ -3395,7 +3428,7 @@ function EditorApp() {
         label: 'Previous Preset',
         meta: canStepBackward ? 'Previous in container' : 'Start of container',
         active: false,
-        disabled: !canStepBackward,
+        disabled: presetSaving || !canStepBackward,
         onPress: () => handlePerformancePresetStep(-1),
       },
       {
@@ -3403,7 +3436,7 @@ function EditorApp() {
         label: 'Next Preset',
         meta: canStepForward ? 'Next in container' : 'End of container',
         active: false,
-        disabled: !canStepForward,
+        disabled: presetSaving || !canStepForward,
         onPress: () => handlePerformancePresetStep(1),
       },
       {
@@ -3424,13 +3457,13 @@ function EditorApp() {
       },
       {
         key: 'sync',
-        label: presetEdited ? 'Save Preset' : 'Sync Device',
+        label: presetSaving ? 'Saving…' : presetEdited ? 'Save Preset' : 'Sync Device',
         meta: presetEdited ? 'Commit current preset changes' : 'Refresh preset and snapshot state',
         active: presetEdited === true,
-        disabled: presetEdited ? activePresetStorageId === null : false,
+        disabled: presetSaving,
         onPress: () => {
           if (presetEdited) {
-            handleSavePreset();
+            void handleSavePreset();
             return;
           }
           void handleFullSync();
@@ -3470,7 +3503,7 @@ function EditorApp() {
                 {activePresetName}
               </Text>
               <Text style={styles.performanceHeroMeta} numberOfLines={2}>
-                {typeof activePresetRef?.posi === 'number' ? `Slot ${activePresetRef.posi + 1}` : 'Live Preset'} {'\u00b7'} {snapshotSummary}
+                {typeof activePresetRef?.posi === 'number' ? `Slot ${formatPresetPosition(activePresetRef.posi)}` : 'Live Preset'} {'\u00b7'} {snapshotSummary}
               </Text>
               <View style={styles.performanceHeroStatus}>
                 <View
@@ -3489,7 +3522,7 @@ function EditorApp() {
               <View style={styles.performanceSectionHeader}>
                 <Text style={styles.performanceSectionTitle}>Quick Actions</Text>
                 <Text style={styles.performanceSectionMeta}>
-                  {presetEdited ? 'Unsaved changes' : libraryActivityLabel ?? status}
+                  {presetSaving ? 'Saving…' : presetEdited ? 'Unsaved changes' : libraryActivityLabel ?? status}
                 </Text>
               </View>
               <View style={styles.performanceActionGrid}>
@@ -3763,7 +3796,7 @@ function EditorApp() {
                   {performancePresetWindow.map((item) => {
                     const active = isPresetActive(item);
                     return (
-                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${typeof item.posi === 'number' ? item.posi + 1 : 'unknown'}`}
+                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
                         key={`performance-preset-${String(item.cid_ ?? item.posi ?? item.name)}`}
                         style={[
                           styles.performancePresetCard,
@@ -3779,7 +3812,7 @@ function EditorApp() {
                             active && styles.performancePresetSlotActive,
                           ]}
                         >
-                          {typeof item.posi === 'number' ? item.posi + 1 : '\u2014'}
+                          {formatPresetPosition(item.posi)}
                         </Text>
                         <Text
                           style={[
@@ -4641,10 +4674,10 @@ function EditorApp() {
                     </View>
                     <View style={styles.libraryRowCopy}>
                       <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
-                        {item.name ?? `Preset ${item.posi ?? '\u2014'}`}
+                        {item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
                       </Text>
                       <Text style={styles.libraryMeta}>
-                        {typeof item.posi === 'number' ? `Slot ${item.posi + 1}` : 'Preset'}
+                        {typeof item.posi === 'number' ? `Slot ${formatPresetPosition(item.posi)}` : 'Preset'}
                       </Text>
                     </View>
                   </Pressable>
@@ -4678,7 +4711,7 @@ function EditorApp() {
           visible={presetActionTarget !== null}
           onClose={() => setPresetActionTarget(null)}
           title={presetActionTarget?.name ?? 'Preset'}
-          subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${presetActionTarget.posi + 1}` : undefined}
+          subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${formatPresetPosition(presetActionTarget.posi)}` : undefined}
         >
           <View style={styles.sheetActions}>
             {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
@@ -5820,7 +5853,7 @@ const styles = StyleSheet.create({
   dropdownChevron: { color: COLORS.muted, fontSize: 18, marginLeft: 8 },
 
   /* ── Preset row extras ────────────────────────────────── */
-  presetSlotNum: { width: 28, color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12, textAlign: 'center' },
+  presetSlotNum: { minWidth: 44, flexShrink: 0, color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12, textAlign: 'center' },
   presetSlotNumActive: { color: COLORS.accent },
   presetMoreButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   presetMoreText: { color: COLORS.muted, fontSize: 18 },

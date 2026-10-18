@@ -1,3 +1,4 @@
+import { presetSaveCommand, requireSaveAcknowledgement, savePresetAndConfirm } from './presetSave';
 import { withDeadline } from '../utils/deadline';
 import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
@@ -779,9 +780,17 @@ export class HelixClient {
     this.sendOsc('/LoadPresetAtContainerPosition', 'iii', [cmdId, containerId, position]);
   }
 
-  savePresetWithCid(contentId: number) {
-    const cmdId = this.nextCmdId();
-    this.sendOsc('/SavePresetWithCID', 'ii', [cmdId, contentId]);
+  async savePresetWithCid(contentId: number) {
+    await savePresetAndConfirm({
+      getActivePresetContentId: () => this.getActivePresetContentId(),
+      getContentRef: (id) => this.getContentRef(id),
+      isPresetEdited: () => this.isPresetEdited(),
+      sendSave: async (id) => {
+        const command = presetSaveCommand(id);
+        const values = await this.sendAndWaitStatusCode(command.address, command.types, [...command.args], 4000);
+        requireSaveAcknowledgement(values);
+      },
+    }, contentId);
   }
 
   async addContentsToContainer(

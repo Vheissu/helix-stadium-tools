@@ -8,7 +8,13 @@ The mobile save command previously sent only the command id and content id. The 
 
 The corrected mobile implementation sends those arguments, validates the acknowledgement, and waits for the same preset to report no unsaved changes. It rejects invalid destinations, stale preset selections, device errors, missing replies, and switches during confirmation. The UI shows Saving until confirmation and keeps failures visible. It no longer clears the edited flag immediately after sending a command. A raw preset with `rcid = 0` now uses its own valid id; an empty setlist reference is not treated as writable content.
 
-This is a code-level explanation for the report, not a reproduced hardware result. Saving and reloading a spare preset on a Stadium remains the required release check.
+Hardware save/reload validation passed on 19 October 2026 using the user-created `HELYON Save Test` in slot `44C`. The test ran the unchanged mobile `HelixClient` and save-confirmation code on the Mac, with Node TCP replacing the native socket adapter. It did not rebuild or run the new phone UI.
+
+The test changed Path 1A's output level from 0 dB to -1 dB, confirmed the unsaved flag, saved, disconnected and reconnected, then loaded another preset and returned. The -1 dB value persisted. Restoring 0 dB passed the same save/reload check.
+
+A second check renamed snapshot 1 to `SAVE VERIFIED`. This exposed an additional UI bug: the device did not mark the preset edited, although the stored content had not changed. The Preset tab now keeps Save visible whenever a preset is loaded. Explicitly saving the snapshot rename worked, and the name survived reconnecting and switching presets. Restoring `SNAPSHOT 1` also persisted. The snapshot-only save returned `[cmdId, 0, 0]`; the output-level save returned `[cmdId, 0, 1]`. Both are successful replies.
+
+All four save/reload cycles passed. The test preset's level and snapshot name were restored; its only differences from the initial content were removal of the selected-flow and selected-block metadata (`self` and `selb`). The second test restored its baseline bytes exactly. The previously selected song preset was reloaded, its stored content hash was unchanged, and the device reported no unsaved edits. Raw replies and backups are retained locally under `.codex-artifacts/save-validation/`.
 
 Preset positions now use bank letters throughout the preset list, setlist list, current-preset header, performance view, action sheet, and add-to-setlist list. The twentieth slot is `5D`; the first and last user slots are `1A` and `128D`. Searches accept those labels and retain ordinary numeric position searches.
 
@@ -32,4 +38,4 @@ Line 6's 1.4 stem separation sends audio to its cloud service and requires a sig
 
 ## Checks
 
-The mobile suite passes 61 tests, including an exact OSC packet fixture and save-state tests for acknowledgement failure, timeouts, invalid destinations, setlist references, preset switches, and delayed clean state. Type checking passes. Lint has no errors and three existing warnings. No hardware presets were modified.
+The mobile suite passes 62 tests, including an exact OSC packet fixture and save-state tests for acknowledgement failure, timeouts, invalid destinations, setlist references, preset switches, and delayed clean state. Type checking passes. Lint has no errors and three existing warnings. Hardware verification changed only the disposable preset in `44C`, then restored its tested values. No native build or store submission was run.

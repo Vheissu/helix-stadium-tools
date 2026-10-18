@@ -258,7 +258,8 @@ Additional live requests:
 Observed behaviour:
 
 - Whole-preset saves use `flow = -1` and `block = -1`. The public Stadium 1.4 editor serializer at `0x100206e98` writes four integer arguments including the command id; its callers explicitly supply both selectors. The previous two-integer request omitted required arguments. Its lack of acknowledgement was not evidence that saving worked.
-- The mobile save path now requires a successful `/status` response and a subsequent clean `volatile.preset.edited` value for the same active/backing preset. Missing, failed, or malformed acknowledgements and preset switches do not report success. This correction has packet and state-machine tests; a hardware save/reload validation is still required.
+- The mobile save path now requires a successful `/status` response and a subsequent clean `volatile.preset.edited` value for the same active/backing preset. Missing, failed, or malformed acknowledgements and preset switches do not report success. Hardware validation on 19 October 2026 passed four save/reload cycles in User slot `44C`: an output-level change, a snapshot rename, and restoration of each. The unchanged mobile protocol client ran over a desktop TCP adapter; no native rebuild was used. Each changed value survived reconnecting and loading another preset before returning.
+- Snapshot renaming can change the edit buffer without setting `volatile.preset.edited`; the stored content remained unchanged until an explicit save. Save must remain available even when that flag is clear. Live successful save replies were `[cmdId, 0, 1]` for the output-level edit and `[cmdId, 0, 0]` for the snapshot-only edit. Both persisted after reloading.
 - `SetContentAttrs` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - `SetContentData` responds with `/status ,iii [cmdId, 0, 1]` on success.
 - `SetContentPath` responds with `/status ,iii [cmdId, 0, 1]` on success.

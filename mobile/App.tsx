@@ -2686,7 +2686,8 @@ function EditorApp() {
               <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
-          {(presetEdited || presetSaving) && (
+          {/* Snapshot renames do not always set the device's edited flag. */}
+          {activePresetRef && (
             <Pressable accessibilityLabel="Save current preset" accessibilityState={{ busy: presetSaving }} disabled={presetSaving} style={styles.compactSaveBtn} onPress={() => { void handleSavePreset(); }}>
               <Text style={styles.compactSaveBtnText}>{presetSaving ? 'Saving…' : 'Save'}</Text>
             </Pressable>

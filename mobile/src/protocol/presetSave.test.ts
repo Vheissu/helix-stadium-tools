@@ -22,6 +22,7 @@ test('preset destinations resolve setlist references and reject empty placeholde
 });
 test('save acknowledgement rejects failures, missing and malformed replies', () => {
   requireSaveAcknowledgement([7, 0, 1]);
+  requireSaveAcknowledgement([7, 0, 0]);
   for (const value of [null, [], [7], [7, 0], [7, -1, 0], [7, 0, -21], [7, '0', 1]]) assert.throws(() => requireSaveAcknowledgement(value));
 });
 test('save waits for the device dirty flag instead of assuming an acknowledged command saved', async () => {
@@ -62,4 +63,13 @@ test('switching presets while resolving the save destination prevents the write'
     sendSave: async () => { writes++; },
   }), 42, fast), /active preset changed/);
   assert.equal(writes, 0);
+});
+
+test('snapshot-only edits can be saved when the device reports a clean preset', async () => {
+  let saves = 0;
+  await savePresetAndConfirm(io({
+    sendSave: async () => { requireSaveAcknowledgement([7, 0, 0]); saves++; },
+    isPresetEdited: async () => false,
+  }), 42, fast);
+  assert.equal(saves, 1);
 });

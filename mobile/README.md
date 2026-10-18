@@ -188,7 +188,7 @@ toolchain. Do not use `npm audit fix --force`: its suggested resolution
 downgrades Expo to an unsupported old SDK. Review patched upstream releases
 before public submission.
 
-Local verification covers 43 unit tests, TypeScript, production JS exports,
+Earlier store-build verification covered 43 unit tests, TypeScript, production JS exports,
 an Android release build, an iOS simulator release build, and the offline
 preview flow. ESLint has three existing hook-dependency warnings and no errors.
 The repository's 386 Python tests also pass. Signed EAS builds succeed on both
@@ -242,13 +242,17 @@ and import corrections verified against the public desktop release.
 - Rename presets, setlists, and snapshots
 - Copy snapshots and set snapshot colors
 - Save the active preset back to its source slot
+- Create a named blank preset in an empty User slot, with bank-label search and occupied-slot protection
 - View and edit signal-flow blocks across 1A, 1B, 2A, and 2B
 - Insert, replace, bypass, reorder, and clear blocks
 - Edit block parameters and I/O parameters
+- Use Focus View with 670 factory tone maps, named points, accessible X/Y controls, cabinet mic placement, and EQ/clone tone controls
 - Copy one signal path onto another, including realized split/join routing nodes
 - Toggle and edit preset notes
 - Toggle auto-cab and transport-related global settings
 - Open and close the tuner remotely, while leaving live tuning feedback on the device display
+
+The preset-creation and Focus View changes passed 89 mobile tests and four generator tests, plus live Stadium creation, parameter readback and save/reload checks. The new UI was checked in a browser component harness. These changes have not had a native rebuild or store upload. See [preset creation and Focus verification](../docs/PRESET_CREATION_AND_FOCUS.md).
 
 ## Firmware 1.4 support
 

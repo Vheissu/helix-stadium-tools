@@ -11,6 +11,7 @@ export const formatParamValue = (
   unit?: string | null,
   type?: ParamValueType,
   options?: string[] | null,
+  precision = 1,
 ): string => {
   if (type === 'b') return options?.length === 2 ? options[val ? 1 : 0] : val ? 'On' : 'Off';
   if (options && options.length) {
@@ -22,9 +23,9 @@ export const formatParamValue = (
     const range = max - min;
     const t = range > 0 ? (numeric - min) / range : 0;
     const displayVal = displayMin + t * (displayMax - displayMin);
-    const formatted = type === 'i' ? Math.round(displayVal).toString() : displayVal.toFixed(1);
+    const formatted = type === 'i' ? Math.round(displayVal).toString() : displayVal.toFixed(precision);
     return unit && unit !== 'unitless' ? `${formatted} ${unit}` : formatted;
   }
-  const formatted = type === 'i' ? Math.round(numeric).toString() : numeric.toFixed(1);
+  const formatted = type === 'i' ? Math.round(numeric).toString() : numeric.toFixed(precision);
   return unit && unit !== 'unitless' ? `${formatted} ${unit}` : formatted;
 };

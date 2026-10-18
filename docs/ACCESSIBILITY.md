@@ -53,3 +53,10 @@ The Android test service and captured trees are development artifacts under `.co
 Before a store accessibility claim, test connection and reconnection, loading and saving a spare preset, snapshots, block management, parameter help and exact entry, inputs and outputs, setlists, matrix readings, and tuner settings using VoiceOver/TalkBack on physical devices. Confirm reading order, spoken feedback, focus after each sheet, large text, and operation with the screen obscured.
 
 The macOS Simulator inspection bridge sometimes retained an earlier role for a recycled view. A test-only UIKit probe confirmed the actual iOS traits: block actions and sheet close controls are buttons, selected block state is present, parameter readouts are adjustable, and named choices report checked/unchecked state. The probe is excluded from the final app.
+
+
+## Preset creation and Focus View
+
+Empty User slots have an explicit Create preset action. The creation sheet labels the destination and name, supports searching bank labels, announces validation errors, and disables dismissal while creation is in progress.
+
+Focus View offers named tone points, separate adjustable X/Y controls and exact numeric entry. Cabinet mic distance uses quarter-inch steps with two decimal places in the readout and announcements. The touch pad is optional: List layout and screen readers expose the controls without requiring a drag. These additions were checked in the browser component preview; native VoiceOver and TalkBack verification remains part of the next authorized build's device testing.

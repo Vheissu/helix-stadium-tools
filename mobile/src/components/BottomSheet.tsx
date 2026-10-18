@@ -9,6 +9,7 @@ interface BottomSheetProps {
   onClose: () => void;
   title?: string;
   subtitle?: string;
+  closeDisabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -17,6 +18,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   onClose,
   title,
   subtitle,
+  closeDisabled = false,
   children,
 }) => {
   const { screenReader, reduceMotion } = useAccessibilityPreferences();
@@ -33,18 +35,19 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       return () => clearTimeout(timer);
     }
   }, [visible, screenReader]);
-  return <Modal visible={visible} transparent animationType={reduceMotion ? 'none' : 'slide'} onRequestClose={onClose}
+  const requestClose = () => { if (!closeDisabled) onClose(); };
+  return <Modal visible={visible} transparent animationType={reduceMotion ? 'none' : 'slide'} onRequestClose={requestClose}
     onShow={() => { if (screenReader && heading.current) AccessibilityInfo.sendAccessibilityEvent(heading.current, 'focus'); }}>
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.backdrop}>
-      <Pressable accessible={false} importantForAccessibility="no" style={styles.dismiss} onPress={onClose} />
-      <View style={styles.sheet} accessibilityViewIsModal onAccessibilityEscape={onClose}>
+      <Pressable disabled={closeDisabled} accessible={false} importantForAccessibility="no" style={styles.dismiss} onPress={requestClose} />
+      <View style={styles.sheet} accessibilityViewIsModal onAccessibilityEscape={requestClose}>
         <View style={styles.handleBar} accessible={false} />
         <View style={styles.header}>
           <View style={styles.headerText} ref={heading} accessible accessibilityRole="header" accessibilityLabel={title ?? 'Options'}>
             <Text style={styles.title}>{title ?? 'Options'}</Text>
             {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
           </View>
-          <Pressable accessibilityRole="button" onPress={onClose} accessibilityLabel={`Close ${title ?? 'options'}`} style={styles.closeBtn}>
+          <Pressable disabled={closeDisabled} accessibilityState={{ disabled: closeDisabled }} accessibilityRole="button" onPress={requestClose} accessibilityLabel={`Close ${title ?? 'options'}`} style={styles.closeBtn}>
             <Svg width={20} height={20} viewBox="0 0 24 24" accessible={false}><Path d="M6 6l12 12M18 6L6 18" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" /></Svg>
           </Pressable>
         </View>

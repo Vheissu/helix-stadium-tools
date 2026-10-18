@@ -1,0 +1,905 @@
+{
+  "source": "Stadium 1.4 touchscreen ARM64 arithmetic at 0xf2d320; isolated emulation of the unmodified calculation, with return-address authentication omitted. Values include float32 rounding and discrete tie decisions.",
+  "cases": [
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0,
+      "y": 0,
+      "value": 10.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -1,
+      "y": -1,
+      "value": 7.22926984053629e-07,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -1,
+      "y": 1,
+      "value": 20.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 1,
+      "y": -1,
+      "value": 29.999998092651367,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 1,
+      "y": 1,
+      "value": 39.999996185302734,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0.6,
+      "y": 0.2,
+      "value": 26.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0.5,
+      "y": 0,
+      "value": 22.499998092651367,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -0.4,
+      "y": 0.7,
+      "value": 20.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0.2,
+      "y": -0.9,
+      "value": 17.5,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -0.8,
+      "y": 0.1,
+      "value": 11.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0,
+      "y": 0,
+      "value": 2,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -1,
+      "y": -1,
+      "value": 0,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -1,
+      "y": 1,
+      "value": 1,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 1,
+      "y": -1,
+      "value": 4,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 1,
+      "y": 1,
+      "value": 3,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0.6,
+      "y": 0.2,
+      "value": 3,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0.5,
+      "y": 0,
+      "value": 3,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -0.4,
+      "y": 0.7,
+      "value": 2,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0.2,
+      "y": -0.9,
+      "value": 2,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -0.8,
+      "y": 0.1,
+      "value": 1,
+      "resultType": 1
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0,
+      "y": 0,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -1,
+      "y": -1,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -1,
+      "y": 1,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 1,
+      "y": -1,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 1,
+      "y": 1,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0.6,
+      "y": 0.2,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0.5,
+      "y": 0,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -0.4,
+      "y": 0.7,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0.2,
+      "y": -0.9,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 0,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -0.8,
+      "y": 0.1,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0,
+      "y": 0,
+      "value": 10.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -1,
+      "y": -1,
+      "value": 0.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -1,
+      "y": 1,
+      "value": 20.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 1,
+      "y": -1,
+      "value": 30.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 1,
+      "y": 1,
+      "value": 40.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0.6,
+      "y": 0.2,
+      "value": 10.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0.5,
+      "y": 0,
+      "value": 10.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -0.4,
+      "y": 0.7,
+      "value": 20.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": 0.2,
+      "y": -0.9,
+      "value": 30.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 0,
+      "values": [
+        10.0,
+        0.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "x": -0.8,
+      "y": 0.1,
+      "value": 20.0,
+      "resultType": 0
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0,
+      "y": 0,
+      "value": 2,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -1,
+      "y": -1,
+      "value": 0,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -1,
+      "y": 1,
+      "value": 1,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 1,
+      "y": -1,
+      "value": 4,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 1,
+      "y": 1,
+      "value": 3,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0.6,
+      "y": 0.2,
+      "value": 2,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0.5,
+      "y": 0,
+      "value": 2,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -0.4,
+      "y": 0.7,
+      "value": 1,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": 0.2,
+      "y": -0.9,
+      "value": 4,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 1,
+      "values": [
+        2,
+        0,
+        1,
+        4,
+        3
+      ],
+      "x": -0.8,
+      "y": 0.1,
+      "value": 1,
+      "resultType": 1
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0,
+      "y": 0,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -1,
+      "y": -1,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -1,
+      "y": 1,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 1,
+      "y": -1,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 1,
+      "y": 1,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0.6,
+      "y": 0.2,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0.5,
+      "y": 0,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -0.4,
+      "y": 0.7,
+      "value": false,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": 0.2,
+      "y": -0.9,
+      "value": true,
+      "resultType": 2
+    },
+    {
+      "behavior": 1,
+      "type": 2,
+      "values": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "x": -0.8,
+      "y": 0.1,
+      "value": false,
+      "resultType": 2
+    }
+  ]
+}

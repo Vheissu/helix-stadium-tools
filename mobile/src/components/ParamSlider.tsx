@@ -24,6 +24,8 @@ interface ParamSliderProps {
   displayMax?: number;
   options?: string[] | null;
   type: 'i' | 'f' | 'b';
+  step?: number;
+  precision?: number;
   onChange: (value: number | boolean) => void;
   accentColor?: string;
   /** Called when a drag starts/ends so parent ScrollView can lock. */
@@ -58,6 +60,8 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
   displayMax,
   options,
   type,
+  step,
+  precision = 1,
   onChange,
   accentColor = COLORS.accent,
   onDragChange,
@@ -87,11 +91,11 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
   // Stable refs for the PanResponder closure
   const propsRef = useRef({
     onChange, min, max, type, range, options, isOptionList, trackWidth,
-    onDragChange,
+    onDragChange, step,
   });
   propsRef.current = {
     onChange, min, max, type, range, options, isOptionList, trackWidth,
-    onDragChange,
+    onDragChange, step,
   };
   const lastEmittedRef = useRef<number | boolean>(numericValue);
   const didDragRef = useRef(false);
@@ -108,6 +112,7 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
     }
     const raw = p.min + norm * p.range;
     if (p.type === 'i') return Math.round(raw);
+    if (p.step !== undefined && p.step > 0) return Math.max(p.min, Math.min(p.max, p.min + Math.round((raw - p.min) / p.step) * p.step));
     // 0.1 resolution feels right for typical helix params
     return Math.round(raw * 10) / 10;
   }, []);
@@ -129,9 +134,9 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
       }
       return numericValue;
     })();
-    setEditText(type === 'i' ? Math.round(display).toString() : display.toFixed(1));
+    setEditText(type === 'i' ? Math.round(display).toString() : display.toFixed(precision));
     setEditing(true);
-  }, [displayMin, displayMax, isOptionList, max, min, numericValue, range, type]);
+  }, [displayMin, displayMax, isOptionList, min, numericValue, precision, range, type]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -189,7 +194,7 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
 
   const fillColor = colorWithAlpha(accentColor, 0.32);
   const trackBackground = COLORS.panelAlt;
-  const valueText = formatParamValue(value, min, max, displayMin, displayMax, unit, type, options);
+  const valueText = formatParamValue(value, min, max, displayMin, displayMax, unit, type, options, precision);
 
   const tickPositions = isOptionList && options
     ? options.map((_, i) => {

@@ -1,4 +1,9 @@
-import { presetSaveCommand, requireSaveAcknowledgement, savePresetAndConfirm } from './presetSave';
+import { presetSaveCommand, presetStorageId, requireSaveAcknowledgement, savePresetAndConfirm } from './presetSave';
+import { createEmptyPreset, createdPresetId, presetCreationCommand, snapshotMetadataChanged, type UserPresetSlot } from './presetCreation';
+import { applyFocusChanges, type FocusTarget } from './focusSession';
+import type { FocusChange } from '../utils/focus';
+import blankPreset from '../data/blankPreset.json';
+import { parameterValueCommand } from './parameterCommand';
 import { withDeadline } from '../utils/deadline';
 import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
@@ -125,6 +130,7 @@ export class HelixClient {
   private listening2002 = false;
   private pendingResponses = new Map<string, (vals: Array<any>, responseAddr?: string) => void>();
   private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
+  private creatingPreset = false;
 
   constructor(
     host: string,
@@ -396,16 +402,8 @@ export class HelixClient {
     valueType: 'i' | 'f' | 'b' = 'f'
   ) {
     const cmdId = this.nextCmdId();
-    if (valueType === 'b') {
-      this.sendOsc('/ParamValueSet', value ? 'iiiiiTi' : 'iiiiiFi', [cmdId, path, block, slot, paramId, value, flags]);
-      return;
-    }
-    const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
-    if (valueType === 'i') {
-      this.sendOsc('/ParamValueSet', 'iiiiiii', [cmdId, path, block, slot, paramId, Math.round(numericVal), flags]);
-      return;
-    }
-    this.sendOsc('/ParamValueSet', 'iiiiifi', [cmdId, path, block, slot, paramId, numericVal, flags]);
+    const command = parameterValueCommand(path, block, paramId, value, slot, flags, valueType);
+    this.sendOsc(command.address, `i${command.types}`, [cmdId, ...command.args]);
   }
 
   async setParamValueWait(
@@ -418,14 +416,8 @@ export class HelixClient {
     valueType: 'i' | 'f' | 'b' = 'f',
     timeoutMs = 2500
   ) {
-    if (valueType === 'b') {
-      return await this.sendAndWaitStatusCode('/ParamValueSet', value ? 'iiiiiTi' : 'iiiiiFi', [path, block, slot, paramId, value, flags], timeoutMs);
-    }
-    const numericVal = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
-    if (valueType === 'i') {
-      return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiiii', [path, block, slot, paramId, Math.round(numericVal), flags], timeoutMs);
-    }
-    return await this.sendAndWaitStatusCode('/ParamValueSet', 'iiiifi', [path, block, slot, paramId, numericVal, flags], timeoutMs);
+    const command = parameterValueCommand(path, block, paramId, value, slot, flags, valueType);
+    return await this.sendAndWaitStatusCode(command.address, command.types, command.args, timeoutMs);
   }
 
   setHarnessParamValue(
@@ -791,6 +783,71 @@ export class HelixClient {
         requireSaveAcknowledgement(values);
       },
     }, contentId);
+  }
+
+  async createPresetInEmptySlot(position: number, name: string) {
+    if (this.creatingPreset) throw new Error('Wait for the current preset to finish creating.');
+    this.creatingPreset = true;
+    const blank = Buffer.from(blankPreset.data, 'base64');
+    try {
+      return await createEmptyPreset({
+        getSlots: async () => await this.getContainerContents(-2) as UserPresetSlot[] | null,
+        getActiveId: () => this.getActivePresetContentId(),
+        isEdited: () => this.hasUnsavedPresetChanges(),
+        allocate: async (slot, presetName) => {
+          // Library attrs use string keys; preset bodies and properties use integer fourcc keys.
+          const command = presetCreationCommand(slot, presetName);
+          return createdPresetId(await this.request(command.address, command.types, command.args, '/status', 5000));
+        },
+        getReference: async (id) => await this.getContentRef(id) as UserPresetSlot | null,
+        writeBlank: async (id) => {
+          const reply = await this.setContentData(id, blank);
+          if (!reply || reply.length < 3 || reply[1] !== 0 || !Number.isInteger(reply[2]) || reply[2] < 0) {
+            throw new Error('The Stadium did not accept the blank preset.');
+          }
+        },
+        verifyBlank: async (id) => (await this.getContentData(id))?.equals(blank) === true,
+        load: async (id) => {
+          this.loadPresetWithCid(id);
+          for (let attempt = 0; attempt < 20; attempt++) {
+            if (await this.getActivePresetContentId() === id && await this.isPresetEdited() === false) return;
+            await new Promise<void>(resolve => setTimeout(resolve, 150));
+          }
+          throw new Error('The preset was created, but loading it was not confirmed.');
+        },
+      }, position, name);
+    } finally {
+      this.creatingPreset = false;
+    }
+  }
+
+  async hasUnsavedPresetChanges(): Promise<boolean | null> {
+    const edited = await this.isPresetEdited();
+    if (edited !== false) return edited;
+    const activeId = await this.getActivePresetContentId();
+    if (activeId === null) return null;
+    const reference = await this.getContentRef(activeId);
+    const storedId = presetStorageId(activeId, reference as { rcid?: number; type?: number } | null);
+    if (storedId === null) return null;
+    const stored = await this.getContentData(storedId);
+    if (!stored?.length) return null;
+    const live = await this.getEditBufferState();
+    if (await this.getActivePresetContentId() !== activeId) return null;
+    // Snapshot renames and colours can leave the device dirty flag clear.
+    return snapshotMetadataChanged(live, decodeMsgpackBlob(stored));
+  }
+
+  async applyFocus(target: FocusTarget, changes: readonly FocusChange[]) {
+    return await applyFocusChanges({
+      activeId: () => this.getActivePresetContentId(),
+      state: () => this.getEditBufferState(),
+      write: async change => {
+        const response = await this.setParamValueWait(target.flow, target.blockId, change.id, change.value, target.slot ?? 0, -1, change.type);
+        if (!response || response.length < 3 || response[1] !== 0 || !Number.isInteger(response[2]) || response[2] < 0) {
+          throw new Error('The Stadium did not accept a Focus adjustment.');
+        }
+      },
+    }, target, changes);
   }
 
   async addContentsToContainer(

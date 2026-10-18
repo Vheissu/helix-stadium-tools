@@ -1,4 +1,9 @@
 import { presetStorageId } from './src/protocol/presetSave';
+import { isEmptyUserSlot } from './src/protocol/presetCreation';
+import { readFocusValues, type FocusTarget } from './src/protocol/focusSession';
+import { getFocusDefinition, type FocusChange } from './src/utils/focus';
+import { CreatePresetSheet } from './src/components/CreatePresetSheet';
+import { FocusView, focusKind } from './src/components/FocusView';
 import { AccessibleText as Text, ScreenHeading } from './src/accessibility/AccessibleText';
 import { Action as Pressable, AccessibilitySettings } from './src/accessibility/controls';
 import { AccessibilityProvider, useAccessibilityPreferences, announce } from './src/accessibility/AccessibilityPreferences';
@@ -342,6 +347,14 @@ function EditorApp() {
   const [_libraryLoading, setLibraryLoading] = useState(false);
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
   const [presetSaving, setPresetSaving] = useState(false);
+  const [createPosition, setCreatePosition] = useState<number | null>(null);
+  const [createSlots, setCreateSlots] = useState<HelixContentRef[]>([]);
+  const [presetCreating, setPresetCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const creationPending = useRef(false);
+  const [focusOpen, setFocusOpen] = useState(false);
+  const [focusBusy, setFocusBusy] = useState(false);
+  const focusWrites = useRef(0);
   const presetSaveOperation = useRef<symbol | null>(null);
   const presetSaveRevision = useRef(0);
   const [presetRenameText, setPresetRenameText] = useState('');
@@ -378,10 +391,11 @@ function EditorApp() {
   const [selectedMatrixLayerId, setSelectedMatrixLayerId] = useState<number>(1);
 
   const modelLookup = useMemo(() => {
-    const map = new Map<number, { name: string; realName: string | null; kind: string; usage: number; params: EditorParam[] }>();
+    const map = new Map<number, { id: number; key: string; category: string; name: string; realName: string | null; kind: string; usage: number; params: EditorParam[] }>();
     Object.entries(blockCatalog).forEach(([key, group]) => {
       group.models.forEach((item) => {
         map.set(item.id, {
+          id: item.id, key: item.key, category: item.category,
           name: item.name,
           realName: item.based_on ?? null,
           kind: key,
@@ -859,6 +873,9 @@ function EditorApp() {
     presetSaveRevision.current++;
     presetSaveOperation.current = null;
     setPresetSaving(false);
+    setCreatePosition(null);
+    setCreateError('');
+    setFocusOpen(false);
     setPresetEdited(null);
     setPresetRenameText('');
     setSetlistRenameText('');
@@ -1164,6 +1181,7 @@ function EditorApp() {
   };
 
   const handlePresetLoad = async (item: HelixContentRef) => {
+    if (creationPending.current) { setStatus('Wait for the new preset to finish creating.'); return; }
     if (presetSaveOperation.current) { setStatus('Wait for the current preset to finish saving.'); return; }
     const client = requireClient();
     if (!client) return;
@@ -1181,6 +1199,43 @@ function EditorApp() {
     }
     setStatus(`Loading ${item.name ?? 'preset'}...`);
     scheduleSync(900);
+  };
+
+  const openPresetCreation = async (position?: number) => {
+    if (creationPending.current || presetSaveOperation.current) return;
+    const client = requireClient();
+    if (!client) return;
+    try {
+      const slots = await client.getContainerContents(USER_PRESETS_CID) as HelixContentRef[] | null;
+      if (clientRef.current !== client || creationPending.current) return;
+      if (!Array.isArray(slots)) throw new Error('Could not read User Presets. Sync the device and try again.');
+      const empty = slots.filter(isEmptyUserSlot);
+      const target = position === undefined ? empty[0] : empty.find(item => item.posi === position);
+      if (!target) throw new Error(position === undefined ? 'There are no empty User Preset slots.' : 'That slot is no longer empty. Choose another slot.');
+      setCreateSlots(slots); setCreateError(''); setCreatePosition(target.posi!);
+    } catch (error) { Alert.alert('Cannot create preset', (error as Error).message); }
+  };
+
+  const handleCreatePreset = async (name: string) => {
+    const client = requireClient();
+    if (!client || createPosition === null || creationPending.current || presetSaveOperation.current) return;
+    const position = createPosition;
+    creationPending.current = true; setPresetCreating(true); setCreateError('');
+    setStatus(`Creating ${name} in ${formatPresetPosition(position)}…`);
+    try {
+      const result = await client.createPresetInEmptySlot(position, name);
+      if (clientRef.current !== client) return;
+      setCreatePosition(null); setLibraryRoot('user');
+      await loadPresetContainer(USER_PRESETS_CID, 'User Presets');
+      setStatus(`Created ${name} in ${formatPresetPosition(position)}${result.loaded ? '' : '. Select the slot when you are ready to open it.'}`);
+      scheduleSync(150, { full: true });
+    } catch (error) {
+      if (clientRef.current !== client) return;
+      const message = error instanceof Error ? error.message : 'Preset creation was not confirmed. Sync the device and inspect the slot.';
+      setCreateError(message); setStatus(`Preset creation not confirmed: ${message}`);
+      const slots = await client.getContainerContents(USER_PRESETS_CID).catch(() => null);
+      if (clientRef.current === client && Array.isArray(slots)) { setCreateSlots(slots); if (selectedContainerId === USER_PRESETS_CID) setPresetItems(slots); }
+    } finally { creationPending.current = false; setPresetCreating(false); }
   };
 
   const handlePerformancePresetStep = (delta: -1 | 1) => {
@@ -1405,6 +1460,7 @@ function EditorApp() {
   };
 
   const handleSavePreset = async () => {
+    if (creationPending.current) { setStatus('Wait for the new preset to finish creating.'); return; }
     const client = requireClient();
     if (!client || presetSaveOperation.current) return;
     if (activePresetStorageId === null) {
@@ -2408,7 +2464,7 @@ function EditorApp() {
 
       // Skip clobbering local state while the user is dragging a knob — the
       // optimistic value is what they're seeing and should not flicker.
-      if (knobDraggingRef.current) {
+      if (knobDraggingRef.current || focusWrites.current > 0) {
         return true;
       }
 
@@ -2732,6 +2788,7 @@ function EditorApp() {
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{selectedContainerName}</Text>
             <View style={styles.listHeaderRight}>
+              {libraryRoot === 'user' && <Pressable accessibilityLabel="Create a preset in an empty User slot" disabled={presetCreating || presetSaving} onPress={() => { void openPresetCreation(); }}><Text style={styles.pathActionText}>New preset</Text></Pressable>}
               <Text style={styles.libraryMeta}>
                 {filteredPresetItems.length}/{presetItems.length}
               </Text>
@@ -2761,24 +2818,25 @@ function EditorApp() {
           ) : (
             filteredPresetItems.map((item) => {
               const active = isPresetActive(item);
+              const empty = libraryRoot === 'user' && isEmptyUserSlot(item);
               const canAddToSetlist =
                 (libraryRoot === 'user' || libraryRoot === 'factory') && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
               const hasActions = active;
               return (
-                <View key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
+                <View key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable disabled={presetCreating} accessibilityState={{ selected: active }} accessibilityLabel={empty ? `Create preset in empty slot ${formatPresetPosition(item.posi)}` : `Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
 
                   style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
                   onPress={() => {
-                    void handlePresetLoad(item);
+                    if (empty) void openPresetCreation(item.posi); else void handlePresetLoad(item);
                   }}
-                  onLongPress={() => setPresetActionTarget(item)}
+                  onLongPress={empty ? undefined : () => setPresetActionTarget(item)}
                 >
                   <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
                     {formatPresetPosition(item.posi)}
                   </Text>
                   <View style={styles.libraryRowCopy}>
                     <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
-                      {item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
+                      {empty ? 'Empty slot · Create preset' : item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
                     </Text>
                   </View>
                   {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
@@ -4294,12 +4352,17 @@ function EditorApp() {
     const metaName = getBlockMetaName(activeBlock);
 
     const isEnabled = activeBlock.enabled !== false;
+    const canFocus = focusKind(activeBlockMeta) !== null && activePresetContentId !== null && activeSnapshotIndex !== null && activeBlock.blockId !== undefined;
+    const focusTarget: FocusTarget | null = canFocus ? {
+      presetId: activePresetContentId!, snapshotIndex: activeSnapshotIndex!, flow: rowToFlow(blockEditorSlot.path),
+      blockId: activeBlock.blockId!, modelId: activeBlockMeta.id,
+    } : null;
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
           {/* Editor header — back, title row, action icons */}
           <View style={styles.editorHeader}>
-            <Pressable accessibilityLabel="Back to signal flow" style={styles.editorBack} onPress={closeEditor} hitSlop={12}>
+            <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy} style={styles.editorBack} onPress={() => { setFocusOpen(false); closeEditor(); }} hitSlop={12}>
               <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
                 <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
@@ -4313,6 +4376,7 @@ function EditorApp() {
             <View style={styles.editorActions}>
               <Pressable
                 accessibilityLabel={`Replace ${displayName}`}
+                disabled={focusBusy}
                 style={styles.editorActionBtn}
                 onPress={() => {
                   closeEditor();
@@ -4326,6 +4390,7 @@ function EditorApp() {
               </Pressable>
               <Pressable
                 accessibilityLabel={`Remove ${displayName}`}
+                disabled={focusBusy}
                 style={styles.editorActionBtn}
                 onPress={() => {
                   clearSlot(blockEditorSlot);
@@ -4440,7 +4505,42 @@ function EditorApp() {
                 </View>
               </View>
             )}
-            {renderBlockParams()}
+            {canFocus && <View style={styles.segmentedControl}>
+              <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy} style={styles.segment} onPress={() => setFocusOpen(false)}><Text style={styles.label}>Parameters</Text></Pressable>
+              <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy} style={styles.segment} onPress={() => setFocusOpen(true)}><Text style={styles.label}>Focus View</Text></Pressable>
+            </View>}
+            {focusOpen && focusTarget ? <FocusView
+              key={`${focusTarget.presetId}-${focusTarget.snapshotIndex}-${focusTarget.flow}-${focusTarget.blockId}-${focusTarget.modelId}`}
+              model={activeBlockMeta}
+              read={async () => {
+                const client = requireClient();
+                if (!client || await client.getActivePresetContentId() !== focusTarget.presetId) throw new Error('The preset changed. Sync and reopen Focus View.');
+                const values = readFocusValues(await client.getEditBufferState(), focusTarget);
+                if (await client.getActivePresetContentId() !== focusTarget.presetId) throw new Error('The preset changed. Sync and reopen Focus View.');
+                return values;
+              }}
+              apply={async (changes: FocusChange[]) => {
+                const client = requireClient();
+                if (!client) throw new Error('Reconnect to the Stadium before adjusting Focus View.');
+                const values = await client.applyFocus(focusTarget, changes);
+                if (clientRef.current !== client) throw new Error('The connection changed. Reopen Focus View after reconnecting.');
+                const focusParams = getFocusDefinition(activeBlockMeta.id)?.params ?? activeBlockMeta.params;
+                const keyed = Object.fromEntries(focusParams.filter(param => param.id !== null && values[param.id] !== undefined).map(param => [param.key, values[param.id!]]));
+                setGrid(previous => {
+                  const next = cloneGrid(previous);
+                  const block = next[blockEditorSlot.path]?.[blockEditorSlot.block];
+                  if (block?.blockId === focusTarget.blockId && block.id === focusTarget.modelId) block.params = { ...block.params, ...keyed };
+                  return next;
+                });
+                return values;
+              }}
+              onBusy={busy => {
+                focusWrites.current = Math.max(0, focusWrites.current + (busy ? 1 : -1));
+                setFocusBusy(focusWrites.current > 0);
+                if (!busy) scheduleSync(150, { full: true, silent: true });
+              }}
+              onDrag={handleKnobDragChange}
+            /> : renderBlockParams()}
           </ScrollView>
           {renderParamHelpSheet()}
         </SafeAreaView>
@@ -4521,6 +4621,10 @@ function EditorApp() {
         {activeTab === 'setlists' && renderSetlistsTab()}
         {activeTab === 'matrix' && renderMatrixTab()}
         {activeTab === 'settings' && renderSettingsTab()}
+
+        <CreatePresetSheet position={createPosition} slots={createSlots} busy={presetCreating} error={createError}
+          onPosition={position => { setCreatePosition(position); setCreateError(''); }}
+          onCreate={name => { void handleCreatePreset(name); }} onClose={() => { if (!creationPending.current) setCreatePosition(null); }} />
 
         {/* ── Bottom Sheet: Setlist Picker ─────────────────────── */}
         <BottomSheet

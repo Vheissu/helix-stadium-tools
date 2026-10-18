@@ -299,15 +299,14 @@ Practical notes:
 - `SetContentInfo`, `GetContentInfo`, `GetAllContentInfo`, and `DeleteContentInfo` all work against the device's content-info store.
 - `GetContentInfo` and `FindContentMatches` return valid responses from the device, but the higher-level meaning of the string/value fields returned by `FindContentMatches` is still unresolved.
 
-Commands present in the desktop app binary but still unverified or unresolved on the device:
+Preset creation was verified on 19 October 2026:
 
-- `/CreateContent`
+```
+/CreateContent ,iiiib [cmdId, containerId, position, contentType, <string-keyed attrs map>]
+/status ,iii [cmdId, allocatedContentId, result]
+```
 
-Current live probe status:
-
-- The desktop app binary still contains the `/CreateContent` route string.
-- A direct network probe against the current device returned `/error ,iis [cmdId, 0, "Msg dispatch failed: /CreateContent is NOT known!!!"]`.
-- Do not ship a public `CreateContent` wrapper yet; the transport or preconditions are still unresolved.
+For a new User preset, use container `-2`, a freshly checked empty position, and content type `2`. The positive allocated id is returned in the second response field; it is not an ordinary zero-status acknowledgement. Read and verify the new reference, write its native preset body with `SetContentData`, verify the stored bytes, then load it. An earlier probe reported a dispatch error; the complete request above now works on the tested device. See [Preset creation and Focus View](PRESET_CREATION_AND_FOCUS.md) for the verified workflow and failure handling.
 
 ## Direct clear + structural routing commands
 

@@ -8,15 +8,19 @@ import catalogue from '../data/blockTypes.json';
 import { ParamSlider } from './ParamSlider';
 import { BottomSheet } from './BottomSheet';
 import { AppInfo } from './AppInfo';
+import { FocusView, focusKind } from './FocusView';
+import { getFocusDefinition } from '../utils/focus';
 import { COLORS, FONTS } from '../theme/colors';
 import { fitsDspBudget, getDspHeadroom, STANDARD_DSP_CAP } from '../utils/dspBudget';
 
 type PreviewParam = {
+  id: number | null;
+  harness?: boolean;
   key: string; name: string; def: number | boolean; min: number; max: number;
   type: 'i' | 'f' | 'b'; unit?: string | null; options?: string[] | null;
   display_min?: number; display_max?: number;
 };
-type PreviewModel = { id: number; name: string; category: string; usage?: number; params: PreviewParam[] };
+type PreviewModel = { id: number; key: string; name: string; category: string; usage?: number; params: PreviewParam[] };
 type PreviewBlock = { model: PreviewModel; enabled: boolean; values: Record<string, number | boolean> };
 const groups = catalogue as Record<string, { models: PreviewModel[] }>;
 const models = Object.values(groups).flatMap((group) => group.models);
@@ -34,6 +38,7 @@ export function OfflinePreview({ onClose }: { onClose: () => void }) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [scrollEnabled, setScrollEnabled] = useState(true);
+  const [focusOpen, setFocusOpen] = useState(false);
   const usage = blocks.reduce((sum, block) => sum + (block.model.usage ?? 0), 0);
   const headroom = getDspHeadroom(usage);
   const active = blocks[selected];
@@ -82,7 +87,24 @@ export function OfflinePreview({ onClose }: { onClose: () => void }) {
                 <Switch accessibilityLabel={`${active.model.name} enabled`} value={active.enabled} onValueChange={(enabled) => updateActive({ enabled })} />
                 <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${active.model.name}`} style={styles.button} onPress={() => { setBlocks((previous) => previous.filter((_, index) => index !== selected)); setSelected(0); }}><Text style={styles.action}>Remove</Text></Pressable>
               </View>
-              {active.model.params.map((param) => (
+              {focusKind(active.model) && <View style={styles.header}>
+                <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} onPress={() => setFocusOpen(false)}><Text style={styles.action}>Parameters</Text></Pressable>
+                <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} onPress={() => setFocusOpen(true)}><Text style={styles.action}>Focus View</Text></Pressable>
+              </View>}
+              {focusOpen && focusKind(active.model) ? <FocusView key={`${selected}-${active.model.id}`} model={active.model}
+                read={async () => {
+                  const values = Object.fromEntries(active.model.params.filter(p => p.id !== null && !p.harness).map(p => [p.id!, active.values[p.key] ?? p.def]));
+                  for (const param of getFocusDefinition(active.model.id)?.params ?? []) if (values[param.id] === undefined) values[param.id] = param.values[0];
+                  return values;
+                }}
+                apply={async changes => {
+                  const values = { ...active.values, ...Object.fromEntries(changes.map(change => [change.key, change.value])) };
+                  updateActive({ values });
+                  const result = Object.fromEntries(active.model.params.filter(p => p.id !== null && !p.harness).map(p => [p.id!, values[p.key] ?? p.def]));
+                  for (const param of getFocusDefinition(active.model.id)?.params ?? []) result[param.id] = values[param.key] ?? param.values[0];
+                  return result;
+                }} onBusy={() => {}} onDrag={dragging => setScrollEnabled(!dragging)}
+              /> : active.model.params.map((param) => (
                 <ParamSlider key={`${selected}-${active.model.id}-${param.key}`} label={param.name} value={active.values[param.key] ?? param.def} min={param.min} max={param.max} type={param.type} unit={param.unit} options={param.options} displayMin={param.display_min} displayMax={param.display_max} onDragChange={(dragging) => setScrollEnabled(!dragging)} onChange={(value) => updateActive({ values: { ...active.values, [param.key]: value } })} />
               ))}
             </View>

@@ -8,11 +8,12 @@ import { adjustParameter, parseParameterInput, type ParameterRange } from './par
 import { announce } from './AccessibilityPreferences';
 
 export interface AccessibleParameterProps extends ParameterRange {
+  precision?: number;
   label: string; value: number | boolean; unit?: string | null;
   onChange: (value: number | boolean) => void; helpAdornment?: React.ReactNode;
 }
 export function AccessibleParameter(props: AccessibleParameterProps) {
-  const { label, value, min, max, type, options, displayMin, displayMax, unit, onChange, helpAdornment } = props;
+  const { label, value, min, max, type, options, displayMin, displayMax, unit, onChange, helpAdornment, precision } = props;
   const [editing, setEditing] = useState(false);
   const [choosing, setChoosing] = useState(false);
   const [text, setText] = useState('');
@@ -20,12 +21,12 @@ export function AccessibleParameter(props: AccessibleParameterProps) {
   const latest = useRef(value);
   latest.current = value;
   const namedBoolean = type === 'b' && options?.length === 2 && !(options[0].toLowerCase() === 'off' && options[1].toLowerCase() === 'on');
-  const display = formatParamValue(value, min, max, displayMin, displayMax, unit, type, options);
+  const display = formatParamValue(value, min, max, displayMin, displayMax, unit, type, options, precision);
   const change = (direction: -1 | 1, button = false) => {
     const next = adjustParameter(latest.current, direction, props);
     latest.current = next;
     onChange(next);
-    if (button || Platform.OS === 'android') announce(`${label}, ${formatParamValue(next, min, max, displayMin, displayMax, unit, type, options)}`, false);
+    if (button || Platform.OS === 'android') announce(`${label}, ${formatParamValue(next, min, max, displayMin, displayMax, unit, type, options, precision)}`, false);
   };
   const lower = adjustParameter(value, -1, props) === value;
   const upper = adjustParameter(value, 1, props) === value;
@@ -80,7 +81,7 @@ export function AccessibleParameter(props: AccessibleParameterProps) {
       <Action onPress={() => {
         const next = parseParameterInput(text, props);
         if (next === null) { const message = 'Enter a number within the displayed range.'; setError(message); announce(message); return; }
-        onChange(next); setEditing(false); announce(`${label}, ${formatParamValue(next, min, max, displayMin, displayMax, unit, type, options)}`, false);
+        onChange(next); setEditing(false); announce(`${label}, ${formatParamValue(next, min, max, displayMin, displayMax, unit, type, options, precision)}`, false);
       }}><Text style={styles.text}>Set value</Text></Action>
     </ScrollView></BottomSheet>
   </View>;

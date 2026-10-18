@@ -20,15 +20,15 @@ Preset positions now use bank letters throughout the preset list, setlist list, 
 
 ## Creating presets from empty locations
 
-Still to implement. The app currently browses returned content records; it does not provide the complete empty-location and template workflow. A preset with no writable destination now gets an explicit message instead of a false save indication.
+Implemented. Empty User slots now open a creation sheet, and the User library has a New preset action. The sheet accepts a name and an empty destination, searchable by bank label. Creation checks the destination again, initializes and verifies a native blank preset, then opens it. Occupied slots and unsaved changes are protected, including snapshot renames that do not set the device's edited flag.
 
-The hardware exposes 512 User Preset locations. The desktop editor's creation path allocates content before saving it and placing it in the selected container. A correct implementation needs an empty-location picker, template or blank-preset initialization, a name and destination, replacement confirmation for occupied locations, and save/reload verification. It must not invent writable content ids from row numbers. See [Line 6's preset workflow](https://manuals.line6.com/en/helix-stadium/live/presets).
+Creation, editing, saving and reloading passed on the Stadium. Temporary records were removed and the original User library was verified unchanged. Details are in [Preset creation and Focus View](PRESET_CREATION_AND_FOCUS.md).
 
 ## Focus View
 
-Feasible, with additional implementation and validation. The local public 1.4 firmware contains 674 model-specific Focus View definitions, including named points, parameter ids, and interpolation behaviour. That is useful evidence for reproducing the controls through ordinary parameter updates. It is not yet a working mobile Focus View.
+Implemented in the block editor and Offline preview. The app includes 670 factory X/Y definitions with named points, a touch pad, accessible axis controls and restoration of the starting tone. Cabinets have mic placement controls; EQ and clone models have focused tone controls.
 
-The next pass should cover supported model matching, interpolation and discrete parameters, cab microphone positioning, and accessible named-point and axis controls. Check results against the desktop editor before shipping. [The official application guide](https://manuals.line6.com/en/helix-stadium/live/helix-stadium-edit-application) describes its Focus View.
+The interpolation matches the extracted 1.4 arithmetic routine, including float32 boundary behavior and discrete parameters. Live tests covered two amps, tremolo, delay, cabinet placement and graphic EQ, with save/reload verification. The new native screens have not been rebuilt; browser component checks and the live protocol tests were performed separately.
 
 ## Showcase songs and stem separation
 
@@ -38,4 +38,4 @@ Line 6's 1.4 stem separation sends audio to its cloud service and requires a sig
 
 ## Checks
 
-The mobile suite passes 62 tests, including an exact OSC packet fixture and save-state tests for acknowledgement failure, timeouts, invalid destinations, setlist references, preset switches, and delayed clean state. Type checking passes. Lint has no errors and three existing warnings. Hardware verification changed only the disposable preset in `44C`, then restored its tested values. No native build or store submission was run.
+The mobile suite passes 89 tests, including an exact OSC packet fixture and save-state tests for acknowledgement failure, timeouts, invalid destinations, setlist references, preset switches, and delayed clean state. Type checking passes. Lint has no errors and two existing warnings. Hardware verification used spare presets, removed the temporary creations, and left `44C` and the User library restored. No native build or store submission was run.

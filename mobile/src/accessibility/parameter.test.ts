@@ -42,3 +42,11 @@ test('boolean modes speak their actual option names rather than generic on and o
   assert.equal(formatParamValue(true, 0, 1, undefined, undefined, null, 'b', ['Chorus', 'Vibrato']), 'Vibrato');
   assert.equal(formatParamValue(false, 0, 1, undefined, undefined, null, 'b'), 'Off');
 });
+
+test('cab distance advances in quarter-inch steps and keeps both decimal places', () => {
+  const range = { min: 1, max: 12, type: 'f' as const, step: 0.25 };
+  assert.equal(adjustParameter(2, 1, range), 2.25);
+  assert.equal(adjustParameter(2.25, -1, range), 2);
+  assert.equal(parseParameterInput('3.3', range), 3.25);
+  assert.equal(formatParamValue(3.25, 1, 12, 1, 12, 'inches', 'f', null, 2), '3.25 inches');
+});

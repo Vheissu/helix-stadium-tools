@@ -1,9 +1,11 @@
 export interface ParameterRange {
   min: number; max: number; type: 'i' | 'f' | 'b';
   displayMin?: number; displayMax?: number; options?: string[] | null;
+  step?: number;
 }
 export function parameterStep(p: ParameterRange): number {
   if (p.type === 'b' || p.type === 'i' || p.options?.length) return 1;
+  if (p.step !== undefined && Number.isFinite(p.step) && p.step > 0) return p.step;
   const span = p.max - p.min;
   const displaySpan = Math.abs((p.displayMax ?? p.max) - (p.displayMin ?? p.min));
   // One displayed tenth for small ranges; 1% for large ranges. Exact entry remains available.
@@ -26,5 +28,6 @@ export function parseParameterInput(text: string, p: ParameterRange): number | n
   if (displayed < low || displayed > high) return null;
   const span = (p.displayMax ?? p.max) - (p.displayMin ?? p.min);
   const raw = hasDisplay && span !== 0 ? p.min + (displayed - p.displayMin!) / span * (p.max - p.min) : displayed;
-  return Math.max(p.min, Math.min(p.max, p.type === 'i' ? Math.round(raw) : raw));
+  const stepped = p.step !== undefined && Number.isFinite(p.step) && p.step > 0 ? p.min + Math.round((raw - p.min) / p.step) * p.step : raw;
+  return Math.max(p.min, Math.min(p.max, p.type === 'i' ? Math.round(raw) : stepped));
 }

@@ -10,6 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "NSBonjourServices": ["_stadiumserver._tcp"],
         "NSLocalNetworkUsageDescription": "Find and edit your Helix Stadium on your local network or through a compatible USB connection.",
         "ITSAppUsesNonExemptEncryption": false
       },

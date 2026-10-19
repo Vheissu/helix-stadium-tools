@@ -309,7 +309,7 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
   }) => {
     if (!block) {
       return (
-        <Pressable style={styles.emptyRow} onPress={onPress}>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Add block at position ${realIndex + 1}`} style={styles.emptyRow} onPress={onPress}>
           <View style={styles.emptySlotNum}>
             <Text style={styles.emptySlotNumText}>{realIndex + 1}</Text>
           </View>
@@ -341,6 +341,9 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
 
     return (
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Edit ${block.name}`}
+        accessibilityState={{ selected: isSelected }}
         style={[
           styles.effectRow,
           {
@@ -390,6 +393,8 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
           </View>
         </View>
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${enabled ? 'Bypass' : 'Enable'} ${block.name}`}
           style={[
             styles.powerBtn,
             {
@@ -473,8 +478,9 @@ const styles = StyleSheet.create({
   effectRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 14,
+    gap: 10,
+    minHeight: 56,
+    paddingVertical: 4,
     paddingHorizontal: 0,
     borderWidth: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -487,9 +493,9 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
   effectIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: 'transparent',
     alignItems: 'center',
@@ -528,9 +534,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   powerBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     alignItems: 'center',
@@ -539,6 +545,7 @@ const styles = StyleSheet.create({
 
   /* ── Empty slot ────────────────────── */
   emptyRow: {
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -564,6 +571,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   moreSlotsBtn: {
+    minHeight: 48,
     paddingVertical: 10,
     paddingHorizontal: 0,
     alignItems: 'center',
@@ -577,7 +585,7 @@ const styles = StyleSheet.create({
 
   /* ── Drag placeholder ──────────────── */
   dragPlaceholder: {
-    height: 64,
+    minHeight: 56,
     marginHorizontal: 16,
     marginVertical: 2,
     borderRadius: 8,

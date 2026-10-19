@@ -18,11 +18,11 @@ interface PathChainStripProps {
   onSelectInput?: () => void;
   onSelectOutput?: () => void;
   inputDisabled?: boolean;
-  /** Wider screens get bigger tiles to fill space comfortably. */
+  /** Optional tile size; keep touch targets at least 48 points. */
   tileSize?: number;
 }
 
-const DEFAULT_TILE_SIZE = 56;
+const DEFAULT_TILE_SIZE = 48;
 const TILE_GAP = 6;
 
 const InputIcon: React.FC<{ size: number; color: string }> = ({ size, color }) => (
@@ -43,7 +43,8 @@ const EndpointTile: React.FC<{
   onPress?: () => void;
   disabled?: boolean;
 }> = ({ type, name, onPress, disabled }) => (
-  <Pressable onPress={onPress} disabled={!onPress || disabled} style={[styles.endpoint, disabled && styles.endpointDisabled]}>
+  <Pressable accessibilityRole="button" accessibilityLabel={`${type === 'input' ? 'Input' : 'Output'}: ${name}`}
+    onPress={onPress} disabled={!onPress || disabled} style={[styles.endpoint, disabled && styles.endpointDisabled]}>
     <View style={styles.endpointGlyph}>
       {type === 'input' ? <InputIcon size={20} color={COLORS.muted} /> : <OutputIcon size={20} color={COLORS.muted} />}
     </View>
@@ -115,6 +116,9 @@ export const PathChainStrip: React.FC<PathChainStripProps> = React.memo(({
             <React.Fragment key={`tile-${pathIndex}-${slotIndex}`}>
               {block ? (
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Edit ${block.name}, path ${rowLabel}, position ${slotIndex + 1}`}
+                  accessibilityState={{ selected: isSelected }}
                   onPress={() => onSelectSlot({ path: pathIndex, block: slotIndex as any })}
                   onLongPress={
                     onOpenSlotMenu
@@ -170,6 +174,8 @@ export const PathChainStrip: React.FC<PathChainStripProps> = React.memo(({
                 </Pressable>
               ) : (
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add block, path ${rowLabel}, position ${slotIndex + 1}`}
                   onPress={() => onSelectSlot({ path: pathIndex, block: slotIndex as any })}
                   style={[styles.emptyTile, { width: tileSize, height: tileSize }]}
                 >
@@ -195,7 +201,7 @@ export const PathChainStrip: React.FC<PathChainStripProps> = React.memo(({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 8,
+    gap: 4,
   },
   header: {
     flexDirection: 'row',
@@ -223,7 +229,7 @@ const styles = StyleSheet.create({
     gap: TILE_GAP,
   },
   tile: {
-    borderRadius: 12,
+    borderRadius: 6,
     borderWidth: 1,
     overflow: 'hidden',
     alignItems: 'center',
@@ -255,7 +261,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   emptyTile: {
-    borderRadius: 12,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: COLORS.stroke,
     borderStyle: 'dashed',
@@ -276,18 +282,19 @@ const styles = StyleSheet.create({
   },
   endpoint: {
     width: 56,
-    paddingVertical: 6,
+    minHeight: 48,
+    paddingVertical: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 2,
   },
   endpointDisabled: {
     opacity: 0.45,
   },
   endpointGlyph: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: COLORS.panelAlt,
     borderWidth: 1,
     borderColor: COLORS.stroke,

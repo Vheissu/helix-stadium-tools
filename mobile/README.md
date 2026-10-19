@@ -80,6 +80,9 @@ tool must sign it before a device will install it.
 
 ## App notes
 
+- The connection screen finds Stadiums advertised on your local network. Choose
+  a device, then tap Connect. Search again refreshes the list; manual device name
+  or IP address entry remains available if your network blocks discovery.
 - Use the host field with either the Bonjour name (`p35x1.local`) or the device IP address for Wi-Fi and Apple-platform connections.
 - On Android, select USB to use direct USB-host access and allow the Android
   USB permission prompt. The plugged-in Stadium is found without an address.

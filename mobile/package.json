@@ -19,6 +19,7 @@
     "eas-build-post-install": "node scripts/prepare-transfer-credentials.mjs --required"
   },
   "dependencies": {
+    "@helyon/stadium-discovery": "file:modules/stadium-discovery",
     "@helyon/stadium-transfer": "file:modules/stadium-transfer",
     "@helyon/stadium-usb": "file:modules/stadium-usb",
     "@msgpack/msgpack": "^3.1.3",

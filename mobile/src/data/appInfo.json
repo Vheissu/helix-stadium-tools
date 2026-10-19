@@ -26,11 +26,19 @@
   "help": [
     {
       "title": "Connect by Wi-Fi",
-      "body": "Put your phone or tablet and Helix Stadium on the same Wi-Fi network. Enable Remote Access on the Stadium. Enter its device name or IP address, then tap Connect. If prompted, allow Local Network access. Guest networks can prevent devices from finding each other."
+      "body": "Put your phone or tablet and Helix Stadium on the same Wi-Fi network. HELYON searches for available Stadiums on the connection screen. Choose your device, then tap Connect. If it is not listed, tap Search again or enter its device name or IP address. On the Stadium, open Menu > Wi-Fi; once connected, its IP address appears at the bottom of the right sidebar. Set Global Settings > Preferences > Remote Access to Allow. If prompted, allow Local Network access. Guest networks can prevent devices from finding each other."
     },
     {
       "title": "Connect by USB",
       "body": "USB editing requires Stadium firmware 1.4 or later and a data cable. Keep Remote Access enabled. On Android, select USB, connect the Stadium, and allow HELYON to access it when Android asks. No device address is needed in Android USB mode. On iPhone and iPad, the system chooses the connection for the entered address; selecting USB does not force a cable route. Turn Wi-Fi off when checking cable-only operation."
+    },
+    {
+      "title": "Save your edits",
+      "body": "Edits change the sound immediately. Tap Save beside the preset name to keep your changes on the Stadium. Save is available above the signal flow and in the block editor, even if no unsaved-change indicator is showing. Wait for Saved to Stadium before disconnecting or loading another preset."
+    },
+    {
+      "title": "DSP numbers beside effects",
+      "body": "DSP is the processing capacity used by amps and effects. Numbers beside models and path meters are estimates from the model catalogue, not live CPU percentages. Larger numbers use more of the path's budget. Lower numbers leave room for more effects. Bypassing a block does not free its capacity. Tap a path's DSP estimate for an explanation."
     },
     {
       "title": "VoiceOver, TalkBack, and list layout",

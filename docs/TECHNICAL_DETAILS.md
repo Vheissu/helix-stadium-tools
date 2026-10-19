@@ -24,6 +24,12 @@ This yields the hostname (e.g. `p35x1.local`) and the TCP ports.
 
 The Python tooling in this repo now uses the same discovery path when `--host` is omitted: browse `_stadiumserver._tcp`, resolve the first visible instance, then connect to the advertised port and the adjacent command port.
 
+The mobile app browses the same service using the native iOS and Android APIs in
+`mobile/modules/stadium-discovery`. It lists resolved devices for the user to
+choose, then uses the advertised port and adjacent command port. Scans are bounded
+and cancelled on backgrounding, connecting, or leaving the connection screen.
+Manual address entry remains available when discovery is blocked by the network.
+
 ## ZMTP 3.0 handshake
 
 Both ports require the standard ZMTP 3.0 handshake:

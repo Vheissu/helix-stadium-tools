@@ -1,0 +1,7 @@
+apply plugin: 'com.android.library'
+android {
+  namespace 'com.helyon.discovery'
+  compileSdk rootProject.ext.compileSdkVersion
+  defaultConfig { minSdk 24; targetSdk rootProject.ext.targetSdkVersion }
+}
+dependencies { implementation 'com.facebook.react:react-android' }

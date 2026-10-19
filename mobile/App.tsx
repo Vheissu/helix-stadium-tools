@@ -67,6 +67,8 @@ import { detectVirtualNamRoute } from './src/utils/virtualNam';
 import { STANDARD_DSP_CAP, EXTENDED_DSP_CAP, getDspLimit, getDspHeadroom, fitsDspBudget } from './src/utils/dspBudget';
 import { AppInfo } from './src/components/AppInfo';
 import { OfflinePreview } from './src/components/OfflinePreview';
+import { PresetSaveBar } from './src/components/PresetSaveBar';
+import type { StadiumDevice } from './src/utils/stadiumDiscovery';
 
 const COLORS = THEME_COLORS;
 
@@ -254,7 +256,8 @@ function EditorApp() {
   // Suspend incoming flow syncs while the user is actively dragging a knob.
   const knobDraggingRef = useRef(false);
   const [editorScrollEnabled, setEditorScrollEnabled] = useState(true);
-  const [host, setHost] = useState('p35x1.local');
+  const [host, setHost] = useState('');
+  const [discoveredDevice, setDiscoveredDevice] = useState<StadiumDevice | null>(null);
   const [connectionTransport, setConnectionTransport] = useState<ConnectionTransport>('auto');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -282,8 +285,7 @@ function EditorApp() {
   const [blockLabelMode, setBlockLabelMode] = useState(false);
   const [controlStyle, setControlStyleState] = useState<ControlStyle>('sliders');
   const windowDims = useWindowDimensions();
-  // Phones are usually <= 480px logical width; we treat >=720 as a tablet
-  // for layout decisions (larger block tiles, wider sliders, more padding).
+  // Tablets have room for slightly larger controls without scaling up the whole editor.
   const isTablet = Math.min(windowDims.width, windowDims.height) >= 600;
   // Per-parameter help sheet state. The sheet is shown when the user taps the
   // (?) glyph next to a parameter label.
@@ -349,6 +351,7 @@ function EditorApp() {
   const [_activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
   const [_libraryLoading, setLibraryLoading] = useState(false);
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
+  const [presetSaved, setPresetSaved] = useState(false);
   const [presetSaving, setPresetSaving] = useState(false);
   const [createPosition, setCreatePosition] = useState<number | null>(null);
   const [createSlots, setCreateSlots] = useState<HelixContentRef[]>([]);
@@ -823,7 +826,8 @@ function EditorApp() {
     setConnecting(true);
     try {
       const networkInterface = getNetworkInterfacePreference(connectionTransport, Platform.OS);
-      const client = new HelixClient(host.trim(), 2001, 2002, networkInterface);
+      const port = networkInterface !== 'usb' && discoveredDevice?.host === host.trim() ? discoveredDevice.port : 2001;
+      const client = new HelixClient(host.trim(), port, port + 1, networkInterface);
       await client.connect();
       client.startListener(handleClientEvent, () => {
         if (clientRef.current !== client) return;
@@ -1476,12 +1480,14 @@ function EditorApp() {
     const operation = Symbol('save preset');
     presetSaveRevision.current++;
     presetSaveOperation.current = operation;
+    setPresetSaved(false);
     setPresetSaving(true);
     setStatus(`Saving ${activePresetName}...`);
     try {
       await client.savePresetWithCid(activePresetStorageId);
       if (clientRef.current !== client) return;
       setPresetEdited(false);
+      setPresetSaved(true);
       setStatus(`Saved ${activePresetName} to the Stadium`);
       scheduleSync(350, { full: true, silent: true });
     } catch (error) {
@@ -1499,6 +1505,26 @@ function EditorApp() {
       }
     }
   };
+
+  useEffect(() => {
+    setPresetSaved(false);
+  }, [activePresetStorageId, connected]);
+
+  useEffect(() => {
+    if (presetEdited) setPresetSaved(false);
+  }, [presetEdited]);
+
+  useEffect(() => {
+    if (!presetSaved) return;
+    const timer = setTimeout(() => setPresetSaved(false), 4000);
+    return () => clearTimeout(timer);
+  }, [presetSaved]);
+
+  const renderPresetSaveBar = () => (
+    <PresetSaveBar name={activePresetName} edited={presetEdited} saving={presetSaving} saved={presetSaved}
+      disabled={!connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy}
+      onSave={() => { void handleSavePreset(); }} />
+  );
 
   const handleRenameContent = async (contentId: number, name: string, label: string) => {
     const client = requireClient();
@@ -2606,10 +2632,13 @@ function EditorApp() {
             <Text accessibilityRole="header" style={styles.pathTitle}>Path {pathNum}</Text>
             {clipboardMatches && <Text style={styles.pathClipboardBadge}>copied</Text>}
           </View>
-          <View style={styles.pathHeaderRight}>
+          <Pressable accessibilityLabel={`Path ${pathNum} DSP estimate ${usage.toFixed(1)} of ${STANDARD_DSP_CAP}. Explain processing estimates`}
+            onPress={() => setParamHelp({ title: 'DSP estimates', body: 'DSP is the processing capacity used by amps and effects. These numbers are estimates from the model catalogue, not live CPU percentages. Each path has its own budget. Larger numbers use more of it; bypassing a block does not free its capacity.' })}
+            style={styles.pathHeaderRight}>
+            <Text style={styles.pathDspLabel}>DSP estimate ⓘ</Text>
             <Text style={[styles.pathDspNumber, { color: dspColor }]}>{usage.toFixed(1)}</Text>
             <Text style={styles.pathDspLimit}>/{STANDARD_DSP_CAP}</Text>
-          </View>
+          </Pressable>
         </View>
         {extendedDspEnabled && <Text style={styles.labelHint}>Extended budget on · normal limit {STANDARD_DSP_CAP}, maximum estimate {EXTENDED_DSP_CAP}</Text>}
         {/* Hairline DSP meter */}
@@ -2648,7 +2677,7 @@ function EditorApp() {
           ioOutputName={ioGrid[primary]?.output?.name ?? null}
           onSelectInput={() => selectIO(primary, 'input')}
           onSelectOutput={() => selectIO(primary, 'output')}
-          tileSize={isTablet ? 76 : 56}
+          tileSize={isTablet ? 60 : 48}
         />}
 
         {/* Detail list — drag-to-reorder, power toggles, names */}
@@ -2666,8 +2695,8 @@ function EditorApp() {
         />
 
         {/* Input/output endpoints for primary row */}
-        {renderIORow(primary, 'input')}
-        {renderIORow(primary, 'output')}
+        {linearControls && renderIORow(primary, 'input')}
+        {linearControls && renderIORow(primary, 'output')}
 
         {/* Split section */}
         {hasSplit && (
@@ -2689,7 +2718,7 @@ function EditorApp() {
               onSelectInput={() => selectIO(split, 'input')}
               onSelectOutput={() => selectIO(split, 'output')}
               inputDisabled
-              tileSize={isTablet ? 76 : 56}
+              tileSize={isTablet ? 60 : 48}
             />}
             <DraggableEffectList
               blocks={decorateDisplayBlocks(grid[split])}
@@ -2703,8 +2732,8 @@ function EditorApp() {
               onDragStart={() => setFlowScrollEnabled(false)}
               onDragEnd={() => setFlowScrollEnabled(true)}
             />
-            {renderIORow(split, 'input')}
-            {renderIORow(split, 'output')}
+            {linearControls && renderIORow(split, 'input')}
+            {linearControls && renderIORow(split, 'output')}
           </>
         )}
       </View>
@@ -2746,12 +2775,6 @@ function EditorApp() {
               <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
-          {/* Snapshot renames do not always set the device's edited flag. */}
-          {activePresetRef && (
-            <Pressable accessibilityLabel="Save current preset" accessibilityState={{ busy: presetSaving }} disabled={presetSaving} style={styles.compactSaveBtn} onPress={() => { void handleSavePreset(); }}>
-              <Text style={styles.compactSaveBtnText}>{presetSaving ? 'Saving…' : 'Save'}</Text>
-            </Pressable>
-          )}
         </View>
 
         <View style={styles.segmentedControl}>
@@ -4441,6 +4464,8 @@ function EditorApp() {
             </View>}
           </View>
 
+          {renderPresetSaveBar()}
+
           {/* Block plate — icon, model name, power state in one composed row */}
           {!focusOpen && <View style={styles.editorPlate}>
             <View
@@ -4588,7 +4613,9 @@ function EditorApp() {
     return (
       <ConnectionGate
         host={host}
-        onHostChange={setHost}
+        port={discoveredDevice?.host === host.trim() ? discoveredDevice.port : 2001}
+        onHostChange={value => { setHost(value); setDiscoveredDevice(null); }}
+        onDeviceSelect={device => { setHost(device.host); setDiscoveredDevice(device); }}
         transport={connectionTransport}
         onTransportChange={setConnectionTransport}
         onConnect={connect}
@@ -4628,6 +4655,7 @@ function EditorApp() {
         </View>
 
         {linearControls && <Text style={styles.accessibilityStatus}>{libraryActivityLabel ?? status}</Text>}
+        {renderPresetSaveBar()}
 
         {/* ── Tab content ──────────────────────────────────────── */}
         {activeTab === 'flow' && renderFlowTab()}
@@ -5034,7 +5062,7 @@ function EditorApp() {
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
           title={pickerStep === 'type' ? (targetBlock ? 'Replace Block' : 'Add Block') : blockCatalog[pickerType ?? 'amp']?.label}
-          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 Headroom ${Math.max(0, availableUsage).toFixed(1)}/${dspLimit}${extendedDspEnabled ? ' · Extended budget' : ''}`}
+          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 DSP available ${Math.max(0, availableUsage).toFixed(1)}/${dspLimit}${extendedDspEnabled ? ' · Extended budget' : ''}`}
         >
           {pickerStep === 'type' ? (
             <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
@@ -5081,6 +5109,7 @@ function EditorApp() {
                 placeholder="Search models…"
                 placeholderTextColor={COLORS.muted}
               />
+              <Text style={styles.pickerDspHint}>DSP numbers estimate processing use. Lower numbers leave room for more effects; they are not CPU percentages.</Text>
               <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
                 {pickerModelSections.map((section, sectionIndex) => (
                   <View key={`${section.title ?? 'models'}-${sectionIndex}`}>
@@ -5097,7 +5126,7 @@ function EditorApp() {
                       const primaryName = showRealBlockNames && sourceName ? sourceName : item.name;
                       const secondaryName = showRealBlockNames && sourceName ? item.name : sourceName;
                       return (
-                        <Pressable accessibilityLabel={`${primaryName}${secondaryName ? ', ' + secondaryName : ''}${canInsert ? '' : ', not enough space or processing capacity'}`}
+                        <Pressable accessibilityLabel={`${primaryName}${secondaryName ? ', ' + secondaryName : ''}, DSP estimate ${required.toFixed(1)}${canInsert ? '' : ', not enough space or processing capacity'}`}
                           key={item.id}
                           style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
                           onPress={() => insertModel(item, pickerType ?? 'fx')}
@@ -5111,7 +5140,7 @@ function EditorApp() {
                             )}
                           </View>
                           <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>
-                            <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>{required.toFixed(1)}</Text>
+                            <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>DSP {required.toFixed(1)}</Text>
                           </View>
                         </Pressable>
                       );
@@ -5666,7 +5695,7 @@ const styles = StyleSheet.create({
   /* ── Path section ──────────────────────────────────────────────── */
   /* Path section — content block, NOT a card. Sits on the page bg. */
   pathSection: {
-    marginBottom: 32,
+    marginBottom: 20,
   },
   pathHeader: {
     flexWrap: 'wrap',
@@ -5681,7 +5710,7 @@ const styles = StyleSheet.create({
   pathTitle: {
     color: COLORS.text,
     fontFamily: FONT_DISPLAY,
-    fontSize: 22,
+    fontSize: 18,
     letterSpacing: -0.2,
   },
   pathClipboardBadge: {
@@ -5693,8 +5722,9 @@ const styles = StyleSheet.create({
   pathHeaderRight: {
     flexWrap: 'wrap',
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
   },
+  pathDspLabel: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 12, marginRight: 6 },
   pathDspNumber: {
     fontFamily: FONT_MONO,
     fontSize: 15,
@@ -5710,7 +5740,7 @@ const styles = StyleSheet.create({
   dspTrack: {
     height: 2,
     backgroundColor: COLORS.hairline,
-    marginBottom: 12,
+    marginBottom: 4,
     overflow: 'hidden',
   },
   dspFill: { height: '100%' },
@@ -5718,7 +5748,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingBottom: 14,
+    paddingBottom: 4,
   },
   pathActionText: {
     color: COLORS.text,
@@ -5931,11 +5961,6 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: COLORS.stroke,
   },
-  compactSaveBtn: {
-    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 4,
-    backgroundColor: COLORS.text,
-  },
-  compactSaveBtnText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.1 },
   listHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   sheetRenameRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke },
 
@@ -6248,6 +6273,7 @@ const styles = StyleSheet.create({
   },
   dspBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: COLORS.panelAlt, borderWidth: 1, borderColor: COLORS.stroke },
   dspBadgeText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11 },
+  pickerDspHint: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 14, lineHeight: 20, marginBottom: 12 },
   pickerNav: { marginBottom: 12 },
   backButton: {
     alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6,

@@ -18,6 +18,8 @@ import {
 import Svg, { Rect, Circle } from 'react-native-svg';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppInfo } from './AppInfo';
+import { StadiumSearch } from './StadiumSearch';
+import type { StadiumDevice } from '../utils/stadiumDiscovery';
 import appConfig from '../../app.json';
 import { COLORS, FONTS } from '../theme/colors';
 import { getConnectionErrorMessage } from '../utils/connection';
@@ -28,7 +30,9 @@ import {
 
 interface ConnectionGateProps {
   host: string;
+  port: number;
   onHostChange: (value: string) => void;
+  onDeviceSelect: (device: StadiumDevice) => void;
   transport: ConnectionTransport;
   onTransportChange: (value: ConnectionTransport) => void;
   onConnect: () => void;
@@ -117,7 +121,9 @@ const SpinnerDot = () => {
 
 export const ConnectionGate: React.FC<ConnectionGateProps> = ({
   host,
+  port,
   onHostChange,
+  onDeviceSelect,
   transport,
   onTransportChange,
   onConnect,
@@ -172,14 +178,16 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
               </View>
             </View>
 
-            {!(Platform.OS === 'android' && transport === 'usb') && <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>Device address</Text>
+            {!(Platform.OS === 'android' && transport === 'usb') && <>
+            <StadiumSearch host={host} port={port} disabled={connecting} onSelect={onDeviceSelect} />
+            <View style={styles.inputWrap}>
+              <Text style={styles.inputLabel}>Or enter a device name or IP address</Text>
               <TextInput
                 accessibilityLabel="Device name or IP address"
                 style={styles.input}
                 value={host}
                 onChangeText={onHostChange}
-                placeholder="p35x1.local or IP address"
+                placeholder="Device name or IP address"
                 placeholderTextColor={COLORS.muted}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -187,7 +195,14 @@ export const ConnectionGate: React.FC<ConnectionGateProps> = ({
                 returnKeyType="go"
                 onSubmitEditing={onConnect}
               />
-            </View>}
+              <Text style={styles.addressHint}>
+                On your Stadium, open Menu → Wi-Fi. The IP address is at the bottom of the right sidebar once connected.
+              </Text>
+            </View></>}
+
+            <Text style={styles.addressHint}>
+              Set Global Settings → Preferences → Remote Access to Allow on your Stadium.
+            </Text>
 
             <Pressable
               accessibilityRole="button"
@@ -252,7 +267,7 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 36,
+    marginBottom: 20,
     position: 'relative',
   },
   deviceDot: {
@@ -278,7 +293,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 36,
+    marginBottom: 24,
   },
 
   form: {
@@ -321,6 +336,12 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
     fontFamily: FONTS.body,
     fontSize: 13,
+  },
+  addressHint: {
+    color: COLORS.muted,
+    fontFamily: FONTS.body,
+    fontSize: 14,
+    lineHeight: 20,
   },
   input: {
     padding: 14,

@@ -136,15 +136,13 @@ Play Console upload, and the Google Play service account are configured. The
 service account can release to HELYON's testing tracks and has no production
 or account-wide access. These commands do not publish a public release.
 
-As of 18 October 2026, both signed production builds have completed:
+As of 19 October 2026:
 
-- **iOS 1.0.0 (2):** available in TestFlight, in the owner-only
-  [Team (Expo) internal group](https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/50cba159-51de-41aa-b799-4d427cd95de2).
-- **Android 1.0.0 (5):** available through the
-  [internal testing link](https://play.google.com/apps/internaltest/4701590729869450330)
-  with direct Android USB-host transport. The same build is submitted to closed
-  Alpha testing and shown under Changes in review. It will roll out after
-  Google approval; managed publishing is off.
+- **Android 1.0.0 (7):** published to [internal testing](https://play.google.com/apps/internaltest/4701590729869450330), including the redesigned Focus View, preset creation and Showcase song uploads. The closed Alpha track remains on build 5.
+- **iOS 1.0.0 (3):** uploaded and processed in App Store Connect, with status **Ready to Submit**. It has not been submitted for external review.
+- **iOS 1.0.0 (2):** now **Testing** in the existing external Testers group, with 26 testers. It remains that group's only build; its review and assignment were not replaced.
+
+See [the release record](../docs/RELEASE_2026_10_19.md) for build IDs, verification and the Android dependency fix.
 
 Store descriptions, privacy declarations, age ratings, free pricing, artwork
 and screenshots are saved. Apple remains an unsubmitted public-release draft.
@@ -252,7 +250,7 @@ and import corrections verified against the public desktop release.
 - Toggle auto-cab and transport-related global settings
 - Open and close the tuner remotely, while leaving live tuning feedback on the device display
 
-The preset-creation and Focus View changes passed 89 mobile tests and four generator tests, plus live Stadium creation, parameter readback and save/reload checks. The new UI was checked in a browser component harness. These changes have not had a native rebuild or store upload. See [preset creation and Focus verification](../docs/PRESET_CREATION_AND_FOCUS.md).
+The current release passed 98 mobile tests, TypeScript checking, local Android and iOS release builds, and live Stadium creation, parameter readback and save/reload checks. Focus was checked in the Simulator and installed locally on an iPad. The changes are included in Android build 7 and iOS build 3. See [preset creation and Focus verification](../docs/PRESET_CREATION_AND_FOCUS.md).
 
 ## Firmware 1.4 support
 

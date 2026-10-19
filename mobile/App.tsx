@@ -1,3 +1,4 @@
+import { ShowcaseLibrary } from './src/components/ShowcaseLibrary';
 import { presetStorageId } from './src/protocol/presetSave';
 import { isEmptyUserSlot } from './src/protocol/presetCreation';
 import { readFocusValues, type FocusTarget } from './src/protocol/focusSession';
@@ -333,6 +334,8 @@ function EditorApp() {
   const [screen, setScreen] = useState<'main' | 'editor' | 'performance' | 'tuner'>('main');
   const [tunerReturnScreen, setTunerReturnScreen] = useState<'main' | 'performance'>('main');
   const [libraryRoot, setLibraryRoot] = useState<PresetLibraryRoot>('setlists');
+  const [librarySection, setLibrarySection] = useState<'setlists' | 'showcase'>('setlists');
+  const [showcaseBusy, setShowcaseBusy] = useState(false);
   const [setlists, setSetlists] = useState<HelixContentRef[]>([]);
   const [selectedContainerId, setSelectedContainerId] = useState<number | null>(null);
   const [selectedContainerName, setSelectedContainerName] = useState('Setlists');
@@ -1168,6 +1171,7 @@ function EditorApp() {
   };
 
   const handleTabChange = (nextTab: TabKey) => {
+    if (showcaseBusy) return;
     setActiveTab(nextTab);
     if (nextTab === 'setlists' && libraryRoot !== 'setlists') {
       void handleLibraryRootChange('setlists');
@@ -3021,6 +3025,10 @@ function EditorApp() {
       contentContainerStyle={styles.tabPadding}
       showsVerticalScrollIndicator={false}
     >
+      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+        {(['setlists', 'showcase'] as const).map(section => <Pressable key={section} disabled={showcaseBusy} accessibilityRole="tab" accessibilityState={{ selected: librarySection === section, disabled: showcaseBusy }} onPress={() => setLibrarySection(section)} style={[styles.togglePill, librarySection === section && styles.togglePillActive]}><Text style={[styles.togglePillText, librarySection === section && styles.togglePillTextActive]}>{section === 'setlists' ? 'Setlists' : 'Showcase'}</Text></Pressable>)}
+      </View>
+      {librarySection === 'showcase' ? <ShowcaseLibrary client={clientRef.current} onBusy={setShowcaseBusy} onSongChange={() => { void refreshTransportContext(); void handleSync(true); }} /> : <>
       <Section title="Setlists">
         {setlists.length > 0 ? (
           <>
@@ -3165,6 +3173,7 @@ function EditorApp() {
           )}
         </View>
       </Section>
+      </>}
     </ScrollView>
   );
 
@@ -4590,11 +4599,11 @@ function EditorApp() {
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         {/* ── App bar ──────────────────────────────────────────── */}
         <View style={styles.appBar}>
-          <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{linearControls ? ({ flow: 'Signal flow', preset: 'Presets', setlists: 'Setlists', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab]) : 'HELYON'}</ScreenHeading>
+          <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{linearControls ? ({ flow: 'Signal flow', preset: 'Presets', setlists: 'Library', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab]) : 'HELYON'}</ScreenHeading>
           <View style={styles.appBarActions}>
             <Pressable
               style={styles.appBarIconBtn}
-              onPress={() => void handleFullSync()}
+              disabled={showcaseBusy} onPress={() => void handleFullSync()}
               hitSlop={8}
               accessibilityLabel="Sync"
             >
@@ -4603,7 +4612,7 @@ function EditorApp() {
                 <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </Pressable>
-            <Pressable style={styles.performanceLaunchButton} onPress={() => setScreen('performance')}>
+            <Pressable disabled={showcaseBusy} style={styles.performanceLaunchButton} onPress={() => setScreen('performance')}>
               <Text style={styles.performanceLaunchText}>Perform</Text>
             </Pressable>
             <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={styles.statusPill} onPress={() => handleTabChange('settings')}>
@@ -5064,7 +5073,7 @@ function EditorApp() {
                 style={styles.searchInput}
                 value={pickerQuery}
                 onChangeText={setPickerQuery}
-                placeholder="Search models\u2026"
+                placeholder="Search models…"
                 placeholderTextColor={COLORS.muted}
               />
               <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>

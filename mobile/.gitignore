@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Local Stadium transfer credentials
+/src/generated/transfer-credentials.json

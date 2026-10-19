@@ -1,6 +1,6 @@
 # Tester feedback — 19 October 2026
 
-No native rebuild or store submission is part of this pass.
+The follow-up pass uses a free local iOS simulator build connected to the real Stadium over Wi-Fi. No EAS build or store submission was run.
 
 ## Save and preset positions
 
@@ -28,14 +28,16 @@ Creation, editing, saving and reloading passed on the Stadium. Temporary records
 
 Implemented in the block editor and Offline preview. The app includes 670 factory X/Y definitions with named points, a touch pad, accessible axis controls and restoration of the starting tone. Cabinets have mic placement controls; EQ and clone models have focused tone controls.
 
-The interpolation matches the extracted 1.4 arithmetic routine, including float32 boundary behavior and discrete parameters. Live tests covered two amps, tremolo, delay, cabinet placement and graphic EQ, with save/reload verification. The new native screens have not been rebuilt; browser component checks and the live protocol tests were performed separately.
+The interpolation matches the extracted 1.4 arithmetic routine, including float32 boundary behavior and discrete parameters. Live tests covered two amps, tremolo, delay, cabinet placement and graphic EQ, with save/reload verification. The follow-up simulator pass created a preset in slot 128D, added 2204 Mod, applied pad positions and a named Focus tone, saved through the UI, and verified all 12 values after loading another preset and returning. Automated continuous dragging could not be verified: the simulator automation delivered drag attempts as taps, including in ordinary scroll views. A real touch-device check remains for drag feel.
 
 ## Showcase songs and stem separation
 
-Treat importing prepared audio tracks and splitting a full mix as separate features. The existing mobile helpers expose only some transport state; they do not implement a song importer.
+Implemented local song upload and Showcase library/playback controls. The native iOS simulator selected files through Files, uploaded a stereo WAV and a two-track mono/stereo song, and received the device's confirmed-audio import result. The song list includes the new records after reconnecting. Native Play, Pause, resume and Stop were checked against live transport state. Cancelling during preparation left the song library unchanged and no staged archive on the device.
 
-Line 6's 1.4 stem separation sends audio to its cloud service and requires a signed-in Line 6 account in the official application. A mobile implementation needs an authorised service integration or a separately chosen separation service, as well as song packaging, upload progress, cancellation, and storage handling. Do not assume that an editor transport connection provides cloud stem separation. See [the 1.4 release notes](https://kb.line6.com/helix-stadium-1-4-release-notes) and [Creating Showcase Songs](https://manuals.line6.com/en/helix-stadium/live/song-view).
+The implementation includes track/song names, tempo and time signature, streaming archive preparation, identity-pinned file transfer, progress, cancellation before import, duplicate-name checks and explicit import confirmation. It accepts prepared 48 kHz, 16-bit PCM WAV files; it does not convert other audio formats, edit playlists/flags, or perform cloud stem separation. See [Showcase](SHOWCASE.md) for usage, format limits, credentials and protocol details.
+
+Testing caught and fixed a native typed-array crash, file permissions that prevented the device importer from reading the archive, and incomplete generic song-library queries. The final listing uses explicit Stadium-family queries and direct content-reference checks.
 
 ## Checks
 
-The mobile suite passes 89 tests, including an exact OSC packet fixture and save-state tests for acknowledgement failure, timeouts, invalid destinations, setlist references, preset switches, and delayed clean state. Type checking passes. Lint has no errors and two existing warnings. Hardware verification used spare presets, removed the temporary creations, and left `44C` and the User library restored. No native build or store submission was run.
+The mobile suite passes 98 tests, including an exact OSC packet fixture and save-state tests for acknowledgement failure, timeouts, invalid destinations, setlist references, preset switches, and delayed clean state. Type checking passes. Lint has no errors and two existing warnings. Hardware verification used spare presets, removed the temporary creations, and left `44C` and the User library restored. The local iOS Release simulator build passed, and the Android transfer module compiled. Android runtime upload testing and real-phone touch gestures remain unverified. No paid build or store submission was run.

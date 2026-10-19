@@ -280,3 +280,10 @@ and remaining work.
 VoiceOver and TalkBack automatically enable a list layout with named block actions and adjustable parameters. You can also choose **Accessibility → List layout** on the connection screen, in Settings, or in offline preview. The setting is saved locally. Numeric entry, named option selection, block movement, preset actions, and snapshot options are available without dragging or long-pressing.
 
 See [accessibility support and verification](../docs/ACCESSIBILITY.md) for tested behaviour and the remaining physical-device usability checks. Tuner Remote controls settings; it cannot announce live pitch readings.
+
+
+## Showcase songs
+
+Open **Library → Showcase** to upload prepared backing tracks, select songs and control playback on the Stadium. Uploads accept 1–8 WAV tracks at 48 kHz/16-bit PCM, up to 13 minutes each, with a microSD card inserted. Stem separation is a separate server feature. See [Showcase setup and verification](../docs/SHOWCASE.md), including the ignored local credential setup and the required configuration for a future release build.
+
+Use a local simulator build for device-connected UI testing when possible. `npx expo run:ios --configuration Release` builds with local Xcode and does not use EAS build credits. The simulator uses the Mac's network connection and can reach the Stadium over Wi-Fi.

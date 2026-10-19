@@ -79,7 +79,7 @@ const DeviceIcon = ({ color, size }: { color: string; size: number }) => (
 const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
   { key: 'flow', label: 'Flow', Icon: FlowIcon },
   { key: 'preset', label: 'Preset', Icon: PresetIcon },
-  { key: 'setlists', label: 'Setlists', Icon: SetlistsIcon },
+  { key: 'setlists', label: 'Library', Icon: SetlistsIcon },
   { key: 'matrix', label: 'Matrix', Icon: MatrixIcon },
   { key: 'settings', label: 'Settings', Icon: DeviceIcon },
 ];

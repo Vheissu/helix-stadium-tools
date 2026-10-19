@@ -62,6 +62,13 @@ The actual mobile protocol client ran on the Mac with a Node TCP adapter, connec
 
 Local backups, device readbacks and harnesses are under `.codex-artifacts/preset-focus/`. `application-stream.pcap` records the final test's forwarded application bytes with synthetic IP/TCP headers; it is not a raw network packet capture. It was decoded successfully with `python3 scripts/osc_pcap_dump.py --reassemble`, including the creation, parameter and save requests, with no device error responses.
 
-The mobile unit suite, type checking, lint and the generator's Python tests cover the code. Browser component checks exercised phone-width layouts, the creation form, slot search, busy and error states, the pad, microphone selection and accessible quarter-inch distance controls. The new screens still require a native-device UI pass after the user authorizes a rebuild. Clone controls share the tested parameter path; no new clone was trained or loaded during these tests.
+The mobile unit suite, type checking, lint and the generator's Python tests cover the code. Browser component checks exercised phone-width layouts, the creation form, slot search, busy and error states, the pad, microphone selection and accessible quarter-inch distance controls. A subsequent free local iOS simulator pass connected to the real Stadium over Wi-Fi. It created `HELYON Simulator QA` in 128D, added 2204 Mod, applied Focus pad positions and Solo Tone, saved through the UI, and verified all 12 parameters after switching away and back. Clone controls share the tested parameter path; no new clone was trained or loaded during these tests.
 
 A short responsiveness check with both event listeners active measured complete amp batches at 153, 465, 3,799 and 526 ms, including identity checks and final readback. The UI coalesces pending movements, but confirmation latency over Wi-Fi can vary. The native-device pass should assess how continuous dragging feels. This check made unsaved edits in `44C`, then reloaded its unchanged saved contents and confirmed a clean state.
+
+
+### Native simulator gesture limit
+
+The automation's drag and scroll attempts acted as taps in both Focus View and ordinary song lists. Native pad taps, named tones, preset creation and saving were verified. Continuous finger dragging and its feel still need a real touch-device check. Focus now uses page coordinates anchored at gesture start and applies the release position, coalescing repeated positions so a tap does not send the same batch twice.
+
+The simulator follow-up's final pad tap at normalized X 0.49 / Y 0.45 matched all 12 expected 2204 Mod values exactly. Its temporary preset was removed after testing. The User library matched the baseline, 44C's stored bytes were unchanged, and 44C was restored with no unsaved edits.

@@ -4,6 +4,8 @@ import { applyFocusChanges, type FocusTarget } from './focusSession';
 import type { FocusChange } from '../utils/focus';
 import blankPreset from '../data/blankPreset.json';
 import { parameterValueCommand } from './parameterCommand';
+import { confirmedSongId, type SongIngestion } from './songImport';
+import { resolveShowcaseSongs, requireShowcaseAcknowledgement, SONG_LIBRARY_ID, songSelectionCommand, songTransportCommand, type ShowcaseTransportAction } from './showcase';
 import { withDeadline } from '../utils/deadline';
 import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
@@ -131,6 +133,15 @@ export class HelixClient {
   private pendingResponses = new Map<string, (vals: Array<any>, responseAddr?: string) => void>();
   private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
   private creatingPreset = false;
+  private recentShowcaseImports = new Set<number>();
+  private eventSubscribers = new Set<(event: HelixEvent) => void>();
+
+  subscribeEvents(callback: (event: HelixEvent) => void) {
+    this.eventSubscribers.add(callback);
+    return () => { this.eventSubscribers.delete(callback); };
+  }
+
+  getDeviceHost() { return this.host; }
 
   constructor(
     host: string,
@@ -167,6 +178,8 @@ export class HelixClient {
     this.listening2002 = false;
     this.onDisconnect = null;
     this.pendingResponses.clear();
+    this.eventSubscribers.clear();
+    this.recentShowcaseImports.clear();
     this.lastEditBufferResponse = null;
     this.stream2001.close();
     this.stream2002.close();
@@ -259,8 +272,14 @@ export class HelixClient {
     this.resolvePending(event.addr, event.vals);
     const propertyBlob = event.addr === '/setPropertyValue' ? extractFirstBlob(event.vals) : null;
     const property = propertyBlob ? decodePropertyBlob(propertyBlob) : null;
+    if (property?.key === 'volatile.song.ingestion.result' && property.value && typeof property.value.details === 'string' && typeof property.value.res === 'number') {
+      const importedId = confirmedSongId(property.value as SongIngestion);
+      if (importedId) this.recentShowcaseImports.add(importedId);
+    }
     const libraryOperation = parseLibraryOperation(event.addr, event.vals);
-    this.onEvent?.({ ...event, vals: summarizeVals(event.vals ?? []), property, libraryOperation });
+    const decoded = { ...event, vals: summarizeVals(event.vals ?? []), property, libraryOperation };
+    this.onEvent?.(decoded);
+    for (const subscriber of this.eventSubscribers) subscriber(decoded);
   }
 
   private resolvePending(addr: string, vals: Array<any>) {
@@ -537,6 +556,52 @@ export class HelixClient {
     return [state, detail];
   }
 
+  async getShowcaseSongs() {
+    // Generic views omit some imported records. Query both Stadium-family views,
+    // retain generic records, and verify additional entries against their current references.
+    const [unfiltered, p35, p37] = await Promise.all([
+      this.getContainerContents(SONG_LIBRARY_ID, undefined, true), this.getContainerContents(SONG_LIBRARY_ID, 'P35', true),
+      this.getContainerContents(SONG_LIBRARY_ID, 'P37', true),
+    ]);
+    const filtered = [...unfiltered, ...p37.filter(item => !unfiltered.some(existing => existing.cid_ === item.cid_ && item.cid_ > 0))];
+    const songs = await resolveShowcaseSongs(p35, filtered, this.recentShowcaseImports, id => this.getContentRef(id, true));
+    for (const id of this.recentShowcaseImports) if (!songs.some(song => song.id === id)) this.recentShowcaseImports.delete(id);
+    return songs;
+  }
+
+  async getActiveSongId(): Promise<number | null> {
+    const property = await this.getProperty('server.active.song.id');
+    const id = property?.value;
+    return Number.isInteger(id) && id > 0 ? id : null;
+  }
+
+  async selectShowcaseSong(id: number) {
+    const command = songSelectionCommand(id);
+    if (await this.hasUnsavedPresetChanges() !== false) {
+      throw new Error('Save your preset changes before loading a song.');
+    }
+    const songs = await this.getShowcaseSongs();
+    if (!songs.some(song => song.id === id)) throw new Error('This song is no longer in the library. Refresh the song list.');
+    requireShowcaseAcknowledgement(await this.request(command.address, command.types, command.args, '/status', 5000));
+    for (let attempt = 0; attempt < 20; attempt++) {
+      if (await this.getActiveSongId() === id) return;
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
+    throw new Error('The selected song could not be confirmed. Refresh before trying again.');
+  }
+
+  async controlShowcase(action: ShowcaseTransportAction, expectedSongId: number) {
+    const command = songTransportCommand(action);
+    songSelectionCommand(expectedSongId);
+    // Song flags can change presets during playback. Pause and Stop must remain available.
+    if (action === 'play' && await this.hasUnsavedPresetChanges() !== false) {
+      throw new Error('Save your preset changes before starting a song.');
+    }
+    if (await this.getActiveSongId() !== expectedSongId) throw new Error('The selected song changed. Refresh the playback controls.');
+    requireShowcaseAcknowledgement(await this.request(command.address, command.types, command.args, '/status', 5000));
+    return this.getTransportState();
+  }
+
   async getCloneHierarchy() {
     const vals = await this.request('/GetCloneHierarchy', '', [], '/GetCloneHierarchy', 3000);
     return decodeCommandBlob(vals);
@@ -618,8 +683,9 @@ export class HelixClient {
     return await this.getContentRef(contentId);
   }
 
-  async getContentRef(contentId: number) {
+  async getContentRef(contentId: number, requireComplete = false) {
     const vals = await this.request('/GetContentRef', 'i', [contentId], '/GetContentRef', 2500);
+    if (!vals && requireComplete) throw new Error('The song details could not be read. Refresh before trying again.');
     return decodeCommandBlob(vals);
   }
 
@@ -635,7 +701,7 @@ export class HelixClient {
     return vals[1];
   }
 
-  async getContainerContents(containerId: number, sku?: string) {
+  async getContainerContents(containerId: number, sku?: string, requireComplete = false) {
     if (sku !== undefined && (typeof sku !== 'string' || !sku.trim())) {
       throw new Error('Device SKU must be a non-empty string.');
     }
@@ -646,6 +712,7 @@ export class HelixClient {
       '/GetContainerContents', 3000
     );
     const decoded = decodeCommandBlob(vals);
+    if (!Array.isArray(decoded) && requireComplete) throw new Error('The song library could not be read. Refresh before trying again.');
     return Array.isArray(decoded) ? decoded : [];
   }
 

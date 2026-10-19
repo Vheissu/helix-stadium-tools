@@ -45,6 +45,8 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
   callbacks.current = { read, apply, onBusy, onDrag };
   const lastPoint = useRef(point);
   const selectedPoint = useRef<number | null>(null);
+  const gestureOrigin = useRef({ x: 0, y: 0 });
+  const lastQueuedPoint = useRef<FocusPoint | null>(null);
 
   useEffect(() => {
     mounted.current = true;
@@ -88,7 +90,10 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
     })();
   };
   const move = (next: FocusPoint) => {
-    const normal = normalizeFocusPoint(next); lastPoint.current = normal; setPoint(normal); setPositioned(true);
+    const normal = normalizeFocusPoint(next);
+    lastPoint.current = normal; setPoint(normal); setPositioned(true);
+    if (lastQueuedPoint.current?.x === normal.x && lastQueuedPoint.current?.y === normal.y) return;
+    lastQueuedPoint.current = normal;
     if (definition) queue(focusChanges(definition, normal));
     else if (kind === 'cab') {
       queue(['Position', 'Distance'].map((key, index) => {
@@ -100,7 +105,8 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
     }
   };
   const touch = (event: GestureResponderEvent) => {
-    const { locationX, locationY } = event.nativeEvent;
+    const locationX = event.nativeEvent.pageX - gestureOrigin.current.x;
+    const locationY = event.nativeEvent.pageY - gestureOrigin.current.y;
     selectedPoint.current = null;
     move({ x: locationX / size.width * 2 - 1, y: 1 - locationY / size.height * 2 });
   };
@@ -115,12 +121,16 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
       <Text accessibilityLiveRegion="polite" style={styles.body}>{busy ? 'Adjusting…' : error ? 'Adjustment stopped' : 'Ready'}</Text></View>
     {!!error && <Text accessibilityRole="alert" style={styles.error}>{error} Close and reopen Focus View to read the current values.</Text>}
     {definition && <Text style={styles.body}>Choose a named tone or move between the points. Your tone stays unchanged until you adjust a control.</Text>}
-    {definition && !positioned && <Text style={styles.body}>Current tone · No Focus point applied</Text>}
+    {definition && <Text style={styles.body}>{!positioned ? 'Current tone · No Focus point applied' : selectedPoint.current !== null ? definition.names[selectedPoint.current] : 'Custom Focus position'}</Text>}
     {pad && !(accessibleLayout || screenReader) && <View style={[styles.pad, !!error && styles.disabled]}
       accessible={false} onLayout={({ nativeEvent }) => setSize(nativeEvent.layout)}
       onStartShouldSetResponder={() => !error} onMoveShouldSetResponder={() => !error}
-      onResponderGrant={event => { callbacks.current.onDrag(true); touch(event); }}
-      onResponderMove={touch} onResponderRelease={() => callbacks.current.onDrag(false)}
+      onResponderGrant={event => {
+        const { pageX, pageY, locationX, locationY } = event.nativeEvent;
+        gestureOrigin.current = { x: pageX - locationX, y: pageY - locationY };
+        callbacks.current.onDrag(true); touch(event);
+      }}
+      onResponderMove={touch} onResponderRelease={event => { touch(event); callbacks.current.onDrag(false); }}
       onResponderTerminate={() => callbacks.current.onDrag(false)} onResponderTerminationRequest={() => false}>
       <Svg pointerEvents="none" width="100%" height="100%" viewBox="0 0 300 240" preserveAspectRatio="none">
         {kind === 'cab' ? <><Circle cx={150} cy={120} r={88} fill="none" stroke={COLORS.stroke} strokeWidth={2} /><Circle cx={150} cy={120} r={34} fill="none" stroke={COLORS.stroke} /></>
@@ -156,6 +166,7 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
       step={kind === 'cab' && param.key === 'Distance' ? 0.25 : undefined} precision={kind === 'cab' && param.key === 'Distance' ? 2 : undefined}
       unit={kind === 'cab' && param.key === 'Distance' ? 'inches' : kind === 'cab' && param.key === 'Position' ? null : param.unit} displayMin={param.display_min} displayMax={param.display_max}
       onDragChange={dragging => callbacks.current.onDrag(dragging)} onChange={value => {
+        lastQueuedPoint.current = null;
         const next = param.key === 'Distance' && kind === 'cab' ? Math.round(Number(value) * 4) / 4 : value;
         queue([{ id: param.id!, key: param.key, type: param.type, value: next }]);
         if (kind === 'cab' && (param.key === 'Position' || param.key === 'Distance')) {
@@ -164,6 +175,7 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
         }
       }} />)}
     <Action disabled={busy || !!error} style={styles.restore} onPress={() => {
+      lastQueuedPoint.current = null;
       const params = definition?.params ?? controls;
       queue(params.filter(param => param.id !== null && original.current?.[param.id!] !== undefined).map(param => ({ id: param.id!, key: param.key, type: param.type, value: original.current![param.id!] })));
       selectedPoint.current = null;

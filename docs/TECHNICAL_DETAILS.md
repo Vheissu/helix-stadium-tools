@@ -592,3 +592,8 @@ sudo tcpdump -i en0 -s 0 -U -w - tcp port 2001 or tcp port 2002 | \
   state updates such as Matrix Mixer sync events.
 - Use the **macOS editor app** for any actions you want to observe.
 - If your `.pcap` file is ~24 bytes, no packets were captured; re‑run the capture and ensure the editor is connected.
+
+
+## Mobile Showcase import and playback
+
+Local prepared-audio upload and Showcase controls are implemented and verified against the device. [Showcase](SHOWCASE.md) documents the archive header, manifest, audio constraints, scoped file transfer, import-result correlation, library query variants and native simulator evidence. Cloud stem separation remains a separate service integration.

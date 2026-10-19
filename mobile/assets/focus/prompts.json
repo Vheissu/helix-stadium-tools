@@ -1,0 +1,18 @@
+{
+  "generator": "Built-in image_gen",
+  "purpose": "Original generic equipment backdrops. No desktop artwork or reference pixels were used.",
+  "assets": [
+    {
+      "file": "pedal-v1.png",
+      "prompt": "Use case: product-mockup\nAsset type: original locally bundled background image for a mobile guitar-effects XY tone control.\nPrimary request: create an original photographic close-up of a fictional, unbranded boutique guitar effect pedal. Dark graphite cast-metal enclosure, a brushed silver inset faceplate, three distinctive machined metal knobs and a single small footswitch. This is a new industrial design, not a reproduction of any actual pedal.\nComposition: square image, diagonal three-quarter overhead macro view. The pedal fills the middle 70% with dark negative space in all four corners and enough quiet dark area at the centre for a small interface label. Tactile material detail, slightly worn edges, shallow depth of field but recognizable controls. Moody studio side lighting, neutral silver highlights, almost black background. Restrained and photographic, no neon glow.\nText: none.\nConstraints: no brand names, logos, lettering, numerals, labels, interface elements, grid, icons, borders or watermark. Do not reproduce a BOSS CE-1, Line 6 pedal or any existing product. Keep the image dark enough for white labels overlaid later by native app code; do not include those labels."
+    },
+    {
+      "file": "amplifier-v1.png",
+      "prompt": "Use case: product-mockup\nAsset type: original locally bundled background for a mobile guitar-amplifier XY tone control.\nPrimary request: a dark cinematic close-up of an original fictional boutique guitar amplifier, with coarse charcoal woven grille fabric, a black metal control strip and four small brushed-metal knobs. No resemblance to any particular branded amp.\nComposition: square photograph, oblique close-up, grille occupying the centre and lower half, control strip crossing the upper-middle diagonally. Keep all four corners and the very centre quiet enough for native white tone labels, which will be added later. Rich tactile detail, charcoal black with neutral metallic highlights, soft studio lighting, understated and photographic.\nText: none.\nConstraints: no logos, lettering, numbers, labels, interface elements, grid, glowing tubes, watermark or brand-specific design. The image is an original generic amplifier illustration, not a photo of a named model."
+    },
+    {
+      "file": "cabinet-v1.png",
+      "prompt": "Use case: product-mockup\nAsset type: original locally bundled background for a mobile guitar cabinet microphone placement control.\nPrimary request: a photographic close-up of an original unbranded guitar speaker cabinet with a small studio dynamic microphone in front of its woven charcoal grille. A faint large circular speaker outline visible behind the weave. The microphone enters from the lower right, with its compact dark metal capsule near the middle-right. No specific existing microphone or cabinet design.\nComposition: square image, almost front-on with slight depth, speaker cone centred, dark quiet corners for native control labels added later. Black and charcoal materials, neutral silver highlights, restrained soft side lighting, high-quality tactile studio photograph.\nText: none.\nConstraints: no brand names, logos, words, numbers, interface, grid or watermark. Original generic equipment only."
+    }
+  ]
+}

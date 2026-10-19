@@ -1,6 +1,6 @@
 # Preset creation and Focus View
 
-Implemented and tested against a Helix Stadium on 19 October 2026. Native builds and store submissions remain on hold.
+Implemented and tested against a Helix Stadium on 19 October 2026. Paid builds and store submissions remain on hold; local Simulator builds are used for testing.
 
 ## Creating a preset
 
@@ -24,10 +24,10 @@ A timeout or partial write does not trigger another allocation or an automatic d
 
 A supported block's editor now has **Parameters** and **Focus View** tabs. Focus is also available in Offline preview.
 
-- 670 models have the factory's five named tone points, a touch pad, and adjustable X/Y controls. The current tone is preserved until the first adjustment. **Restore starting tone** restores the parameter values read when the view opened.
+- 670 models have the factory's five named tone points directly on a photographic touch surface. Tap a name to select its exact tone, or move over the surface to blend. X/Y controls are available under **Adjust precisely**. The current tone is preserved until the first adjustment. **Restore starting tone** restores the parameter values read when the view opened.
 - Interpolated cabinets have mic position and distance on the pad, plus mic selection, angle, filters and level controls. Distance uses quarter-inch steps and displays two decimal places.
 - EQ models without an X/Y definition show their band levels and parameter controls. Clone models expose their gain and tone controls. The band display represents the control values; it is not a measured response or live spectrum analyzer.
-- List layout provides named tone buttons and adjustable controls without requiring a drag. Values can also be entered directly. The pad is hidden when a screen reader is active.
+- List layout provides named tone buttons and adjustable controls without requiring a drag. Values can also be entered directly. The pad is hidden when a screen reader is active or the system text scale exceeds 130%. The Focus header and tabs reflow into the scrollable content at large text sizes.
 
 Parameter batches are checked against the active preset, snapshot and model before writing. Discrete controls are sent before continuous values, so settings such as tempo sync are applied before their associated time values. Updates are queued, and the latest requested values are retained while a batch is running. The app reads the values back before confirming a batch. A changed identity, missing parameter, rejected write or mismatched readback stops the adjustment.
 
@@ -72,3 +72,11 @@ A short responsiveness check with both event listeners active measured complete 
 The automation's drag and scroll attempts acted as taps in both Focus View and ordinary song lists. Native pad taps, named tones, preset creation and saving were verified. Continuous finger dragging and its feel still need a real touch-device check. Focus now uses page coordinates anchored at gesture start and applies the release position, coalescing repeated positions so a tap does not send the same batch twice.
 
 The simulator follow-up's final pad tap at normalized X 0.49 / Y 0.45 matched all 12 expected 2204 Mod values exactly. Its temporary preset was removed after testing. The User library matched the baseline, 44C's stored bytes were unchanged, and 44C was restored with no unsaved edits.
+
+### Original Focus artwork
+
+The mobile Focus surface uses three original, locally bundled equipment backgrounds: pedal, amplifier and cabinet. These are generic illustrations, not pictures of the named models. No desktop artwork was copied or supplied as image-generation reference material. The files and exact built-in image-generation prompts are in `mobile/assets/focus/`. Labels, selection rings, grid lines and category colours are rendered by native components.
+
+The compact Focus header keeps the block name, back action and bypass control together. Model replacement and removal remain in the Parameters tab. The current tone is preserved on entry, and the existing identity checks, interpolation, write queue and confirmed readback still apply.
+
+The redesign was checked in a free local iOS Simulator build connected to the real Stadium. Big Time Vibe, Wide and Lush, a custom pad position (X -0.50 / Y -0.49), and Restore starting tone each matched all 11 expected 70s Chorus parameters. Browser checks covered 320-point and wide layouts plus the amplifier and cabinet backgrounds. The largest iOS accessibility text size used the list controls with the heading and tabs inside the scrollable content. The temporary chorus was discarded; 44C retained its original saved bytes and ended clean. Screenshots and readbacks are under `.codex-artifacts/focus-redesign/`. Continuous finger dragging still needs the touch-device check described above.

@@ -4366,23 +4366,51 @@ function EditorApp() {
       presetId: activePresetContentId!, snapshotIndex: activeSnapshotIndex!, flow: rowToFlow(blockEditorSlot.path),
       blockId: activeBlock.blockId!, modelId: activeBlockMeta.id,
     } : null;
+    const focusListLayout = focusOpen && (linearControls || windowDims.fontScale > 1.3);
+    const powerButton = (
+      <Pressable
+        style={[
+          styles.editorPower,
+          {
+            borderColor: isEnabled ? appearance.selectedBorder : appearance.border,
+            backgroundColor: isEnabled ? appearance.selectedSurface : appearance.surface,
+          },
+        ]}
+        accessibilityRole="switch"
+        accessibilityLabel={`${displayName} enabled`}
+        accessibilityState={{ checked: isEnabled }}
+        onPress={() => {
+          void toggleBlockEnabled(blockEditorSlot);
+        }}
+        hitSlop={8}
+      >
+        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
+            stroke={appearance.power}
+            strokeWidth={2}
+            strokeLinecap="round"
+          />
+        </Svg>
+      </Pressable>
+    );
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
           {/* Editor header — back, title row, action icons */}
-          <View style={styles.editorHeader}>
+          <View style={[styles.editorHeader, focusOpen && styles.focusEditorHeader]}>
             <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy} style={styles.editorBack} onPress={() => { setFocusOpen(false); closeEditor(); }} hitSlop={12}>
               <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
                 <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </Pressable>
-            <View style={styles.editorTitleStack}>
-              <Text style={[styles.editorEyebrow, { color: appearance.meta }]}>
+            <View style={[styles.editorTitleStack, focusOpen && styles.focusEditorTitle]}>
+              {!focusListLayout && <><Text style={[styles.editorEyebrow, { color: appearance.meta }]}>
                 {kindLabel(activeBlock.kind).toUpperCase()}
               </Text>
-              <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>
+              <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading></>}
             </View>
-            <View style={styles.editorActions}>
+            {focusOpen ? powerButton : <View style={styles.editorActions}>
               <Pressable
                 accessibilityLabel={`Replace ${displayName}`}
                 disabled={focusBusy}
@@ -4410,11 +4438,11 @@ function EditorApp() {
                   <Path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke={COLORS.danger} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
                 </Svg>
               </Pressable>
-            </View>
+            </View>}
           </View>
 
           {/* Block plate — icon, model name, power state in one composed row */}
-          <View style={styles.editorPlate}>
+          {!focusOpen && <View style={styles.editorPlate}>
             <View
               style={[
                 styles.editorPlateIcon,
@@ -4448,32 +4476,8 @@ function EditorApp() {
                 {isEnabled ? 'Active' : 'Bypassed'}
               </Text>
             </View>
-            <Pressable
-              style={[
-                styles.editorPower,
-                {
-                  borderColor: isEnabled ? appearance.selectedBorder : appearance.border,
-                  backgroundColor: isEnabled ? appearance.selectedSurface : appearance.surface,
-                },
-              ]}
-              accessibilityRole="switch"
-              accessibilityLabel={`${displayName} enabled`}
-              accessibilityState={{ checked: isEnabled }}
-              onPress={() => {
-                void toggleBlockEnabled(blockEditorSlot);
-              }}
-              hitSlop={8}
-            >
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
-                  stroke={appearance.power}
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                />
-              </Svg>
-            </Pressable>
-          </View>
+            {powerButton}
+          </View>}
 
           {/* Hairline accent — colored when active, muted when bypassed */}
           <View style={styles.editorRule}>
@@ -4514,9 +4518,10 @@ function EditorApp() {
                 </View>
               </View>
             )}
-            {canFocus && <View style={styles.segmentedControl}>
-              <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy} style={styles.segment} onPress={() => setFocusOpen(false)}><Text style={styles.label}>Parameters</Text></Pressable>
-              <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy} style={styles.segment} onPress={() => setFocusOpen(true)}><Text style={styles.label}>Focus View</Text></Pressable>
+            {focusListLayout && <ScreenHeading focusKey={`focus-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>}
+            {canFocus && <View style={[styles.segmentedControl, focusListLayout && styles.focusTabsStack]}>
+              <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy} style={[styles.segment, focusListLayout && styles.focusStackSegment, !focusOpen && styles.segmentActive]} onPress={() => setFocusOpen(false)}><Text style={[styles.focusTabText, !focusOpen && styles.segmentTextActive]}>Parameters</Text></Pressable>
+              <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy} style={[styles.segment, focusListLayout && styles.focusStackSegment, focusOpen && styles.segmentActive]} onPress={() => setFocusOpen(true)}><Text style={[styles.focusTabText, focusOpen && styles.segmentTextActive]}>Focus View</Text></Pressable>
             </View>}
             {focusOpen && focusTarget ? <FocusView
               key={`${focusTarget.presetId}-${focusTarget.snapshotIndex}-${focusTarget.flow}-${focusTarget.blockId}-${focusTarget.modelId}`}
@@ -5770,6 +5775,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: 16, paddingTop: 6, paddingBottom: 10,
   },
+  focusEditorHeader: { flexWrap: 'nowrap' },
+  focusEditorTitle: { minWidth: 0, flexBasis: 0 },
   editorBack: { padding: 4 },
   editorTitleStack: { flex: 1, gap: 2 },
   editorEyebrow: {
@@ -5952,6 +5959,9 @@ const styles = StyleSheet.create({
   segmentActive: { backgroundColor: COLORS.panel },
   segmentText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.1 },
   segmentTextActive: { color: COLORS.text },
+  focusTabsStack: { flexDirection: 'column', marginTop: 12 },
+  focusStackSegment: { flex: 0, paddingHorizontal: 12 },
+  focusTabText: { color: COLORS.muted, fontSize: 16, fontWeight: '500' },
 
   /* ── Dropdown button ──────────────────────────────────── */
   dropdownButton: {

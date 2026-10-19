@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View, type GestureResponderEvent } from 'react-native';
-import Svg, { Circle, Line, Rect, Text as SvgText } from 'react-native-svg';
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from 'react-native';
+import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { announce, useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import { AccessibleParameter } from '../accessibility/AccessibleParameter';
 import { COLORS } from '../theme/colors';
 import { FOCUS_POINTS, focusChanges, getFocusDefinition, normalizeFocusPoint, type FocusChange, type FocusPoint, type FocusValue } from '../utils/focus';
+import { FocusSurface } from './FocusSurface';
 import { ParamSlider } from './ParamSlider';
 
 export interface FocusModelParam {
@@ -36,7 +37,9 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
   const [positioned, setPositioned] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [size, setSize] = useState({ width: 1, height: 1 });
+  const [precise, setPrecise] = useState(false);
+  const { height: windowHeight, fontScale } = useWindowDimensions();
+  const listLayout = accessibleLayout || screenReader || fontScale > 1.3;
   const original = useRef<Record<number, FocusValue> | null>(null);
   const pending = useRef(new Map<number, FocusChange>());
   const running = useRef(false);
@@ -45,7 +48,6 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
   callbacks.current = { read, apply, onBusy, onDrag };
   const lastPoint = useRef(point);
   const selectedPoint = useRef<number | null>(null);
-  const gestureOrigin = useRef({ x: 0, y: 0 });
   const lastQueuedPoint = useRef<FocusPoint | null>(null);
 
   useEffect(() => {
@@ -104,12 +106,6 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
       }));
     }
   };
-  const touch = (event: GestureResponderEvent) => {
-    const locationX = event.nativeEvent.pageX - gestureOrigin.current.x;
-    const locationY = event.nativeEvent.pageY - gestureOrigin.current.y;
-    selectedPoint.current = null;
-    move({ x: locationX / size.width * 2 - 1, y: 1 - locationY / size.height * 2 });
-  };
   const controls = model.params.filter(param => param.id !== null && !param.harness && values?.[param.id!] !== undefined &&
     (kind !== 'cab' || ['Mic', 'Position', 'Distance', 'Angle', 'LowCut', 'HighCut', 'Level', 'Pan', 'Delay'].includes(param.key)));
   const toneControls = controls.filter(param => param.unit === 'dB' && /gain|low|mid|high|bass|treble|level|\d+(hz|k)/i.test(param.key));
@@ -117,42 +113,32 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
 
   if (!values) return <View style={styles.section}>{error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : <><ActivityIndicator color={COLORS.text} /><Text style={styles.body}>Reading the current tone…</Text></>}</View>;
   return <View style={styles.section}>
-    <View style={styles.heading}><Text accessibilityRole="header" style={styles.title}>{kind === 'cab' ? 'Mic placement' : kind === 'eq' ? 'EQ bands' : kind === 'clone' ? 'Clone tone' : 'Focus View'}</Text>
-      <Text accessibilityLiveRegion="polite" style={styles.body}>{busy ? 'Adjusting…' : error ? 'Adjustment stopped' : 'Ready'}</Text></View>
+    {!pad && <Text accessibilityRole="header" style={styles.title}>{kind === 'eq' ? 'EQ bands' : 'Clone tone'}</Text>}
     {!!error && <Text accessibilityRole="alert" style={styles.error}>{error} Close and reopen Focus View to read the current values.</Text>}
-    {definition && <Text style={styles.body}>Choose a named tone or move between the points. Your tone stays unchanged until you adjust a control.</Text>}
-    {definition && <Text style={styles.body}>{!positioned ? 'Current tone · No Focus point applied' : selectedPoint.current !== null ? definition.names[selectedPoint.current] : 'Custom Focus position'}</Text>}
-    {pad && !(accessibleLayout || screenReader) && <View style={[styles.pad, !!error && styles.disabled]}
-      accessible={false} onLayout={({ nativeEvent }) => setSize(nativeEvent.layout)}
-      onStartShouldSetResponder={() => !error} onMoveShouldSetResponder={() => !error}
-      onResponderGrant={event => {
-        const { pageX, pageY, locationX, locationY } = event.nativeEvent;
-        gestureOrigin.current = { x: pageX - locationX, y: pageY - locationY };
-        callbacks.current.onDrag(true); touch(event);
-      }}
-      onResponderMove={touch} onResponderRelease={event => { touch(event); callbacks.current.onDrag(false); }}
-      onResponderTerminate={() => callbacks.current.onDrag(false)} onResponderTerminationRequest={() => false}>
-      <Svg pointerEvents="none" width="100%" height="100%" viewBox="0 0 300 240" preserveAspectRatio="none">
-        {kind === 'cab' ? <><Circle cx={150} cy={120} r={88} fill="none" stroke={COLORS.stroke} strokeWidth={2} /><Circle cx={150} cy={120} r={34} fill="none" stroke={COLORS.stroke} /></>
-          : <><Line x1={0} y1={0} x2={300} y2={240} stroke={COLORS.stroke} /><Line x1={0} y1={240} x2={300} y2={0} stroke={COLORS.stroke} /></>}
-        <Line x1={150} y1={0} x2={150} y2={240} stroke={COLORS.stroke} strokeDasharray="3 5" />
-        <Line x1={0} y1={120} x2={300} y2={120} stroke={COLORS.stroke} strokeDasharray="3 5" />
-      </Svg>
-      {positioned && <View pointerEvents="none" style={[styles.cursor, {
-        left: 1 + (point.x + 1) / 2 * Math.max(0, size.width - 18),
-        top: 1 + (1 - point.y) / 2 * Math.max(0, size.height - 18),
-      }]} />}
-    </View>}
-    {definition && <View style={styles.points}>{[2, 4, 0, 1, 3].map(index => <Action key={index}
+    {pad && !listLayout && <FocusSurface category={model.category} cabinet={kind === 'cab'} names={definition?.names}
+      point={point} positioned={positioned} selected={selectedPoint.current} disabled={!!error}
+      height={Math.max(360, Math.min(480, windowHeight - 420))}
+      onMove={next => { selectedPoint.current = null; move(next); }}
+      onSelect={index => { selectedPoint.current = index; move(FOCUS_POINTS[index]); announce(`${definition!.names[index]} selected`, false); }}
+      onDrag={dragging => callbacks.current.onDrag(dragging)} />}
+    {definition && listLayout && <View style={styles.points}>{[2, 4, 0, 1, 3].map(index => <Action key={index}
       disabled={!!error} accessibilityLabel={`${definition.names[index]}, ${index === 0 ? 'centre' : index === 1 ? 'bottom left' : index === 2 ? 'top left' : index === 3 ? 'bottom right' : 'top right'} Focus point`}
-      accessibilityState={{ selected: positioned && selectedPoint.current === index }} style={[styles.point, index === 0 && styles.centre, positioned && selectedPoint.current === index && styles.pointSelected]}
+      accessibilityState={{ selected: positioned && selectedPoint.current === index }} style={[styles.point, positioned && selectedPoint.current === index && styles.pointSelected]}
       onPress={() => { selectedPoint.current = index; move(FOCUS_POINTS[index]); announce(`${definition.names[index]} selected`, false); }}>
       <Text style={styles.pointLabel}>{definition.names[index]}</Text>
     </Action>)}</View>}
-    {kind === 'cab' && <Text style={styles.body}>Left to right: speaker centre to edge. Bottom to top: near to far.</Text>}
+    {pad && <View style={styles.caption}>
+      <Text accessibilityLiveRegion="polite" style={styles.status}>{error ? 'Adjustment stopped' : busy ? 'Adjusting…' : definition ? !positioned ? 'Current tone' : selectedPoint.current !== null ? definition.names[selectedPoint.current] : 'Custom blend' : 'Mic placement'}</Text>
+      {!listLayout && <Text style={styles.hint}>{kind === 'xy' ? 'Tap a tone · Drag to blend' : 'Drag to position'}</Text>}
+    </View>}
     {kind === 'xy' && !error && <>
-      <AccessibleParameter label="Focus X, left to right" type="i" min={-100} max={100} value={Math.round(point.x * 100)} onChange={value => { selectedPoint.current = null; move({ ...lastPoint.current, x: Number(value) / 100 }); }} />
-      <AccessibleParameter label="Focus Y, bottom to top" type="i" min={-100} max={100} value={Math.round(point.y * 100)} onChange={value => { selectedPoint.current = null; move({ ...lastPoint.current, y: Number(value) / 100 }); }} />
+      {!listLayout && <Action accessibilityState={{ expanded: precise }} onPress={() => setPrecise(!precise)} style={styles.preciseToggle}>
+        <Text style={styles.pointLabel}>Adjust precisely</Text><Text style={styles.pointLabel}>{precise ? '−' : '+'}</Text>
+      </Action>}
+      {(listLayout || precise) && <>
+        <AccessibleParameter label="Focus X, left to right" type="i" min={-100} max={100} value={Math.round(point.x * 100)} onChange={value => { selectedPoint.current = null; move({ ...lastPoint.current, x: Number(value) / 100 }); }} />
+        <AccessibleParameter label="Focus Y, bottom to top" type="i" min={-100} max={100} value={Math.round(point.y * 100)} onChange={value => { selectedPoint.current = null; move({ ...lastPoint.current, y: Number(value) / 100 }); }} />
+      </>}
     </>}
     {(kind === 'eq' || kind === 'clone') && toneControls.length > 0 && <View accessible accessibilityLabel={`Tone levels: ${toneControls.map(p => `${p.name} ${Number(values[p.id!]).toFixed(1)} dB`).join(', ')}`}>
       <Svg pointerEvents="none" width="100%" height={160} viewBox="0 0 300 160">
@@ -190,13 +176,11 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
   </View>;
 }
 const styles = StyleSheet.create({
-  section: { gap: 16 }, heading: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between' },
+  section: { gap: 14, paddingTop: 14 },
   title: { fontSize: 20, color: COLORS.text }, body: { fontSize: 16, lineHeight: 23, color: COLORS.muted }, error: { color: COLORS.danger, fontSize: 16 },
-  pad: { height: 240, borderWidth: 1, borderColor: COLORS.stroke, borderRadius: 8, overflow: 'hidden', backgroundColor: COLORS.panel },
-  disabled: { opacity: 0.5 }, points: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  cursor: { position: 'absolute', width: 16, height: 16, borderRadius: 8, backgroundColor: COLORS.signal, borderWidth: 2, borderColor: COLORS.text },
-  point: { minHeight: 48, flexBasis: '45%', flexGrow: 1, justifyContent: 'center', padding: 10, borderWidth: 1, borderColor: COLORS.stroke, borderRadius: 8 },
-  centre: { flexBasis: '100%' }, pointLabel: { color: COLORS.text, fontSize: 16 },
-  pointSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
+  caption: { gap: 4 }, status: { color: COLORS.text, fontSize: 16, fontWeight: '500' }, hint: { color: '#a7a8b0', fontSize: 15, lineHeight: 21 },
+  points: { gap: 8 }, point: { minHeight: 48, justifyContent: 'center', padding: 12, borderWidth: 1, borderColor: COLORS.stroke, borderRadius: 6 },
+  pointLabel: { color: COLORS.text, fontSize: 16 }, pointSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
+  preciseToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke, paddingVertical: 12 },
   restore: { minHeight: 48, alignSelf: 'flex-start', paddingVertical: 12 },
 });

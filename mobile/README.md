@@ -139,8 +139,8 @@ or account-wide access. These commands do not publish a public release.
 As of 19 October 2026:
 
 - **Android 1.0.0 (7):** published to [internal testing](https://play.google.com/apps/internaltest/4701590729869450330), including the redesigned Focus View, preset creation and Showcase song uploads. The closed Alpha track remains on build 5.
-- **iOS 1.0.0 (3):** uploaded and processed in App Store Connect, with status **Ready to Submit**. It has not been submitted for external review.
-- **iOS 1.0.0 (2):** now **Testing** in the existing external Testers group, with 26 testers. It remains that group's only build; its review and assignment were not replaced.
+- **iOS 1.0.0 (3):** submitted for external testing and now **Testing** in the existing Testers group of 26 people.
+- **iOS 1.0.0 (2):** remains **Testing** alongside build 3 in the same external group. It was not expired or removed.
 
 See [the release record](../docs/RELEASE_2026_10_19.md) for build IDs, verification and the Android dependency fix.
 

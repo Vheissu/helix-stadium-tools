@@ -4,3 +4,4 @@
 **/ipa-root.*/
 *.aab
 *.aab.sha256
+*.ipa

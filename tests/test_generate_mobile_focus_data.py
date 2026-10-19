@@ -15,7 +15,7 @@ class FocusDataTests(unittest.TestCase):
             source.joinpath(stem + '.json').write_text(json.dumps({
                 'modelName': 'Example',
                 'params': {parameter: {'id': 1, 'behavior': 'interpolate'}, 'Ignored': {'id': 2, 'behavior': 'exclude'}},
-                'regions': {region: {'name': region, parameter: value} for region, value in zip(REGIONS, values)},
+                'regions': {region: {'name': region, parameter: value} for region, value in zip(REGIONS, values, strict=True)},
             }))
             native = {key: {'id': native_id, 'params': {native_parameter or parameter: {'id': 1, 'type': 'f', 'min': 0, 'max': 1}}}}
             catalogue = {'amp': {'models': [{'id': 1, 'key': key, 'params': []}]}}

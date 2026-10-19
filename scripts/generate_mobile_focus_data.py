@@ -8,7 +8,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from scripts.generate_helix_model_json import DEFAULT_MODELDEFS, load_modeldefs  # noqa: E402
+from scripts.generate_helix_model_json import (  # noqa: E402
+    DEFAULT_MODELDEFS,
+    load_modeldefs,
+)
 
 REGIONS = ('origin', 'x_min_y_min', 'x_min_y_max', 'x_max_y_min', 'x_max_y_max')
 
@@ -45,7 +48,7 @@ def generate(source, definitions, catalogue):
                 if not all(isinstance(v, (int, float, bool)) and math.isfinite(v) for v in values):
                     skipped.append({'model': key, 'parameter': name, 'reason': 'Missing region value'})
                     continue
-                for region, value in zip(REGIONS, values):
+                for region, value in zip(REGIONS, values, strict=True):
                     if value < low - 0.0001 or value > high + 0.0001:
                         bounded.append({'model': key, 'parameter': name, 'region': region, 'value': value, 'min': low, 'max': high})
                 # Preserve source points; the client clamps the computed result to native limits.

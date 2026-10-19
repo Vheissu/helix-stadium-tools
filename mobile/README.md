@@ -148,7 +148,9 @@ As of 19 October 2026:
 See [the release record](../docs/RELEASE_2026_10_19.md) for build IDs, verification and the Android dependency fix.
 
 Store descriptions, privacy declarations, age ratings, free pricing, artwork
-and screenshots are saved. Apple remains an unsubmitted public-release draft.
+and screenshots are saved. iOS 1.0.0 (4) was submitted to App Review on 19 October
+2026 and is **Waiting for Review**. Manual release is retained, so approval will
+not publish the app automatically.
 Google has published the owner's closed-test listing and policy submission;
 production access is still unavailable.
 The hardware demonstration video is linked in Apple review notes. Complete the

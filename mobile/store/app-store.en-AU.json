@@ -7,13 +7,13 @@
   "description": "Unofficial mobile editor for the Helix Stadium.\n\nHELYON is a free, independent editor for Helix Stadium and Helix Stadium XL.\n\nBuild and adjust your signal chain from your phone or tablet. Add, replace, bypass, and reorder effects; edit amp and effect parameters; browse presets and setlists; name snapshots; and save changes to your device.\n\nConnect over your local Wi-Fi network or a compatible USB connection. USB editing requires Stadium firmware 1.4 or later, a data cable, and a phone or tablet that supports the Stadium USB network connection. On iPhone and iPad, the system chooses the route to your device address.\n\nTry the offline preview to explore block editing without hardware. The preview does not produce audio. Live editing requires a compatible Helix Stadium. Original Helix and HX devices are not supported.\n\nAn optional extended DSP budget lets you attempt edits beyond the normal estimated budget. It is off by default, requires confirmation, and resets when you disconnect. This does not increase the device\u2019s processing power and may cause rejected edits, audio dropouts, or instability. Back up your presets and use a spare preset.\n\nNo account, advertising, or analytics. Preset editing happens directly between your device and HELYON.\n\nHELYON is not affiliated with or endorsed by Line 6 or Yamaha. Helix, Helix Stadium, Line 6, and Yamaha are trademarks of their respective owners.",
   "supportURL": "https://ilikekillnerds.com/helyon/support/",
   "copyright": "2026 Dwayne Charrington",
-  "reviewNotes": "HELYON is a third-party companion for Helix Stadium / Stadium XL hardware. No login is required. The connection screen includes Help & About, Privacy policy, Support, and Try offline preview.\n\nHardware demonstration video (37 seconds): https://www.youtube.com/watch?v=pFTHOyUoGXY\nThe video demonstrates HELYON interacting with a Helix Stadium XL over USB-C. No YouTube sign-in is required.\n\nOffline preview supports adding/removing blocks, parameter changes, and bypass, without network access or audio. It does not simulate the preset library, setlists, device save, routing, snapshots, or hardware DSP behaviour. Live editing requires compatible hardware. Coordinate hardware access with App Review if requested.\n\nFor live editing, enable Remote Access on the Stadium, connect both devices to the same Wi-Fi network, enter the Stadium device name or IP address, allow Local Network permission, and tap Connect. USB requires firmware 1.4+ and compatible phone/tablet USB networking.\n\nThe Advanced settings section includes Extended DSP budget. It is visible to every user, off by default, and requires a warning confirmation. It raises the app estimate from 66 to 82 per path for the connection, keeps the normal meter warning, and resets on disconnect. This does not modify device firmware or remove device validation.",
+  "reviewNotes": "HELYON is a third-party companion for Helix Stadium / Stadium XL hardware. No login is required. The connection screen includes Help & About, Privacy policy, Support, and Try offline preview.\n\nHardware demonstration video (37 seconds): https://www.youtube.com/watch?v=pFTHOyUoGXY\nThe video demonstrates HELYON interacting with a Helix Stadium XL over USB-C. No YouTube sign-in is required.\n\nOffline preview supports adding/removing blocks, parameter changes, and bypass, without network access or audio. It does not simulate the preset library, setlists, device save, routing, snapshots, or hardware DSP behaviour. Live editing requires compatible hardware. Coordinate hardware access with App Review if requested.\n\nFor live editing, enable Remote Access on the Stadium, connect both devices to the same Wi-Fi network, and allow Local Network permission when prompted. HELYON searches for Stadiums automatically. Choose the device in the list, then tap Connect. Search again and manual device name/IP address entry are available if discovery finds no devices. USB requires firmware 1.4+ and compatible iPhone/iPad USB networking.\n\nBuild 4 includes visible Save controls in the signal flow and block editor. Wait for Saved to Stadium before switching presets. DSP figures are labelled catalogue estimates, not live CPU readings.\n\nThe Advanced settings section includes Extended DSP budget. It is visible to every user, off by default, and requires a warning confirmation. It raises the app estimate from 66 to 82 per path for the connection, keeps the normal meter warning, and resets on disconnect. This does not modify device firmware or remove device validation.",
   "releaseGates": {
     "hardwareEvidence": "Owner-provided USB-C demonstration video is linked in the review notes: https://www.youtube.com/watch?v=pFTHOyUoGXY. Playback verified while signed out. The video is currently rotated sideways. Still record tested physical iPhone/iPad and Android device, OS, firmware and cable/adapter combinations, including Wi-Fi, reconnect, block edits, snapshots and save/reload results. Galaxy S25 Ultra / Android 16 USB connection failed on build 4; direct USB replacement requires physical validation.",
     "nameClearance": "The name is reserved in App Store Connect; trademark clearance has not been established.",
     "account": "Apple Music category, 4+ rating, free price, 175-region availability, review contact and published Data Not Collected privacy answers are configured. Existing non-trader status should be reassessed if the distribution circumstances change. Mac and Vision Pro availability are disabled pending testing.",
     "screenshots": "Actual offline-preview screenshots are uploaded for iPhone 6.3-inch and iPad 13-inch. Google Play has actual Android connection and preview screenshots, a 512px icon and a 1024x500 feature graphic. Replace or supplement preview screenshots with validated hardware editing before public release.",
-    "signing": "Both EAS production builds succeeded. iOS 1.0.0 (2) is available in TestFlight and selected in the public-release draft. Android 1.0.0 (5) is available to internal testers and submitted for closed Alpha review. EAS submissions succeeded using saved credentials.",
+    "signing": "iOS 1.0.0 (4) is in TestFlight and was submitted to App Review on 19 October 2026. App Store Connect shows Waiting for Review. Manual release is retained. Android 1.0.0 (8) is published internally and submitted to closed Alpha review.",
     "artwork": "The owner confirmed permission to use Helix Stadium icons provided the app remains free. Retain that permission for review and reassess before adding paid access.",
     "googlePlay": "Internal build 5 published on 18 October 2026. Closed Alpha build 5 is submitted and shown under Changes in review. Production access still requires at least 12 opted-in testers for 14 continuous days; that requirement has not been verified as satisfied.",
     "dependencies": "25 transitive npm advisories remain (17 high, 8 moderate, no critical). Expo Doctor reports TCP socket New Architecture metadata as untested. Review upstream patches and complete physical-device checks before public submission."
@@ -23,17 +23,21 @@
   "appStoreConnectId": "6824149078",
   "expoProjectId": "407fa171-3b6b-4c1a-a828-cf2976ca1591",
   "builds": {
-    "ios": "https://expo.dev/accounts/beggars/projects/helyon/builds/e5212b73-5535-40e0-8c9d-017d4bfe651c",
+    "ios": "https://expo.dev/accounts/beggars/projects/helyon/builds/625a2261-bedf-4166-ba92-d12453de517d",
     "android": "https://expo.dev/accounts/beggars/projects/helyon/builds/608e5a27-7cbd-49c6-be79-66b1aa9dbd23"
   },
   "releaseStatus": {
     "verifiedAt": "2026-10-18",
-    "publicRelease": "No production release; Android closed testing is active and Apple public-release draft remains unsubmitted",
+    "publicRelease": "iOS 1.0.0 (4) submitted to App Review; Waiting for Review with manual release. No public production release.",
     "ios": {
       "version": "1.0.0",
-      "buildNumber": "2",
-      "status": "Available to the owner in TestFlight internal testing; build 2 selected in the public-release draft",
-      "testFlightURL": "https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/50cba159-51de-41aa-b799-4d427cd95de2"
+      "buildNumber": "4",
+      "status": "Waiting for Review for App Store distribution; external TestFlight build 4 remains Testing alongside builds 2 and 3",
+      "testFlightURL": "https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/83263e00-f419-46f5-a1f4-ea3e92fc9d05",
+      "verifiedAt": "2026-10-19",
+      "releaseType": "MANUAL",
+      "appReviewSubmissionId": "cdc46fa6-f503-4830-8816-0f0e8c8786ff",
+      "appReviewURL": "https://appstoreconnect.apple.com/apps/6824149078/distribution/reviewsubmissions/details/cdc46fa6-f503-4830-8816-0f0e8c8786ff"
     },
     "android": {
       "version": "1.0.0",
@@ -64,7 +68,7 @@
     "branding": "Original square HELYON icon, transparent native splash emblem, Android adaptive foreground and monochrome themed icon; no artificial launch delay."
   },
   "submissions": {
-    "ios": "https://expo.dev/accounts/beggars/projects/helyon/submissions/6351b0d3-91ec-45bc-872a-85523bdc71d7",
+    "ios": "https://expo.dev/accounts/beggars/projects/helyon/submissions/63ceff45-8121-406b-8b3a-4ff31a429cff",
     "android": "https://expo.dev/accounts/beggars/projects/helyon/submissions/61014bc8-637b-4960-9ded-3e03f52f348e"
   },
   "hardwareDemoURL": "https://www.youtube.com/watch?v=pFTHOyUoGXY"

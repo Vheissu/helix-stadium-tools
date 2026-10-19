@@ -141,9 +141,9 @@ or account-wide access. These commands do not publish a public release.
 
 As of 19 October 2026:
 
-- **Android 1.0.0 (7):** published to [internal testing](https://play.google.com/apps/internaltest/4701590729869450330), including the redesigned Focus View, preset creation and Showcase song uploads. The closed Alpha track remains on build 5.
-- **iOS 1.0.0 (3):** submitted for external testing and now **Testing** in the existing Testers group of 26 people.
-- **iOS 1.0.0 (2):** remains **Testing** alongside build 3 in the same external group. It was not expired or removed.
+- **Android 1.0.0 (8):** published to [internal testing](https://play.google.com/apps/internaltest/4701590729869450330), adding automatic Stadium discovery, clearer Save controls, labelled DSP estimates and a more compact editor. Build 8 is submitted to the closed Alpha track and **in review**; build 5 remains published there until approval.
+- **iOS 1.0.0 (4):** **Testing** in the existing external Testers group of 39 people, with the same discovery and editor changes. Automatic tester notifications are enabled.
+- **iOS 1.0.0 (2) and (3):** remain **Testing** alongside build 4 in the same external group.
 
 See [the release record](../docs/RELEASE_2026_10_19.md) for build IDs, verification and the Android dependency fix.
 

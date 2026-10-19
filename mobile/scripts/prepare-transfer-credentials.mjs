@@ -1,11 +1,13 @@
 /* global process, Buffer, URL, console */
-import { chmodSync, writeFileSync, mkdirSync } from 'node:fs';
+import { chmodSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { createHash, createPrivateKey } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const target = fileURLToPath(new URL('../src/generated/transfer-credentials.json', import.meta.url));
 let keys = [];
-if (process.env.STADIUM_SFTP_CREDENTIALS_BASE64) {
+if (process.env.STADIUM_SFTP_CREDENTIALS_FILE) {
+  keys = JSON.parse(readFileSync(process.env.STADIUM_SFTP_CREDENTIALS_FILE, 'utf8')).keys;
+} else if (process.env.STADIUM_SFTP_CREDENTIALS_BASE64) {
   keys = JSON.parse(Buffer.from(process.env.STADIUM_SFTP_CREDENTIALS_BASE64, 'base64').toString()).keys;
 } else if (process.platform === 'darwin') {
   try {
@@ -30,7 +32,7 @@ if (process.env.STADIUM_SFTP_CREDENTIALS_BASE64) {
 }
 if (!Array.isArray(keys) || keys.length > 2) throw new Error('Invalid Stadium transfer credentials');
 for (const key of keys) createPrivateKey(key);
-if (process.argv.includes('--required') && keys.length === 0) throw new Error('Song uploads require STADIUM_SFTP_CREDENTIALS_BASE64 or a supported local Stadium editor.');
+if (process.argv.includes('--required') && keys.length === 0) throw new Error('Song uploads require STADIUM_SFTP_CREDENTIALS_FILE, STADIUM_SFTP_CREDENTIALS_BASE64 or a supported local Stadium editor.');
 mkdirSync(new URL('../src/generated/', import.meta.url), { recursive: true });
 writeFileSync(target, JSON.stringify({ keys }) + '\n', { mode: 0o600 });
 chmodSync(target, 0o600);

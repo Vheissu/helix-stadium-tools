@@ -35,7 +35,7 @@ The song list reconciles the generic container query with explicit `P35` and `P3
 
 Run `npm install` in `mobile`. Its postinstall step prepares ignored transfer credentials from a supported, installed official macOS Stadium editor, or from `STADIUM_SFTP_CREDENTIALS_BASE64` containing base64-encoded JSON with a `keys` array. The extraction checks the exact editor binary hash before using its data. No private keys are committed, printed or fetched from the device.
 
-A machine without either credential source can develop the rest of the app; the upload button is unavailable. The EAS post-install hook requires credentials so a future release cannot silently ship with uploads disabled. Configure that secret only when a release build is actually requested. A local simulator build uses Xcode and does not consume EAS build credits.
+A machine without either credential source can develop the rest of the app; the upload button is unavailable. The EAS post-install hook requires credentials so a release cannot silently ship with uploads disabled. EAS production builds use the project-scoped secret file `STADIUM_SFTP_CREDENTIALS_FILE`, containing the same JSON with a `keys` array. The generated local credential file is excluded from the source archive and recreated on the builder. A local simulator build uses Xcode and does not consume EAS build credits.
 
 The native dependencies are libssh2/OpenSSL on iOS and JSch/Bouncy Castle on Android. Their notices are included in the app's open-source notices. The iOS file-writing boundary passes plain `Uint8Array` values: passing the Buffer subclass to Expo FileSystem's native typed-array conversion caused a simulator crash during testing.
 

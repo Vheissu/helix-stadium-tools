@@ -10,6 +10,7 @@
 /mobile/build-artifacts
 /mobile/dist
 /mobile/store
+/mobile/src/generated/transfer-credentials.json
 **/.DS_Store
 **/.env*
 **/credentials.json

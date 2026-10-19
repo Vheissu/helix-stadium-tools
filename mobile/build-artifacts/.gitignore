@@ -2,3 +2,5 @@
 **/*.app/
 **/*.xcarchive/
 **/ipa-root.*/
+*.aab
+*.aab.sha256

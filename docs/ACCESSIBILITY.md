@@ -46,7 +46,7 @@ npm run lint
 
 The parameter tests cover normalised values and display units, negative ranges, integer and option steps, booleans, bounds, decimal-comma entry, invalid input, and repeated adjustments.
 
-For the 20 October 2026 feedback changes, the mobile suite has 112 passing tests. Type checking and production JavaScript exports for iOS and Android pass; lint has no errors and two existing hook dependency warnings. These changes have not been uploaded to testers or substituted for the submitted App Store build.
+For the 20 October 2026 feedback changes, the mobile suite has 112 passing tests. Type checking and production JavaScript exports for iOS and Android pass; lint has no errors and two existing hook dependency warnings. These changes were delivered to testers as iOS build 5 and Android build 9; see the [release record](RELEASE_2026_10_20.md) for track status. The existing public App Store submission was left unchanged.
 
 On the iPhone 17 Pro simulator (iOS 26.4), the native adjustable action changed Drive from 3.3 to 3.4. Pick-up/drop moved 2204 Mod from position 1 to 3 and retained 3.4; Cancel move retained its position. Changing Drive during a pending pick-up cancelled the move and removed the drop targets. The largest text category exposed a wrapping problem in the preview header, which now stacks its title and Done button. Full traversal at that size remains unverified. Evidence is under `.codex-artifacts/accessibility-feedback/`. These checks use the native accessibility actions and manually selected list layout, rather than a physical VoiceOver session or connected device writes.
 

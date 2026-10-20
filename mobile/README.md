@@ -244,6 +244,7 @@ and import corrections verified against the public desktop release.
 - Recall presets by content id or container position
 - Rename presets, setlists, and snapshots
 - Copy snapshots and set snapshot colors
+- Open snapshots directly from the main editor, or use Perform's Stomp A / Stomp B / Snapshots selector. Snapshots open by default with names, colours and the active selection. Stomp banks show preset assignments and custom labels; trigger those assignments using the Stadium's footswitches. Switching views in HELYON does not change the hardware's footswitch mode.
 - Save the active preset back to its source slot
 - Create a named blank preset in an empty User slot, with bank-label search and occupied-slot protection
 - View and edit signal-flow blocks across 1A, 1B, 2A, and 2B
@@ -280,7 +281,7 @@ and remaining work.
 
 ## Accessibility
 
-VoiceOver and TalkBack automatically enable a list layout with named block actions and adjustable parameters. You can also choose **Accessibility → List layout** on the connection screen, in Settings, or in offline preview. The setting is saved locally. Numeric entry, named option selection, block movement, preset actions, and snapshot options are available without dragging or long-pressing.
+VoiceOver and TalkBack automatically enable a list layout with named block actions and adjustable parameters. You can also choose **Accessibility → List layout** on the connection screen, in Settings, or in offline preview. The setting is saved locally. With VoiceOver, focus a parameter value and swipe up or down to adjust it. To move a block, double-tap **Pick up**, explore the destinations in that path, then double-tap **Drop here**. **Cancel move** leaves the block in place. Numeric entry, named option selection, preset actions, and snapshot options are available without dragging or long-pressing. Offline preview lets you practise the same block controls without hardware.
 
 See [accessibility support and verification](../docs/ACCESSIBILITY.md) for tested behaviour and the remaining physical-device usability checks. Tuner Remote controls settings; it cannot announce live pitch readings.
 

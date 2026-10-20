@@ -9,6 +9,7 @@ import { AccessibleText as Text, ScreenHeading } from './src/accessibility/Acces
 import { Action as Pressable, AccessibilitySettings } from './src/accessibility/controls';
 import { AccessibilityProvider, useAccessibilityPreferences, announce } from './src/accessibility/AccessibilityPreferences';
 import { AccessibleParameter } from './src/accessibility/AccessibleParameter';
+import { reorderPathBlocks } from './src/utils/blockMove';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -52,7 +53,9 @@ import {
   type ConnectionTransport,
 } from './src/utils/connectionTransport';
 import { formatTempoBpm, formatPresetPosition } from './src/utils/format';
-import { coerceHelixBoolean, findFlows } from './src/utils/helixState';
+import { coerceHelixBoolean, extractSnapshots, findFirstKey, findFlows } from './src/utils/helixState';
+import { extractStompBanks, type PerformView, type StompBanks } from './src/utils/perform';
+import { PerformControls } from './src/components/PerformControls';
 import {
   MATRIX_LAYERS,
   MATRIX_MIXER_PROPERTY,
@@ -348,6 +351,8 @@ function EditorApp() {
   const [snapshotCount, setSnapshotCount] = useState(0);
   const [activeSnapshotIndex, setActiveSnapshotIndex] = useState<number | null>(null);
   const [snapshots, setSnapshots] = useState<SnapshotRef[]>([]);
+  const [performView, setPerformView] = useState<PerformView>('snapshots');
+  const [stompBanks, setStompBanks] = useState<StompBanks | null>(null);
   const [_activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
   const [_libraryLoading, setLibraryLoading] = useState(false);
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
@@ -720,7 +725,8 @@ function EditorApp() {
         addr === '/setblockenable' ||
         addr === '/clrb' ||
         addr === '/clrblock' ||
-        addr === '/setsnapshotname'
+        addr === '/setsnapshotname' ||
+        addr === '/activatesnapshot'
       ) {
         scheduleSync(700, { full: false, silent: true });
       }
@@ -792,6 +798,10 @@ function EditorApp() {
       if (value !== null) {
         setActivePresetContentId(value);
       }
+      setStompBanks(null);
+      setSnapshots([]);
+      setSnapshotCount(0);
+      setActiveSnapshotIndex(null);
       scheduleSync(900, { full: true, silent: true });
       return;
     }
@@ -809,6 +819,10 @@ function EditorApp() {
       const stringNumber = Number(tunerOffsetMatch[1]);
       const value = coerceNumber(property?.value);
       setTunerStringOffsets((prev) => ({ ...prev, [stringNumber]: value }));
+      return;
+    }
+    if (key.startsWith('preset.floorboard.stomp.')) {
+      scheduleSync(350, { full: true, silent: true });
       return;
     }
     if (addr === '/setpropertyvalue' && key.startsWith('preset.')) {
@@ -875,6 +889,8 @@ function EditorApp() {
     setSnapshotCount(0);
     setActiveSnapshotIndex(null);
     setSnapshots([]);
+    setStompBanks(null);
+    setPerformView('snapshots');
     setActiveSnapshotTargets(null);
     setLibraryLoading(false);
     presetSaveRevision.current++;
@@ -1720,7 +1736,13 @@ function EditorApp() {
     }
   };
 
+  const openPerform = (view: PerformView) => {
+    setPerformView(view);
+    setScreen('performance');
+  };
+
   const handleSnapshotActivate = (index: number) => {
+    if (presetSaving || presetCreating) return;
     const client = requireClient();
     if (!client) return;
     client.activateSnapshot(index);
@@ -2000,20 +2022,16 @@ function EditorApp() {
   };
 
   const moveBlockInPath = async (pIdx: PathIndex, fromDisplay: number, toDisplay: number) => {
-    if (fromDisplay === toDisplay) return;
+    if (fromDisplay === toDisplay) return false;
     const client = requireClient();
-    if (!client) return;
+    if (!client) return false;
 
     const flow = rowToFlow(pIdx);
     const currentBlocks = grid[pIdx];
 
-    // Splice the visible portion to get new order
-    const lastPop = currentBlocks.reduce((last: number, b: BlockData | null, i: number) => (b ? i : last), -1);
-    const visCount = Math.min(lastPop + 2, 12);
-    if (!Number.isInteger(fromDisplay) || !Number.isInteger(toDisplay) || fromDisplay < 0 || toDisplay < 0 || fromDisplay >= visCount || toDisplay >= visCount || !currentBlocks[fromDisplay]) return;
-    const visible = currentBlocks.slice(0, visCount);
-    const [moved] = visible.splice(fromDisplay, 1);
-    visible.splice(toDisplay, 0, moved);
+    const visible = reorderPathBlocks(currentBlocks, fromDisplay, toDisplay);
+    if (!visible) return false;
+    const moved = currentBlocks[fromDisplay];
 
     const minIdx = Math.min(fromDisplay, toDisplay);
     const maxIdx = Math.max(fromDisplay, toDisplay);
@@ -2021,7 +2039,7 @@ function EditorApp() {
     // Update local grid immediately (optimistic)
     setGrid((prev) => {
       const next = cloneGrid(prev);
-      for (let i = 0; i < visCount; i++) {
+      for (let i = 0; i < visible.length; i++) {
         const blk = visible[i];
         next[pIdx][i] = blk
           ? { ...blk, blockId: effectBlockIndex(pIdx, i), params: blk.params ? { ...blk.params } : {} }
@@ -2075,9 +2093,12 @@ function EditorApp() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setStatus(`Could not finish moving the block: ${msg}`);
+      scheduleSync(800);
+      return false;
     }
 
     scheduleSync(800);
+    return true;
   };
 
   const setIOModel = async (model: IOModel) => {
@@ -2309,6 +2330,18 @@ function EditorApp() {
       if (!flows.length) {
         if (!silent) setStatus('Sync failed: empty flow data');
         return false;
+      }
+      setStompBanks(extractStompBanks(state, (id, paramId) => {
+        const model = modelLookup.get(id);
+        const parameter = model?.params.find(param => param.id === paramId);
+        return parameter ? `${model!.name} · ${parameter.name}` : model?.name;
+      }));
+      const liveSnapshots = extractSnapshots(state).filter(item => Number.isInteger(item.index) && item.index < 8) as SnapshotRef[];
+      setSnapshots(liveSnapshots);
+      setSnapshotCount(liveSnapshots.length ? Math.max(...liveSnapshots.map(item => item.index)) + 1 : 0);
+      const controlGraph = findFirstKey(state, 'cg__') as { asnp?: unknown } | null;
+      if (typeof controlGraph?.asnp === 'number' && Number.isInteger(controlGraph.asnp) && controlGraph.asnp >= 0 && controlGraph.asnp < 8) {
+        setActiveSnapshotIndex(controlGraph.asnp);
       }
       const nextGrid: SignalFlowGrid = Array.from({ length: 4 }, () =>
         Array.from({ length: 12 }, () => null)
@@ -2682,6 +2715,7 @@ function EditorApp() {
 
         {/* Detail list — drag-to-reorder, power toggles, names */}
         <DraggableEffectList
+          key={`${activePresetStorageId}:${primary}`}
           blocks={decorateDisplayBlocks(grid[primary])}
           pathIndex={primary}
           selectedSlot={selectedSlot}
@@ -2721,6 +2755,7 @@ function EditorApp() {
               tileSize={isTablet ? 60 : 48}
             />}
             <DraggableEffectList
+              key={`${activePresetStorageId}:${split}`}
               blocks={decorateDisplayBlocks(grid[split])}
               pathIndex={split}
               selectedSlot={selectedSlot}
@@ -2769,11 +2804,11 @@ function EditorApp() {
                 : 'No active preset'}
             </Text>
           </View>
-          <Pressable accessibilityLabel="Refresh presets and snapshots" style={styles.compactIconBtn} onPress={refreshPresetContext} hitSlop={8}>
-            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+          <Pressable accessibilityLabel="Refresh presets and snapshots" style={[styles.compactIconBtn, linearControls && { width: 'auto', height: 'auto', padding: 8 }]} onPress={refreshPresetContext} hitSlop={8}>
+            {linearControls ? <Text style={styles.pathActionText}>Refresh</Text> : <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            </Svg>}
           </Pressable>
         </View>
 
@@ -2880,11 +2915,11 @@ function EditorApp() {
                   )}
                   {hasActions && (
                     <Pressable accessibilityLabel={`Options for ${item.name ?? 'preset'}`}
-                      style={styles.presetMoreButton}
+                      style={[styles.presetMoreButton, linearControls && { width: 'auto', height: 'auto', padding: 8 }]}
                       hitSlop={8}
                       onPress={() => setPresetActionTarget(item)}
                     >
-                      <Text style={styles.presetMoreText}>{'\u22EF'}</Text>
+                      <Text style={linearControls ? styles.pathActionText : styles.presetMoreText}>{linearControls ? 'Options' : '\u22EF'}</Text>
                     </Pressable>
                   )}
                 </View>
@@ -3183,11 +3218,11 @@ function EditorApp() {
                   </View>
                   {active && (
                     <Pressable accessibilityLabel={`Options for ${item.name ?? 'preset'}`}
-                      style={styles.presetMoreButton}
+                      style={[styles.presetMoreButton, linearControls && { width: 'auto', height: 'auto', padding: 8 }]}
                       hitSlop={8}
                       onPress={() => setPresetActionTarget(item)}
                     >
-                      <Text style={styles.presetMoreText}>{'\u22EF'}</Text>
+                      <Text style={linearControls ? styles.pathActionText : styles.presetMoreText}>{linearControls ? 'Options' : '\u22EF'}</Text>
                     </Pressable>
                   )}
                 </View>
@@ -3572,8 +3607,8 @@ function EditorApp() {
 
           <View style={styles.performanceHeader}>
             <View style={styles.performanceHeaderCopy}>
-              <ScreenHeading focusKey="performance" style={styles.performanceEyebrow}>Performance Mode</ScreenHeading>
-              <Text style={styles.performanceHost}>{host}</Text>
+              <ScreenHeading focusKey="performance" style={styles.performanceEyebrow}>Perform</ScreenHeading>
+              {windowDims.fontScale <= 1.5 && <Text style={styles.performanceHost}>{host}</Text>}
             </View>
             <Pressable style={styles.performanceExitButton} onPress={() => setScreen('main')}>
               <Text style={styles.performanceExitText}>Exit</Text>
@@ -3587,16 +3622,16 @@ function EditorApp() {
           >
             <View style={styles.performanceHero}>
               <View style={styles.performanceHeroAccent} />
-              <Text style={styles.performanceHeroKicker}>
+              {windowDims.fontScale <= 1.5 && <Text style={styles.performanceHeroKicker}>
                 {activeSetlist?.name ?? selectedContainerName}
-              </Text>
-              <Text style={styles.performanceHeroTitle} numberOfLines={2}>
+              </Text>}
+              <Text style={[styles.performanceHeroTitle, windowDims.fontScale > 1.5 && { fontSize: 20, lineHeight: 26 }]} numberOfLines={2}>
                 {activePresetName}
               </Text>
-              <Text style={styles.performanceHeroMeta} numberOfLines={2}>
+              {windowDims.fontScale <= 1.5 && <Text style={styles.performanceHeroMeta} numberOfLines={2}>
                 {typeof activePresetRef?.posi === 'number' ? `Slot ${formatPresetPosition(activePresetRef.posi)}` : 'Live Preset'} {'\u00b7'} {snapshotSummary}
-              </Text>
-              <View style={styles.performanceHeroStatus}>
+              </Text>}
+              {windowDims.fontScale <= 1.5 && <View style={styles.performanceHeroStatus}>
                 <View
                   style={[
                     styles.performanceHeroStatusDot,
@@ -3606,8 +3641,14 @@ function EditorApp() {
                 <Text style={styles.performanceHeroStatusText}>
                   {notesVisible ? 'Preset notes visible on device' : 'Preset notes hidden on device'}
                 </Text>
-              </View>
+              </View>}
             </View>
+
+            <PerformControls view={performView} onViewChange={setPerformView} banks={stompBanks}
+              snapshots={snapshots} snapshotCount={snapshotCount} activeSnapshotIndex={activeSnapshotIndex}
+              onSnapshot={handleSnapshotActivate} snapshotDisabled={presetSaving || presetCreating}
+              onRefresh={() => void handleFullSync()}
+              colorFor={value => SNAPSHOT_COLOR_OPTIONS.find(option => option.value === value)?.swatch ?? COLORS.stroke} />
 
             <View style={styles.performanceSection}>
               <View style={styles.performanceSectionHeader}>
@@ -3821,58 +3862,6 @@ function EditorApp() {
                   </View>
                 </View>
               ))}
-            </View>
-
-            <View style={styles.performanceSection}>
-              <View style={styles.performanceSectionHeader}>
-                <Text style={styles.performanceSectionTitle}>Snapshots</Text>
-                <Text style={styles.performanceSectionMeta}>
-                  {snapshotCount > 0 ? `${snapshotCount} ready` : 'None loaded'}
-                </Text>
-              </View>
-              {snapshotCount > 0 ? (
-                <View style={styles.performanceSnapshotGrid}>
-                  {Array.from({ length: snapshotCount }, (_item, index) => {
-                    const snapshot = snapshots.find((item) => item.index === index) ?? null;
-                    const active = activeSnapshotIndex === index;
-                    const swatch =
-                      SNAPSHOT_COLOR_OPTIONS.find((option) => option.value === snapshot?.colr)?.swatch ?? COLORS.stroke;
-                    return (
-                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Activate snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`}
-                        key={`performance-snapshot-${index}`}
-                        style={[
-                          styles.performanceSnapshotCard,
-                          active && styles.performanceSnapshotCardActive,
-                        ]}
-                        onPress={() => handleSnapshotActivate(index)}
-                      >
-                        <View style={[styles.performanceSnapshotSwatch, { backgroundColor: swatch }]} />
-                        <Text
-                          style={[
-                            styles.performanceSnapshotIndex,
-                            active && styles.performanceSnapshotIndexActive,
-                          ]}
-                        >
-                          {index + 1}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.performanceSnapshotName,
-                            active && styles.performanceSnapshotNameActive,
-                          ]}
-                          numberOfLines={2}
-                        >
-                          {snapshot?.name ?? `Snapshot ${index + 1}`}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              ) : (
-                <Text style={styles.performanceEmptyText}>
-                  Sync the preset tab to load snapshot buttons for this preset.
-                </Text>
-              )}
             </View>
 
             <View style={styles.performanceSection}>
@@ -4589,6 +4578,8 @@ function EditorApp() {
 
   useEffect(() => {
     if (!screenReader || /^(Synced|Syncing|Ready|Disconnected)$/.test(status)) return;
+    // The block list announces completed moves while restoring focus.
+    if (/^Moved .+ to path [12][AB], position \d+$/.test(status)) return;
     const timer = setTimeout(() => announce(status), 350);
     return () => clearTimeout(timer);
   }, [status, screenReader]);
@@ -4630,21 +4621,21 @@ function EditorApp() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         {/* ── App bar ──────────────────────────────────────────── */}
-        <View style={styles.appBar}>
+        <View style={[styles.appBar, linearControls && { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
           <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{linearControls ? ({ flow: 'Signal flow', preset: 'Presets', setlists: 'Library', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab]) : 'HELYON'}</ScreenHeading>
-          <View style={styles.appBarActions}>
+          <View style={[styles.appBarActions, linearControls && { flexWrap: 'wrap' }]}>
             <Pressable
-              style={styles.appBarIconBtn}
+              style={[styles.appBarIconBtn, linearControls && { width: 'auto', height: 'auto', padding: 8 }]}
               disabled={showcaseBusy} onPress={() => void handleFullSync()}
               hitSlop={8}
               accessibilityLabel="Sync"
             >
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              {linearControls ? <Text style={styles.pathActionText}>Sync</Text> : <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                 <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
+              </Svg>}
             </Pressable>
-            <Pressable disabled={showcaseBusy} style={styles.performanceLaunchButton} onPress={() => setScreen('performance')}>
+            <Pressable disabled={showcaseBusy} style={styles.performanceLaunchButton} onPress={() => openPerform(performView)}>
               <Text style={styles.performanceLaunchText}>Perform</Text>
             </Pressable>
             <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={styles.statusPill} onPress={() => handleTabChange('settings')}>
@@ -4656,6 +4647,14 @@ function EditorApp() {
 
         {linearControls && <Text style={styles.accessibilityStatus}>{libraryActivityLabel ?? status}</Text>}
         {renderPresetSaveBar()}
+        <Pressable disabled={showcaseBusy} accessibilityLabel={`Open snapshots${activeSnapshot?.name ? ', active snapshot ' + activeSnapshot.name : ''}`}
+          onPress={() => openPerform('snapshots')} style={styles.snapshotShortcut}>
+          <Text style={styles.snapshotShortcutTitle}>Snapshots</Text>
+          <Text style={styles.snapshotShortcutValue} numberOfLines={linearControls ? undefined : 1}>
+            {activeSnapshotIndex !== null ? `${activeSnapshotIndex + 1}. ${activeSnapshot?.name ?? 'Snapshot ' + (activeSnapshotIndex + 1)}` : 'View snapshots'}
+          </Text>
+          <Text style={styles.snapshotShortcutTitle}>{'›'}</Text>
+        </Pressable>
 
         {/* ── Tab content ──────────────────────────────────────── */}
         {activeTab === 'flow' && renderFlowTab()}
@@ -5230,6 +5229,8 @@ const styles = StyleSheet.create({
   },
   performanceHeaderCopy: {
     gap: 4,
+    flex: 1,
+    minWidth: 0,
   },
   performanceEyebrow: {
     color: COLORS.muted,
@@ -5257,6 +5258,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.1,
   },
+  snapshotShortcut: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10,
+    paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.stroke },
+  snapshotShortcutTitle: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
+  snapshotShortcutValue: { flex: 1, color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 15 },
   performanceContent: {
     paddingHorizontal: 16,
     paddingBottom: 28,
@@ -5537,52 +5542,6 @@ const styles = StyleSheet.create({
   },
   tunerOffsetAdjustButtonTextAccent: {
     color: COLORS.accent,
-  },
-  performanceSnapshotGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  performanceSnapshotCard: {
-    width: '23%',
-    minHeight: 112,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
-    alignItems: 'center',
-    gap: 8,
-  },
-  performanceSnapshotCardActive: {
-    borderColor: COLORS.accentMid,
-    backgroundColor: COLORS.accentDim,
-  },
-  performanceSnapshotSwatch: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-  },
-  performanceSnapshotIndex: {
-    color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
-    fontSize: 18,
-  },
-  performanceSnapshotIndexActive: {
-    color: COLORS.accent,
-  },
-  performanceSnapshotName: {
-    color: COLORS.muted,
-    fontFamily: FONT_BODY,
-    fontSize: 11,
-    lineHeight: 15,
-    textAlign: 'center',
-  },
-  performanceSnapshotNameActive: {
-    color: COLORS.text,
   },
   performancePresetGrid: {
     flexDirection: 'row',

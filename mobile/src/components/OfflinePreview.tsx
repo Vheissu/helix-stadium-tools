@@ -2,7 +2,7 @@ import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { announce, useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import { Action as Pressable, AccessibilitySettings } from '../accessibility/controls';
 import { useMemo, useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Switch, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import catalogue from '../data/blockTypes.json';
 import { ParamSlider } from './ParamSlider';
@@ -12,6 +12,9 @@ import { FocusView, focusKind } from './FocusView';
 import { getFocusDefinition } from '../utils/focus';
 import { COLORS, FONTS } from '../theme/colors';
 import { fitsDspBudget, getDspHeadroom, STANDARD_DSP_CAP } from '../utils/dspBudget';
+import { reorderPathBlocks } from '../utils/blockMove';
+import { AccessibleEffectList } from './signalFlow/AccessibleEffectList';
+import type { BlockIndex } from '../types/signalFlow';
 
 type PreviewParam = {
   id: number | null;
@@ -31,6 +34,8 @@ const makeBlock = (model: PreviewModel): PreviewBlock => ({
 // Deliberately has no device client or transport imports: preview edits are local.
 export function OfflinePreview({ onClose }: { onClose: () => void }) {
   const { accessibleLayout, screenReader } = useAccessibilityPreferences();
+  const linearControls = accessibleLayout || screenReader;
+  const { fontScale } = useWindowDimensions();
   const [blocks, setBlocks] = useState<PreviewBlock[]>(() =>
     ['amp', 'cab', 'delay'].map((category) => makeBlock(groups[category].models[0]))
   );
@@ -51,23 +56,31 @@ export function OfflinePreview({ onClose }: { onClose: () => void }) {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safe}>
-        <View style={styles.header}>
-          <Text accessibilityRole="header" style={styles.title}>Offline preview</Text>
+        <View style={[styles.header, fontScale > 1.3 && { flexDirection: 'column', flexWrap: 'nowrap', alignItems: 'stretch' }]}>
+          <Text accessibilityRole="header" style={[styles.title, fontScale > 1.3 && { width: '100%', flexShrink: 0 }]}>Offline preview</Text>
           <Pressable accessibilityRole="button" style={styles.button} onPress={onClose}><Text style={styles.action}>Done</Text></Pressable>
         </View>
         <ScrollView keyboardShouldPersistTaps="handled" scrollEnabled={scrollEnabled} contentContainerStyle={styles.content}>
           <Text style={styles.body}>Try adding blocks, changing parameters, and bypassing effects. No device is connected, no audio is produced, and these edits are discarded when you leave.</Text>
           <Text style={styles.label}>Sample path · DSP estimate {usage.toFixed(1)}/{STANDARD_DSP_CAP}</Text>
-          <View style={[styles.blocks, (accessibleLayout || screenReader) && { flexDirection: 'column', flexWrap: 'nowrap', alignItems: 'stretch' }]}>
+          {linearControls ? <AccessibleEffectList blocks={blocks.map(block => ({ id: block.model.id, name: block.model.name, kind: block.model.category, params: block.values, enabled: block.enabled }))}
+            pathIndex={0} selectedSlot={{ path: 0, block: selected as BlockIndex }}
+            onSelectSlot={slot => setSelected(slot.block)} kindLabel={kind => kind}
+            onToggleEnabled={slot => setBlocks(previous => previous.map((block, index) => index === slot.block ? { ...block, enabled: !block.enabled } : block))}
+            onReorder={async (_path, from, to) => {
+              const next = reorderPathBlocks(blocks, from, to);
+              if (!next) return false;
+              setBlocks(next as PreviewBlock[]); setSelected(to); return true;
+            }} /> : <View style={styles.blocks}>
             {blocks.map((block, index) => (
               <Pressable key={index} accessibilityLabel={`Edit ${block.model.name}, position ${index + 1}, ${block.enabled ? 'enabled' : 'bypassed'}`} accessibilityRole="button" accessibilityState={{ selected: index === selected }} style={[styles.block, index === selected && styles.selected]} onPress={() => setSelected(index)}>
                 <Text style={styles.label}>{block.model.name}</Text>
                 <Text style={styles.body}>{block.enabled ? 'On' : 'Bypassed'}</Text>
               </Pressable>
             ))}
-          </View>
+          </View>}
           <Pressable accessibilityRole="button" disabled={blocks.length >= 12} style={styles.button} onPress={() => setPickerOpen(true)}><Text style={styles.action}>{blocks.length >= 12 ? 'Path full' : 'Add block'}</Text></Pressable>
-          {active && <View style={styles.header}>
+          {active && !linearControls && <View style={styles.header}>
             <Pressable accessibilityLabel={`Move ${active.model.name} earlier`} disabled={selected === 0} onPress={() => {
               if (selected === 0) return;
               const next = [...blocks]; [next[selected - 1], next[selected]] = [next[selected], next[selected - 1]];
@@ -131,7 +144,7 @@ export function OfflinePreview({ onClose }: { onClose: () => void }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bg },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, gap: 8 },
+  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, gap: 8 },
   content: { padding: 20, gap: 20 },
   title: { fontFamily: FONTS.bodySemi, fontSize: 22, color: COLORS.text, flexShrink: 1 },
   label: { fontFamily: FONTS.bodySemi, color: COLORS.text, fontSize: 16 },

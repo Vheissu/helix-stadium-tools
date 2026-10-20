@@ -50,7 +50,7 @@ export function AccessibleParameter(props: AccessibleParameterProps) {
     </View> : <>
       <View accessible accessibilityRole="adjustable" accessibilityLabel={label}
         accessibilityValue={{ min, max, now: Number(value), text: display }}
-        accessibilityHint="Adjust the value, or use the decrease and increase buttons."
+        accessibilityHint={Platform.OS === 'ios' ? 'Swipe up or down to adjust. You can also use the decrease and increase buttons.' : 'Use adjustment actions, or the decrease and increase buttons.'}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={({ nativeEvent }) => {
           if (nativeEvent.actionName === 'increment') change(1);

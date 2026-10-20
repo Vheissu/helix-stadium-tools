@@ -25,6 +25,10 @@
   ],
   "help": [
     {
+      "title": "Perform and snapshots",
+      "body": "Tap Snapshots below the preset name to open the current preset's snapshots. Tap a snapshot to select it; the active one is marked Active. Perform also has a Stomp A / Stomp B / Snapshots selector near the top. Stomp A and B show switch assignments and custom labels. Use the Stadium's footswitches to trigger those assignments. Choosing a view in HELYON does not change the hardware's footswitch mode."
+    },
+    {
       "title": "Connect by Wi-Fi",
       "body": "Put your phone or tablet and Helix Stadium on the same Wi-Fi network. HELYON searches for available Stadiums on the connection screen. Choose your device, then tap Connect. If it is not listed, tap Search again or enter its device name or IP address. On the Stadium, open Menu > Wi-Fi; once connected, its IP address appears at the bottom of the right sidebar. Set Global Settings > Preferences > Remote Access to Allow. If prompted, allow Local Network access. Guest networks can prevent devices from finding each other."
     },
@@ -42,7 +46,7 @@
     },
     {
       "title": "VoiceOver, TalkBack, and list layout",
-      "body": "With VoiceOver or TalkBack enabled, Automatic uses a list layout for the signal chain. You can also choose List layout under Accessibility on the connection screen, in Settings, or in offline preview. Each block has Edit, Enable or Bypass, Options, and move controls. Adjust parameters with screen-reader actions, increase and decrease buttons, or Enter value. Use Choose value for named options. Your device\u2019s text-size setting is supported. Tuner Remote controls the Stadium tuner settings; live pitch and note readings are not available in the app."
+      "body": "With VoiceOver or TalkBack enabled, Automatic uses a list layout for the signal chain. You can also choose List layout under Accessibility on the connection screen, in Settings, or in offline preview. Each block has text controls for Edit, Enable or Bypass, Options, and movement. With VoiceOver, double-tap Pick up, explore the positions in that path, then double-tap Drop here. Cancel move leaves the block in place. Focus a parameter value and swipe up or down to adjust it with VoiceOver. TalkBack uses adjustment actions. Increase and decrease buttons and Enter value are also available. Use Choose value for named options. Your device\u2019s text-size setting is supported. Tuner Remote controls the Stadium tuner settings; live pitch and note readings are not available in the app."
     },
     {
       "title": "Before editing",

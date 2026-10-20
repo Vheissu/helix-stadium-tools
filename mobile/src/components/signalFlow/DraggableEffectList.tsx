@@ -1,5 +1,5 @@
 import { useAccessibilityPreferences } from '../../accessibility/AccessibilityPreferences';
-import { Action } from '../../accessibility/controls';
+import { AccessibleEffectList } from './AccessibleEffectList';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Animated,
@@ -22,13 +22,13 @@ const FONT_BODY = FONTS.body;
 const FONT_BODY_SEMI = FONTS.bodySemi;
 const FONT_MONO = FONTS.mono;
 
-interface DraggableEffectListProps {
+export interface DraggableEffectListProps {
   blocks: (BlockData | null)[];
   pathIndex: PathIndex;
   selectedSlot: BlockSlot | null;
   onSelectSlot: (slot: BlockSlot) => void;
   onOpenSlotMenu: (slot: BlockSlot) => void;
-  onReorder: (pathIndex: PathIndex, fromSlot: number, toSlot: number) => void;
+  onReorder: (pathIndex: PathIndex, fromSlot: number, toSlot: number) => Promise<boolean>;
   onToggleEnabled: (slot: BlockSlot) => void;
   kindLabel: (kind: string) => string;
   /** Called when drag starts — parent should disable ScrollView */
@@ -626,41 +626,4 @@ export function DraggableEffectList(props: DraggableEffectListProps) {
   const { accessibleLayout, screenReader } = useAccessibilityPreferences();
   if (!accessibleLayout && !screenReader) return <VisualEffectList {...props} />;
   return <AccessibleEffectList {...props} />;
-}
-function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelectSlot, onOpenSlotMenu, onReorder, onToggleEnabled }: DraggableEffectListProps) {
-  const [moving, setMoving] = useState(false);
-  const path = ['1A', '1B', '2A', '2B'][pathIndex];
-  const last = blocks.reduce((result, block, i) => block ? i : result, -1);
-  const count = Math.min(last + 2, 12);
-  const move = async (from: number, to: number) => {
-    if (moving || to < 0 || to >= count) return;
-    setMoving(true);
-    try { await onReorder(pathIndex, from, to); }
-    finally { setMoving(false); }
-  };
-  return <View>
-    <Text accessibilityRole="header" style={{ color: COLORS.text, fontSize: 20, paddingVertical: 12 }}>Path {path}</Text>
-    {blocks.slice(0, count).map((block, index) => {
-      const slot = { path: pathIndex, block: index as BlockIndex };
-      const selected = selectedSlot?.path === pathIndex && selectedSlot.block === index;
-      const name = block?.name ?? 'Empty slot';
-      const location = `path ${path}, position ${index + 1}`;
-      if (!block) return <Action key={index} onPress={() => onSelectSlot(slot)} accessibilityLabel={`Add block, ${location}`}>
-        <Text style={{ color: COLORS.text, fontSize: 16 }}>Add block at position {index + 1}</Text>
-      </Action>;
-      return <View key={index} style={{ paddingVertical: 12, gap: 8, borderBottomWidth: 1, borderColor: COLORS.stroke }}>
-        <Action onPress={() => onSelectSlot(slot)} accessibilityLabel={`Edit ${name}, ${location}`}
-          accessibilityValue={{ text: block.enabled === false ? 'Bypassed' : 'Enabled' }} accessibilityState={{ selected }}>
-          <Text style={{ color: COLORS.text, fontSize: 18 }}>{index + 1}. {name}</Text>
-          <Text style={{ color: COLORS.text, fontSize: 16 }}>{block.enabled === false ? 'Bypassed' : 'Enabled'}</Text>
-        </Action>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16 }}>
-          <Action accessibilityLabel={`${block.enabled === false ? 'Enable' : 'Bypass'} ${name}, ${location}`} onPress={() => onToggleEnabled(slot)}><Text style={{ color: COLORS.text, fontSize: 16 }}>{block.enabled === false ? 'Enable' : 'Bypass'}</Text></Action>
-          <Action accessibilityLabel={`Options for ${name}, ${location}`} onPress={() => onOpenSlotMenu(slot)}><Text style={{ color: COLORS.text, fontSize: 16 }}>Options</Text></Action>
-          <Action accessibilityLabel={`Move ${name} earlier, ${location}`} disabled={moving || index === 0} onPress={() => { void move(index, index - 1); }}><Text style={{ color: COLORS.text, fontSize: 16 }}>Move earlier</Text></Action>
-          <Action accessibilityLabel={`Move ${name} later, ${location}`} disabled={moving || index === count - 1} onPress={() => { void move(index, index + 1); }}><Text style={{ color: COLORS.text, fontSize: 16 }}>Move later</Text></Action>
-        </View>
-      </View>;
-    })}
-  </View>;
 }

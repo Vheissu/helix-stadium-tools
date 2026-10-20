@@ -1,12 +1,17 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Pressable as NativePressable, type PressableProps, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { COLORS } from '../theme/colors';
 import { rememberAction, useAccessibilityPreferences } from './AccessibilityPreferences';
 
 /** Keep labels supplied by each screen; provide consistent role and disabled semantics. */
-export function Action({ style, accessibilityState, accessibilityRole = 'button', onPress, onLongPress, ...props }: PressableProps) {
+export function Action({ ref, style, accessibilityState, accessibilityRole = 'button', onPress, onLongPress, ...props }: PressableProps & { ref?: React.Ref<ViewInstance> }) {
   const target = useRef<ViewInstance>(null);
-  return <NativePressable ref={target} accessibilityRole={accessibilityRole} {...props}
+  const setTarget = useCallback((view: ViewInstance | null) => {
+    target.current = view;
+    if (typeof ref === 'function') ref(view);
+    else if (ref) ref.current = view;
+  }, [ref]);
+  return <NativePressable ref={setTarget} accessibilityRole={accessibilityRole} {...props}
     onLongPress={onLongPress ? (event) => { rememberAction(target.current); onLongPress(event); } : undefined}
     onPress={(event) => { rememberAction(target.current); onPress?.(event); }}
     accessibilityState={{ disabled: !!props.disabled, ...accessibilityState }}
@@ -20,7 +25,7 @@ export function AccessibilitySettings() {
   const { preference, setPreference } = useAccessibilityPreferences();
   return <View style={styles.settings}>
     <Text accessibilityRole="header" style={styles.title}>Accessibility</Text>
-    <Text style={styles.body}>List layout gives each block its own controls, with buttons to move blocks and adjust values. Automatic uses this layout with VoiceOver or TalkBack.</Text>
+    <Text style={styles.body}>List layout gives each block text controls. Pick up a block, then choose where to drop it. Parameters support screen-reader adjustment, increase and decrease buttons, and exact entry. Automatic uses this layout with VoiceOver or TalkBack.</Text>
     {(['automatic', 'list', 'visual'] as const).map((value) => <Action key={value}
       accessibilityRole="radio" accessibilityState={{ checked: preference === value }}
       onPress={() => setPreference(value)} style={[styles.choice, preference === value && styles.selected]}>

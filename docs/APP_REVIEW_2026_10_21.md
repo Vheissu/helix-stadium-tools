@@ -52,4 +52,33 @@ you require so we can address that item directly.
 - Local iOS Simulator Release build passed. Native linking contains StadiumDiscovery
   and excludes StadiumTransfer/libssh2.
 
-Build, upload and store preparation results will be recorded after completion.
+## Build and package checks
+
+- iOS 1.0.0 (6), source commit `af0b6eb`.
+- [EAS build](https://expo.dev/accounts/beggars/projects/helyon/builds/8079489f-d0ab-40e2-a186-5b217e760b39) finished successfully.
+- [Upload](https://expo.dev/accounts/beggars/projects/helyon/submissions/d66cd0c0-2371-47bb-bb57-08321925709b) completed successfully; Apple finished processing build 6.
+- All 24 PNGs inside the signed IPA exactly match the replacement assets.
+- Package checks found no StadiumTransfer module name, private-key markers,
+  removed upload action or sampled copied-help text. The source catalogue also
+  has no remaining parameter descriptions.
+- The native Showcase component passed selection, play and pause checks using
+  simulated song data. This was not a new hardware playback test.
+- Current offline-preview screenshots were captured at 1206 × 2622 for iPhone
+  and 2064 × 2752 for iPad. The old selected screenshots were replaced with
+  one current iPhone image and two current iPad images.
+- The revised App Review notes were saved and verified after navigating away.
+- Factory Focus tone selection was checked in the iPad offline preview.
+
+The previous hardware demonstration link was removed from the review notes
+because its UI predates the artwork replacement. No new demonstration video
+was recorded. Build 6 was selected and resubmitted at **4:42 pm Brisbane time on 21 October
+2026**. App Store Connect confirms **Waiting for Review** under submission
+`cdc46fa6-f503-4830-8816-0f0e8c8786ff`. The existing automatic-release setting
+was retained. This is a review submission, not an approval or public release.
+
+The explanation was supplied in App Review Information. No separate message
+was sent through Reply to App Review. Existing external TestFlight builds were
+not removed or expired; build 6 was not assigned to the external group.
+
+One production iOS build was created and completed. No Android build was
+requested or started. Changes are committed locally; no Git push was made.

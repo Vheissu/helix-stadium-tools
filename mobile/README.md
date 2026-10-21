@@ -139,7 +139,12 @@ Play Console upload, and the Google Play service account are configured. The
 service account can release to HELYON's testing tracks and has no production
 or account-wide access. These commands do not publish a public release.
 
-As of 19 October 2026:
+As of 21 October 2026, iOS build **6** has been resubmitted and is **Waiting
+for Review** in App Store Connect. It replaces the extracted icons and copied help text and
+removes song upload. Factory Focus tone pads remain. See the
+[review follow-up](../docs/APP_REVIEW_2026_10_21.md).
+
+Earlier release status, as of 19 October 2026:
 
 - **Android 1.0.0 (8):** published to [internal testing](https://play.google.com/apps/internaltest/4701590729869450330), adding automatic Stadium discovery, clearer Save controls, labelled DSP estimates and a more compact editor. Build 8 is submitted to the closed Alpha track and **in review**; build 5 remains published there until approval.
 - **iOS 1.0.0 (4):** **Testing** in the existing external Testers group of 39 people, with the same discovery and editor changes. Automatic tester notifications are enabled.
@@ -154,7 +159,7 @@ documentary evidence for the third-party content or hardware-control authorisati
 The release option currently shows automatic release after approval.
 Google has published the owner's closed-test listing and policy submission;
 production access is still unavailable.
-The hardware demonstration video is linked in Apple review notes. Complete the
+The earlier hardware demonstration predates the replacement artwork. Complete the
 physical-device test matrix before public release. Google also requires a closed test
 with at least 12 opted-in testers for 14 continuous days before this account
 can apply for production access; internal testing does not meet that requirement.

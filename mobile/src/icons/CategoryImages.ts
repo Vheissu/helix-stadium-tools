@@ -1,8 +1,8 @@
 import { ImageSourcePropType } from 'react-native';
 
 /**
- * Native block category icons extracted from the Helix Stadium desktop app.
- * 72x72 RGBA PNGs, perfect for block cards and the type picker.
+ * Original HELYON category and connection artwork (192x192 RGBA).
+ * Apply tintColor at the call site; prompts are in assets/icons/prompts.json.
  */
 export const BLOCK_IMAGES: Record<string, ImageSourcePropType> = {
   amp: require('../../assets/icons/blocks/amp.png'),

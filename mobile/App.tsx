@@ -4467,7 +4467,7 @@ function EditorApp() {
               ]}
             >
               {blockImage ? (
-                <Image source={blockImage} style={{ width: 26, height: 26 }} resizeMode="contain" />
+                <Image source={blockImage} style={{ width: 26, height: 26, tintColor: appearance.power }} resizeMode="contain" />
               ) : (
                 <BlockIcon type={activeBlock.kind} size={26} color={appearance.power} />
               )}
@@ -5074,7 +5074,7 @@ function EditorApp() {
                       <View style={[styles.typeAccent, { backgroundColor: color }]} />
                       <View style={[styles.typeIconWrap, { backgroundColor: `${color}18` }]}>
                         {BLOCK_IMAGES[typeKey] ? (
-                          <Image source={BLOCK_IMAGES[typeKey]} style={styles.typeIcon} resizeMode="contain" />
+                          <Image source={BLOCK_IMAGES[typeKey]} style={[styles.typeIcon, { tintColor: color }]} resizeMode="contain" />
                         ) : (
                           <BlockIcon type={typeKey} size={22} color={color} />
                         )}

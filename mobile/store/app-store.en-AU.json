@@ -13,8 +13,8 @@
     "nameClearance": "The name is reserved in App Store Connect; trademark clearance has not been established.",
     "account": "Apple Music category, 4+ rating, free price, 175-region availability, review contact and published Data Not Collected privacy answers are configured. Existing non-trader status should be reassessed if the distribution circumstances change. Mac and Vision Pro availability are disabled pending testing.",
     "screenshots": "Actual offline-preview screenshots are uploaded for iPhone 6.3-inch and iPad 13-inch. Google Play has actual Android connection and preview screenshots, a 512px icon and a 1024x500 feature graphic. Replace or supplement preview screenshots with validated hardware editing before public release.",
-    "signing": "iOS 1.0.0 (4) is in TestFlight and was submitted to App Review on 19 October 2026. App Store Connect shows Waiting for Review. Manual release is retained. Android 1.0.0 (8) is published internally and submitted to closed Alpha review.",
-    "artwork": "The owner confirmed permission to use Helix Stadium icons provided the app remains free. Retain that permission for review and reassess before adding paid access.",
+    "signing": "iOS 1.0.0 (4) is in TestFlight and was submitted to App Review on 19 October 2026. App Store Connect shows Rejected under 5.2.1 as of 21 October 2026, with automatic release selected. Android 1.0.0 (8) is published internally and submitted to closed Alpha review.",
+    "artwork": "The owner clarified on 21 October 2026 that no permission from Line 6 or Yamaha has been obtained. All 24 extracted category and connection icons are replaced with original artwork in source. Existing store builds and screenshots have not been replaced. App Review 5.2.1 also raises hardware-control authorisation; icon replacement alone does not resolve that concern.",
     "googlePlay": "Internal build 5 published on 18 October 2026. Closed Alpha build 5 is submitted and shown under Changes in review. Production access still requires at least 12 opted-in testers for 14 continuous days; that requirement has not been verified as satisfied.",
     "dependencies": "25 transitive npm advisories remain (17 high, 8 moderate, no critical). Expo Doctor reports TCP socket New Architecture metadata as untested. Review upstream patches and complete physical-device checks before public submission."
   },
@@ -28,14 +28,14 @@
   },
   "releaseStatus": {
     "verifiedAt": "2026-10-18",
-    "publicRelease": "iOS 1.0.0 (4) submitted to App Review; Waiting for Review with manual release. No public production release.",
+    "publicRelease": "iOS 1.0.0 (4) rejected under 5.2.1 on 21 October 2026. No public production release.",
     "ios": {
       "version": "1.0.0",
       "buildNumber": "4",
-      "status": "Waiting for Review for App Store distribution; external TestFlight build 4 remains Testing alongside builds 2 and 3",
+      "status": "Rejected under 5.2.1 for App Store distribution on 21 October 2026; TestFlight status was not rechecked",
       "testFlightURL": "https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/83263e00-f419-46f5-a1f4-ea3e92fc9d05",
-      "verifiedAt": "2026-10-19",
-      "releaseType": "MANUAL",
+      "verifiedAt": "2026-10-21",
+      "releaseType": "AFTER_APPROVAL",
       "appReviewSubmissionId": "cdc46fa6-f503-4830-8816-0f0e8c8786ff",
       "appReviewURL": "https://appstoreconnect.apple.com/apps/6824149078/distribution/reviewsubmissions/details/cdc46fa6-f503-4830-8816-0f0e8c8786ff"
     },

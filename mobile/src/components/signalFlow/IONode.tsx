@@ -53,7 +53,7 @@ export const IONode: React.FC<IONodeProps> = ({
     <Pressable style={[styles.container, disabled && styles.containerDisabled]} onPress={onPress} disabled={disabled}>
       <View style={[styles.node, { width: size, height: size, borderRadius: size / 2 }]}>
         {ioImage ? (
-          <Image source={ioImage} style={styles.ioImage} resizeMode="contain" />
+          <Image source={ioImage} style={[styles.ioImage, { tintColor: COLORS.text }]} resizeMode="contain" />
         ) : type === 'input' ? (
           <InputIcon size={size * 0.5} color={COLORS.muted} />
         ) : (

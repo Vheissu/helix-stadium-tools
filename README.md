@@ -22,10 +22,12 @@ and product designs are trademarks or registered trademarks of their
 respective owners. They are referenced here solely for identification and
 interoperability. No affiliation or endorsement is implied or intended.
 
-The mobile app uses Helix Stadium category icons with permission, on the
-condition that the app remains free. That permission does not imply endorsement
-or grant rights to other Line 6 or Yamaha assets. The tooling is independently
-written and includes model data extracted for interoperability.
+No permission from Line 6 or Yamaha has been obtained. Earlier versions used
+category icons extracted from the desktop editor; the current source replaces
+all 24 category and connection icons with original artwork. The tooling is
+independently written and includes model data extracted for interoperability.
+Replacing artwork does not establish
+permission for that data or resolve Apple's hardware-control review concern.
 
 If anyone at Line 6 or Yamaha would prefer something here be removed,
 renamed, or clarified, please open an issue and I will be happy to work

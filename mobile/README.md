@@ -149,8 +149,9 @@ See [the release record](../docs/RELEASE_2026_10_19.md) for build IDs, verificat
 
 Store descriptions, privacy declarations, age ratings, free pricing, artwork
 and screenshots are saved. iOS 1.0.0 (4) was submitted to App Review on 19 October
-2026 and is **Waiting for Review**. Manual release is retained, so approval will
-not publish the app automatically.
+2026 and was **rejected under guideline 5.2.1** on 21 October. Apple requested
+documentary evidence for the third-party content or hardware-control authorisation.
+The release option currently shows automatic release after approval.
 Google has published the owner's closed-test listing and policy submission;
 production access is still unavailable.
 The hardware demonstration video is linked in Apple review notes. Complete the
@@ -161,7 +162,10 @@ can apply for production access; internal testing does not meet that requirement
 The store name is **HELYON for Helix Stadium**, with **Unofficial mobile editor**
 as the Apple subtitle to fit its 30-character limit. The full line, “Unofficial
 mobile editor for the Helix Stadium”, is used in the app and store description.
-Keep the app free under the confirmed permission for Stadium category icons.
+No permission from Line 6 or Yamaha has been obtained. The earlier statement
+that Stadium category icons were used with permission was incorrect. Original
+icons now replace all 24 extracted category and connection images in source;
+Apple's 5.2.1 review remains unresolved. Released builds still contain the old icons.
 
 The app uses the HELYON square icon on iOS, with a separately padded Android
 adaptive icon and a monochrome version for themed home screens. The native

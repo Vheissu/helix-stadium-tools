@@ -160,7 +160,7 @@ export const PathChainStrip: React.FC<PathChainStripProps> = React.memo(({
                           {blockImage ? (
                             <Image
                               source={blockImage}
-                              style={{ width: tileGlyphSize, height: tileGlyphSize }}
+                              style={{ width: tileGlyphSize, height: tileGlyphSize, tintColor: appearance.power }}
                               resizeMode="contain"
                             />
                           ) : (

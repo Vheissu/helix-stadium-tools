@@ -369,7 +369,7 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
           {blockImage ? (
             <Image
               source={blockImage}
-              style={styles.effectIcon}
+              style={[styles.effectIcon, { tintColor: appearance.power }]}
               resizeMode="contain"
             />
           ) : (
@@ -446,7 +446,7 @@ const DragOverlayCard: React.FC<{
         {blockImage ? (
           <Image
             source={blockImage}
-            style={styles.effectIcon}
+            style={[styles.effectIcon, { tintColor: appearance.power }]}
             resizeMode="contain"
           />
         ) : (

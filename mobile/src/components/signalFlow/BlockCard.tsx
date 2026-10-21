@@ -66,7 +66,7 @@ export const BlockCard: React.FC<BlockCardProps> = React.memo(({
         {block ? (
           <>
             {blockImage ? (
-              <Image source={blockImage} style={styles.blockImage} resizeMode="contain" />
+              <Image source={blockImage} style={[styles.blockImage, { tintColor: getBlockColor(block.kind) }]} resizeMode="contain" />
             ) : (
               <BlockIcon type={block.kind} size={20} color={getBlockColor(block.kind)} />
             )}

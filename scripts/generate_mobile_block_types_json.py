@@ -59,7 +59,11 @@ MODELDEF_CATEGORY_GROUPS = {
 
 
 def build_block_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info=None):
-    return build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
+    params = build_detailed_param_list(model_key, model_info, uidef, param_meta, controls, harness_model_info)
+    for param in params:
+        # Ship functional control metadata, not the desktop editor's help prose.
+        param["description"] = None
+    return params
 
 
 def compute_auto_cab_usage(model_info, modeldefs):

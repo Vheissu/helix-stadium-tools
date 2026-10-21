@@ -29,7 +29,7 @@ from pathlib import Path
 DEFAULT_SOURCE = Path(
     "/Applications/Line6/Helix Stadium.app/Contents/Resources/meta-data/parameter-meta"
 )
-DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "mobile" / "src" / "data" / "paramHelp.json"
+DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "generated" / "desktop-param-help.json"
 
 
 def parse_args() -> argparse.Namespace:

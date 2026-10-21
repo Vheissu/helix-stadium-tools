@@ -292,6 +292,6 @@ See [accessibility support and verification](../docs/ACCESSIBILITY.md) for teste
 
 ## Showcase songs
 
-Open **Library → Showcase** to upload prepared backing tracks, select songs and control playback on the Stadium. Uploads accept 1–8 WAV tracks at 48 kHz/16-bit PCM, up to 13 minutes each, with a microSD card inserted. Stem separation is a separate server feature. See [Showcase setup and verification](../docs/SHOWCASE.md), including the ignored local credential setup and the required configuration for a future release build.
+Open **Library → Showcase** to browse songs already stored on the Stadium, select a song and control playback. Add songs with the official Stadium editor, then refresh the list. Song upload and its credential-dependent transfer implementation were removed for the 21 October review build. See [Showcase behaviour](../docs/SHOWCASE.md).
 
 Use a local simulator build for device-connected UI testing when possible. `npx expo run:ios --configuration Release` builds with local Xcode and does not use EAS build credits. The simulator uses the Mac's network connection and can reach the Stadium over Wi-Fi.

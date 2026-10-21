@@ -99,7 +99,7 @@ type EditorParam = {
   display_def?: number | boolean;
   unit?: string | null;
   options?: string[] | null;
-  description?: string;
+  description?: string | null;
   faux?: boolean;
   harness?: boolean;
   property_key?: string | null;

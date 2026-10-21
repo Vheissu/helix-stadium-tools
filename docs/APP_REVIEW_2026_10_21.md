@@ -78,7 +78,10 @@ was retained. This is a review submission, not an approval or public release.
 
 The explanation was supplied in App Review Information. No separate message
 was sent through Reply to App Review. Existing external TestFlight builds were
-not removed or expired; build 6 was not assigned to the external group.
+not removed or expired. Build 6 was subsequently added to the external Testers
+group at the owner's request and went straight to **Testing**. The group has
+62 external testers, with automatic notifications enabled; builds 2–5 remain
+available. App Store build 6 was rechecked and remains **Waiting for Review**.
 
 One production iOS build was created and completed. No Android build was
 requested or started. Changes are committed locally; no Git push was made.

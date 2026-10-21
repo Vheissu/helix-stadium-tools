@@ -32,7 +32,7 @@
     "ios": {
       "version": "1.0.0",
       "buildNumber": "6",
-      "status": "Waiting for Review for App Store distribution. Build 6 is Ready to Submit for external TestFlight; existing external builds were retained.",
+      "status": "Waiting for Review for App Store distribution. Build 6 is Testing in the existing external Testers group of 62 people, alongside builds 2\u20135; automatic notifications are enabled.",
       "testFlightURL": "https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/83263e00-f419-46f5-a1f4-ea3e92fc9d05",
       "verifiedAt": "2026-10-21",
       "releaseType": "AFTER_APPROVAL",

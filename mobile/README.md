@@ -141,7 +141,9 @@ or account-wide access. These commands do not publish a public release.
 
 As of 21 October 2026, iOS build **6** has been resubmitted and is **Waiting
 for Review** in App Store Connect. It replaces the extracted icons and copied help text and
-removes song upload. Factory Focus tone pads remain. See the
+removes song upload. Factory Focus tone pads remain. Build 6 is also **Testing**
+for the 62-person external Testers group, alongside builds 2–5, with automatic
+notifications enabled. See the
 [review follow-up](../docs/APP_REVIEW_2026_10_21.md).
 
 Earlier release status, as of 19 October 2026:

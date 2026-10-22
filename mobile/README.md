@@ -139,6 +139,8 @@ Play Console upload, and the Google Play service account are configured. The
 service account can release to HELYON's testing tracks and has no production
 or account-wide access. These commands do not publish a public release.
 
+As of 22 October 2026, the urgent tempo fix is **Testing** as iOS **1.0.0 (7)** for all 63 registered testers, with automatic notifications enabled. Build 7 also replaces build 6 in App Store review and is **Waiting for Review**. Android **1.0.0 (10)** is published to internal testing and submitted to closed Alpha; Alpha rollout and the added Testers email list are **in review**. Both existing Android tester lists have internal access. See [the tempo release record](../docs/RELEASE_2026_10_22.md) for exact availability and remaining review gates.
+
 As of 21 October 2026, iOS build **6** has been resubmitted and is **Waiting
 for Review** in App Store Connect. It replaces the extracted icons and copied help text and
 removes song upload. Factory Focus tone pads remain. Build 6 is also **Testing**

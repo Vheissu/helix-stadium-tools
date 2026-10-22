@@ -36,4 +36,4 @@ These changes apply to the shared client used by Wi-Fi and USB. Existing install
 
 Local evidence is under `.codex-artifacts/tempo-investigation/`. Firmware files remain in the ignored research directory; they are not included in the patch.
 
-No physical-device commands, store builds or submissions were performed. Before distributing the fix, validate normal tap and nudge behavior on a spare preset in each tempo mode, over both supported connection types. Do not replay the malformed command to reproduce the crash. Affected users' firmware versions and exact final actions would help narrow the remaining cause of the freeze.
+No physical-device commands, store builds or submissions were performed during the investigation. The subsequent owner-authorized builds and store submissions are recorded in [the release record](RELEASE_2026_10_22.md). Before distributing the fix, validate normal tap and nudge behavior on a spare preset in each tempo mode, over both supported connection types. Do not replay the malformed command to reproduce the crash. Affected users' firmware versions and exact final actions would help narrow the remaining cause of the freeze.

@@ -73,6 +73,26 @@ class TestBlobs(unittest.TestCase):
         with mock.patch("helix.blobs.decode_msgpack_blob", return_value=None):
             self.assertIsNone(decode_property_blob(b"nope"))
 
+    def test_tempo_float_wire_type_and_range(self):
+        for key in ("global.tempo.bpm", "preset.tempo.bpm", "server.snapshot.tempo.bpm"):
+            for bpm in (20, 120, 120.75, 240):
+                blob = build_property_blob(key, bpm, "f")
+                self.assertEqual(blob[-5], 0xca)
+                decoded = decode_property_blob(blob)
+                self.assertEqual(decoded["type"], "f")
+                self.assertIsInstance(decoded["val_"], float)
+                self.assertEqual(decoded["val_"], bpm)
+            with self.assertRaises(ValueError):
+                build_property_blob(key, 121, "i")
+            for value in (0, 19.99, 240.01, 300, float("nan"), float("inf"), "120", True):
+                with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                    build_property_blob(key, value, "f")
+
+    def test_float_properties_reject_nonfinite_and_mismatched_values(self):
+        for value in (float("nan"), float("inf"), -float("inf"), 1e40, "1.5", None, True):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                build_property_blob("test.float", value, "f")
+
     def test_build_property_blob_missing_dependency(self):
         def fake_import(name, *args, **kwargs):
             if name == "msgpack":

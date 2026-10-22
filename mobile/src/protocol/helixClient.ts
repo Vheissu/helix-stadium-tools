@@ -1,3 +1,5 @@
+import { TempoController } from './tempo';
+import { buildPropertyBlob } from './propertyBlob';
 import { presetSaveCommand, presetStorageId, requireSaveAcknowledgement, savePresetAndConfirm } from './presetSave';
 import { createEmptyPreset, createdPresetId, presetCreationCommand, snapshotMetadataChanged, type UserPresetSlot } from './presetCreation';
 import { applyFocusChanges, type FocusTarget } from './focusSession';
@@ -16,65 +18,6 @@ import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } f
 import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
 
 const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
-
-const fourcc = (text: string) => {
-  if (text.length !== 4) throw new Error('fourcc must be 4 chars');
-  const b = Buffer.from(text, 'utf8');
-  return b.readUInt32BE(0);
-};
-
-const encodeMsgpackMap = (entries: Array<[number, any]>) => {
-  const chunks: Buffer[] = [];
-  const size = entries.length;
-  if (size <= 15) {
-    chunks.push(Buffer.from([0x80 + size]));
-  } else {
-    throw new Error('map too large');
-  }
-
-  const pushUInt32 = (value: number) => {
-    const b = Buffer.alloc(5);
-    b[0] = 0xce;
-    b.writeUInt32BE(value >>> 0, 1);
-    chunks.push(b);
-  };
-
-  const pushInt32 = (value: number) => {
-    const b = Buffer.alloc(5);
-    b[0] = 0xd2;
-    b.writeInt32BE(value, 1);
-    chunks.push(b);
-  };
-
-  const pushString = (value: string) => {
-    const strBuf = Buffer.from(value, 'utf8');
-    const len = strBuf.length;
-    const header = Buffer.alloc(5);
-    header[0] = 0xdb;
-    header.writeUInt32BE(len, 1);
-    chunks.push(header, strBuf);
-  };
-
-  for (const [key, val] of entries) {
-    pushUInt32(key);
-    if (typeof val === 'number') {
-      pushInt32(val);
-    } else {
-      pushString(String(val));
-    }
-  }
-
-  return Buffer.concat(chunks);
-};
-
-const buildPropertyBlob = (key: string, value: any, valueType: 's' | 'i' | 'f' | 'b') => {
-  const payload = encodeMsgpackMap([
-    [fourcc('key_'), key],
-    [fourcc('type'), valueType],
-    [fourcc('val_'), valueType === 'i' ? Number(value) : value],
-  ]);
-  return Buffer.concat([Buffer.from('lavppgsm', 'utf8'), payload]);
-};
 
 const formatStatusFailure = (address: string, vals: Array<any>) => {
   const detailValues = vals.slice(1);
@@ -119,6 +62,7 @@ const SPLIT_MODEL_IDS = new Set([474, 475, 476, 477]);
 const JOIN_MODEL_IDS = new Set([478]);
 
 export class HelixClient {
+  readonly tempo = new TempoController(this);
   private host: string;
   private port2001: number;
   private port2002: number;
@@ -174,6 +118,7 @@ export class HelixClient {
   }
 
   close() {
+    this.tempo.close();
     this.listening = false;
     this.listening2002 = false;
     this.onDisconnect = null;
@@ -272,6 +217,10 @@ export class HelixClient {
     this.resolvePending(event.addr, event.vals);
     const propertyBlob = event.addr === '/setPropertyValue' ? extractFirstBlob(event.vals) : null;
     const property = propertyBlob ? decodePropertyBlob(propertyBlob) : null;
+    if (event.addr.toLowerCase() === '/activatesnapshot' ||
+        property?.key === 'global.tempo.select' || property?.key === 'server.active.preset.id') {
+      this.tempo.reset();
+    }
     if (property?.key === 'volatile.song.ingestion.result' && property.value && typeof property.value.details === 'string' && typeof property.value.res === 'number') {
       const importedId = confirmedSongId(property.value as SongIngestion);
       if (importedId) this.recentShowcaseImports.add(importedId);

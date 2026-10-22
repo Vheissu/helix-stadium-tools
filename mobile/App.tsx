@@ -1030,6 +1030,7 @@ function EditorApp() {
         ),
       ]);
 
+      if (clientRef.current !== client) return;
       const nextGlobalTempo = coerceNumber(globalTempoProp?.value);
       const nextLiveTempo =
         coerceNumber(liveTempoProp?.value) ??
@@ -1277,27 +1278,23 @@ function EditorApp() {
     return detail ? `${label} failed: ${detail}` : `${label} failed`;
   };
 
-  const handleTempoAdjust = (delta: number) => {
+  const applyTempoAction = async (action: 'tap' | number) => {
     const client = requireClient();
     if (!client) return;
-    const base = globalTempoBpm ?? liveTempoBpm ?? 120;
-    const next = Math.max(20, Math.min(300, Math.round(base + delta)));
-    const previousGlobal = globalTempoBpm;
-    const previousLive = liveTempoBpm;
-    setGlobalTempoBpm(next);
-    setLiveTempoBpm(next);
-    void client
-      .setPropertyWait('global.tempo.bpm', next, 'i')
-      .then(() => {
-        setStatus(`Tempo · ${next} BPM`);
-        scheduleSync(500);
-      })
-      .catch((error) => {
-        setGlobalTempoBpm(previousGlobal);
-        setLiveTempoBpm(previousLive);
-        setStatus(formatActionError('Tempo update', error));
-      });
+    try {
+      const bpm = await (action === 'tap' ? client.tempo.tap(performance.now()) : client.tempo.adjust(action));
+      if (clientRef.current !== client || bpm === null) return;
+      setStatus(`Tempo · ${formatTempoBpm(bpm)} BPM`);
+      // This value has been acknowledged and read back from the device.
+      setLiveTempoBpm(bpm);
+      scheduleSync(700);
+    } catch (error) {
+      if (clientRef.current !== client) return;
+      setStatus(formatActionError(action === 'tap' ? 'Tap tempo' : 'Tempo update', error));
+    }
   };
+
+  const handleTempoAdjust = (delta: number) => { void applyTempoAction(delta); };
 
   const handleTempoFollowToggle = (value: boolean) => {
     const client = requireClient();
@@ -1316,19 +1313,7 @@ function EditorApp() {
       });
   };
 
-  const handleTapTempo = () => {
-    const client = requireClient();
-    if (!client) return;
-    void client
-      .setPropertyWait('volatile.press.taptempo', 1, 'i')
-      .then(() => {
-        setStatus('Tap');
-        scheduleSync(700);
-      })
-      .catch((error) => {
-        setStatus(formatActionError('Tap tempo', error));
-      });
-  };
+  const handleTapTempo = () => { void applyTempoAction('tap'); };
 
   const handleTunerReferenceAdjust = (delta: number) => {
     const client = requireClient();

@@ -4,7 +4,7 @@ import { BlockRow } from './BlockRow';
 import { Connector } from './Connector';
 import { IONode } from './IONode';
 import { SplitSection } from './SplitSection';
-import { COLORS, FONTS } from '../../theme/colors';
+import { COLORS, FONT } from '../../theme/colors';
 import type { IOType, PathIndex, SignalPathProps } from '../../types/signalFlow';
 
 export const SignalPath: React.FC<SignalPathProps> = React.memo(({
@@ -113,12 +113,12 @@ const styles = StyleSheet.create({
   },
   pathNumber: {
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 12,
   },
   pathLabel: {
     color: COLORS.text,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 14,
     letterSpacing: 0.5,
   },

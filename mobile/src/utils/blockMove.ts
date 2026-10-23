@@ -13,3 +13,29 @@ export function reorderPathBlocks<T>(blocks: readonly (T | null)[], from: number
   next.splice(to, 0, block);
   return next;
 }
+
+/** Where a position ends up after `reorderPathBlocks(blocks, from, to)`. */
+export function movedIndex(index: number, from: number, to: number): number {
+  if (index === from) return to;
+  if (from < to && index > from && index <= to) return index - 1;
+  if (to < from && index >= to && index < from) return index + 1;
+  return index;
+}
+
+/**
+ * Positions a block can be dropped on by dragging within its row.
+ *
+ * A move rewrites every position between source and target, which would
+ * recreate split and merge nodes without their row-B links. Drags therefore
+ * stay between the nearest routing nodes, and routing nodes do not move.
+ */
+export function dropRange<T>(blocks: readonly (T | null)[], from: number, isFixed: (block: T) => boolean): [number, number] | null {
+  const source = blocks[from];
+  if (source === null || source === undefined || isFixed(source)) return null;
+  let low = from;
+  while (low > 0 && !(blocks[low - 1] !== null && isFixed(blocks[low - 1] as T))) low -= 1;
+  let high = from;
+  const last = visibleBlockCount(blocks) - 1;
+  while (high < last && !(blocks[high + 1] !== null && isFixed(blocks[high + 1] as T))) high += 1;
+  return [low, high];
+}

@@ -3,7 +3,7 @@ import { AppState, NativeModules, StyleSheet, View } from 'react-native';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { startStadiumSearch, type StadiumDevice } from '../utils/stadiumDiscovery';
-import { COLORS, FONTS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 
 interface StadiumSearchProps {
   host: string;
@@ -87,10 +87,10 @@ export function StadiumSearch({ host, port, disabled, onSelect }: StadiumSearchP
 const styles = StyleSheet.create({
   section: { gap: 6 },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  title: { color: COLORS.text, fontFamily: FONTS.bodySemi, fontSize: 15, flexShrink: 1 },
-  action: { color: COLORS.accent, fontFamily: FONTS.bodySemi, fontSize: 14 },
-  hint: { color: COLORS.muted, fontFamily: FONTS.body, fontSize: 14, lineHeight: 20 },
+  title: { color: COLORS.text, ...FONT.semibold, fontSize: 15, flexShrink: 1 },
+  action: { color: COLORS.accent, ...FONT.semibold, fontSize: 14 },
+  hint: { color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 20 },
   device: { padding: 12, gap: 4, borderWidth: 1, borderColor: COLORS.stroke, borderRadius: 4, backgroundColor: COLORS.panel },
   selected: { borderColor: COLORS.signal },
-  name: { color: COLORS.text, fontFamily: FONTS.bodySemi, fontSize: 16 },
+  name: { color: COLORS.text, ...FONT.semibold, fontSize: 16 },
 });

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { reorderPathBlocks, visibleBlockCount } from './blockMove';
+import { dropRange, movedIndex, reorderPathBlocks, visibleBlockCount } from './blockMove';
 
 const amp = { id: 1, params: { gain: 0.42 }, enabled: false };
 const delay = { id: 2, params: { time: 0.7 }, enabled: true };
@@ -27,4 +27,27 @@ test('rejects missing sources, hidden positions, invalid indices and unchanged m
     assert.equal(reorderPathBlocks(blocks, from, to), null, `${from} to ${to}`);
   }
   assert.equal(reorderPathBlocks([], 0, 1), null);
+});
+
+test('positions follow a reorder so selection can track the moved block', () => {
+  const blocks = ['a', 'b', 'c', 'd', null];
+  const next = reorderPathBlocks(blocks, 0, 2)!;
+  blocks.forEach((block, index) => {
+    if (block) assert.equal(next[movedIndex(index, 0, 2)], block);
+  });
+  const back = reorderPathBlocks(blocks, 3, 1)!;
+  blocks.forEach((block, index) => {
+    if (block) assert.equal(back[movedIndex(index, 3, 1)], block);
+  });
+});
+
+test('drags stay between routing nodes and inside the visible positions', () => {
+  const fixed = (block: string) => block === 'split' || block === 'merge';
+  const row = ['comp', 'drive', 'split', 'amp', 'cab', 'merge', 'delay', null, null, null, null, null];
+  assert.deepEqual(dropRange(row, 0, fixed), [0, 1]);
+  assert.deepEqual(dropRange(row, 3, fixed), [3, 4]);
+  assert.deepEqual(dropRange(row, 6, fixed), [6, 7]);
+  assert.equal(dropRange(row, 2, fixed), null);
+  assert.equal(dropRange(row, 8, fixed), null);
+  assert.deepEqual(dropRange(['amp', null, 'reverb', null], 2, fixed), [0, 3]);
 });

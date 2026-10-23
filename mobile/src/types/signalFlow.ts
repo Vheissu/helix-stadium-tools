@@ -28,6 +28,8 @@ export interface BlockData {
   enabled?: boolean;
   usage?: number;
   params?: Record<string, number | boolean>;
+  /** Split/merge nodes: visible row-B position (15–26) this node links to. */
+  linkPosition?: number;
 }
 
 // Path indices: 0=1A, 1=1B, 2=2A, 3=2B

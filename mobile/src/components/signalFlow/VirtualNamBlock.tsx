@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NamIcon } from '../../icons/BlockIcons';
 import {
   COLORS,
-  FONTS,
+  FONT,
   colorWithAlpha,
   getBlockColor,
 } from '../../theme/colors';
@@ -148,13 +148,13 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 9,
     letterSpacing: 1.2,
   },
   routeState: {
     color: COLORS.signal,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 9,
     letterSpacing: 0.8,
   },
@@ -179,12 +179,12 @@ const styles = StyleSheet.create({
   },
   endpointRow: {
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 9,
   },
   endpointLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 8,
     textTransform: 'uppercase',
     maxWidth: 52,
@@ -227,13 +227,13 @@ const styles = StyleSheet.create({
   },
   blockName: {
     color: COLORS.text,
-    fontFamily: FONTS.display,
+    ...FONT.bold,
     fontSize: 15,
     letterSpacing: 0.4,
   },
   modelName: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 10,
   },
   badges: {
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 8,
     letterSpacing: 0.7,
   },
@@ -281,23 +281,23 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 7.5,
     letterSpacing: 0.45,
   },
   metricValue: {
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 12,
   },
   warning: {
     color: COLORS.warn,
-    fontFamily: FONTS.bodyMedium,
+    ...FONT.medium,
     fontSize: 11,
   },
   disclaimer: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 9.5,
     lineHeight: 13,
   },
@@ -309,19 +309,19 @@ const styles = StyleSheet.create({
   },
   captureLabel: {
     color: AMP_COLOR,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 8,
     letterSpacing: 0.8,
   },
   captureDescription: {
     color: COLORS.text,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 10.5,
     lineHeight: 15,
   },
   captureCredit: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 8.5,
   },
 });

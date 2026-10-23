@@ -18,7 +18,6 @@ for (const [path, entry] of Object.entries(lock.packages)) {
   const texts = await Promise.all(files.map((file) => readFile(join(directory, file), 'utf8').catch(() => '')));
   notices.push({ name: manifest.name, version: manifest.version, license: manifest.license ?? entry.license ?? 'See package source', text: texts.filter(Boolean).join('\n\n') });
 }
-notices.push({ name: 'Roboto', version: 'bundled fonts', license: 'Apache-2.0', text: await readFile(join(root, 'assets/fonts/LICENSE.txt'), 'utf8') });
 notices.sort((left, right) => left.name.localeCompare(right.name));
 await writeFile(join(root, 'src/data/thirdPartyNotices.json'), JSON.stringify(notices, null, 2) + '\n');
 console.log(`Wrote ${notices.length} third-party notices.`);

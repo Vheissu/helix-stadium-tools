@@ -2,7 +2,7 @@ import Svg, { Path } from 'react-native-svg';
 import { getLastAction, useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import React, { useEffect, useRef } from 'react';
 import { AccessibilityInfo, Keyboard, KeyboardAvoidingView, Platform, Modal, Pressable, StyleSheet, Text, View, type ViewInstance } from 'react-native';
-import { COLORS, FONTS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -99,13 +99,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: COLORS.text,
-    fontFamily: FONTS.display,
+    ...FONT.bold,
     fontSize: 20,
     letterSpacing: 0.3,
   },
   subtitle: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 11,
     marginTop: 4,
     letterSpacing: 0.3,

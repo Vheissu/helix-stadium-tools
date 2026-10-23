@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SignalPath } from './SignalPath';
-import { COLORS, FONTS } from '../../theme/colors';
+import { COLORS, FONT } from '../../theme/colors';
 import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from '../../types/signalFlow';
 
 // Vendor modeldefs provide relative usage values. A budget of 66 is inferred
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: COLORS.accent,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 12,
     letterSpacing: 2,
   },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   syncText: {
     color: COLORS.text,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -163,14 +163,14 @@ const styles = StyleSheet.create({
   },
   usageTitle: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 10,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
   },
   usageValue: {
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 11,
   },
   usageValueOver: {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   },
   usageMeta: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 10,
   },
   paths: {

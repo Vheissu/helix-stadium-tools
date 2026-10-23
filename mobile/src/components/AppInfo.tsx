@@ -5,7 +5,7 @@ import { Alert, FlatList, Linking, ScrollView, StyleSheet, View } from 'react-na
 import { BottomSheet } from './BottomSheet';
 import info from '../data/appInfo.json';
 import notices from '../data/thirdPartyNotices.json';
-import { COLORS, FONTS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 
 export function AppInfo() {
   const [page, setPage] = useState<'privacy' | 'help' | 'licenses' | null>(null);
@@ -56,8 +56,8 @@ export function AppInfo() {
 const styles = StyleSheet.create({
   links: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4 },
   link: { minHeight: 44, paddingHorizontal: 10, justifyContent: 'center' },
-  linkText: { fontFamily: FONTS.body, color: COLORS.accent, fontSize: 14 },
+  linkText: { ...FONT.body, color: COLORS.accent, fontSize: 14 },
   content: { gap: 20, paddingBottom: 20 },
-  heading: { color: COLORS.text, fontFamily: FONTS.bodySemi, fontSize: 17, marginBottom: 6 },
-  body: { color: COLORS.muted, fontFamily: FONTS.body, fontSize: 15, lineHeight: 23 },
+  heading: { color: COLORS.text, ...FONT.semibold, fontSize: 17, marginBottom: 6 },
+  body: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 23 },
 });

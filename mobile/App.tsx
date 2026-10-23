@@ -29,7 +29,6 @@ import { HelixClient, type HelixEvent, type HelixPathClipboard } from './src/pro
 import { formatLibraryActivity, updateLibraryActivity, type LibraryActivity } from './src/protocol/stadium14';
 import blockTypes from './src/data/blockTypes.json';
 import ioModels from './src/data/ioModels.json';
-import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { BlockIcon } from './src/icons/BlockIcons';
 import { BLOCK_IMAGES } from './src/icons/CategoryImages';
@@ -41,11 +40,14 @@ import { ParamKnob } from './src/components/ParamKnob';
 import { ParamSlider } from './src/components/ParamSlider';
 import { ParamHelpButton } from './src/components/ParamHelpButton';
 import { DraggableEffectList } from './src/components/signalFlow/DraggableEffectList';
-import { PathChainStrip } from './src/components/signalFlow/PathChainStrip';
+import { PathLanes } from './src/components/signalFlow/PathLanes';
+import { SnapshotStrip } from './src/components/SnapshotStrip';
+import samplePreset from './src/data/samplePreset.json';
+import { createDemoClient } from './src/protocol/demoClient';
 import { VirtualNamBlock } from './src/components/signalFlow/VirtualNamBlock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getParamHelp } from './src/utils/paramHelp';
-import { COLORS as THEME_COLORS, FONTS, colorWithAlpha, getBlockAppearance, getBlockColor } from './src/theme/colors';
+import { COLORS as THEME_COLORS, FONT, getBlockAppearance, getBlockColor } from './src/theme/colors';
 import type { BlockData, BlockSlot, IOGrid, IOType, PathIndex, SignalFlowGrid } from './src/types/signalFlow';
 import { buildConnectionFailureStatus } from './src/utils/connection';
 import {
@@ -69,19 +71,20 @@ import { groupModelsByChannel, type ModelSection } from './src/utils/modelSectio
 import { detectVirtualNamRoute } from './src/utils/virtualNam';
 import { STANDARD_DSP_CAP, EXTENDED_DSP_CAP, getDspLimit, getDspHeadroom, fitsDspBudget } from './src/utils/dspBudget';
 import { AppInfo } from './src/components/AppInfo';
-import { OfflinePreview } from './src/components/OfflinePreview';
 import { PresetSaveBar } from './src/components/PresetSaveBar';
 import type { StadiumDevice } from './src/utils/stadiumDiscovery';
 
 const COLORS = THEME_COLORS;
 
-// Keep the native launch screen visible until the first frame has its fonts.
+// Development only: open the editor on the bundled sample preset without a
+// Stadium. Start Metro with EXPO_PUBLIC_DEMO_PRESET=1; EXPO_PUBLIC_DEMO_SELECT
+// (for example "0-2") preselects row 1A, position 3.
+const DEMO_PRESET = __DEV__ && process.env.EXPO_PUBLIC_DEMO_PRESET === '1';
+const DEMO_SELECT = __DEV__ ? process.env.EXPO_PUBLIC_DEMO_SELECT ?? '' : '';
+
+// Keep the native launch screen visible until the first frame is laid out.
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
-const FONT_BODY = FONTS.body;
-const FONT_BODY_SEMI = FONTS.bodySemi;
-const FONT_MONO = FONTS.mono;
-const FONT_DISPLAY = FONTS.display;
 const AUTO_SYNC_INTERVAL_MS = 4500;
 
 type HelixParamType = 'i' | 'f' | 'b';
@@ -221,19 +224,9 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 );
 
 export default function App() {
-  const [fontsLoaded, fontError] = useFonts({
-    'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
-    'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
-    'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
-    'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
-  });
-
   const onReadyLayout = useCallback(() => {
     void SplashScreen.hideAsync().catch(() => {});
   }, []);
-
-  // A font failure must not trap the user on the launch screen.
-  if (!fontsLoaded && !fontError) return null;
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }} onLayout={onReadyLayout}>
@@ -264,7 +257,8 @@ function EditorApp() {
   const [connectionTransport, setConnectionTransport] = useState<ConnectionTransport>('auto');
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
+  // Preview runs the full editor on the bundled sample preset with no Stadium.
+  const [previewMode, setPreviewMode] = useState(false);
   const [extendedDspEnabled, setExtendedDspEnabled] = useState(false);
   const dspLimit = getDspLimit(extendedDspEnabled);
   const handleExtendedDsp = (enabled: boolean) => {
@@ -290,6 +284,12 @@ function EditorApp() {
   const windowDims = useWindowDimensions();
   // Tablets have room for slightly larger controls without scaling up the whole editor.
   const isTablet = Math.min(windowDims.width, windowDims.height) >= 600;
+  const isLandscape = windowDims.width > windowDims.height;
+  // Tablets keep the signal chain on screen and dock the block editor beneath it.
+  const dockEditor = isTablet && !linearControls;
+  // Wide tablets move navigation to a side rail to give the lanes more height.
+  const useNavRail = dockEditor && isLandscape;
+  const [phonePath, setPhonePath] = useState<1 | 2>(1);
   // Per-parameter help sheet state. The sheet is shown when the user taps the
   // (?) glyph next to a parameter label.
   const [paramHelp, setParamHelp] = useState<{ title: string; subtitle?: string; body: string } | null>(null);
@@ -860,6 +860,10 @@ function EditorApp() {
   };
 
   const disconnect = () => {
+    if (previewMode) {
+      setPreviewMode(false);
+      setAutoSyncEnabled(true);
+    }
     setLibraryActivity({});
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
@@ -875,6 +879,8 @@ function EditorApp() {
     setIoGrid(Array.from({ length: 4 }, () => ({ input: null, output: null })));
     setPickerOpen(false);
     setBlockEditorOpen(false);
+    setBlockEditorSlot(null);
+    setSelectedSlot(null);
     setActiveTab('flow');
     setScreen('main');
     setTunerReturnScreen('main');
@@ -1469,6 +1475,7 @@ function EditorApp() {
   };
 
   const handleSavePreset = async () => {
+    if (previewMode) { setStatus('Preview edits are not saved.'); return; }
     if (creationPending.current) { setStatus('Wait for the new preset to finish creating.'); return; }
     const client = requireClient();
     if (!client || presetSaveOperation.current) return;
@@ -1522,8 +1529,8 @@ function EditorApp() {
   }, [presetSaved]);
 
   const renderPresetSaveBar = () => (
-    <PresetSaveBar name={activePresetName} edited={presetEdited} saving={presetSaving} saved={presetSaved}
-      disabled={!connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy}
+    <PresetSaveBar name={activePresetName} edited={presetEdited} saving={presetSaving} saved={presetSaved} preview={previewMode}
+      disabled={previewMode || !connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy}
       onSave={() => { void handleSavePreset(); }} />
   );
 
@@ -1873,7 +1880,8 @@ function EditorApp() {
     if (existingBlock) {
       setBlockEditorSlot(slot);
       setBlockEditorOpen(true);
-      setScreen('editor');
+      // Tablets edit in the docked panel; phones open the full-screen editor.
+      if (!dockEditor) setScreen('editor');
       return;
     }
     setTargetSlot({ path: slot.path, block: slot.block });
@@ -2020,6 +2028,13 @@ function EditorApp() {
 
     const minIdx = Math.min(fromDisplay, toDisplay);
     const maxIdx = Math.max(fromDisplay, toDisplay);
+
+    // Moving rewrites each position in the range by model, which would drop a
+    // split or merge node's link to row B. Keep those nodes where they are.
+    if (currentBlocks.slice(minIdx, maxIdx + 1).some((block) => block?.kind === 'routing' || typeof block?.linkPosition === 'number')) {
+      setStatus('Move blocks between splits and merges. Split and merge positions stay fixed.');
+      return false;
+    }
 
     // Update local grid immediately (optimistic)
     setGrid((prev) => {
@@ -2292,6 +2307,226 @@ function EditorApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ioPickerOpen, ioPickerRow, ioPickerType]);
 
+  // Rebuild the grid, I/O, snapshots and footswitch banks from an edit-buffer
+  // state. Returns false when the state has no usable flows.
+  const applyEditBufferState = (state: unknown, silent = true): boolean => {
+    const flows = findFlows(state);
+    if (!Array.isArray(flows)) {
+      if (!silent) setStatus('Sync failed: no flow data');
+      return false;
+    }
+    if (!flows.length) {
+      if (!silent) setStatus('Sync failed: empty flow data');
+      return false;
+    }
+    setStompBanks(extractStompBanks(state, (id, paramId) => {
+      const model = modelLookup.get(id);
+      const parameter = model?.params.find(param => param.id === paramId);
+      return parameter ? `${model!.name} · ${parameter.name}` : model?.name;
+    }));
+    const liveSnapshots = extractSnapshots(state).filter(item => Number.isInteger(item.index) && item.index < 8) as SnapshotRef[];
+    setSnapshots(liveSnapshots);
+    setSnapshotCount(liveSnapshots.length ? Math.max(...liveSnapshots.map(item => item.index)) + 1 : 0);
+    const controlGraph = findFirstKey(state, 'cg__') as { asnp?: unknown } | null;
+    if (typeof controlGraph?.asnp === 'number' && Number.isInteger(controlGraph.asnp) && controlGraph.asnp >= 0 && controlGraph.asnp < 8) {
+      setActiveSnapshotIndex(controlGraph.asnp);
+    }
+    const nextGrid: SignalFlowGrid = Array.from({ length: 4 }, () =>
+      Array.from({ length: 12 }, () => null)
+    );
+    const nextIO: IOGrid = Array.from({ length: 4 }, () => ({ input: null, output: null }));
+    const previousCustomLabels = new Map<string, string>();
+    grid.forEach((row, rowIndex) => {
+      row.forEach((block) => {
+        const customName = block?.customName?.trim();
+        if (block && customName) {
+          previousCustomLabels.set(`${rowIndex}:${block.id}`, customName);
+        }
+      });
+    });
+    const assignSlot = (
+      rowIndex: number,
+      slotIndex: number,
+      modelId: number | null,
+      params: Record<string, number | boolean>,
+      blockId: number,
+      enabled: boolean,
+      linkPosition: number | null
+    ) => {
+      if (!nextGrid[rowIndex]) return;
+      if (slotIndex < 0 || slotIndex >= 12) return;
+      if (typeof modelId === 'number' && modelLookup.has(modelId)) {
+        const info = modelLookup.get(modelId)!;
+        const overrideKey = getBlockLabelOverrideKey(rowIndex, blockId, modelId);
+        nextGrid[rowIndex][slotIndex] = {
+          id: modelId,
+          name: info.name,
+          modelName: info.name,
+          realName: info.realName,
+          customName: blockLabelOverrides[overrideKey] ?? previousCustomLabels.get(`${rowIndex}:${modelId}`) ?? null,
+          kind: info.kind,
+          usage: info.usage,
+          enabled,
+          blockId,
+          params,
+          ...(linkPosition !== null ? { linkPosition } : {}),
+        };
+      } else {
+        nextGrid[rowIndex][slotIndex] = {
+          id: Number(modelId) || 0,
+          name: 'Unknown Block',
+          modelName: 'Unknown Block',
+          realName: null,
+          kind: 'fx_loop',
+          usage: 0,
+          enabled,
+          blockId,
+          params,
+        };
+      }
+    };
+
+    const assignIO = (
+      rowIndex: number,
+      ioType: IOType,
+      modelId: number | null,
+      params: Record<string, number | boolean>
+    ) => {
+      if (!nextIO[rowIndex]) return;
+      const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
+      const name = meta?.name ?? (modelId === null ? 'None' : 'Unknown I/O');
+      const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
+      nextIO[rowIndex][ioType] = {
+        blockId,
+        modelId,
+        name,
+        params,
+      };
+    };
+
+    flows.forEach((flow: any, flowIdx: number) => {
+      const rawBlks = flow?.blks ?? flow?.blk ?? flow?.blocks ?? null;
+      const bmap = Array.isArray(flow?.bmap) ? flow.bmap : null;
+      const rowA = flowIdx * 2;
+      const rowB = flowIdx * 2 + 1;
+      const posByBlockIndex = new Map<number, number>();
+      if (bmap) {
+        bmap.forEach((blockIndex: any, pos: number) => {
+          if (typeof blockIndex === 'number') {
+            posByBlockIndex.set(blockIndex, pos);
+          }
+        });
+      }
+
+      const handleEntry = (pos: number, blk: any) => {
+        if (typeof pos !== 'number') return;
+        if (!blk || typeof blk !== 'object') return;
+        const model = Array.isArray(blk.mdls) ? blk.mdls[0] : null;
+        const mid = model?.id__ ?? blk.mid ?? blk.mdid ?? blk.midx ?? blk.model ?? blk.mid_;
+        const params: Record<string, number | boolean> = {};
+        const collectParams = (source: any, keyPrefix = '') => {
+          if (!source || !Array.isArray(source.parm)) return;
+          source.parm.forEach((param: any) => {
+            const pid = param?.pid_;
+            if (typeof pid !== 'number') return;
+            params[`${keyPrefix}${pid}`] = param?.valu ?? 0;
+          });
+        };
+        collectParams(model);
+        collectParams(blk.hrns, 'h:');
+        const enabled = coerceHelixBoolean(blk?.enbl, true);
+        const linkPosition = Number.isInteger(blk?.bblk) ? Number(blk.bblk) : null;
+
+        if (pos === 0) {
+          assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
+          return;
+        }
+        if (pos === 13) {
+          assignIO(rowA, 'output', typeof mid === 'number' ? mid : null, params);
+          return;
+        }
+        if (pos === 14) {
+          assignIO(rowB, 'input', typeof mid === 'number' ? mid : null, params);
+          return;
+        }
+        if (pos === 27) {
+          assignIO(rowB, 'output', typeof mid === 'number' ? mid : null, params);
+          return;
+        }
+
+        if (pos >= 1 && pos <= 12) {
+          assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos, enabled, linkPosition);
+          return;
+        }
+        if (pos >= 15 && pos <= 26) {
+          assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos, enabled, linkPosition);
+        }
+      };
+
+      const resolvePos = (idx: number) => {
+        const mapped = posByBlockIndex.get(idx);
+        return typeof mapped === 'number' ? mapped : idx;
+      };
+
+      if (Array.isArray(rawBlks)) {
+        if (rawBlks.length > 1 && typeof rawBlks[0] === 'number' && typeof rawBlks[1] === 'object') {
+          for (let i = 1; i < rawBlks.length; i += 2) {
+            const pos = rawBlks[i - 1];
+            const blk = rawBlks[i];
+            handleEntry(pos, blk);
+          }
+        } else {
+          rawBlks.forEach((blk: any, idx: number) => {
+            handleEntry(resolvePos(idx), blk);
+          });
+        }
+      } else if (rawBlks && typeof rawBlks === 'object') {
+        Object.entries(rawBlks).forEach(([key, blk]) => {
+          const idx = Number(key);
+          if (!Number.isFinite(idx)) return;
+          handleEntry(resolvePos(idx), blk);
+        });
+      }
+    });
+
+    // Preserve param values the user has just touched — the device may not
+    // have echoed them back yet, so the freshly-fetched state can be stale
+    // for a few hundred ms after a write.
+    const RECENT_EDIT_HOLD_MS = 1500;
+    const editsMap = recentParamEditsRef.current;
+    if (editsMap.size) {
+      const cutoff = Date.now() - RECENT_EDIT_HOLD_MS;
+      for (const [key, entry] of Array.from(editsMap.entries())) {
+        if (entry.ts < cutoff) {
+          editsMap.delete(key);
+          continue;
+        }
+        const [rowStr, blockIdStr, paramKey] = key.split('|');
+        const rowIdx = Number(rowStr);
+        const blockId = Number(blockIdStr);
+        if (!Number.isFinite(rowIdx) || !Number.isFinite(blockId)) continue;
+        const row = nextGrid[rowIdx];
+        if (!row) continue;
+        for (const block of row) {
+          if (block && block.blockId === blockId) {
+            block.params = { ...(block.params ?? {}), [paramKey]: entry.value };
+            break;
+          }
+        }
+      }
+    }
+
+    // Skip clobbering local state while the user is dragging a knob — the
+    // optimistic value is what they're seeing and should not flicker.
+    if (knobDraggingRef.current || focusWrites.current > 0) {
+      return true;
+    }
+
+    setGrid(nextGrid);
+    setIoGrid(nextIO);
+    return true;
+  };
+
   const handleSync = async (silent = false) => {
     const client = requireClient();
     if (!client) return false;
@@ -2307,217 +2542,9 @@ function EditorApp() {
         if (!silent) setStatus('Sync failed: no response');
         return false;
       }
-      const flows = findFlows(state);
-      if (!Array.isArray(flows)) {
-        if (!silent) setStatus('Sync failed: no flow data');
-        return false;
-      }
-      if (!flows.length) {
-        if (!silent) setStatus('Sync failed: empty flow data');
-        return false;
-      }
-      setStompBanks(extractStompBanks(state, (id, paramId) => {
-        const model = modelLookup.get(id);
-        const parameter = model?.params.find(param => param.id === paramId);
-        return parameter ? `${model!.name} · ${parameter.name}` : model?.name;
-      }));
-      const liveSnapshots = extractSnapshots(state).filter(item => Number.isInteger(item.index) && item.index < 8) as SnapshotRef[];
-      setSnapshots(liveSnapshots);
-      setSnapshotCount(liveSnapshots.length ? Math.max(...liveSnapshots.map(item => item.index)) + 1 : 0);
-      const controlGraph = findFirstKey(state, 'cg__') as { asnp?: unknown } | null;
-      if (typeof controlGraph?.asnp === 'number' && Number.isInteger(controlGraph.asnp) && controlGraph.asnp >= 0 && controlGraph.asnp < 8) {
-        setActiveSnapshotIndex(controlGraph.asnp);
-      }
-      const nextGrid: SignalFlowGrid = Array.from({ length: 4 }, () =>
-        Array.from({ length: 12 }, () => null)
-      );
-      const nextIO: IOGrid = Array.from({ length: 4 }, () => ({ input: null, output: null }));
-      const previousCustomLabels = new Map<string, string>();
-      grid.forEach((row, rowIndex) => {
-        row.forEach((block) => {
-          const customName = block?.customName?.trim();
-          if (block && customName) {
-            previousCustomLabels.set(`${rowIndex}:${block.id}`, customName);
-          }
-        });
-      });
-      const assignSlot = (
-        rowIndex: number,
-        slotIndex: number,
-        modelId: number | null,
-        params: Record<string, number | boolean>,
-        blockId: number,
-        enabled: boolean
-      ) => {
-        if (!nextGrid[rowIndex]) return;
-        if (slotIndex < 0 || slotIndex >= 12) return;
-        if (typeof modelId === 'number' && modelLookup.has(modelId)) {
-          const info = modelLookup.get(modelId)!;
-          const overrideKey = getBlockLabelOverrideKey(rowIndex, blockId, modelId);
-          nextGrid[rowIndex][slotIndex] = {
-            id: modelId,
-            name: info.name,
-            modelName: info.name,
-            realName: info.realName,
-            customName: blockLabelOverrides[overrideKey] ?? previousCustomLabels.get(`${rowIndex}:${modelId}`) ?? null,
-            kind: info.kind,
-            usage: info.usage,
-            enabled,
-            blockId,
-            params,
-          };
-        } else {
-          nextGrid[rowIndex][slotIndex] = {
-            id: Number(modelId) || 0,
-            name: 'Unknown Block',
-            modelName: 'Unknown Block',
-            realName: null,
-            kind: 'fx_loop',
-            usage: 0,
-            enabled,
-            blockId,
-            params,
-          };
-        }
-      };
-
-      const assignIO = (
-        rowIndex: number,
-        ioType: IOType,
-        modelId: number | null,
-        params: Record<string, number | boolean>
-      ) => {
-        if (!nextIO[rowIndex]) return;
-        const meta = typeof modelId === 'number' ? ioModelLookup.get(modelId) : null;
-        const name = meta?.name ?? (modelId === null ? 'None' : 'Unknown I/O');
-        const blockId = ioBlockIndex(rowIndex as PathIndex, ioType);
-        nextIO[rowIndex][ioType] = {
-          blockId,
-          modelId,
-          name,
-          params,
-        };
-      };
-
-      flows.forEach((flow: any, flowIdx: number) => {
-        const rawBlks = flow?.blks ?? flow?.blk ?? flow?.blocks ?? null;
-        const bmap = Array.isArray(flow?.bmap) ? flow.bmap : null;
-        const rowA = flowIdx * 2;
-        const rowB = flowIdx * 2 + 1;
-        const posByBlockIndex = new Map<number, number>();
-        if (bmap) {
-          bmap.forEach((blockIndex: any, pos: number) => {
-            if (typeof blockIndex === 'number') {
-              posByBlockIndex.set(blockIndex, pos);
-            }
-          });
-        }
-
-        const handleEntry = (pos: number, blk: any) => {
-          if (typeof pos !== 'number') return;
-          if (!blk || typeof blk !== 'object') return;
-          const model = Array.isArray(blk.mdls) ? blk.mdls[0] : null;
-          const mid = model?.id__ ?? blk.mid ?? blk.mdid ?? blk.midx ?? blk.model ?? blk.mid_;
-          const params: Record<string, number | boolean> = {};
-          const collectParams = (source: any, keyPrefix = '') => {
-            if (!source || !Array.isArray(source.parm)) return;
-            source.parm.forEach((param: any) => {
-              const pid = param?.pid_;
-              if (typeof pid !== 'number') return;
-              params[`${keyPrefix}${pid}`] = param?.valu ?? 0;
-            });
-          };
-          collectParams(model);
-          collectParams(blk.hrns, 'h:');
-          const enabled = coerceHelixBoolean(blk?.enbl, true);
-
-          if (pos === 0) {
-            assignIO(rowA, 'input', typeof mid === 'number' ? mid : null, params);
-            return;
-          }
-          if (pos === 13) {
-            assignIO(rowA, 'output', typeof mid === 'number' ? mid : null, params);
-            return;
-          }
-          if (pos === 14) {
-            assignIO(rowB, 'input', typeof mid === 'number' ? mid : null, params);
-            return;
-          }
-          if (pos === 27) {
-            assignIO(rowB, 'output', typeof mid === 'number' ? mid : null, params);
-            return;
-          }
-
-          if (pos >= 1 && pos <= 12) {
-            assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos, enabled);
-            return;
-          }
-          if (pos >= 15 && pos <= 26) {
-            assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos, enabled);
-          }
-        };
-
-        const resolvePos = (idx: number) => {
-          const mapped = posByBlockIndex.get(idx);
-          return typeof mapped === 'number' ? mapped : idx;
-        };
-
-        if (Array.isArray(rawBlks)) {
-          if (rawBlks.length > 1 && typeof rawBlks[0] === 'number' && typeof rawBlks[1] === 'object') {
-            for (let i = 1; i < rawBlks.length; i += 2) {
-              const pos = rawBlks[i - 1];
-              const blk = rawBlks[i];
-              handleEntry(pos, blk);
-            }
-          } else {
-            rawBlks.forEach((blk: any, idx: number) => {
-              handleEntry(resolvePos(idx), blk);
-            });
-          }
-        } else if (rawBlks && typeof rawBlks === 'object') {
-          Object.entries(rawBlks).forEach(([key, blk]) => {
-            const idx = Number(key);
-            if (!Number.isFinite(idx)) return;
-            handleEntry(resolvePos(idx), blk);
-          });
-        }
-      });
-
-      // Preserve param values the user has just touched — the device may not
-      // have echoed them back yet, so the freshly-fetched state can be stale
-      // for a few hundred ms after a write.
-      const RECENT_EDIT_HOLD_MS = 1500;
-      const editsMap = recentParamEditsRef.current;
-      if (editsMap.size) {
-        const cutoff = Date.now() - RECENT_EDIT_HOLD_MS;
-        for (const [key, entry] of Array.from(editsMap.entries())) {
-          if (entry.ts < cutoff) {
-            editsMap.delete(key);
-            continue;
-          }
-          const [rowStr, blockIdStr, paramKey] = key.split('|');
-          const rowIdx = Number(rowStr);
-          const blockId = Number(blockIdStr);
-          if (!Number.isFinite(rowIdx) || !Number.isFinite(blockId)) continue;
-          const row = nextGrid[rowIdx];
-          if (!row) continue;
-          for (const block of row) {
-            if (block && block.blockId === blockId) {
-              block.params = { ...(block.params ?? {}), [paramKey]: entry.value };
-              break;
-            }
-          }
-        }
-      }
-
-      // Skip clobbering local state while the user is dragging a knob — the
-      // optimistic value is what they're seeing and should not flicker.
-      if (knobDraggingRef.current || focusWrites.current > 0) {
-        return true;
-      }
-
-      setGrid(nextGrid);
-      setIoGrid(nextIO);
+      if (!applyEditBufferState(state, silent)) return false;
+      // The grid was left alone while a control is being dragged; skip the notes read too.
+      if (knobDraggingRef.current || focusWrites.current > 0) return true;
       try {
         const notes = await client.getProperty('preset.meta.info');
         if (clientRef.current !== client) return false;
@@ -2578,6 +2605,31 @@ function EditorApp() {
     }, delayMs);
   };
 
+  // Every command is accepted locally, so edits show on screen but reach no
+  // device. Nothing is saved; leaving the preview clears it.
+  const startPreview = () => {
+    clientRef.current = createDemoClient();
+    applyEditBufferState(samplePreset);
+    setActivePresetRef({ name: 'Sample Preset', posi: 5, cid_: -1 });
+    setAutoSyncEnabled(false);
+    setPreviewMode(true);
+    setStatus('Preview');
+    setConnected(true);
+  };
+
+  useEffect(() => {
+    if (!DEMO_PRESET) return;
+    startPreview();
+    const [row, slot] = DEMO_SELECT.split('-').map(Number);
+    if (Number.isInteger(row) && Number.isInteger(slot)) {
+      setSelectedSlot({ path: row as PathIndex, block: slot as BlockSlot['block'] });
+      setBlockEditorSlot({ path: row as PathIndex, block: slot as BlockSlot['block'] });
+      setBlockEditorOpen(true);
+      if (!dockEditor) setScreen('editor');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!connected || !autoSyncEnabled) return;
     const interval = setInterval(() => {
@@ -2631,48 +2683,47 @@ function EditorApp() {
     );
   };
 
-  const renderPathSection = (pathNum: 1 | 2) => {
-    const primary: PathIndex = pathNum === 1 ? 0 : 2;
-    const split: PathIndex = pathNum === 1 ? 1 : 3;
+  const renderPathHeader = (pathNum: 1 | 2) => {
     const flowIndex = pathNum - 1;
     const usage = pathNum === 1 ? pathUsage.path1 : pathUsage.path2;
-    const hasSplit = pathNum === 1 ? hasSplit1 : hasSplit2;
     const ratio = Math.min(usage / STANDARD_DSP_CAP, 1);
     const dspColor = usage > STANDARD_DSP_CAP ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
     const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
     const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex;
-
+    const phoneSwitcher = !dockEditor && !linearControls;
     return (
-      <View style={styles.pathSection}>
-        {/* Path header — title + numeric DSP readout */}
-        <View style={styles.pathHeader}>
-          <View style={styles.pathHeaderCopy}>
-            <Text accessibilityRole="header" style={styles.pathTitle}>Path {pathNum}</Text>
-            {clipboardMatches && <Text style={styles.pathClipboardBadge}>copied</Text>}
+      <View style={[styles.pathHeader, linearControls && styles.pathHeaderStacked]}>
+        {phoneSwitcher ? (
+          <View accessibilityRole="tablist" style={styles.segmentTrack}>
+            {([1, 2] as const).map((value) => (
+              <Pressable key={value} accessibilityRole="tab" accessibilityState={{ selected: phonePath === value }}
+                onPress={() => setPhonePath(value)} style={[styles.segmentItem, phonePath === value && styles.segmentItemActive]}>
+                <Text style={[styles.segmentItemText, phonePath === value && styles.segmentItemTextActive]}>Path {value}</Text>
+              </Pressable>
+            ))}
           </View>
-          <Pressable accessibilityLabel={`Path ${pathNum} DSP estimate ${usage.toFixed(1)} of ${STANDARD_DSP_CAP}. Explain processing estimates`}
-            onPress={() => setParamHelp({ title: 'DSP estimates', body: 'DSP is the processing capacity used by amps and effects. These numbers are estimates from the model catalogue, not live CPU percentages. Each path has its own budget. Larger numbers use more of it; bypassing a block does not free its capacity.' })}
-            style={styles.pathHeaderRight}>
-            <Text style={styles.pathDspLabel}>DSP estimate ⓘ</Text>
-            <Text style={[styles.pathDspNumber, { color: dspColor }]}>{usage.toFixed(1)}</Text>
-            <Text style={styles.pathDspLimit}>/{STANDARD_DSP_CAP}</Text>
-          </Pressable>
-        </View>
-        {extendedDspEnabled && <Text style={styles.labelHint}>Extended budget on · normal limit {STANDARD_DSP_CAP}, maximum estimate {EXTENDED_DSP_CAP}</Text>}
-        {/* Hairline DSP meter */}
-        <View style={styles.dspTrack}>
-          <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
-        </View>
-        {/* Inline text actions — no pill shapes */}
+        ) : (
+          <Text accessibilityRole="header" style={styles.pathTitle}>Path {pathNum}</Text>
+        )}
+        <Pressable accessibilityLabel={`Path ${pathNum} DSP estimate ${usage.toFixed(1)} of ${STANDARD_DSP_CAP}. Explain processing estimates`}
+          onPress={() => setParamHelp({ title: 'DSP estimates', body: 'DSP is the processing capacity used by amps and effects. These numbers are estimates from the model catalogue, not live CPU percentages. Each path has its own budget. Larger numbers use more of it; bypassing a block does not free its capacity.' })}
+          style={styles.pathDsp}>
+          <View style={styles.dspTrack}>
+            <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
+          </View>
+          <Text style={[styles.pathDspText, usage > STANDARD_DSP_CAP && { color: COLORS.danger }]}>
+            {usage.toFixed(1)} of {STANDARD_DSP_CAP} DSP
+          </Text>
+        </Pressable>
         <View style={styles.pathActionRow}>
-          <Pressable accessibilityLabel={`Copy path ${pathNum}`} hitSlop={6} onPress={() => { void handleCopyPath(pathNum); }}>
+          {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied</Text>}
+          <Pressable accessibilityLabel={`Copy path ${pathNum}`} style={styles.pathActionButton} onPress={() => { void handleCopyPath(pathNum); }}>
             <Text style={styles.pathActionText}>Copy</Text>
           </Pressable>
-          <View style={styles.pathActionDivider} />
           <Pressable
-            hitSlop={6}
             accessibilityLabel={`Paste copied path into path ${pathNum}`}
             disabled={!canPasteClipboard}
+            style={styles.pathActionButton}
             onPress={() => { void handlePastePath(pathNum); }}
           >
             <Text style={[styles.pathActionText, !canPasteClipboard && styles.pathActionTextDisabled]}>
@@ -2680,97 +2731,151 @@ function EditorApp() {
             </Text>
           </Pressable>
         </View>
+      </View>
+    );
+  };
+
+  const renderEffectList = (row: PathIndex) => (
+    <DraggableEffectList
+      key={`${activePresetStorageId}:${row}`}
+      blocks={decorateDisplayBlocks(grid[row])}
+      pathIndex={row}
+      selectedSlot={selectedSlot}
+      onSelectSlot={selectSlot}
+      onOpenSlotMenu={openSlotMenu}
+      onReorder={moveBlockInPath}
+      onToggleEnabled={toggleBlockEnabled}
+      kindLabel={kindLabel}
+      onDragStart={() => setFlowScrollEnabled(false)}
+      onDragEnd={() => setFlowScrollEnabled(true)}
+    />
+  );
+
+  // A block dropped in the lanes becomes the selected block, wherever it lands.
+  const handleLaneMove = (row: PathIndex, from: number, to: number) => {
+    const dropped = { path: row, block: to as BlockSlot['block'] };
+    setSelectedSlot(dropped);
+    setBlockEditorSlot(dropped);
+    setBlockEditorOpen(true);
+    setFocusOpen(false);
+    void moveBlockInPath(row, from, to);
+  };
+
+  const renderPathSection = (pathNum: 1 | 2) => {
+    const primary: PathIndex = pathNum === 1 ? 0 : 2;
+    const split: PathIndex = pathNum === 1 ? 1 : 3;
+    const hasSplit = pathNum === 1 ? hasSplit1 : hasSplit2;
+
+    return (
+      <View style={styles.pathSection}>
+        {renderPathHeader(pathNum)}
+        {extendedDspEnabled && <Text style={styles.labelHint}>Extended budget on · normal limit {STANDARD_DSP_CAP}, maximum estimate {EXTENDED_DSP_CAP}</Text>}
 
         {pathNum === 1 && virtualNamRoute && <VirtualNamBlock route={virtualNamRoute} />}
 
-        {/* Helix-Editor-style horizontal chain strip — primary visual */}
-        {!linearControls && <PathChainStrip
-          rowLabel={`${pathNum}A`}
-          blocks={decorateDisplayBlocks(grid[primary])}
-          pathIndex={primary}
-          selectedSlot={selectedSlot}
-          onSelectSlot={selectSlot}
-          onOpenSlotMenu={openSlotMenu}
-          ioInputName={ioGrid[primary]?.input?.name ?? null}
-          ioOutputName={ioGrid[primary]?.output?.name ?? null}
-          onSelectInput={() => selectIO(primary, 'input')}
-          onSelectOutput={() => selectIO(primary, 'output')}
-          tileSize={isTablet ? 60 : 48}
-        />}
-
-        {/* Detail list — drag-to-reorder, power toggles, names */}
-        <DraggableEffectList
-          key={`${activePresetStorageId}:${primary}`}
-          blocks={decorateDisplayBlocks(grid[primary])}
-          pathIndex={primary}
-          selectedSlot={selectedSlot}
-          onSelectSlot={selectSlot}
-          onOpenSlotMenu={openSlotMenu}
-          onReorder={moveBlockInPath}
-          onToggleEnabled={toggleBlockEnabled}
-          kindLabel={kindLabel}
-          onDragStart={() => setFlowScrollEnabled(false)}
-          onDragEnd={() => setFlowScrollEnabled(true)}
-        />
-
-        {/* Input/output endpoints for primary row */}
-        {linearControls && renderIORow(primary, 'input')}
-        {linearControls && renderIORow(primary, 'output')}
-
-        {/* Split section */}
-        {hasSplit && (
+        {dockEditor ? (
+          <PathLanes
+            pathNumber={pathNum}
+            rowA={decorateDisplayBlocks(grid[primary])}
+            rowB={decorateDisplayBlocks(grid[split])}
+            ioA={{ input: ioGrid[primary]?.input?.name ?? null, output: ioGrid[primary]?.output?.name ?? null }}
+            ioB={{ input: ioGrid[split]?.input?.name ?? null, output: ioGrid[split]?.output?.name ?? null }}
+            selectedSlot={selectedSlot}
+            onSelectSlot={selectSlot}
+            onOpenSlotMenu={openSlotMenu}
+            onSelectIO={selectIO}
+            onMoveBlock={handleLaneMove}
+            onDragActive={(active) => setFlowScrollEnabled(!active)}
+            kindLabel={kindLabel}
+          />
+        ) : (
           <>
-            <View style={styles.splitDivider}>
-              <View style={styles.splitLine} />
-              <Text style={styles.splitLabel}>Split path</Text>
-              <View style={styles.splitLine} />
-            </View>
-            {!linearControls && <PathChainStrip
-              rowLabel={`${pathNum}B`}
-              blocks={decorateDisplayBlocks(grid[split])}
-              pathIndex={split}
-              selectedSlot={selectedSlot}
-              onSelectSlot={selectSlot}
-              onOpenSlotMenu={openSlotMenu}
-              ioInputName={ioGrid[split]?.input?.name ?? null}
-              ioOutputName={ioGrid[split]?.output?.name ?? null}
-              onSelectInput={() => selectIO(split, 'input')}
-              onSelectOutput={() => selectIO(split, 'output')}
-              inputDisabled
-              tileSize={isTablet ? 60 : 48}
-            />}
-            <DraggableEffectList
-              key={`${activePresetStorageId}:${split}`}
-              blocks={decorateDisplayBlocks(grid[split])}
-              pathIndex={split}
-              selectedSlot={selectedSlot}
-              onSelectSlot={selectSlot}
-              onOpenSlotMenu={openSlotMenu}
-              onReorder={moveBlockInPath}
-              onToggleEnabled={toggleBlockEnabled}
-              kindLabel={kindLabel}
-              onDragStart={() => setFlowScrollEnabled(false)}
-              onDragEnd={() => setFlowScrollEnabled(true)}
-            />
-            {linearControls && renderIORow(split, 'input')}
-            {linearControls && renderIORow(split, 'output')}
+            {!linearControls && <Text style={styles.rowHeading}>Row {pathNum}A</Text>}
+            {renderEffectList(primary)}
+            {linearControls && renderIORow(primary, 'input')}
+            {linearControls && renderIORow(primary, 'output')}
+            {hasSplit && (
+              <View style={!linearControls && styles.branchSection}>
+                <Text style={styles.rowHeading}>Row {pathNum}B · split branch</Text>
+                {renderEffectList(split)}
+                {linearControls && renderIORow(split, 'input')}
+                {linearControls && renderIORow(split, 'output')}
+              </View>
+            )}
           </>
         )}
       </View>
     );
   };
 
-  const renderFlowTab = () => (
-    <ScrollView keyboardShouldPersistTaps="handled"
-      style={styles.tabContent}
-      contentContainerStyle={styles.flowPadding}
-      showsVerticalScrollIndicator={false}
-      scrollEnabled={flowScrollEnabled}
-    >
-      {renderPathSection(1)}
-      {renderPathSection(2)}
-    </ScrollView>
+  const renderOverview = () => (
+    <View style={styles.overview}>
+      {([1, 2] as const).map((pathNum) => {
+        const primary: PathIndex = pathNum === 1 ? 0 : 2;
+        const split: PathIndex = pathNum === 1 ? 1 : 3;
+        return (
+          <PathLanes
+            key={pathNum}
+            compact
+            pathNumber={pathNum}
+            rowA={grid[primary]}
+            rowB={grid[split]}
+            ioA={{ input: null, output: null }}
+            ioB={{ input: null, output: null }}
+            selectedSlot={selectedSlot}
+            selected={phonePath === pathNum}
+            onPress={() => setPhonePath(pathNum)}
+          />
+        );
+      })}
+    </View>
   );
+
+  const renderFlowTab = () => {
+    if (dockEditor) {
+      return (
+        <View style={styles.flowDock}>
+          <ScrollView keyboardShouldPersistTaps="handled"
+            style={styles.flowLanes}
+            contentContainerStyle={styles.flowLanesContent}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={flowScrollEnabled}
+          >
+            {renderPathSection(1)}
+            {renderPathSection(2)}
+          </ScrollView>
+          <View style={[styles.inspector, isLandscape && styles.inspectorLandscape]}>
+            {blockEditorOpen && blockEditorSlot && activeBlock ? renderBlockInspector(true) : (
+              <View style={styles.inspectorEmpty}>
+                <Text style={styles.inspectorEmptyTitle}>Select a block to edit it here</Text>
+                <Text style={styles.inspectorEmptyText}>Tap an empty position to add a block. Touch and hold a block, then drag to move it, or let go for more options.</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      );
+    }
+    return (
+      <ScrollView keyboardShouldPersistTaps="handled"
+        style={styles.tabContent}
+        contentContainerStyle={styles.flowPadding}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={flowScrollEnabled}
+      >
+        {linearControls ? (
+          <>
+            {renderPathSection(1)}
+            {renderPathSection(2)}
+          </>
+        ) : (
+          <>
+            {renderOverview()}
+            {renderPathSection(phonePath)}
+          </>
+        )}
+      </ScrollView>
+    );
+  };
 
   const renderPresetTab = () => (
     <ScrollView keyboardShouldPersistTaps="handled"
@@ -3950,6 +4055,7 @@ function EditorApp() {
     blockColor?: string,
     _modelId: number | null = null,
     modelName: string | null = null,
+    columns = 1,
   ) => {
     if (!params.length) {
       return <Text style={styles.paramHint}>{emptyHint}</Text>;
@@ -3992,14 +4098,14 @@ function EditorApp() {
       <View style={styles.paramContainer}>
         {/* Continuous numerics + long option lists */}
         {mainParams.length > 0 && (
-          <View style={useSliders ? styles.sliderStack : styles.knobGrid}>
+          <View style={useSliders ? (columns > 1 ? styles.sliderGrid : styles.sliderStack) : styles.knobGrid}>
             {mainParams.map(({ param, index: paramIndex }) => {
               const paramKey = paramStateKey(param) ?? param.name ?? 'param';
               const rowKey = `${paramKey}-${paramIndex}`;
               const current = values?.[paramKey] ?? param.def ?? 0;
               const helpAdornment = renderHelpButton(param, useSliders ? COLORS.muted : accent);
               if (useSliders) {
-                return (
+                const slider = (
                   <ParamSlider
                     key={rowKey}
                     label={param.name}
@@ -4018,6 +4124,9 @@ function EditorApp() {
                     rowHeight={isTablet ? 44 : 36}
                   />
                 );
+                return columns > 1
+                  ? <View key={rowKey} style={{ width: `${100 / columns}%`, paddingRight: 28 }}>{slider}</View>
+                  : slider;
               }
               return (
                 <ParamKnob
@@ -4137,7 +4246,7 @@ function EditorApp() {
     );
   };
 
-  const renderBlockParams = () => {
+  const renderBlockParams = (columns = 1) => {
     if (!activeBlockMeta || !activeBlock) {
       return <Text style={styles.paramHint}>Long-press a block to edit its parameters.</Text>;
     }
@@ -4150,6 +4259,7 @@ function EditorApp() {
       blockColor,
       activeBlock.id ?? null,
       activeBlockMeta.name ?? null,
+      columns,
     );
   };
 
@@ -4349,212 +4459,242 @@ function EditorApp() {
   );
 
   /* ── Full-screen parameter editor ──────────────────────────────── */
-  const renderEditor = () => {
+  // Every filled position in signal order, for stepping between blocks.
+  const editableSlots = useMemo(() => {
+    const slots: BlockSlot[] = [];
+    ([0, 1, 2, 3] as PathIndex[]).forEach((path) => {
+      grid[path]?.forEach((block, index) => {
+        if (block) slots.push({ path, block: index as BlockSlot['block'] });
+      });
+    });
+    return slots;
+  }, [grid]);
+
+  const stepBlock = (delta: -1 | 1) => {
+    if (!blockEditorSlot) return;
+    const index = editableSlots.findIndex((slot) => slot.path === blockEditorSlot.path && slot.block === blockEditorSlot.block);
+    const next = editableSlots[index + delta];
+    if (!next) return;
+    setFocusOpen(false);
+    setSelectedSlot(next);
+    setBlockEditorSlot(next);
+  };
+
+  const renderBlockInspector = (docked: boolean) => {
     if (!activeBlock || !activeBlockMeta || !blockEditorSlot) return null;
-    const appearance = getBlockAppearance(activeBlock.kind, activeBlock.enabled !== false);
+    const isEnabled = activeBlock.enabled !== false;
+    const appearance = getBlockAppearance(activeBlock.kind, isEnabled, docked ? COLORS.inspector : COLORS.bg);
     const color = appearance.accent;
     const blockImage = BLOCK_IMAGES[activeBlock.kind] ?? null;
     const displayName = getBlockDisplayName(activeBlock);
     const metaName = getBlockMetaName(activeBlock);
-
-    const isEnabled = activeBlock.enabled !== false;
     const canFocus = focusKind(activeBlockMeta) !== null && activePresetContentId !== null && activeSnapshotIndex !== null && activeBlock.blockId !== undefined;
     const focusTarget: FocusTarget | null = canFocus ? {
       presetId: activePresetContentId!, snapshotIndex: activeSnapshotIndex!, flow: rowToFlow(blockEditorSlot.path),
       blockId: activeBlock.blockId!, modelId: activeBlockMeta.id,
     } : null;
     const focusListLayout = focusOpen && (linearControls || windowDims.fontScale > 1.3);
+    const subtitle = [
+      kindLabel(activeBlock.kind),
+      metaName && metaName !== displayName && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null,
+      `Row ${rowLabels[blockEditorSlot.path]}, position ${blockEditorSlot.block + 1}`,
+      typeof activeBlock.usage === 'number' ? `${activeBlock.usage.toFixed(1)} DSP` : null,
+    ].filter(Boolean).join(' · ');
+    const slotIndex = editableSlots.findIndex((slot) => slot.path === blockEditorSlot.path && slot.block === blockEditorSlot.block);
+
+    const chip = (
+      <View style={[styles.inspectorChip, { backgroundColor: appearance.fill, borderColor: appearance.outline, borderStyle: appearance.outlineStyle }]}>
+        {blockImage ? (
+          <Image source={blockImage} style={{ width: 26, height: 26, tintColor: appearance.icon }} resizeMode="contain" />
+        ) : (
+          <BlockIcon type={activeBlock.kind} size={26} color={appearance.icon} />
+        )}
+      </View>
+    );
+    const titleStack = (
+      <View style={styles.inspectorTitleStack}>
+        <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.inspectorTitle}>{displayName}</ScreenHeading>
+        <Text style={styles.inspectorSubtitle} numberOfLines={linearControls ? undefined : 1}>{subtitle}</Text>
+      </View>
+    );
     const powerButton = (
       <Pressable
-        style={[
-          styles.editorPower,
-          {
-            borderColor: isEnabled ? appearance.selectedBorder : appearance.border,
-            backgroundColor: isEnabled ? appearance.selectedSurface : appearance.surface,
-          },
-        ]}
         accessibilityRole="switch"
         accessibilityLabel={`${displayName} enabled`}
         accessibilityState={{ checked: isEnabled }}
-        onPress={() => {
-          void toggleBlockEnabled(blockEditorSlot);
-        }}
-        hitSlop={8}
+        onPress={() => { void toggleBlockEnabled(blockEditorSlot); }}
+        style={({ pressed }) => [
+          styles.powerPill,
+          isEnabled ? { backgroundColor: appearance.fill, borderColor: color } : styles.powerPillOff,
+          pressed && styles.toolButtonPressed,
+        ]}
       >
-        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-          <Path
-            d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
-            stroke={appearance.power}
-            strokeWidth={2}
-            strokeLinecap="round"
-          />
-        </Svg>
+        <View style={[styles.powerDot, { backgroundColor: isEnabled ? color : COLORS.faint }]} />
+        <Text style={[styles.powerText, !isEnabled && { color: COLORS.muted }]}>{isEnabled ? 'On' : 'Bypassed'}</Text>
       </Pressable>
     );
+    const tools = (
+      <>
+        {powerButton}
+        <Pressable accessibilityLabel={`Replace ${displayName}`} disabled={focusBusy}
+          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
+          onPress={() => {
+            if (!docked) closeEditor();
+            replaceSlotModel(blockEditorSlot);
+          }}>
+          <Text style={styles.toolButtonText}>Replace</Text>
+        </Pressable>
+        <Pressable accessibilityLabel={`Remove ${displayName}`} disabled={focusBusy}
+          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
+          onPress={() => {
+            clearSlot(blockEditorSlot);
+            closeEditor();
+          }}>
+          <Text style={[styles.toolButtonText, styles.toolButtonDanger]}>Remove</Text>
+        </Pressable>
+      </>
+    );
+    const viewTabs = canFocus ? (
+      <View accessibilityRole="tablist" style={[styles.segmentTrack, focusListLayout && styles.segmentTrackStacked]}>
+        <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy}
+          style={[styles.segmentItem, !focusOpen && styles.segmentItemActive]} onPress={() => setFocusOpen(false)}>
+          <Text style={[styles.segmentItemText, !focusOpen && styles.segmentItemTextActive]}>Parameters</Text>
+        </Pressable>
+        <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy}
+          style={[styles.segmentItem, focusOpen && styles.segmentItemActive]} onPress={() => setFocusOpen(true)}>
+          <Text style={[styles.segmentItemText, focusOpen && styles.segmentItemTextActive]}>Focus View</Text>
+        </Pressable>
+      </View>
+    ) : null;
+
+    const body = (
+      <ScrollView
+        style={styles.tabContent}
+        contentContainerStyle={docked ? styles.inspectorParamPad : styles.editorParamPad}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={editorScrollEnabled}
+        keyboardShouldPersistTaps="handled"
+      >
+        {blockLabelMode && (
+          <View style={styles.blockLabelEditor}>
+            <Text style={styles.paramSectionTitle}>Block Label</Text>
+            <View style={styles.inlineEditor}>
+              <TextInput
+                style={[styles.input, styles.inlineInput]}
+                accessibilityLabel="Block label"
+                value={blockLabelDraft}
+                onChangeText={setBlockLabelDraft}
+                placeholder={activeBlock.modelName ?? activeBlock.name}
+                placeholderTextColor={COLORS.muted}
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+              <Pressable
+                style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                onPress={handleBlockLabelApply}
+              >
+                <Text style={[styles.buttonText, styles.buttonTextGhost]}>
+                  {blockLabelDraft.trim() ? 'Apply' : 'Clear'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+        {focusListLayout && <ScreenHeading focusKey={`focus-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>}
+        {!docked && viewTabs}
+        {focusOpen && focusTarget ? <FocusView
+          key={`${focusTarget.presetId}-${focusTarget.snapshotIndex}-${focusTarget.flow}-${focusTarget.blockId}-${focusTarget.modelId}`}
+          model={activeBlockMeta}
+          read={async () => {
+            const client = requireClient();
+            if (!client || await client.getActivePresetContentId() !== focusTarget.presetId) throw new Error('The preset changed. Sync and reopen Focus View.');
+            const values = readFocusValues(await client.getEditBufferState(), focusTarget);
+            if (await client.getActivePresetContentId() !== focusTarget.presetId) throw new Error('The preset changed. Sync and reopen Focus View.');
+            return values;
+          }}
+          apply={async (changes: FocusChange[]) => {
+            const client = requireClient();
+            if (!client) throw new Error('Reconnect to the Stadium before adjusting Focus View.');
+            const values = await client.applyFocus(focusTarget, changes);
+            if (clientRef.current !== client) throw new Error('The connection changed. Reopen Focus View after reconnecting.');
+            const focusParams = getFocusDefinition(activeBlockMeta.id)?.params ?? activeBlockMeta.params;
+            const keyed = Object.fromEntries(focusParams.filter(param => param.id !== null && values[param.id] !== undefined).map(param => [param.key, values[param.id!]]));
+            setGrid(previous => {
+              const next = cloneGrid(previous);
+              const block = next[blockEditorSlot.path]?.[blockEditorSlot.block];
+              if (block?.blockId === focusTarget.blockId && block.id === focusTarget.modelId) block.params = { ...block.params, ...keyed };
+              return next;
+            });
+            return values;
+          }}
+          onBusy={busy => {
+            focusWrites.current = Math.max(0, focusWrites.current + (busy ? 1 : -1));
+            setFocusBusy(focusWrites.current > 0);
+            if (!busy) scheduleSync(150, { full: true, silent: true });
+          }}
+          onDrag={handleKnobDragChange}
+        /> : renderBlockParams(docked ? (isLandscape ? 3 : 2) : 1)}
+      </ScrollView>
+    );
+
+    if (docked) {
+      return (
+        <>
+          <View style={styles.inspectorHeader}>
+            {chip}
+            {titleStack}
+            {viewTabs}
+            <View style={styles.inspectorTools}>{tools}</View>
+          </View>
+          {body}
+        </>
+      );
+    }
+    return (
+      <>
+        <View style={styles.editorTopRow}>
+          <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy} style={styles.editorBack}
+            onPress={() => { setFocusOpen(false); closeEditor(); }} hitSlop={12}>
+            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+              <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
+          {chip}
+          {titleStack}
+        </View>
+        <View style={styles.editorToolRow}>
+          {tools}
+          {!linearControls && (
+            <View style={[styles.editorStep, styles.editorStepEnd]}>
+              <Pressable accessibilityLabel="Previous block" disabled={focusBusy || slotIndex <= 0}
+                style={({ pressed }) => [styles.stepButton, pressed && styles.toolButtonPressed, slotIndex <= 0 && styles.stepButtonDisabled]}
+                onPress={() => stepBlock(-1)}>
+                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                  <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+                </Svg>
+              </Pressable>
+              <Pressable accessibilityLabel="Next block" disabled={focusBusy || slotIndex < 0 || slotIndex >= editableSlots.length - 1}
+                style={({ pressed }) => [styles.stepButton, pressed && styles.toolButtonPressed, (slotIndex < 0 || slotIndex >= editableSlots.length - 1) && styles.stepButtonDisabled]}
+                onPress={() => stepBlock(1)}>
+                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                  <Path d="M9 18l6-6-6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+                </Svg>
+              </Pressable>
+            </View>
+          )}
+        </View>
+        {body}
+      </>
+    );
+  };
+
+  const renderEditor = () => {
+    if (!activeBlock || !activeBlockMeta || !blockEditorSlot) return null;
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-          {/* Editor header — back, title row, action icons */}
-          <View style={[styles.editorHeader, focusOpen && styles.focusEditorHeader]}>
-            <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy} style={styles.editorBack} onPress={() => { setFocusOpen(false); closeEditor(); }} hitSlop={12}>
-              <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-                <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            </Pressable>
-            <View style={[styles.editorTitleStack, focusOpen && styles.focusEditorTitle]}>
-              {!focusListLayout && <><Text style={[styles.editorEyebrow, { color: appearance.meta }]}>
-                {kindLabel(activeBlock.kind).toUpperCase()}
-              </Text>
-              <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading></>}
-            </View>
-            {focusOpen ? powerButton : <View style={styles.editorActions}>
-              <Pressable
-                accessibilityLabel={`Replace ${displayName}`}
-                disabled={focusBusy}
-                style={styles.editorActionBtn}
-                onPress={() => {
-                  closeEditor();
-                  replaceSlotModel(blockEditorSlot);
-                }}
-              >
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  <Path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke={COLORS.muted} strokeWidth={1.8} strokeLinecap="round" />
-                  <Path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke={COLORS.muted} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              </Pressable>
-              <Pressable
-                accessibilityLabel={`Remove ${displayName}`}
-                disabled={focusBusy}
-                style={styles.editorActionBtn}
-                onPress={() => {
-                  clearSlot(blockEditorSlot);
-                  closeEditor();
-                }}
-              >
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  <Path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke={COLORS.danger} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              </Pressable>
-            </View>}
-          </View>
-
+          {renderBlockInspector(false)}
           {renderPresetSaveBar()}
-
-          {/* Block plate — icon, model name, power state in one composed row */}
-          {!focusOpen && <View style={styles.editorPlate}>
-            <View
-              style={[
-                styles.editorPlateIcon,
-                {
-                  backgroundColor: appearance.iconSurface,
-                  borderColor: colorWithAlpha(color, isEnabled ? 0.32 : 0.12),
-                },
-              ]}
-            >
-              {blockImage ? (
-                <Image source={blockImage} style={{ width: 26, height: 26, tintColor: appearance.power }} resizeMode="contain" />
-              ) : (
-                <BlockIcon type={activeBlock.kind} size={26} color={appearance.power} />
-              )}
-            </View>
-            <View style={styles.editorPlateCopy}>
-              {metaName ? (
-                <Text style={styles.editorPlateModel} numberOfLines={linearControls ? undefined : 1}>{metaName}</Text>
-              ) : (
-                <Text style={[styles.editorPlateModel, { color: COLORS.muted }]} numberOfLines={linearControls ? undefined : 1}>
-                  No model selected
-                </Text>
-              )}
-              <Text
-                style={[
-                  styles.editorPlateStatus,
-                  { color: isEnabled ? appearance.meta : COLORS.muted },
-                ]}
-                numberOfLines={linearControls ? undefined : 1}
-              >
-                {isEnabled ? 'Active' : 'Bypassed'}
-              </Text>
-            </View>
-            {powerButton}
-          </View>}
-
-          {/* Hairline accent — colored when active, muted when bypassed */}
-          <View style={styles.editorRule}>
-            <View style={styles.editorRuleTrack} />
-            <View style={[styles.editorRuleAccent, { backgroundColor: isEnabled ? color : COLORS.stroke }]} />
-          </View>
-
-          {/* Parameters */}
-          <ScrollView
-            style={styles.tabContent}
-            contentContainerStyle={styles.editorParamPad}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={editorScrollEnabled}
-            keyboardShouldPersistTaps="handled"
-          >
-            {blockLabelMode && (
-              <View style={styles.blockLabelEditor}>
-                <Text style={styles.paramSectionTitle}>Block Label</Text>
-                <View style={styles.inlineEditor}>
-                  <TextInput
-                    style={[styles.input, styles.inlineInput]}
-          accessibilityLabel="Block label"
-                    value={blockLabelDraft}
-                    onChangeText={setBlockLabelDraft}
-                    placeholder={activeBlock.modelName ?? activeBlock.name}
-                    placeholderTextColor={COLORS.muted}
-                    autoCapitalize="words"
-                    autoCorrect={false}
-                  />
-                  <Pressable
-                    style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-                    onPress={handleBlockLabelApply}
-                  >
-                    <Text style={[styles.buttonText, styles.buttonTextGhost]}>
-                      {blockLabelDraft.trim() ? 'Apply' : 'Clear'}
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
-            {focusListLayout && <ScreenHeading focusKey={`focus-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>}
-            {canFocus && <View style={[styles.segmentedControl, focusListLayout && styles.focusTabsStack]}>
-              <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy} style={[styles.segment, focusListLayout && styles.focusStackSegment, !focusOpen && styles.segmentActive]} onPress={() => setFocusOpen(false)}><Text style={[styles.focusTabText, !focusOpen && styles.segmentTextActive]}>Parameters</Text></Pressable>
-              <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy} style={[styles.segment, focusListLayout && styles.focusStackSegment, focusOpen && styles.segmentActive]} onPress={() => setFocusOpen(true)}><Text style={[styles.focusTabText, focusOpen && styles.segmentTextActive]}>Focus View</Text></Pressable>
-            </View>}
-            {focusOpen && focusTarget ? <FocusView
-              key={`${focusTarget.presetId}-${focusTarget.snapshotIndex}-${focusTarget.flow}-${focusTarget.blockId}-${focusTarget.modelId}`}
-              model={activeBlockMeta}
-              read={async () => {
-                const client = requireClient();
-                if (!client || await client.getActivePresetContentId() !== focusTarget.presetId) throw new Error('The preset changed. Sync and reopen Focus View.');
-                const values = readFocusValues(await client.getEditBufferState(), focusTarget);
-                if (await client.getActivePresetContentId() !== focusTarget.presetId) throw new Error('The preset changed. Sync and reopen Focus View.');
-                return values;
-              }}
-              apply={async (changes: FocusChange[]) => {
-                const client = requireClient();
-                if (!client) throw new Error('Reconnect to the Stadium before adjusting Focus View.');
-                const values = await client.applyFocus(focusTarget, changes);
-                if (clientRef.current !== client) throw new Error('The connection changed. Reopen Focus View after reconnecting.');
-                const focusParams = getFocusDefinition(activeBlockMeta.id)?.params ?? activeBlockMeta.params;
-                const keyed = Object.fromEntries(focusParams.filter(param => param.id !== null && values[param.id] !== undefined).map(param => [param.key, values[param.id!]]));
-                setGrid(previous => {
-                  const next = cloneGrid(previous);
-                  const block = next[blockEditorSlot.path]?.[blockEditorSlot.block];
-                  if (block?.blockId === focusTarget.blockId && block.id === focusTarget.modelId) block.params = { ...block.params, ...keyed };
-                  return next;
-                });
-                return values;
-              }}
-              onBusy={busy => {
-                focusWrites.current = Math.max(0, focusWrites.current + (busy ? 1 : -1));
-                setFocusBusy(focusWrites.current > 0);
-                if (!busy) scheduleSync(150, { full: true, silent: true });
-              }}
-              onDrag={handleKnobDragChange}
-            /> : renderBlockParams()}
-          </ScrollView>
           {renderParamHelpSheet()}
         </SafeAreaView>
       </SafeAreaProvider>
@@ -4582,8 +4722,6 @@ function EditorApp() {
     return renderPerformanceMode();
   }
 
-  if (previewOpen) return <OfflinePreview onClose={() => setPreviewOpen(false)} />;
-
   /* ── Connection gate – must connect before using the app ──────── */
   if (!connected && screen !== 'editor') {
     return (
@@ -4595,58 +4733,176 @@ function EditorApp() {
         transport={connectionTransport}
         onTransportChange={setConnectionTransport}
         onConnect={connect}
-        onPreview={() => setPreviewOpen(true)}
+        onPreview={startPreview}
         connecting={connecting}
         status={status}
       />
     );
   }
 
+  const snapshotChips = Array.from({ length: Math.min(8, snapshotCount) }, (_, index) => {
+    const snapshot = snapshots.find((item) => item.index === index);
+    const color = SNAPSHOT_COLOR_OPTIONS.find((option) => option.value === snapshot?.colr)?.swatch ?? SNAPSHOT_COLOR_OPTIONS[0].swatch;
+    return { index, name: snapshot?.name?.trim() || `Snapshot ${index + 1}`, color };
+  });
+
+  const renderTopBar = () => {
+    const canStepBackward = activePresetIndexInList > 0;
+    const canStepForward = activePresetIndexInList >= 0 && activePresetIndexInList < presetItems.length - 1;
+    const busy = presetSaving || presetCreating || showcaseBusy;
+    const saveDisabled = previewMode || !connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy || presetSaving;
+    const presetLabel = `${formatPresetPosition(activePresetRef?.posi)} ${activePresetName}`;
+    const tempo = formatTempoBpm(liveTempoBpm ?? globalTempoBpm);
+    const presetRow = (
+      <View style={[styles.topPreset, !isTablet && styles.topPresetPhone]}>
+        <Pressable accessibilityLabel="Previous preset" disabled={busy || !canStepBackward}
+          style={({ pressed }) => [styles.topIconButton, pressed && styles.toolButtonPressed, !canStepBackward && styles.stepButtonDisabled]}
+          onPress={() => handlePerformancePresetStep(-1)}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </Pressable>
+        <Pressable accessibilityLabel={`Preset ${presetLabel}${presetEdited ? ', unsaved changes' : ''}. Open presets`}
+          style={({ pressed }) => [styles.topPresetName, pressed && styles.toolButtonPressed]}
+          onPress={() => handleTabChange('preset')}>
+          <Text style={styles.topPresetSlot}>{formatPresetPosition(activePresetRef?.posi)}</Text>
+          <Text style={styles.topPresetTitle} numberOfLines={1}>{activePresetName}</Text>
+          {presetEdited ? <View style={styles.editedDot} /> : null}
+        </Pressable>
+        <Pressable accessibilityLabel="Next preset" disabled={busy || !canStepForward}
+          style={({ pressed }) => [styles.topIconButton, pressed && styles.toolButtonPressed, !canStepForward && styles.stepButtonDisabled]}
+          onPress={() => handlePerformancePresetStep(1)}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M9 18l6-6-6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </Pressable>
+        <Pressable accessibilityLabel={`Save ${activePresetName} to the Stadium`} accessibilityState={{ busy: presetSaving }}
+          disabled={saveDisabled} onPress={() => { void handleSavePreset(); }}
+          style={({ pressed }) => [styles.saveButton, !presetEdited && styles.saveButtonQuiet, saveDisabled && styles.stepButtonDisabled, pressed && { opacity: 0.85 }]}>
+          <Text style={[styles.saveButtonText, !presetEdited && styles.saveButtonTextQuiet]}>
+            {presetSaving ? 'Saving…' : presetSaved && !presetEdited ? 'Saved' : 'Save'}
+          </Text>
+        </Pressable>
+      </View>
+    );
+    const tools = (
+      <View style={[styles.topTools, !isTablet && styles.topToolsPhone]}>
+        <View style={styles.tempoGroup}>
+          <Text style={styles.tempoValue} accessibilityLabel={`Tempo ${tempo} BPM`}>{tempo}</Text>
+          <Text style={styles.tempoUnit} importantForAccessibility="no">BPM</Text>
+          <Pressable accessibilityLabel="Tap tempo" disabled={!connected}
+            style={({ pressed }) => [styles.tempoTap, pressed && styles.toolButtonPressed]} onPress={handleTapTempo}>
+            <Text style={styles.toolButtonText}>Tap</Text>
+          </Pressable>
+        </View>
+        <Pressable style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openTunerScreen('main')}>
+          <Text style={styles.toolButtonText}>Tuner</Text>
+        </Pressable>
+        <Pressable disabled={showcaseBusy} style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openPerform(performView)}>
+          <Text style={styles.toolButtonText}>Perform</Text>
+        </Pressable>
+        <Pressable accessibilityLabel="Sync with the Stadium" disabled={showcaseBusy}
+          style={({ pressed }) => [styles.topIconButton, styles.topIconQuiet, pressed && styles.toolButtonPressed]} onPress={() => void handleFullSync()}>
+          <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+            <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </Pressable>
+        {/* Phones show connection state on the Settings tab's dot instead. */}
+        {isTablet && (
+          <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`}
+            style={({ pressed }) => [styles.statusButton, pressed && styles.toolButtonPressed]} onPress={() => handleTabChange('settings')}>
+            <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
+            <Text style={styles.statusButtonText} numberOfLines={1}>{previewMode ? 'Preview' : connected ? host : 'Offline'}</Text>
+          </Pressable>
+        )}
+      </View>
+    );
+    return (
+      <View style={[styles.topBar, isTablet ? styles.topBarWide : styles.topBarPhone]}>
+        {presetRow}
+        {tools}
+      </View>
+    );
+  };
+
+  const previewBanner = previewMode ? (
+    <View style={[styles.previewBanner, isTablet && styles.previewBannerWide]}>
+      <Text style={styles.previewBannerText}>
+        <Text style={styles.previewBannerTitle}>Preview. </Text>
+        Sample preset, no Stadium connected. Edits stay on this screen and are not saved.
+      </Text>
+      <Pressable accessibilityLabel="Exit preview" style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={disconnect}>
+        <Text style={styles.toolButtonText}>Exit</Text>
+      </Pressable>
+    </View>
+  ) : null;
+
+  const visualChrome = (
+    <>
+      {previewBanner}
+      {renderTopBar()}
+      {activeTab === 'flow' && snapshotChips.length > 0 && (
+        <View style={[styles.snapshotBar, isTablet && styles.snapshotBarWide]}>
+          <SnapshotStrip
+            snapshots={snapshotChips}
+            activeIndex={activeSnapshotIndex}
+            disabled={presetSaving || presetCreating}
+            columns={isTablet ? (isLandscape ? 8 : 4) : undefined}
+            onActivate={handleSnapshotActivate}
+          />
+        </View>
+      )}
+    </>
+  );
+
+  const linearChrome = (
+    <>
+      {previewBanner}
+      <View style={[styles.appBar, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
+        <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{({ flow: 'Signal flow', preset: 'Presets', setlists: 'Library', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab])}</ScreenHeading>
+        <View style={[styles.appBarActions, { flexWrap: 'wrap' }]}>
+          <Pressable style={styles.toolButton} disabled={showcaseBusy} onPress={() => void handleFullSync()} accessibilityLabel="Sync">
+            <Text style={styles.toolButtonText}>Sync</Text>
+          </Pressable>
+          <Pressable disabled={showcaseBusy} style={styles.toolButton} onPress={() => openPerform(performView)}>
+            <Text style={styles.toolButtonText}>Perform</Text>
+          </Pressable>
+          <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={styles.statusButton} onPress={() => handleTabChange('settings')}>
+            <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
+            <Text style={styles.statusButtonText}>{connected ? host : 'Offline'}</Text>
+          </Pressable>
+        </View>
+      </View>
+      <Text style={styles.accessibilityStatus}>{libraryActivityLabel ?? status}</Text>
+      {renderPresetSaveBar()}
+      <Pressable disabled={showcaseBusy} accessibilityLabel={`Open snapshots${activeSnapshot?.name ? ', active snapshot ' + activeSnapshot.name : ''}`}
+        onPress={() => openPerform('snapshots')} style={styles.snapshotShortcut}>
+        <Text style={styles.snapshotShortcutTitle}>Snapshots</Text>
+        <Text style={styles.snapshotShortcutValue}>
+          {activeSnapshotIndex !== null ? `${activeSnapshotIndex + 1}. ${activeSnapshot?.name ?? 'Snapshot ' + (activeSnapshotIndex + 1)}` : 'View snapshots'}
+        </Text>
+        <Text style={styles.snapshotShortcutTitle}>{'›'}</Text>
+      </Pressable>
+    </>
+  );
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-        {/* ── App bar ──────────────────────────────────────────── */}
-        <View style={[styles.appBar, linearControls && { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
-          <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{linearControls ? ({ flow: 'Signal flow', preset: 'Presets', setlists: 'Library', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab]) : 'HELYON'}</ScreenHeading>
-          <View style={[styles.appBarActions, linearControls && { flexWrap: 'wrap' }]}>
-            <Pressable
-              style={[styles.appBarIconBtn, linearControls && { width: 'auto', height: 'auto', padding: 8 }]}
-              disabled={showcaseBusy} onPress={() => void handleFullSync()}
-              hitSlop={8}
-              accessibilityLabel="Sync"
-            >
-              {linearControls ? <Text style={styles.pathActionText}>Sync</Text> : <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>}
-            </Pressable>
-            <Pressable disabled={showcaseBusy} style={styles.performanceLaunchButton} onPress={() => openPerform(performView)}>
-              <Text style={styles.performanceLaunchText}>Perform</Text>
-            </Pressable>
-            <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={styles.statusPill} onPress={() => handleTabChange('settings')}>
-              <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
-              <Text style={styles.pillText}>{connected ? host : 'Offline'}</Text>
-            </Pressable>
+        <View style={[styles.shell, useNavRail && styles.shellRow]}>
+          {useNavRail && <TabBar variant="rail" activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />}
+          <View style={styles.shellMain}>
+            {linearControls ? linearChrome : visualChrome}
+
+            {/* ── Tab content ──────────────────────────────────────── */}
+            {activeTab === 'flow' && renderFlowTab()}
+            {activeTab === 'preset' && renderPresetTab()}
+            {activeTab === 'setlists' && renderSetlistsTab()}
+            {activeTab === 'matrix' && renderMatrixTab()}
+            {activeTab === 'settings' && renderSettingsTab()}
           </View>
         </View>
-
-        {linearControls && <Text style={styles.accessibilityStatus}>{libraryActivityLabel ?? status}</Text>}
-        {renderPresetSaveBar()}
-        <Pressable disabled={showcaseBusy} accessibilityLabel={`Open snapshots${activeSnapshot?.name ? ', active snapshot ' + activeSnapshot.name : ''}`}
-          onPress={() => openPerform('snapshots')} style={styles.snapshotShortcut}>
-          <Text style={styles.snapshotShortcutTitle}>Snapshots</Text>
-          <Text style={styles.snapshotShortcutValue} numberOfLines={linearControls ? undefined : 1}>
-            {activeSnapshotIndex !== null ? `${activeSnapshotIndex + 1}. ${activeSnapshot?.name ?? 'Snapshot ' + (activeSnapshotIndex + 1)}` : 'View snapshots'}
-          </Text>
-          <Text style={styles.snapshotShortcutTitle}>{'›'}</Text>
-        </Pressable>
-
-        {/* ── Tab content ──────────────────────────────────────── */}
-        {activeTab === 'flow' && renderFlowTab()}
-        {activeTab === 'preset' && renderPresetTab()}
-        {activeTab === 'setlists' && renderSetlistsTab()}
-        {activeTab === 'matrix' && renderMatrixTab()}
-        {activeTab === 'settings' && renderSettingsTab()}
 
         <CreatePresetSheet position={createPosition} slots={createSlots} busy={presetCreating} error={createError}
           onPosition={position => { setCreatePosition(position); setCreateError(''); }}
@@ -4986,7 +5242,8 @@ function EditorApp() {
                 setSlotMenuOpen(false);
                 setBlockEditorSlot(slotMenuTarget);
                 setBlockEditorOpen(true);
-                setScreen('editor');
+                setSelectedSlot(slotMenuTarget);
+                if (!dockEditor) setScreen('editor');
               }}
             >
               <Text style={styles.actionButtonPrimaryText}>Edit Parameters</Text>
@@ -5140,7 +5397,7 @@ function EditorApp() {
         {!ioPickerOpen && renderParamHelpSheet()}
 
         {/* ── Tab bar ──────────────────────────────────────────── */}
-        <TabBar activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />
+        {!useNavRail && <TabBar activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -5162,7 +5419,7 @@ const styles = StyleSheet.create({
   appTitle: {
     fontSize: 24,
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     letterSpacing: -0.4,
   },
   appBarActions: {
@@ -5179,7 +5436,7 @@ const styles = StyleSheet.create({
   },
   performanceLaunchText: {
     color: COLORS.bg,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 12.5,
     letterSpacing: 0.2,
   },
@@ -5191,7 +5448,7 @@ const styles = StyleSheet.create({
   pillDot: { width: 6, height: 6, borderRadius: 3 },
   pillText: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
+    ...FONT.numeric,
     fontSize: 11.5,
     letterSpacing: -0.1,
   },
@@ -5219,14 +5476,12 @@ const styles = StyleSheet.create({
   },
   performanceEyebrow: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
   },
   performanceHost: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
   },
   performanceExitButton: {
@@ -5239,14 +5494,14 @@ const styles = StyleSheet.create({
   },
   performanceExitText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 14,
     letterSpacing: 0.1,
   },
   snapshotShortcut: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10,
     paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.stroke },
-  snapshotShortcutTitle: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
-  snapshotShortcutValue: { flex: 1, color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 15 },
+  snapshotShortcutTitle: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
+  snapshotShortcutValue: { flex: 1, color: COLORS.muted, ...FONT.body, fontSize: 15 },
   performanceContent: {
     paddingHorizontal: 16,
     paddingBottom: 28,
@@ -5262,21 +5517,19 @@ const styles = StyleSheet.create({
   },
   performanceHeroKicker: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
   },
   performanceHeroTitle: {
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 32,
     lineHeight: 36,
     letterSpacing: -0.4,
   },
   performanceHeroMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -5293,7 +5546,7 @@ const styles = StyleSheet.create({
   },
   performanceHeroStatusText: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     letterSpacing: 0.1,
   },
@@ -5312,13 +5565,13 @@ const styles = StyleSheet.create({
   },
   performanceSectionTitle: {
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 16,
     letterSpacing: -0.2,
   },
   performanceSectionMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     letterSpacing: 0.1,
   },
@@ -5346,7 +5599,7 @@ const styles = StyleSheet.create({
   },
   performanceActionLabel: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 15,
     lineHeight: 20,
     letterSpacing: 0.1,
@@ -5356,7 +5609,7 @@ const styles = StyleSheet.create({
   },
   performanceActionMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     lineHeight: 16,
   },
@@ -5373,20 +5626,18 @@ const styles = StyleSheet.create({
   },
   performanceTempoValue: {
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 40,
     letterSpacing: -0.6,
   },
   performanceTempoUnit: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 11,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
   },
   performanceTempoMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     lineHeight: 16,
     textAlign: 'center',
@@ -5413,7 +5664,7 @@ const styles = StyleSheet.create({
   },
   performanceChipText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 13,
   },
   performanceChipTextAccent: {
@@ -5425,7 +5676,7 @@ const styles = StyleSheet.create({
   },
   performanceInlineLabel: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 13,
   },
   performanceInlineActions: {
@@ -5450,7 +5701,7 @@ const styles = StyleSheet.create({
   },
   performanceInlinePillText: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 12,
   },
   performanceInlinePillTextActive: {
@@ -5458,7 +5709,7 @@ const styles = StyleSheet.create({
   },
   tunerOffsetHint: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     lineHeight: 18,
   },
@@ -5487,19 +5738,19 @@ const styles = StyleSheet.create({
   },
   tunerOffsetLabel: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 13,
   },
   tunerOffsetShortLabel: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 10,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   tunerOffsetValue: {
     color: COLORS.accent,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 26,
     letterSpacing: 0.2,
   },
@@ -5522,7 +5773,7 @@ const styles = StyleSheet.create({
   },
   tunerOffsetAdjustButtonText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 12,
   },
   tunerOffsetAdjustButtonTextAccent: {
@@ -5549,7 +5800,7 @@ const styles = StyleSheet.create({
   },
   performancePresetSlot: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
+    ...FONT.numeric,
     fontSize: 11,
     letterSpacing: 0.1,
   },
@@ -5558,7 +5809,7 @@ const styles = StyleSheet.create({
   },
   performancePresetName: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 15,
     lineHeight: 20,
   },
@@ -5567,7 +5818,7 @@ const styles = StyleSheet.create({
   },
   performanceEmptyText: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -5577,20 +5828,18 @@ const styles = StyleSheet.create({
   },
   transportHeroValue: {
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 32,
     letterSpacing: -0.4,
   },
   transportHeroUnit: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 12,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
   },
   transportHeroMeta: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     lineHeight: 16,
   },
@@ -5613,7 +5862,7 @@ const styles = StyleSheet.create({
   },
   transportAdjustButtonText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 13,
   },
   transportAdjustButtonTextAccent: {
@@ -5636,78 +5885,288 @@ const styles = StyleSheet.create({
     borderColor: COLORS.stroke,
   },
 
-  /* ── Path section ──────────────────────────────────────────────── */
-  /* Path section — content block, NOT a card. Sits on the page bg. */
-  pathSection: {
-    marginBottom: 20,
-  },
-  pathHeader: {
-    flexWrap: 'wrap',
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline',
-    paddingTop: 4, paddingBottom: 6,
-  },
-  pathHeaderCopy: {
+  /* ── App shell ─────────────────────────────────────────────────── */
+  shell: { flex: 1 },
+  shellRow: { flexDirection: 'row' },
+  shellMain: { flex: 1, minWidth: 0 },
+
+  /* ── Top bar: preset, save, tempo and tools ─────────────────────── */
+  topBar: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-  },
-  pathTitle: {
-    color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
-    fontSize: 18,
-    letterSpacing: -0.2,
-  },
-  pathClipboardBadge: {
-    color: COLORS.muted,
-    fontFamily: FONT_BODY,
-    fontSize: 12,
-    fontStyle: 'italic',
-  },
-  pathHeaderRight: {
     flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 6,
+    paddingBottom: 8,
+  },
+  topBarWide: { paddingHorizontal: 24, paddingTop: 10, gap: 12 },
+  topBarPhone: { flexDirection: 'column', alignItems: 'stretch' },
+  topPreset: { flexDirection: 'row', alignItems: 'center', gap: 8, flexGrow: 1, flexShrink: 1, flexBasis: 320 },
+  topPresetPhone: { flexBasis: 'auto', flexGrow: 0, flexShrink: 0, width: '100%' },
+  topIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topIconQuiet: { backgroundColor: 'transparent' },
+  topPresetName: {
+    flexShrink: 1,
+    flexGrow: 1,
+    maxWidth: 420,
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
   },
-  pathDspLabel: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 12, marginRight: 6 },
-  pathDspNumber: {
-    fontFamily: FONT_MONO,
-    fontSize: 15,
-    letterSpacing: -0.2,
+  topPresetSlot: { color: COLORS.muted, ...FONT.numeric, fontSize: 15 },
+  topPresetTitle: { flexShrink: 1, color: COLORS.text, ...FONT.semibold, fontSize: 18 },
+  editedDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.warn },
+  saveButton: {
+    minHeight: 44,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    backgroundColor: COLORS.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  pathDspLimit: {
-    color: COLORS.muted,
-    fontFamily: FONT_MONO,
-    fontSize: 12,
-    letterSpacing: -0.2,
-  },
-  /* Thin DSP meter — like a chassis level meter, not a "progress bar" */
-  dspTrack: {
-    height: 2,
-    backgroundColor: COLORS.hairline,
-    marginBottom: 4,
+  saveButtonQuiet: { backgroundColor: COLORS.control },
+  saveButtonText: { color: COLORS.bg, ...FONT.semibold, fontSize: 15 },
+  saveButtonTextQuiet: { color: COLORS.text },
+  topTools: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginLeft: 'auto' },
+  topToolsPhone: { marginLeft: 0, justifyContent: 'space-between' },
+  tempoGroup: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+    paddingLeft: 14,
     overflow: 'hidden',
   },
-  dspFill: { height: '100%' },
-  pathActionRow: {
+  tempoValue: { color: COLORS.text, ...FONT.semibold, ...FONT.numeric, fontSize: 17 },
+  tempoUnit: { color: COLORS.muted, ...FONT.body, fontSize: 13, marginLeft: 6, marginRight: 10 },
+  tempoTap: {
+    minHeight: 44,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: COLORS.stroke,
+  },
+  toolButton: {
+    minHeight: 44,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toolButtonPressed: { backgroundColor: COLORS.stroke },
+  toolButtonText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
+  toolButtonDanger: { color: COLORS.danger },
+  statusButton: {
+    minHeight: 44,
+    maxWidth: 200,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  statusButtonText: { flexShrink: 1, color: COLORS.muted, ...FONT.body, fontSize: 14 },
+  snapshotBar: { paddingLeft: 16, paddingBottom: 10 },
+  previewBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    marginHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 2,
+    paddingLeft: 14,
+    paddingRight: 6,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: COLORS.panel,
+    borderWidth: 1,
+    borderColor: COLORS.warn,
+  },
+  previewBannerWide: { marginHorizontal: 24 },
+  previewBannerText: { flex: 1, color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 19 },
+  previewBannerTitle: { color: COLORS.text, ...FONT.semibold },
+  snapshotBarWide: { paddingHorizontal: 24, paddingBottom: 6 },
+
+  /* ── Segmented control ─────────────────────────────────────────── */
+  segmentTrack: {
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+    padding: 3,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+  },
+  segmentTrackStacked: { flexDirection: 'column', alignSelf: 'stretch' },
+  segmentItem: {
+    minHeight: 38,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentItemActive: { backgroundColor: COLORS.stroke },
+  segmentItemText: { color: COLORS.muted, ...FONT.semibold, fontSize: 14 },
+  segmentItemTextActive: { color: COLORS.text },
+
+  /* ── Edit tab ──────────────────────────────────────────────────── */
+  flowDock: { flex: 1 },
+  flowLanes: { flexGrow: 0, flexShrink: 1 },
+  flowLanesContent: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 8, gap: 6 },
+  overview: { gap: 6, marginBottom: 6 },
+  inspector: {
+    flex: 1,
+    minHeight: 320,
+    marginTop: 8,
+    backgroundColor: COLORS.inspector,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.stroke,
+  },
+  inspectorLandscape: { minHeight: 300 },
+  inspectorEmpty: { padding: 24, gap: 6 },
+  inspectorEmptyTitle: { color: COLORS.text, ...FONT.semibold, fontSize: 17 },
+  inspectorEmptyText: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 21, maxWidth: 560 },
+  inspectorHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 14,
+    paddingHorizontal: 24,
+    paddingTop: 16,
     paddingBottom: 4,
+  },
+  inspectorChip: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inspectorTitleStack: { flexShrink: 1, flexGrow: 1, flexBasis: 180, gap: 2 },
+  inspectorTitle: { color: COLORS.text, ...FONT.bold, fontSize: 22, lineHeight: 26 },
+  inspectorSubtitle: { color: COLORS.muted, ...FONT.body, fontSize: 14 },
+  inspectorTools: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginLeft: 'auto' },
+  inspectorParamPad: { paddingHorizontal: 24, paddingTop: 12, paddingBottom: 32 },
+  powerPill: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingLeft: 12,
+    paddingRight: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+  },
+  powerPillOff: { backgroundColor: COLORS.control, borderColor: COLORS.control },
+  powerDot: { width: 10, height: 10, borderRadius: 5 },
+  powerText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
+  editorTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingLeft: 8,
+    paddingRight: 16,
+    paddingTop: 6,
+    paddingBottom: 10,
+  },
+  editorStep: { flexDirection: 'row', gap: 8 },
+  editorStepEnd: { marginLeft: 'auto' },
+  stepButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepButtonDisabled: { opacity: 0.4 },
+  editorToolRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
+  sliderGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 10, paddingVertical: 4 },
+
+  /* ── Path section ──────────────────────────────────────────────── */
+  pathSection: {
+    marginBottom: 14,
+  },
+  pathHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 14,
+    paddingBottom: 6,
+  },
+  pathHeaderStacked: { alignItems: 'flex-start', flexDirection: 'column', gap: 6 },
+  pathTitle: {
+    color: COLORS.text,
+    ...FONT.bold,
+    fontSize: 17,
+  },
+  pathClipboardBadge: {
+    color: COLORS.muted,
+    ...FONT.body,
+    fontSize: 13,
+  },
+  pathDsp: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  pathDspText: { color: COLORS.muted, ...FONT.numeric, fontSize: 13 },
+  /* DSP meter — like a chassis level meter */
+  dspTrack: {
+    width: 120,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.raised,
+    overflow: 'hidden',
+  },
+  dspFill: { height: '100%', borderRadius: 3 },
+  pathActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginLeft: 'auto',
+  },
+  pathActionButton: {
+    minHeight: 36,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
   },
   pathActionText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 13,
-    letterSpacing: 0.1,
+    ...FONT.semibold,
+    fontSize: 14,
   },
   pathActionTextDisabled: {
     color: COLORS.muted,
-    opacity: 0.5,
+    opacity: 0.6,
   },
-  pathActionDivider: {
-    width: StyleSheet.hairlineWidth,
-    height: 12,
-    backgroundColor: COLORS.stroke,
+  rowHeading: {
+    color: COLORS.muted,
+    ...FONT.semibold,
+    fontSize: 13,
+    paddingTop: 4,
+    paddingBottom: 6,
+  },
+  branchSection: {
+    marginTop: 10,
+    paddingLeft: 12,
+    borderLeftWidth: 2,
+    borderLeftColor: COLORS.wire,
   },
 
   /* ── IO row — input/output endpoints, sit between path actions and chain */
@@ -5724,13 +6183,13 @@ const styles = StyleSheet.create({
   ioInfo: { flex: 1, gap: 2 },
   ioLabel: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 11.5,
     letterSpacing: 0.1,
   },
   ioName: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 14,
     letterSpacing: 0.1,
   },
@@ -5741,7 +6200,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0, paddingVertical: 14,
   },
   splitLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: COLORS.stroke },
-  splitLabel: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 11, letterSpacing: 0.4 },
+  splitLabel: { color: COLORS.muted, ...FONT.semibold, fontSize: 11, letterSpacing: 0.4 },
 
   /* ── Full-screen editor ────────────────────────────────────────── */
   editorHeader: {
@@ -5754,14 +6213,12 @@ const styles = StyleSheet.create({
   editorBack: { padding: 4 },
   editorTitleStack: { flex: 1, gap: 2 },
   editorEyebrow: {
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 10,
-    letterSpacing: 1.6,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
   },
   editorTitle: {
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 22,
     letterSpacing: 0.1,
     lineHeight: 26,
@@ -5787,15 +6244,13 @@ const styles = StyleSheet.create({
   editorPlateCopy: { flex: 1, gap: 2 },
   editorPlateModel: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 14,
     letterSpacing: 0.1,
   },
   editorPlateStatus: {
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 10.5,
-    letterSpacing: 1.4,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
   },
   editorPower: {
     width: 42, height: 42, borderRadius: 21,
@@ -5833,7 +6288,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: COLORS.text,
-    fontFamily: FONT_DISPLAY,
+    ...FONT.bold,
     fontSize: 16,
     letterSpacing: -0.2,
     marginBottom: 14,
@@ -5847,16 +6302,16 @@ const styles = StyleSheet.create({
   /* ── Inputs ───────────────────────────────────────────────────── */
   input: {
     padding: 14, borderRadius: 4, borderWidth: 1, borderColor: COLORS.stroke,
-    color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15, backgroundColor: COLORS.panelAlt,
+    color: COLORS.text, ...FONT.body, fontSize: 15, backgroundColor: COLORS.panelAlt,
   },
   textArea: {
     minHeight: 180, textAlignVertical: 'top', padding: 14, borderRadius: 4,
     borderWidth: 1, borderColor: COLORS.stroke, color: COLORS.text,
-    fontFamily: FONT_BODY, fontSize: 14, backgroundColor: COLORS.panelAlt,
+    ...FONT.body, fontSize: 14, backgroundColor: COLORS.panelAlt,
   },
   searchInput: {
     padding: 12, borderRadius: 4, borderWidth: 1, borderColor: COLORS.stroke,
-    color: COLORS.text, fontFamily: FONT_BODY, fontSize: 14,
+    color: COLORS.text, ...FONT.body, fontSize: 14,
     backgroundColor: COLORS.panelAlt, marginBottom: 12,
   },
   searchRow: {
@@ -5873,13 +6328,13 @@ const styles = StyleSheet.create({
   searchInputInline: {
     flex: 1,
     color: COLORS.text,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 14,
     paddingVertical: 0,
   },
   searchClearText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 12,
   },
 
@@ -5889,18 +6344,18 @@ const styles = StyleSheet.create({
   buttonGhost: { borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: 'transparent' },
   buttonDisabled: { opacity: 0.45 },
   buttonFlex: { flex: 1 },
-  buttonText: { color: COLORS.bg, fontFamily: FONT_BODY_SEMI, fontSize: 14, letterSpacing: 0.1 },
+  buttonText: { color: COLORS.bg, ...FONT.semibold, fontSize: 14, letterSpacing: 0.1 },
   buttonTextGhost: { color: COLORS.text },
 
   /* ── Labels ───────────────────────────────────────────────────── */
-  label: { color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
-  labelHint: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, marginTop: 4, maxWidth: 240, lineHeight: 16 },
+  label: { color: COLORS.text, ...FONT.body, fontSize: 15 },
+  labelHint: { color: COLORS.muted, ...FONT.body, fontSize: 12, marginTop: 4, maxWidth: 240, lineHeight: 16 },
   /* ── Active preset bar ─────────────────────────────────── */
   activePresetBar: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
   },
   activePresetInfo: { flex: 1, gap: 2 },
-  activePresetBarName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15, flexShrink: 1 },
+  activePresetBarName: { color: COLORS.text, ...FONT.semibold, fontSize: 15, flexShrink: 1 },
   compactIconBtn: {
     width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: COLORS.stroke,
@@ -5910,8 +6365,8 @@ const styles = StyleSheet.create({
 
   libraryHeader: { flex: 1, gap: 4, paddingRight: 12 },
   libraryActionStack: { gap: 8 },
-  libraryCurrentName: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 17 },
-  libraryMeta: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11, lineHeight: 16 },
+  libraryCurrentName: { color: COLORS.text, ...FONT.semibold, fontSize: 17 },
+  libraryMeta: { color: COLORS.muted, ...FONT.numeric, fontSize: 11, lineHeight: 16 },
   libraryRefresh: { minWidth: 104, paddingVertical: 10, paddingHorizontal: 12 },
   libraryPills: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -5926,7 +6381,7 @@ const styles = StyleSheet.create({
   },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: COLORS.stroke },
   segmentActive: { backgroundColor: COLORS.panel },
-  segmentText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 13, letterSpacing: 0.1 },
+  segmentText: { color: COLORS.muted, ...FONT.semibold, fontSize: 13, letterSpacing: 0.1 },
   segmentTextActive: { color: COLORS.text },
   focusTabsStack: { flexDirection: 'column', marginTop: 12 },
   focusStackSegment: { flex: 0, paddingHorizontal: 12 },
@@ -5939,14 +6394,13 @@ const styles = StyleSheet.create({
   },
   dropdownContent: { flex: 1, gap: 2 },
   dropdownLabel: {
-    color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 10,
-    textTransform: 'uppercase', letterSpacing: 1,
+    color: COLORS.muted, ...FONT.semibold, fontSize: 13,
   },
-  dropdownValue: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
+  dropdownValue: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
   dropdownChevron: { color: COLORS.muted, fontSize: 18, marginLeft: 8 },
 
   /* ── Preset row extras ────────────────────────────────── */
-  presetSlotNum: { minWidth: 44, flexShrink: 0, color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 12, textAlign: 'center' },
+  presetSlotNum: { minWidth: 44, flexShrink: 0, color: COLORS.muted, ...FONT.numeric, fontSize: 12, textAlign: 'center' },
   presetSlotNumActive: { color: COLORS.accent },
   presetMoreButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   presetMoreText: { color: COLORS.muted, fontSize: 18 },
@@ -5964,7 +6418,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   setlistRowActionButtonDisabled: { opacity: 0.35 },
-  setlistRowActionText: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 11 },
+  setlistRowActionText: { color: COLORS.text, ...FONT.semibold, fontSize: 11 },
   setlistRowActionTextDisabled: { color: COLORS.muted },
   setlistRowActionDanger: { borderColor: 'rgba(228,107,97,0.25)', backgroundColor: 'rgba(228,107,97,0.10)' },
   setlistRowActionDangerText: { color: COLORS.danger },
@@ -5978,7 +6432,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setlistAddButtonText: { color: COLORS.accent, fontFamily: FONT_BODY_SEMI, fontSize: 12 },
+  setlistAddButtonText: { color: COLORS.accent, ...FONT.semibold, fontSize: 12 },
   setlistAddToolRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -6009,7 +6463,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.panel,
   },
   selectionDotActive: { borderColor: COLORS.accentMid, backgroundColor: COLORS.accentDim },
-  selectionDotText: { color: COLORS.accent, fontFamily: FONT_BODY_SEMI, fontSize: 13 },
+  selectionDotText: { color: COLORS.accent, ...FONT.semibold, fontSize: 13 },
 
   /* ── Snapshot dot ─────────────────────────────────────── */
   snapshotDot: {
@@ -6033,8 +6487,7 @@ const styles = StyleSheet.create({
   libraryRowCopy: { flex: 1, gap: 4 },
   libraryRowActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8 },
   libraryActiveBadge: {
-    color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 10,
-    textTransform: 'uppercase', letterSpacing: 1.2,
+    color: COLORS.text, ...FONT.semibold, fontSize: 13,
   },
   rowActionButton: { minWidth: 70, paddingVertical: 8, paddingHorizontal: 10 },
   rowActionButtonDisabled: { opacity: 0.45 },
@@ -6054,7 +6507,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panel,
   },
-  snapshotTargetText: { color: COLORS.text, fontFamily: FONT_MONO, fontSize: 12 },
+  snapshotTargetText: { color: COLORS.text, ...FONT.numeric, fontSize: 12 },
 
   /* ── Matrix Mixer ─────────────────────────────────────────────── */
   matrixStatusRow: {
@@ -6068,12 +6521,12 @@ const styles = StyleSheet.create({
   },
   matrixStatusLabel: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 13,
   },
   matrixStatusValue: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 13,
   },
   matrixChannelList: {
@@ -6101,7 +6554,7 @@ const styles = StyleSheet.create({
   },
   matrixChannelName: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 14,
   },
   matrixFlags: {
@@ -6111,12 +6564,12 @@ const styles = StyleSheet.create({
   },
   matrixFlagText: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 11,
   },
   matrixFlagTextActive: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
   },
   matrixValueGroup: {
     flexDirection: 'row',
@@ -6134,38 +6587,38 @@ const styles = StyleSheet.create({
   },
   matrixValueLabel: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 10,
   },
   matrixValueText: {
     color: COLORS.text,
-    fontFamily: FONT_MONO,
+    ...FONT.numeric,
     fontSize: 12,
   },
 
   /* ── Status / events ──────────────────────────────────────────── */
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusText: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 13 },
+  statusText: { color: COLORS.muted, ...FONT.body, fontSize: 13 },
 
   /* ── Device hero ──────────────────────────────────────────────── */
   deviceHero: { paddingTop: 12, paddingBottom: 8, gap: 6 },
-  deviceTitle: { fontSize: 28, color: COLORS.text, fontFamily: FONT_DISPLAY, letterSpacing: -0.4 },
-  deviceSubtitle: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 13, lineHeight: 18 },
+  deviceTitle: { fontSize: 28, color: COLORS.text, ...FONT.bold, letterSpacing: -0.4 },
+  deviceSubtitle: { color: COLORS.muted, ...FONT.body, fontSize: 13, lineHeight: 18 },
 
   /* ── Hints / footer ───────────────────────────────────────────── */
   hint: { marginTop: 24, alignItems: 'center', paddingHorizontal: 16 },
-  hintText: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, textAlign: 'center', lineHeight: 18, opacity: 0.85 },
+  hintText: { color: COLORS.muted, ...FONT.body, fontSize: 12, textAlign: 'center', lineHeight: 18, opacity: 0.85 },
 
   /* ── Bottom sheet: actions ─────────────────────────────────────── */
   sheetActions: { gap: 10 },
   actionButton: { paddingVertical: 16, borderRadius: 12, alignItems: 'center' },
   actionButtonPrimary: { backgroundColor: COLORS.accentDim, borderWidth: 1, borderColor: COLORS.accentMid },
-  actionButtonPrimaryText: { color: COLORS.accent, fontFamily: FONT_BODY_SEMI, fontSize: 16 },
+  actionButtonPrimaryText: { color: COLORS.accent, ...FONT.semibold, fontSize: 16 },
   actionButtonDanger: { backgroundColor: 'rgba(228,107,97,0.12)', borderWidth: 1, borderColor: 'rgba(228,107,97,0.25)' },
-  actionButtonDangerText: { color: COLORS.danger, fontFamily: FONT_BODY_SEMI, fontSize: 16 },
+  actionButtonDangerText: { color: COLORS.danger, ...FONT.semibold, fontSize: 16 },
   actionButtonGhost: { borderWidth: 1, borderColor: COLORS.stroke },
-  actionButtonText: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 16 },
+  actionButtonText: { color: COLORS.text, ...FONT.semibold, fontSize: 16 },
 
   /* ── Bottom sheet: lists ───────────────────────────────────────── */
   sheetList: { maxHeight: 280 },
@@ -6177,7 +6630,7 @@ const styles = StyleSheet.create({
   },
   sheetListItemActive: { backgroundColor: COLORS.accentDim, borderRadius: 10 },
   sheetListItemDisabled: { opacity: 0.3 },
-  sheetListText: { flex: 1, color: COLORS.text, fontFamily: FONT_BODY, fontSize: 15 },
+  sheetListText: { flex: 1, color: COLORS.text, ...FONT.body, fontSize: 15 },
   sheetListTextDim: { color: COLORS.muted },
 
   /* ── Block type picker ─────────────────────────────────────────── */
@@ -6191,8 +6644,8 @@ const styles = StyleSheet.create({
   typeIconWrap: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   typeIcon: { width: 28, height: 28 },
   typeInfo: { flex: 1 },
-  typeLabel: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 15 },
-  typeMeta: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 12, marginTop: 2 },
+  typeLabel: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
+  typeMeta: { color: COLORS.muted, ...FONT.body, fontSize: 12, marginTop: 2 },
 
   /* ── Model picker ──────────────────────────────────────────────── */
   modelSectionHeader: {
@@ -6204,27 +6657,27 @@ const styles = StyleSheet.create({
   },
   modelSectionTitle: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
+    ...FONT.semibold,
     fontSize: 13,
   },
   modelDot: { width: 10, height: 10, borderRadius: 5 },
   modelInfo: { flex: 1 },
   modelMetaText: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 12,
     marginTop: 3,
   },
   dspBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: COLORS.panelAlt, borderWidth: 1, borderColor: COLORS.stroke },
-  dspBadgeText: { color: COLORS.muted, fontFamily: FONT_MONO, fontSize: 11 },
-  pickerDspHint: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 14, lineHeight: 20, marginBottom: 12 },
+  dspBadgeText: { color: COLORS.muted, ...FONT.numeric, fontSize: 11 },
+  pickerDspHint: { color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 20, marginBottom: 12 },
   pickerNav: { marginBottom: 12 },
   backButton: {
     alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10,
     borderWidth: 1, borderColor: COLORS.stroke,
   },
-  backButtonText: { color: COLORS.text, fontFamily: FONT_BODY_SEMI, fontSize: 13 },
+  backButtonText: { color: COLORS.text, ...FONT.semibold, fontSize: 13 },
 
   /* ── Parameter editor: knob grid ───────────────────────────────── */
   paramContainer: { gap: 20 },
@@ -6262,29 +6715,28 @@ const styles = StyleSheet.create({
   },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   toggleLabel: {
-    color: COLORS.muted,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 10.5,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    color: COLORS.text,
+    ...FONT.semibold,
+    fontSize: 15,
   },
   toggleLabels: {
     flexDirection: 'row', gap: 6, flex: 1, flexWrap: 'wrap' },
   togglePill: {
-    paddingVertical: 8,
+    minHeight: 40,
+    justifyContent: 'center',
     paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: COLORS.control,
+    backgroundColor: COLORS.control,
   },
-  togglePillActive: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
-  togglePillText: { color: COLORS.muted, fontFamily: FONT_BODY_SEMI, fontSize: 12.5 },
-  togglePillTextActive: { color: COLORS.accent },
+  togglePillActive: { borderColor: COLORS.accent, backgroundColor: COLORS.raised },
+  togglePillText: { color: COLORS.muted, ...FONT.semibold, fontSize: 14 },
+  togglePillTextActive: { color: COLORS.text },
   helpSheetBody: { paddingTop: 4, paddingBottom: 18 },
   helpSheetText: {
     color: COLORS.text,
-    fontFamily: FONT_BODY,
+    ...FONT.body,
     fontSize: 14,
     lineHeight: 22,
   },
@@ -6300,13 +6752,11 @@ const styles = StyleSheet.create({
   /* ── IO parameters ─────────────────────────────────────────────── */
   paramSectionTitle: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 11,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    ...FONT.semibold,
+    fontSize: 13,
     marginTop: 16,
     marginBottom: 8,
   },
   paramList: { maxHeight: 340 },
-  paramHint: { color: COLORS.muted, fontFamily: FONT_BODY, fontSize: 13, textAlign: 'center', paddingVertical: 20, lineHeight: 18 },
+  paramHint: { color: COLORS.muted, ...FONT.body, fontSize: 13, textAlign: 'center', paddingVertical: 20, lineHeight: 18 },
 });

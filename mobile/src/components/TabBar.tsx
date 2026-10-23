@@ -3,7 +3,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 
 export type TabKey = 'flow' | 'preset' | 'setlists' | 'matrix' | 'settings';
 
@@ -11,6 +11,8 @@ interface TabBarProps {
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
   connected: boolean;
+  /** `rail` stacks the tabs down the left edge for wide tablet layouts. */
+  variant?: 'bar' | 'rail';
 }
 
 const FlowIcon = ({ color, size }: { color: string; size: number }) => (
@@ -77,23 +79,24 @@ const DeviceIcon = ({ color, size }: { color: string; size: number }) => (
 );
 
 const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
-  { key: 'flow', label: 'Flow', Icon: FlowIcon },
-  { key: 'preset', label: 'Preset', Icon: PresetIcon },
+  { key: 'flow', label: 'Edit', Icon: FlowIcon },
+  { key: 'preset', label: 'Presets', Icon: PresetIcon },
   { key: 'setlists', label: 'Library', Icon: SetlistsIcon },
-  { key: 'matrix', label: 'Matrix', Icon: MatrixIcon },
+  { key: 'matrix', label: 'Mixer', Icon: MatrixIcon },
   { key: 'settings', label: 'Settings', Icon: DeviceIcon },
 ];
 
-export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connected }) => {
+export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connected, variant = 'bar' }) => {
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
+  const rail = variant === 'rail';
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 6) }]}>
+    <View accessibilityRole="tablist" style={rail ? styles.rail : [styles.container, { paddingBottom: Math.max(insets.bottom, 6) }]}>
       {TABS.map(({ key, label, Icon }) => {
         const active = activeTab === key;
         const color = active ? COLORS.text : COLORS.muted;
         return (
-          <Pressable accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={label} accessibilityValue={key === 'settings' ? { text: connected ? 'Connected' : 'Disconnected' } : undefined} key={key} style={[styles.tab, fontScale > 1.5 && { flexBasis: '33%', flexGrow: 1, flexShrink: 0, paddingVertical: 8 }]} onPress={() => onTabChange(key)}>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={label} accessibilityValue={key === 'settings' ? { text: connected ? 'Connected' : 'Disconnected' } : undefined} key={key} style={rail ? [styles.railTab, active && styles.railTabActive] : [styles.tab, fontScale > 1.5 && { flexBasis: '33%', flexGrow: 1, flexShrink: 0, paddingVertical: 8 }]} onPress={() => onTabChange(key)}>
             <View style={styles.iconWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
               <Icon color={color} size={22} />
               {key === 'settings' && (
@@ -114,6 +117,25 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
 };
 
 const styles = StyleSheet.create({
+  rail: {
+    width: 80,
+    paddingTop: 12,
+    paddingHorizontal: 8,
+    gap: 6,
+    backgroundColor: COLORS.bg,
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderRightColor: COLORS.stroke,
+  },
+  railTab: {
+    minHeight: 60,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  railTabActive: {
+    backgroundColor: COLORS.control,
+  },
   container: {
     flexWrap: 'wrap',
     flexDirection: 'row',
@@ -138,13 +160,13 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     textAlign: 'center',
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 11,
     letterSpacing: 0.1,
   },
   labelActive: {
     color: COLORS.text,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
   },
   connDot: {
     position: 'absolute',

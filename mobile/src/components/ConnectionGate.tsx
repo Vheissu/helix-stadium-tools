@@ -21,7 +21,7 @@ import { AppInfo } from './AppInfo';
 import { StadiumSearch } from './StadiumSearch';
 import type { StadiumDevice } from '../utils/stadiumDiscovery';
 import appConfig from '../../app.json';
-import { COLORS, FONTS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 import { getConnectionErrorMessage } from '../utils/connection';
 import {
   getConnectionHint,
@@ -256,7 +256,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   scrollContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 560, alignSelf: 'center' },
-  previewButton: { minHeight: 48, justifyContent: 'center', marginTop: 12 },
+  previewButton: {
+    minHeight: 48,
+    marginTop: 12,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   spacer: {
     flex: 1,
     minHeight: 20,
@@ -283,13 +290,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     color: COLORS.text,
-    fontFamily: FONTS.display,
+    ...FONT.bold,
     letterSpacing: 0.1,
     marginBottom: 6,
   },
   subtitle: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
@@ -326,7 +333,7 @@ const styles = StyleSheet.create({
   },
   transportText: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 13,
   },
   transportTextSelected: {
@@ -334,12 +341,12 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 13,
   },
   addressHint: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -349,7 +356,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.stroke,
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 16,
     backgroundColor: COLORS.panel,
   },
@@ -365,7 +372,7 @@ const styles = StyleSheet.create({
   },
   connectBtnText: {
     color: COLORS.bg,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 16,
     letterSpacing: 0.1,
   },
@@ -401,14 +408,17 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: COLORS.danger,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 13,
     lineHeight: 18,
     flex: 1,
   },
 
   bottomInfo: {
-    flex: 1,
+    // Grow into spare space but never shrink below the content, which would
+    // push it up over the preview button.
+    flexGrow: 1,
+    flexShrink: 0,
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingBottom: 24,
@@ -416,7 +426,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 13,
     textAlign: 'center',
     lineHeight: 20,

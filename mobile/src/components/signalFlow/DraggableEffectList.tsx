@@ -15,12 +15,9 @@ import {
 import Svg, { Path } from 'react-native-svg';
 import { BlockIcon } from '../../icons/BlockIcons';
 import { BLOCK_IMAGES } from '../../icons/CategoryImages';
-import { COLORS, FONTS, colorWithAlpha, getBlockAppearance } from '../../theme/colors';
+import { COLORS, FONT, getBlockAppearance } from '../../theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, PathIndex } from '../../types/signalFlow';
 
-const FONT_BODY = FONTS.body;
-const FONT_BODY_SEMI = FONTS.bodySemi;
-const FONT_MONO = FONTS.mono;
 
 export interface DraggableEffectListProps {
   blocks: (BlockData | null)[];
@@ -326,7 +323,7 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
     }
 
     const enabled = block.enabled !== false;
-    const appearance = getBlockAppearance(block.kind, enabled);
+    const appearance = getBlockAppearance(block.kind, enabled, COLORS.bg);
     const blockImage = BLOCK_IMAGES[block.kind] ?? null;
 
     if (isBeingDragged) {
@@ -344,63 +341,50 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
         accessibilityRole="button"
         accessibilityLabel={`Edit ${block.name}`}
         accessibilityState={{ selected: isSelected }}
-        style={[
+        style={({ pressed }) => [
           styles.effectRow,
-          {
-            backgroundColor: isSelected ? appearance.selectedSurface : appearance.surface,
-            borderColor: isSelected ? appearance.selectedBorder : appearance.border,
-          },
+          (isSelected || pressed) && styles.effectRowSelected,
         ]}
         onPress={onPress}
         onLongPress={onLongPress}
         onPressOut={onPressOut}
         delayLongPress={350}
       >
-        <View style={[styles.effectColorBar, { backgroundColor: appearance.topBar }]} />
         <View
           style={[
             styles.effectIconWrap,
             {
-              backgroundColor: appearance.iconSurface,
-              borderColor: colorWithAlpha(appearance.accent, enabled ? 0.22 : 0.08),
+              backgroundColor: appearance.fill,
+              borderColor: appearance.outline,
+              borderStyle: appearance.outlineStyle,
             },
           ]}
         >
           {blockImage ? (
             <Image
               source={blockImage}
-              style={[styles.effectIcon, { tintColor: appearance.power }]}
+              style={[styles.effectIcon, { tintColor: appearance.icon }]}
               resizeMode="contain"
             />
           ) : (
-            <BlockIcon type={block.kind} size={22} color={appearance.power} />
+            <BlockIcon type={block.kind} size={22} color={appearance.icon} />
           )}
         </View>
         <View style={styles.effectInfo}>
-          <Text style={[styles.effectName, { color: appearance.text }]} numberOfLines={1}>
+          <Text style={[styles.effectName, { color: appearance.name }]} numberOfLines={1}>
             {block.name}
           </Text>
-          <View style={styles.effectMetaRow}>
-            <Text style={[styles.effectKind, { color: enabled ? appearance.meta : COLORS.muted }]} numberOfLines={1}>
-              {kindLabel(block.kind)}
-            </Text>
-            {!enabled && (
-              <>
-                <View style={styles.effectMetaDot} />
-                <Text style={styles.effectKindBypassed}>Bypassed</Text>
-              </>
-            )}
-          </View>
+          <Text style={styles.effectKind} numberOfLines={1}>
+            {kindLabel(block.kind)}{enabled ? '' : ' · Bypassed'}
+          </Text>
         </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${enabled ? 'Bypass' : 'Enable'} ${block.name}`}
-          style={[
+          style={({ pressed }) => [
             styles.powerBtn,
-            {
-              borderColor: isSelected ? appearance.selectedBorder : appearance.border,
-              backgroundColor: isSelected ? appearance.selectedSurface : appearance.surface,
-            },
+            enabled && { backgroundColor: appearance.fill, borderColor: appearance.accent },
+            pressed && styles.powerBtnPressed,
           ]}
           hitSlop={8}
           onPress={(event) => {
@@ -411,8 +395,8 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
-              stroke={appearance.power}
-              strokeWidth={1.8}
+              stroke={enabled ? appearance.accent : COLORS.muted}
+              strokeWidth={2}
               strokeLinecap="round"
             />
           </Svg>
@@ -428,36 +412,36 @@ const DragOverlayCard: React.FC<{
   kindLabel: (kind: string) => string;
 }> = React.memo(({ block, kindLabel }) => {
   const enabled = block.enabled !== false;
-  const appearance = getBlockAppearance(block.kind, enabled);
+  const appearance = getBlockAppearance(block.kind, enabled, COLORS.raised);
   const blockImage = BLOCK_IMAGES[block.kind] ?? null;
 
   return (
-    <View style={[styles.effectRow, styles.dragCard, { borderColor: appearance.selectedBorder }]}>
-      <View style={[styles.effectColorBar, { backgroundColor: appearance.topBar }]} />
+    <View style={[styles.effectRow, styles.dragCard, { borderColor: appearance.accent }]}>
       <View
         style={[
           styles.effectIconWrap,
           {
-            backgroundColor: appearance.iconSurface,
-            borderColor: colorWithAlpha(appearance.accent, enabled ? 0.16 : 0.08),
+            backgroundColor: appearance.fill,
+            borderColor: appearance.outline,
+            borderStyle: appearance.outlineStyle,
           },
         ]}
       >
         {blockImage ? (
           <Image
             source={blockImage}
-            style={[styles.effectIcon, { tintColor: appearance.power }]}
+            style={[styles.effectIcon, { tintColor: appearance.icon }]}
             resizeMode="contain"
           />
         ) : (
-          <BlockIcon type={block.kind} size={22} color={appearance.power} />
+          <BlockIcon type={block.kind} size={22} color={appearance.icon} />
         )}
       </View>
       <View style={styles.effectInfo}>
-        <Text style={[styles.effectName, { color: appearance.text }]} numberOfLines={1}>
+        <Text style={[styles.effectName, { color: appearance.name }]} numberOfLines={1}>
           {block.name}
         </Text>
-        <Text style={[styles.effectKind, { color: enabled ? appearance.meta : COLORS.muted }]} numberOfLines={1}>
+        <Text style={styles.effectKind} numberOfLines={1}>
           {kindLabel(block.kind)}
         </Text>
       </View>
@@ -478,69 +462,51 @@ const styles = StyleSheet.create({
   effectRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    minHeight: 56,
-    paddingVertical: 4,
-    paddingHorizontal: 0,
-    borderWidth: 0,
+    gap: 12,
+    minHeight: 64,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderColor: COLORS.hairline,
     borderRadius: 0,
   },
-  effectColorBar: {
-    width: 2,
-    height: 32,
-    borderRadius: 1,
+  effectRowSelected: {
+    backgroundColor: COLORS.panel,
+    borderRadius: 12,
+    borderTopColor: 'transparent',
   },
   effectIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    width: 44,
+    height: 44,
+    borderRadius: 11,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   effectIcon: { width: 24, height: 24 },
-  effectInfo: { flex: 1, gap: 3 },
+  effectInfo: { flex: 1, gap: 2 },
   effectName: {
     color: COLORS.text,
-    fontFamily: FONT_BODY_SEMI,
-    fontSize: 15,
-    letterSpacing: 0.1,
-  },
-  effectMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    ...FONT.semibold,
+    fontSize: 17,
   },
   effectKind: {
-    fontFamily: FONT_BODY,
-    fontSize: 12,
-    letterSpacing: 0.1,
-  },
-  effectKindBypassed: {
     color: COLORS.muted,
-    fontFamily: FONT_BODY,
-    fontSize: 12,
-    letterSpacing: 0.1,
-    fontStyle: 'italic',
-  },
-  effectMetaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: COLORS.muted,
-    opacity: 0.6,
+    ...FONT.body,
+    fontSize: 13,
   },
   powerBtn: {
     width: 48,
     height: 48,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: COLORS.control,
+    backgroundColor: COLORS.control,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  powerBtnPressed: {
+    opacity: 0.8,
   },
 
   /* ── Empty slot ────────────────────── */
@@ -567,7 +533,7 @@ const styles = StyleSheet.create({
   },
   emptySlotNumText: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
+    ...FONT.numeric,
     fontSize: 10,
   },
   moreSlotsBtn: {
@@ -578,7 +544,7 @@ const styles = StyleSheet.create({
   },
   moreSlotsText: {
     color: COLORS.muted,
-    fontFamily: FONT_MONO,
+    ...FONT.numeric,
     fontSize: 11,
     opacity: 0.6,
   },

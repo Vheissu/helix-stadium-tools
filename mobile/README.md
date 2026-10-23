@@ -54,6 +54,32 @@ Start the Expo dev server:
 npx expo start --dev-client
 ```
 
+Open the editor on the bundled sample preset without a Stadium (development
+builds only). `EXPO_PUBLIC_DEMO_SELECT` optionally preselects a block, as
+row-position, for example `0-2` for row 1A, position 3:
+
+```bash
+EXPO_PUBLIC_DEMO_PRESET=1 EXPO_PUBLIC_DEMO_SELECT=0-2 npx expo start --dev-client
+```
+
+### Checking layouts in a browser
+
+When no simulator is free, the editor can be rendered in a browser for layout
+checks. The web packages are installed without saving them, so `package.json`
+and the lock file stay native-only:
+
+```bash
+npm install --no-save react-native-web@~0.21.4 react-dom@19.3.0 @expo/metro-runtime@~58.0.14
+EXPO_PUBLIC_DEMO_PRESET=1 npx expo start --web --port 8090
+```
+
+React Native Web's `AccessibilityInfo.isScreenReaderEnabled()` always resolves
+`true`, which forces the list layout. For visual checks, change that `resolve(true)`
+to `resolve(false)` in `node_modules/react-native-web/dist/exports/AccessibilityInfo/index.js`
+and its `dist/cjs` copy. Device transport, discovery and USB are not available in
+the browser, and the next `npm install` or `npm ci` removes the web packages and
+the edit.
+
 ## Sideload builds
 
 Prebuilt sideload artefacts are published on the project
@@ -99,9 +125,15 @@ tool must sign it before a device will install it.
   default, requires confirmation, and resets on disconnect. It raises the app's
   per-path estimate from 66 to 82, keeps the normal meter warning, and does not
   remove device validation or increase processing power. Use a spare preset.
-- Help, privacy information, third-party notices, and an offline block-editing
-  preview are available before connecting. The preview does not produce audio
-  or simulate the device's library, routing, snapshots, or save operations.
+- Help, privacy information, third-party notices, and an offline preview are
+  available before connecting. The preview opens the full editor on a bundled
+  sample preset with splits and snapshots. Edits stay on screen; nothing is
+  saved, no audio is produced, and the preset library is empty.
+- On tablets the signal chain stays on screen with the block editor docked
+  beneath it; wide tablets use a side rail for navigation. Phones show a
+  two-path overview above the selected path's block list and open blocks in a
+  full-screen editor. Touch and hold a block in the tablet lanes, then drag to
+  move it within its row; split and merge positions stay fixed.
 - This project only targets native mobile builds; there is no separate web target to maintain.
 
 ## Store builds

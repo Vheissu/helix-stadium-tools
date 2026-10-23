@@ -11,7 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { COLORS, FONTS, colorWithAlpha } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 import { formatParamValue } from '../utils/paramFormat';
 
 interface ParamSliderProps {
@@ -38,7 +38,8 @@ interface ParamSliderProps {
 
 const DEFAULT_TRACK_HEIGHT = 36;
 const TRACK_PAD_H = 14;
-const MARKER_WIDTH = 10;
+const MARKER_WIDTH = 22;
+const RAIL_HEIGHT = 6;
 
 /**
  * Horizontal slider row. The whole bar is the track — drag the marker block to
@@ -192,8 +193,6 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
   const fillWidth = Math.max(0, Math.min(1, normalized)) * Math.max(0, trackWidth - TRACK_PAD_H * 2);
   const markerLeft = TRACK_PAD_H + fillWidth - MARKER_WIDTH / 2;
 
-  const fillColor = colorWithAlpha(accentColor, 0.32);
-  const trackBackground = COLORS.panelAlt;
   const valueText = formatParamValue(value, min, max, displayMin, displayMax, unit, type, options, precision);
 
   const tickPositions = isOptionList && options
@@ -228,16 +227,15 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
         </View>
         {/* Slider track — full width, no overlaid text. */}
         <View
-          style={[
-            styles.track,
-            { height: trackHeight, backgroundColor: trackBackground, borderColor: COLORS.stroke },
-          ]}
+          style={[styles.track, { height: trackHeight }]}
           onLayout={onTrackLayout}
           {...panResponder.panHandlers}
         >
+          {/* The whole row is the touch target; the rail and fill are drawn slim. */}
+          <View pointerEvents="none" style={styles.rail} />
           <View
             pointerEvents="none"
-            style={[styles.fill, { width: TRACK_PAD_H + fillWidth, backgroundColor: fillColor }]}
+            style={[styles.fill, { width: fillWidth, backgroundColor: accentColor }]}
           />
           {tickPositions.length > 0 && trackWidth > 0 && tickPositions.map((t, i) => {
             const cx = TRACK_PAD_H + t * (trackWidth - TRACK_PAD_H * 2);
@@ -245,7 +243,7 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
               <View
                 key={`tick-${i}`}
                 pointerEvents="none"
-                style={[styles.tick, { left: cx - 0.5, backgroundColor: colorWithAlpha(COLORS.muted, 0.5) }]}
+                style={[styles.tick, { left: cx - 1, backgroundColor: COLORS.muted }]}
               />
             );
           })}
@@ -254,11 +252,7 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
               pointerEvents="none"
               style={[
                 styles.marker,
-                {
-                  left: markerLeft,
-                  backgroundColor: accentColor,
-                  shadowColor: accentColor,
-                },
+                { left: markerLeft, borderColor: accentColor },
               ]}
             />
           )}
@@ -312,6 +306,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   header: {
+    // Rows with and without a help button share one height so grids line up.
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
@@ -325,40 +321,49 @@ const styles = StyleSheet.create({
   },
   track: {
     width: '100%',
-    borderRadius: 12,
-    borderWidth: 1,
-    overflow: 'hidden',
     justifyContent: 'center',
+  },
+  rail: {
+    position: 'absolute',
+    left: TRACK_PAD_H,
+    right: TRACK_PAD_H,
+    top: '50%',
+    height: RAIL_HEIGHT,
+    marginTop: -RAIL_HEIGHT / 2,
+    borderRadius: RAIL_HEIGHT / 2,
+    backgroundColor: COLORS.raised,
   },
   fill: {
     position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
+    left: TRACK_PAD_H,
+    top: '50%',
+    height: RAIL_HEIGHT,
+    marginTop: -RAIL_HEIGHT / 2,
+    borderRadius: RAIL_HEIGHT / 2,
   },
   tick: {
     position: 'absolute',
-    top: 12,
-    bottom: 12,
-    width: 1,
+    top: '50%',
+    height: 12,
+    marginTop: -6,
+    width: 2,
+    borderRadius: 1,
   },
   marker: {
     position: 'absolute',
-    top: 6,
-    bottom: 6,
+    top: '50%',
     width: MARKER_WIDTH,
-    borderRadius: 3,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
-    elevation: 4,
+    height: MARKER_WIDTH,
+    marginTop: -MARKER_WIDTH / 2,
+    borderRadius: MARKER_WIDTH / 2,
+    borderWidth: 3,
+    backgroundColor: COLORS.text,
   },
   label: {
     flex: 1,
     color: COLORS.text,
-    fontFamily: FONTS.bodySemi,
-    fontSize: 14,
-    letterSpacing: 0.2,
+    ...FONT.semibold,
+    fontSize: 15,
   },
   helpWrap: {
     alignItems: 'center',
@@ -370,9 +375,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   value: {
-    fontFamily: FONTS.mono,
-    fontSize: 13,
-    letterSpacing: 0.2,
+    ...FONT.semibold,
+    ...FONT.numeric,
+    fontSize: 15,
     textAlign: 'right',
   },
   editBackdrop: {
@@ -393,10 +398,8 @@ const styles = StyleSheet.create({
   },
   editLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
-    fontSize: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    ...FONT.semibold,
+    fontSize: 13,
   },
   editInput: {
     width: '100%',
@@ -406,13 +409,13 @@ const styles = StyleSheet.create({
     borderColor: COLORS.accent,
     backgroundColor: COLORS.panelAlt,
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 20,
     textAlign: 'center',
   },
   editUnit: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 12,
   },
   editActions: {
@@ -430,7 +433,7 @@ const styles = StyleSheet.create({
   },
   editCancelText: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 14,
   },
   editConfirm: {
@@ -441,7 +444,7 @@ const styles = StyleSheet.create({
   },
   editConfirmText: {
     color: COLORS.bg,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 14,
   },
 });

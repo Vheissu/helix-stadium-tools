@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { getIOImage } from '../../icons/CategoryImages';
-import { COLORS, FONTS, SIGNAL_FLOW } from '../../theme/colors';
+import { COLORS, FONT, SIGNAL_FLOW } from '../../theme/colors';
 
 interface IONodeProps {
   type: 'input' | 'output';
@@ -89,14 +89,14 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   value: {
     color: COLORS.text,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 11,
     textAlign: 'center',
   },

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BlockCard } from './BlockCard';
-import { COLORS, FONTS } from '../../theme/colors';
+import { COLORS, FONT } from '../../theme/colors';
 import type { BlockIndex, BlockRowProps } from '../../types/signalFlow';
 
 const BLOCK_COUNT = 12;
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 10,
     marginRight: 8,
     width: 20,

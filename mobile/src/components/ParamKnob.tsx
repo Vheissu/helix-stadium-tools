@@ -3,7 +3,7 @@ import { useAccessibilityPreferences } from '../accessibility/AccessibilityPrefe
 import React, { useCallback, useRef, useState } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, TextInput, View, Modal } from 'react-native';
 import Svg, { Circle, Path, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
-import { COLORS, FONTS, colorWithAlpha } from '../theme/colors';
+import { COLORS, FONT, colorWithAlpha } from '../theme/colors';
 import { formatParamValue } from '../utils/paramFormat';
 
 interface ParamKnobProps {
@@ -369,15 +369,13 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
-    fontSize: 9.5,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    ...FONT.semibold,
+    fontSize: 13,
     textAlign: 'center',
   },
   value: {
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 11,
     letterSpacing: 0.2,
     textAlign: 'center',
@@ -400,10 +398,8 @@ const styles = StyleSheet.create({
   },
   editLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
-    fontSize: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    ...FONT.semibold,
+    fontSize: 13,
   },
   editInput: {
     width: '100%',
@@ -413,13 +409,13 @@ const styles = StyleSheet.create({
     borderColor: COLORS.accent,
     backgroundColor: COLORS.panelAlt,
     color: COLORS.text,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 20,
     textAlign: 'center',
   },
   editUnit: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 12,
   },
   editActions: {
@@ -437,7 +433,7 @@ const styles = StyleSheet.create({
   },
   editCancelText: {
     color: COLORS.muted,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 14,
   },
   editConfirm: {
@@ -449,7 +445,7 @@ const styles = StyleSheet.create({
   },
   editConfirmText: {
     color: COLORS.bg,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 14,
   },
 });

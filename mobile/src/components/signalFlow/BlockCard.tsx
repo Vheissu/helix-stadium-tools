@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { BlockIcon } from '../../icons/BlockIcons';
 import { getBlockImage } from '../../icons/CategoryImages';
-import { COLORS, FONTS, SIGNAL_FLOW, getBlockColor } from '../../theme/colors';
+import { COLORS, FONT, SIGNAL_FLOW, getBlockColor } from '../../theme/colors';
 import type { BlockCardProps } from '../../types/signalFlow';
 
 const PowerIcon = ({ color, size = 14 }: { color: string; size?: number }) => (
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   index: {
     color: COLORS.muted,
-    fontFamily: FONTS.mono,
+    ...FONT.numeric,
     fontSize: 8,
     position: 'absolute',
     top: 4,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   name: {
     color: COLORS.text,
-    fontFamily: FONTS.bodySemi,
+    ...FONT.semibold,
     fontSize: 9,
     textAlign: 'center',
     paddingHorizontal: 4,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   emptyLabel: {
     color: COLORS.muted,
-    fontFamily: FONTS.body,
+    ...FONT.body,
     fontSize: 9,
     opacity: 0.5,
   },

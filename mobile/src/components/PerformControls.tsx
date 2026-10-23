@@ -1,7 +1,7 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
-import { COLORS, FONTS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 import type { PerformView, StompBanks } from '../utils/perform';
 
 export type PerformSnapshot = { index: number; name?: string; colr?: number };
@@ -21,6 +21,8 @@ type Props = {
 export function PerformControls(props: Props) {
   const { width, fontScale } = useWindowDimensions();
   const columns = fontScale > 1.5 || width < 360 ? 1 : width >= 760 ? 5 : 2;
+  // Eight snapshots fill two even rows of four; ten footswitches fill rows of five.
+  const snapshotColumns = columns === 5 ? 4 : columns;
   const switches = props.view === 'snapshots' ? null : props.banks?.[props.view];
   return <View style={styles.section}>
     <View accessibilityRole="tablist" accessibilityLabel="Perform view" style={styles.selector}>
@@ -40,7 +42,7 @@ export function PerformControls(props: Props) {
           const name = snapshot?.name?.trim() || `Snapshot ${index + 1}`;
           return <Action key={index} accessibilityLabel={`Activate snapshot ${index + 1}, ${name}`}
             accessibilityState={{ selected: active }} disabled={props.snapshotDisabled} onPress={() => props.onSnapshot(index)}
-            style={[styles.tile, { width: `${100 / columns - (columns > 1 ? 2 : 0)}%` }, active && styles.tileSelected]}>
+            style={[styles.tile, { width: `${100 / snapshotColumns - (snapshotColumns > 1 ? 2 : 0)}%` }, active && styles.tileSelected]}>
             <View style={styles.tileHeader}>
               <View style={[styles.swatch, { backgroundColor: props.colorFor(snapshot?.colr) }]} />
               <Text style={styles.number}>{index + 1}</Text>
@@ -77,19 +79,19 @@ const styles = StyleSheet.create({
   tab: { flexGrow: 1, flexBasis: 96, alignItems: 'center', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 10 },
   tabLargeText: { flexBasis: '100%' },
   tabSelected: { backgroundColor: COLORS.text },
-  tabText: { color: COLORS.text, fontFamily: FONTS.bodySemi, fontSize: 15, textAlign: 'center' },
+  tabText: { color: COLORS.text, ...FONT.semibold, fontSize: 15, textAlign: 'center' },
   tabTextSelected: { color: COLORS.bg },
-  heading: { color: COLORS.text, fontFamily: FONTS.bodySemi, fontSize: 18 },
+  heading: { color: COLORS.text, ...FONT.semibold, fontSize: 18 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
   tile: { backgroundColor: COLORS.panelAlt, borderColor: COLORS.stroke, borderWidth: 1, borderRadius: 8, padding: 12, gap: 10, minHeight: 88 },
   tileSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
   tileHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   swatch: { width: 12, height: 12, borderRadius: 6 },
-  number: { color: COLORS.text, fontFamily: FONTS.mono, fontSize: 15 },
-  active: { color: COLORS.signal, fontFamily: FONTS.bodySemi, fontSize: 13 },
-  name: { color: COLORS.text, fontFamily: FONTS.body, fontSize: 16, lineHeight: 22 },
+  number: { color: COLORS.text, ...FONT.numeric, fontSize: 15 },
+  active: { color: COLORS.signal, ...FONT.semibold, fontSize: 13 },
+  name: { color: COLORS.text, ...FONT.body, fontSize: 16, lineHeight: 22 },
   unassigned: { color: COLORS.muted },
-  hint: { color: COLORS.muted, fontFamily: FONTS.body, fontSize: 15, lineHeight: 22 },
+  hint: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 22 },
   refresh: { alignSelf: 'flex-start', paddingHorizontal: 14, borderRadius: 6, borderWidth: 1, borderColor: COLORS.stroke },
-  refreshText: { color: COLORS.text, fontFamily: FONTS.bodySemi, fontSize: 15 },
+  refreshText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
 });

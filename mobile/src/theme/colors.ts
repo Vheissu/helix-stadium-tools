@@ -1,19 +1,34 @@
-import { Platform } from 'react-native';
+import type { TextStyle } from 'react-native';
 
 // Base app colors — Helix-chassis dark theme.
 // Design intent: black anodized chassis with silk-screened bone-white labels.
 // `accent` is bone-white (NOT cyan) — primary actions and "active" UI lean on
 // neutral white instead of competing with the per-block category colors that
-// already do all the content-coloring. The teal that used to be `accent` is
-// preserved as `signal` for actual live-signal indicators (connection state).
+// already do all the content-coloring. The teal is preserved as `signal` for
+// actual live-signal indicators (connection state).
+//
+// Surfaces step up in tone as they rise: ground → lane → control → raised.
+// Each signal-chain row sits on a `lane` band so rows read as rows.
 export const COLORS = {
   bg: '#0a0a0c',
-  panel: '#131318',
-  panelAlt: '#0e0e12',
-  stroke: '#22232a',
-  hairline: '#1a1b21',
+  // Lane bands and grouped surfaces
+  panel: '#151519',
+  panelAlt: '#111114',
+  // Docked block editor surface
+  inspector: '#131316',
+  // Secondary buttons, segmented-control tracks
+  control: '#1d1d22',
+  // Row endpoints, selected segments
+  raised: '#24242a',
+  stroke: '#2a2a30',
+  hairline: '#1f1f24',
   text: '#ece9e1',
-  muted: '#7c7d86',
+  // Secondary text; passes 4.5:1 on every surface above
+  muted: '#a2a2ab',
+  // Tertiary marks only (positions, disabled glyphs), never body copy
+  faint: '#6e6e78',
+  // Signal wire between blocks
+  wire: '#5a5a64',
   // Bone-white — used for primary actions, active states, focus borders
   accent: '#ece9e1',
   accentDim: 'rgba(236, 233, 225, 0.06)',
@@ -87,33 +102,47 @@ export const getBlockColor = (kind: string): string => {
   return BLOCK_COLORS[kind] ?? COLORS.muted;
 };
 
-export const getBlockAppearance = (kind: string, enabled = true) => {
+/**
+ * Colours for a block tile drawn on `base` (the lane or list surface).
+ *
+ * Enabled blocks are filled with a wash of their category colour and carry a
+ * solid category outline. Bypassed blocks drop the fill and use a dashed,
+ * dimmed outline, so the state reads without relying on hue alone.
+ */
+export const getBlockAppearance = (kind: string, enabled = true, base: string = COLORS.panel) => {
   const accent = getBlockColor(kind);
-  const accentMuted = blendHexColors(accent, COLORS.muted, 0.58);
+  const accentMuted = blendHexColors(base, accent, 0.45);
+  const fill = enabled ? blendHexColors(base, accent, 0.2) : base;
   return {
     accent,
     accentMuted,
+    fill,
+    outline: enabled ? accent : accentMuted,
+    outlineStyle: (enabled ? 'solid' : 'dashed') as 'solid' | 'dashed',
+    icon: enabled ? accent : accentMuted,
+    name: enabled ? COLORS.text : '#8c8c95',
+    // Older keys kept for callers that have not moved to the tile treatment.
     topBar: enabled ? accent : accentMuted,
     iconSurface: colorWithAlpha(accent, enabled ? 0.14 : 0.08),
-    surface: enabled ? COLORS.panelAlt : blendHexColors(COLORS.panelAlt, COLORS.stroke, 0.18),
-    selectedSurface: colorWithAlpha(accent, enabled ? 0.12 : 0.06),
-    border: enabled ? COLORS.stroke : blendHexColors(COLORS.stroke, accent, 0.16),
+    surface: fill,
+    selectedSurface: fill,
+    border: enabled ? accent : accentMuted,
     selectedBorder: enabled ? accent : accentMuted,
-    power: enabled ? accent : COLORS.muted,
-    text: enabled ? COLORS.text : '#aeb6c3',
+    power: enabled ? accent : accentMuted,
+    text: enabled ? COLORS.text : '#8c8c95',
     meta: enabled ? accent : COLORS.muted,
     glow: colorWithAlpha(accent, enabled ? 0.35 : 0.18),
   };
 };
 
-// Font families – Roboto loaded via expo-font in App.tsx
-export const FONTS = {
-  body: 'Roboto-Regular',
-  bodyMedium: 'Roboto-Medium',
-  bodySemi: 'Roboto-Medium',
-  light: 'Roboto-Light',
-  mono: Platform.select({ ios: 'Menlo', android: 'monospace' }) as string,
-  display: 'Roboto-Bold',
+// Text weights use the platform font: SF Pro on iOS, Roboto on Android.
+// Values use tabular figures so numbers do not jitter while dragging.
+export const FONT: Record<'body' | 'medium' | 'semibold' | 'bold' | 'numeric', TextStyle> = {
+  body: { fontWeight: '400' },
+  medium: { fontWeight: '500' },
+  semibold: { fontWeight: '600' },
+  bold: { fontWeight: '700' },
+  numeric: { fontVariant: ['tabular-nums'] },
 };
 
 // Layout constants for signal flow

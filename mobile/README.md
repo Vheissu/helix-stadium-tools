@@ -171,7 +171,7 @@ Play Console upload, and the Google Play service account are configured. The
 service account can release to HELYON's testing tracks and has no production
 or account-wide access. These commands do not publish a public release.
 
-As of 23 October 2026, the redesigned editor is **Testing** as iOS **1.0.0 (8)** for all **64 registered testers** and **Waiting for Review** for App Store production. Android **1.0.0 (11)** is published to internal testing and in review for closed Alpha; build 10 remains available on Alpha until approval. The App Store listing is now named **HELYON**, with six new screenshots. See [the redesign release record](../docs/RELEASE_2026_10_23.md).
+As of 23 October 2026, the redesigned editor is **Testing** as iOS **1.0.0 (8)** for all **64 registered testers** and **Waiting for Review** for App Store production. Android **1.0.0 (11)** is published to internal testing and closed Alpha, with both existing tester lists enabled. Alpha became available at 11:36 pm Brisbane time. The App Store listing is now named **HELYON**, with six new screenshots. See [the redesign release record](../docs/RELEASE_2026_10_23.md).
 
 Historical status: as of 22 October 2026, the urgent tempo fix is **Testing** as iOS **1.0.0 (7)** for all 63 registered testers, with automatic notifications enabled. Build 7 also replaces build 6 in App Store review and is **Waiting for Review**. Android **1.0.0 (10)** is published to internal testing and closed Alpha. The Alpha rollout and added Testers email list were published at 11:37 am Brisbane time; both existing Android tester lists have access. See [the tempo release record](../docs/RELEASE_2026_10_22.md) for exact availability and remaining review gates.
 

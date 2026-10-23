@@ -15,7 +15,7 @@
     "screenshots": "Six new screenshots selected in App Store Connect: three large iPhone images with smaller-display fallback, two portrait iPad images and one landscape iPad image.",
     "signing": "iOS build 8 and Android build 11 built and uploaded successfully on 23 October 2026.",
     "artwork": "Original category and connection icons retained; copied parameter help and the credential-dependent song uploader remain removed. Apple review is pending.",
-    "googlePlay": "Android build 11 published to internal testing; closed Alpha build 11 is in review. Production access remains outside this release.",
+    "googlePlay": "Android build 11 published to internal testing and closed Alpha. Both existing tester lists remain selected. Production access remains outside this release.",
     "dependencies": "25 transitive npm advisories remain (17 high, 8 moderate, no critical). Expo Doctor reports TCP socket New Architecture metadata as untested. Review upstream patches and complete physical-device checks before public submission."
   },
   "pricing": "Free",
@@ -42,13 +42,13 @@
     "android": {
       "version": "1.0.0",
       "versionCode": 11,
-      "status": "Build 11 available to internal testers; closed Alpha build 11 in review, with build 10 still published.",
+      "status": "Build 11 available to internal and closed Alpha testers.",
       "testingURL": "https://play.google.com/apps/internaltest/4701590729869450330",
       "playConsoleAppId": "4974732618454517750",
       "submissionIdentity": "helyon-eas-submit@beggars-helyon.iam.gserviceaccount.com",
       "submissionPermissions": "HELYON only; view app information and release to testing tracks; no production or account-wide access",
       "alphaTrackURL": "https://play.google.com/console/u/2/developers/5255518000937770800/app/4974732618454517750/tracks/4699155733175312370",
-      "alphaStatus": "Build 11 in review; both existing tester lists remain selected. Build 10 remains available until approval."
+      "alphaStatus": "Build 11 published on 23 October 2026 at 11:36 pm Brisbane; both existing tester lists verified selected after publication."
     },
     "validation": {
       "mobileTests": 138,

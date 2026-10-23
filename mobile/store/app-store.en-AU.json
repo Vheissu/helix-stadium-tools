@@ -9,13 +9,13 @@
   "copyright": "2026 Dwayne Charrington",
   "reviewNotes": "HELYON is an independently developed editor and remote for user-owned Helix Stadium and Stadium XL hardware. Its App Store name is now HELYON. References to compatible hardware identify which devices the app supports; the app does not claim affiliation with or endorsement by Line 6 or Yamaha.\n\nI am Dwayne Charrington, the author of the MIT-licensed helix-stadium-tools project:\nhttps://github.com/Vheissu/helix-stadium-tools\nHELYON uses my implementation of local device control. It connects directly over the user's local network or compatible USB networking after the owner enables Remote Access. There is no Line 6 login or cloud-service integration. The app does not install firmware.\n\nFor relevant context, the App Store currently lists Stadium Remote:\nhttps://apps.apple.com/us/app/stadium-remote/id6822839254\nIt advertises local control and preset editing for the same hardware. Its developer, Camryn, contacted me for permission to release an app using my open-source code. I am providing this comparison to clarify the interoperability use case, not as a claim about another developer's authorization arrangements.\n\nThis submission includes a redesigned interface and new screenshots captured from the app. The earlier replacements of the 24 category/connection icons and copied parameter-help text remain in place. Song upload and its associated transfer module and credentials remain removed.\n\nPlease assess this submission as an independent controller for the user's own hardware. If guideline 5.2.1 still applies, please identify the specific content, naming or control functionality requiring a change, and the documentation required. I would welcome a review discussion if that would help resolve the remaining concern.\n\nReview without hardware: tap Try offline preview on the connection screen. The preview supports local block and parameter editing but does not produce audio or simulate hardware saving, song playback, setlists or DSP behaviour.\n\nLive editing: enable Remote Access on the Stadium, connect to the same Wi-Fi network, and allow Local Network access. Select the device or enter its name/IP address. Compatible USB networking requires Stadium firmware 1.4+ and a data cable. Use a spare preset and wait for Saved to Stadium before switching presets.\n\nDSP figures are catalogue estimates, not live CPU readings. Extended DSP budget is an optional advanced setting, off by default with a warning and reset on disconnect. It raises the app estimate from 66 to 82 per path; it does not modify firmware or remove device validation.",
   "releaseGates": {
-    "hardwareEvidence": "The earlier USB demonstration video predates the artwork replacement and was removed from the current review notes. Build 6 passed iPhone/iPad offline preview checks and native Showcase component checks with simulated song data. No new live-hardware run or video was made during this follow-up.",
+    "hardwareEvidence": "Native sample-preset checks passed on iPhone and iPad. No new physical-hardware validation or demonstration video was recorded.",
     "nameClearance": "The name is reserved in App Store Connect; trademark clearance has not been established.",
     "account": "Apple Music category, 4+ rating, free price, 175-region availability, review contact and published Data Not Collected privacy answers are configured. Existing non-trader status should be reassessed if the distribution circumstances change. Mac and Vision Pro availability are disabled pending testing.",
-    "screenshots": "Current offline-preview images replaced the old selected screenshots: one iPhone 6.3-inch image and two iPad 13-inch images. The large iPhone slot uses existing assets and has no separate uploaded image. Android screenshots were not changed.",
-    "signing": "iOS 1.0.0 (6) built, uploaded and resubmitted on 21 October 2026. App Store Connect confirms Waiting for Review. The existing automatic-release setting is retained. Android was not rebuilt in this review follow-up.",
-    "artwork": "All 24 extracted category and connection icons have been replaced. The signed build 6 IPA contains exact copies of the new original PNGs. Copied help text and the credential-dependent song uploader were removed. No manufacturer permission has been obtained; model/control metadata and factory Focus definitions remain, as disclosed in the revised review notes. Approval is pending.",
-    "googlePlay": "Internal build 5 published on 18 October 2026. Closed Alpha build 5 is submitted and shown under Changes in review. Production access still requires at least 12 opted-in testers for 14 continuous days; that requirement has not been verified as satisfied.",
+    "screenshots": "Six new screenshots selected in App Store Connect: three large iPhone images with smaller-display fallback, two portrait iPad images and one landscape iPad image.",
+    "signing": "iOS build 8 and Android build 11 built and uploaded successfully on 23 October 2026.",
+    "artwork": "Original category and connection icons retained; copied parameter help and the credential-dependent song uploader remain removed. Apple review is pending.",
+    "googlePlay": "Android build 11 published to internal testing; closed Alpha build 11 is in review. Production access remains outside this release.",
     "dependencies": "25 transitive npm advisories remain (17 high, 8 moderate, no critical). Expo Doctor reports TCP socket New Architecture metadata as untested. Review upstream patches and complete physical-device checks before public submission."
   },
   "pricing": "Free",
@@ -23,53 +23,47 @@
   "appStoreConnectId": "6824149078",
   "expoProjectId": "407fa171-3b6b-4c1a-a828-cf2976ca1591",
   "builds": {
-    "ios": "https://expo.dev/accounts/beggars/projects/helyon/builds/8079489f-d0ab-40e2-a186-5b217e760b39",
-    "android": "https://expo.dev/accounts/beggars/projects/helyon/builds/608e5a27-7cbd-49c6-be79-66b1aa9dbd23"
+    "ios": "https://expo.dev/accounts/beggars/projects/helyon/builds/6fa6a656-1aef-4d0b-a197-d1a9c0b3063d",
+    "android": "https://expo.dev/accounts/beggars/projects/helyon/builds/dab3ca52-7096-4bb5-8cbc-19a2bfde02e6"
   },
   "releaseStatus": {
-    "verifiedAt": "2026-10-18",
-    "publicRelease": "iOS 1.0.0 (6) resubmitted on 21 October 2026 at 4:42 pm Brisbane; Waiting for Review. Automatic release after approval remains selected. No public release yet.",
+    "verifiedAt": "2026-10-23",
+    "publicRelease": "iOS 1.0.0 (8) resubmitted at 11:13 pm Brisbane on 23 October 2026; Waiting for Review. Automatic release after approval remains selected.",
     "ios": {
       "version": "1.0.0",
-      "buildNumber": "6",
-      "status": "Waiting for Review for App Store distribution. Build 6 is Testing in the existing external Testers group of 62 people, alongside builds 2–5; automatic notifications are enabled.",
+      "buildNumber": "8",
+      "status": "Waiting for Review for App Store production; Testing for all 64 registered testers (63 external, 1 internal), with automatic notifications enabled.",
       "testFlightURL": "https://appstoreconnect.apple.com/teams/88c13762-ce27-4e9c-a7fa-b5030104ed54/apps/6824149078/testflight/groups/83263e00-f419-46f5-a1f4-ea3e92fc9d05",
-      "verifiedAt": "2026-10-21",
+      "verifiedAt": "2026-10-23",
       "releaseType": "AFTER_APPROVAL",
-      "appReviewSubmissionId": "cdc46fa6-f503-4830-8816-0f0e8c8786ff",
-      "appReviewURL": "https://appstoreconnect.apple.com/apps/6824149078/distribution/reviewsubmissions/details/cdc46fa6-f503-4830-8816-0f0e8c8786ff"
+      "appReviewSubmissionId": "4680f4de-49ba-476c-aed7-75abe0bf71e2",
+      "appReviewURL": "https://appstoreconnect.apple.com/apps/6824149078/distribution/reviewsubmissions/details/4680f4de-49ba-476c-aed7-75abe0bf71e2"
     },
     "android": {
       "version": "1.0.0",
-      "versionCode": 5,
-      "status": "Build 5 available to internal testers; closed Alpha build 5 submitted and shown under Changes in review. Direct Android USB-host transport.",
+      "versionCode": 11,
+      "status": "Build 11 available to internal testers; closed Alpha build 11 in review, with build 10 still published.",
       "testingURL": "https://play.google.com/apps/internaltest/4701590729869450330",
       "playConsoleAppId": "4974732618454517750",
       "submissionIdentity": "helyon-eas-submit@beggars-helyon.iam.gserviceaccount.com",
       "submissionPermissions": "HELYON only; view app information and release to testing tracks; no production or account-wide access",
       "alphaTrackURL": "https://play.google.com/console/u/2/developers/5255518000937770800/app/4974732618454517750/tracks/4699155733175312370",
-      "alphaStatus": "Build 5 in review with a full rollout requested. The previously published Alpha release remains available until Google approves the update. Managed publishing is off."
+      "alphaStatus": "Build 11 in review; both existing tester lists remain selected. Build 10 remains available until approval."
     },
     "validation": {
-      "mobileTests": 114,
-      "pythonTests": 386,
+      "mobileTests": 138,
       "typecheck": "passed",
-      "lint": "0 errors; 2 existing App hook warnings",
-      "productionJavaScriptExports": "iOS and Android passed",
-      "localNativeBuilds": "iOS simulator Release (ad-hoc signed) and Android Release passed",
-      "easProductionBuilds": "iOS and Android passed",
-      "physicalConnections": "Owner reports Android Wi-Fi and iOS/iPad USB-C work. Galaxy S25 Ultra on Android 16: build 4 does not crash but cannot obtain a USB network. New direct USB implementation awaits physical cable retest.",
-      "launchBranding": "Cold-launch recordings checked on Android API 34 and iPhone 17 Pro iOS 26.5 release builds. Local iOS Simulator build signed ad hoc so the OS can validate launch-screen resources.",
-      "androidNativeTests": 5,
-      "androidUsbCrash": "Original release crash reproduced on Android API 34. Patched release survived five repeated USB attempts with no wired network; guidance displayed and process stayed alive. Patch application verified against a fresh dependency package.",
-      "androidDirectUsbTests": 11,
-      "androidDirectUsbPacketTest": "Passed with address and undefined-behaviour sanitizers: Stadium-style ULA router advertisements without DNS/default route, neighbour discovery, two TCP streams with 10 KB echoed on each, disconnect/reconnect, and dropped-SYN retransmission."
+      "lint": "0 errors; 2 existing hook warnings",
+      "localNativeBuild": "iOS Simulator Release passed",
+      "nativeChecks": "Final JavaScript checked on iPhone and iPad using the sample preset: header, exact entry, block reorder, portrait/landscape, preview Save. No new hardware run.",
+      "easProductionBuilds": "iOS 8 and Android 11 finished successfully; signed package identities and final fixes verified.",
+      "pythonTests": "Not rerun; no Python changes in this release."
     },
     "branding": "Original square HELYON icon, transparent native splash emblem, Android adaptive foreground and monochrome themed icon; no artificial launch delay."
   },
   "submissions": {
-    "ios": "https://expo.dev/accounts/beggars/projects/helyon/submissions/d66cd0c0-2371-47bb-bb57-08321925709b",
-    "android": "https://expo.dev/accounts/beggars/projects/helyon/submissions/61014bc8-637b-4960-9ded-3e03f52f348e"
+    "ios": "https://expo.dev/accounts/beggars/projects/helyon/submissions/21f59080-72cd-48e9-8501-fbf48521d814",
+    "android": "https://expo.dev/accounts/beggars/projects/helyon/submissions/826110df-b8e8-4110-bc0b-aba676374f16"
   },
   "hardwareDemoURL": "https://www.youtube.com/watch?v=pFTHOyUoGXY"
 }

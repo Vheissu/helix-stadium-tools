@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>HELYON store screenshots</title><style>
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#eeeae2;color:#171719;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}body{width:var(--w);height:var(--h);overflow:hidden}.brand{position:absolute;left:var(--margin);top:70px;display:flex;align-items:center;gap:24px;font-size:38px;letter-spacing:8px;font-weight:750}.brand img{width:76px;height:76px;border-radius:18px}.index{position:absolute;right:var(--margin);top:92px;font-size:27px;letter-spacing:3px;color:#74736f}.copy{position:absolute;left:var(--margin);top:186px;right:var(--margin)}h1{font-size:var(--heading);line-height:1.01;letter-spacing:-7px;font-weight:720;margin:0;max-width:1400px}h1 span{display:block}p{font-size:var(--body);line-height:1.35;font-weight:420;letter-spacing:-.5px;margin:27px 0 0;max-width:1400px;color:#5a5a59}.rule{height:9px;width:94px;background:var(--accent);margin-bottom:30px}.device{position:absolute;left:var(--left);top:var(--top);width:var(--device);background:#080809;padding:12px;border:3px solid #444347;border-radius:var(--radius);overflow:hidden;box-shadow:0 18px 32px #11111120}.device img{width:100%;display:block;border-radius:calc(var(--radius) - 17px)}.landscape .copy{top:420px;width:650px;right:auto}.landscape h1{font-size:135px;line-height:1.05}.landscape p{font-size:43px;line-height:1.4;margin-top:38px;max-width:600px}.landscape .brand{top:100px}.landscape .index{top:122px}.landscape .device{padding:14px}.landscape .foot{position:absolute;left:110px;bottom:110px;font-size:30px;color:#696968;letter-spacing:1px}
+.landscape .device{height:1344px}.landscape .device img{position:absolute;width:1309.5px;height:1746px;left:14px;top:14px;transform-origin:top left;transform:translateX(1746px) rotate(90deg)}
+</style></head><body><div class="brand"><img src="logo.png" alt="">HELYON</div><div class="index"></div><div class="copy"><div class="rule"></div><h1></h1><p></p></div><div class="device"><img id="screen" alt="Actual HELYON app screen"></div><script>
+const cards={
+'iphone-01':{w:1320,h:2868,title:['See your whole','signal chain.'],body:'Follow your routing. Find every effect.',file:'iphone-chain.png',n:'01 / EDIT',accent:'#e2b139'},
+'iphone-02':{w:1320,h:2868,title:['Dial in','the details.'],body:'Touch controls. Precise value entry.',file:'iphone-editor.png',n:'02 / ADJUST',accent:'#f34b45'},
+'iphone-03':{w:1320,h:2868,title:['Switch sounds','in a tap.'],body:'Your snapshots, ready when you are.',file:'iphone-perform.png',n:'03 / PERFORM',accent:'#53a675'},
+'ipad-01':{w:2064,h:2752,title:['More room to edit.'],body:'Your signal chain and parameters, together.',file:'ipad-editor.png',n:'01 / EDIT',accent:'#f34b45'},
+'ipad-02':{w:2064,h:2752,title:['Your sounds.','Close at hand.'],body:'Switch snapshots with clear, spacious controls.',file:'ipad-perform.png',n:'02 / PERFORM',accent:'#53a675'},
+'ipad-03':{w:2752,h:2064,title:['Keep your','rig in view.'],body:'A wide workspace for your signal chain and the details beneath it.',file:'ipad-landscape.png',n:'03 / LANDSCAPE',accent:'#e2b139',wide:true}
+};
+const key=new URLSearchParams(location.search).get('card')||'iphone-01',c=cards[key];const root=document.documentElement;
+const phone=c.w===1320,wide=!!c.wide;
+const vars={w:c.w+'px',h:c.h+'px',margin:phone?'100px':'110px',heading:phone?'128px':'150px',body:phone?'40px':'44px',accent:c.accent,device:wide?'1780px':phone?'1010px':'1530px',left:wide?'880px':phone?'155px':'267px',top:wide?'440px':phone?'595px':key==='ipad-02'?'670px':'590px',radius:phone?'82px':'54px'};
+for(const[k,v]of Object.entries(vars))root.style.setProperty('--'+k,v);
+if(wide){document.body.classList.add('landscape');const f=document.createElement('div');f.className='foot';f.textContent='Independent editor for your guitar rig.';document.body.append(f)}
+document.querySelector('h1').innerHTML=c.title.map(x=>'<span>'+x+'</span>').join('');
+document.querySelector('p').textContent=c.body;document.querySelector('.index').textContent=c.n;
+document.getElementById('screen').src='raw/'+c.file;document.title=key;
+</script></body></html>

@@ -1,0 +1,32 @@
+[
+  {
+    "file": "ipad-01.jpg",
+    "sha256": "1b3dce8abe5595c7d7d545799bc5fb585942567b390962b3f46ea2c3cadec1b8",
+    "size": 259799
+  },
+  {
+    "file": "ipad-02.jpg",
+    "sha256": "337995c96768059a8021f1bda7f586626978ca29e5c8723942f630f3d2f138ba",
+    "size": 189968
+  },
+  {
+    "file": "ipad-03.jpg",
+    "sha256": "6e71634e2a8be1bfef8665db21caf25fa36f016314a7521df8ca134972f32dc6",
+    "size": 243643
+  },
+  {
+    "file": "iphone-01.jpg",
+    "sha256": "5bc5d62cc9633a062d3683ad6ff72a60f8af13f9c90cd20bf71a6829b00678c9",
+    "size": 200285
+  },
+  {
+    "file": "iphone-02.jpg",
+    "sha256": "c15c334c729d6dc0412aba0bb0611862d8f987aa36e3c1ef6c772ba97971800f",
+    "size": 145599
+  },
+  {
+    "file": "iphone-03.jpg",
+    "sha256": "f64d3968bac15985a801cc966759b39b895f39dc8d98e16b1d16e655243c59cd",
+    "size": 152100
+  }
+]

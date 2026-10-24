@@ -4282,30 +4282,43 @@ function EditorApp() {
     const positionLabel = `Row ${rowLabels[blockEditorSlot.path]}, position ${blockEditorSlot.block + 1}`;
     // Phones show row and position in the block stepper; the docked header and list layout keep them in the subtitle.
     const showStepper = !docked && !linearControls;
+    // Phones leave the DSP estimate to the block menu so the header only identifies the block.
     const subtitle = [
       kindLabel(activeBlock.kind),
       metaDetail,
       showStepper ? null : positionLabel,
-      typeof activeBlock.usage === 'number' ? `${activeBlock.usage.toFixed(1)} DSP` : null,
+      docked && typeof activeBlock.usage === 'number' ? `${activeBlock.usage.toFixed(1)} DSP` : null,
     ].filter(Boolean).join(' · ');
     const slotIndex = editableSlots.findIndex((slot) => slot.path === blockEditorSlot.path && slot.block === blockEditorSlot.block);
     const editBusy = focusBusy || blockBusy || presetSaving || presetCreating;
-    const glyphSize = docked ? 26 : 22;
+    const glyph = (size: number, tint: string) => blockImage ? (
+      <Image source={blockImage} style={{ width: size, height: size, tintColor: tint }} resizeMode="contain" />
+    ) : (
+      <BlockIcon type={activeBlock.kind} size={size} color={tint} />
+    );
 
     const chip = (
-      <View style={[styles.inspectorChip, !docked && styles.inspectorChipCompact, { backgroundColor: appearance.fill, borderColor: appearance.outline, borderStyle: appearance.outlineStyle }]}>
-        {blockImage ? (
-          <Image source={blockImage} style={{ width: glyphSize, height: glyphSize, tintColor: appearance.icon }} resizeMode="contain" />
-        ) : (
-          <BlockIcon type={activeBlock.kind} size={glyphSize} color={appearance.icon} />
-        )}
+      <View style={[styles.inspectorChip, { backgroundColor: appearance.fill, borderColor: appearance.outline, borderStyle: appearance.outlineStyle }]}>
+        {glyph(26, appearance.icon)}
       </View>
     );
     const titleStack = (
-      <View style={[styles.inspectorTitleStack, !docked && styles.editorTitleStackPhone, !docked && accessibilityText && styles.editorTitleStackAccessible]}>
-        <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={[styles.inspectorTitle, !docked && styles.editorBlockTitle]}>{displayName}</ScreenHeading>
+      <View style={styles.inspectorTitleStack}>
+        <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.inspectorTitle}>{displayName}</ScreenHeading>
         <Text style={styles.inspectorSubtitle} numberOfLines={linearControls || accessibilityText ? undefined : 2}>{subtitle}</Text>
       </View>
+    );
+    // Phones drop the category box: a small tinted glyph leads the metadata line, and long names and models wrap.
+    const phoneTitle = (
+      <View style={[styles.phoneBlockTitleStack, accessibilityText && styles.editorTitleStackAccessible]}>
+        <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={[styles.inspectorTitle, styles.editorBlockTitle]}>{displayName}</ScreenHeading>
+      </View>
+    );
+    const phoneMetadata = (
+        <View style={[styles.editorMetaRow, accessibilityText && styles.editorMetaRowAccessible]}>
+          <View style={styles.editorMetaGlyph} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">{glyph(16, color)}</View>
+          <Text style={[styles.inspectorSubtitle, styles.editorMetaText]}>{subtitle}</Text>
+        </View>
     );
     const powerButton = (
       <Pressable
@@ -4315,8 +4328,8 @@ function EditorApp() {
         disabled={blockBusy || presetSaving || presetCreating}
         onPress={() => { void toggleBlockEnabled(blockEditorSlot); }}
         style={({ pressed }) => [
-          styles.powerPill,
-          isEnabled ? { backgroundColor: appearance.fill, borderColor: color } : styles.powerPillOff,
+          docked ? styles.powerPill : styles.phoneBlockPower,
+          docked && (isEnabled ? { backgroundColor: appearance.fill, borderColor: color } : styles.powerPillOff),
           pressed && styles.toolButtonPressed,
         ]}
       >
@@ -4394,12 +4407,12 @@ function EditorApp() {
               <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
-          {chip}
-          {accessibilityText ? <View style={styles.flexSpacer} /> : titleStack}
+          {accessibilityText ? <View style={styles.flexSpacer} /> : phoneTitle}
           {menuButton}
         </View>
-        {accessibilityText && <View style={styles.editorAccessibleTitle}>{titleStack}</View>}
-        <View style={[styles.editorToolRow, accessibilityText && styles.editorToolRowStacked]}>
+        {accessibilityText && <View style={styles.editorAccessibleTitle}>{phoneTitle}</View>}
+        {phoneMetadata}
+        <View style={[styles.editorToolRow, accessibilityText && styles.editorToolRowStacked, !saveInScroll && styles.editorToolRowDivided]}>
           {powerButton}
           {showStepper && !accessibilityText && <View style={styles.flexSpacer} />}
           {showStepper && stepper}
@@ -5952,10 +5965,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  inspectorChipCompact: { width: 40, height: 40, borderRadius: 10, marginRight: 4 },
   inspectorTitleStack: { flexShrink: 1, flexGrow: 1, flexBasis: 180, gap: 2 },
-  editorTitleStackPhone: { flexBasis: 0, minWidth: 0 },
-  editorTitleStackAccessible: { flex: 0, flexBasis: 'auto', width: '100%' },
+  phoneBlockTitleStack: { flex: 1, minWidth: 0, paddingVertical: 6 },
+  editorTitleStackAccessible: { flex: 0, flexBasis: 'auto', width: '100%', paddingTop: 0 },
+  editorMetaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: -6, paddingLeft: 56, paddingRight: 16, paddingBottom: 10 },
+  editorMetaRowAccessible: { paddingLeft: 16, marginTop: 0 },
+  editorMetaGlyph: { height: 18, justifyContent: 'center' },
+  editorMetaText: { flexShrink: 1 },
   editorAccessibleTitle: { paddingHorizontal: 16, paddingBottom: 8 },
   editorBlockTitle: { fontSize: 20, lineHeight: 24 },
   inspectorTitle: { color: COLORS.text, ...FONT.bold, fontSize: 22, lineHeight: 26 },
@@ -5976,7 +5992,18 @@ const styles = StyleSheet.create({
   powerPillOff: { backgroundColor: COLORS.control, borderColor: COLORS.control },
   powerDot: { width: 10, height: 10, borderRadius: 5 },
   powerText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
-  editorTopRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 56, paddingHorizontal: 4, paddingVertical: 4 },
+  phoneBlockPower: {
+    minHeight: 48,
+    minWidth: 88,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: COLORS.control,
+  },
+  editorTopRow: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 48, paddingHorizontal: 4 },
 
 
   stepButton: {
@@ -5988,7 +6015,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepButtonDisabled: { opacity: 0.4 },
-  editorToolRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 8 },
+  editorToolRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingTop: 2, paddingBottom: 10 },
+  editorToolRowDivided: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.stroke },
   editorToolRowStacked: { flexDirection: 'column', alignItems: 'flex-start' },
   sliderGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 10, paddingVertical: 4 },
 

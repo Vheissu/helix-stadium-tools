@@ -96,15 +96,29 @@ readback matched all models, settings, bypass states and branch connections.
 The original preset and snapshot were restored after testing, and the spare
 preset's saved signal flow was unchanged.
 
-The individual-block copy action, row-B input copying and Auto-Cab recovery changes
-were implemented after that device test. All 189 mobile tests, typechecking and
-iOS/Android bundle exports pass; lint has no errors and two existing warnings.
-Claude's follow-up review found no remaining medium/high issues. Its final low
-finding is covered by a new readback test for an ignored B-endpoint reset.
-The automated checks are complete;
-simulator and hardware verification remains pending until the owner is home.
-The existing iOS 11 and Android 12 artifacts predate these changes and must not be
-submitted as the completed copy-feature release. Rebuild after device verification.
+The subsequent copy checks used the Expo web UI connected to the same Stadium
+through a temporary loopback bridge. The app's copy helpers were unchanged;
+test-only adapters supplied network sockets and confirmation dialogs in the
+browser. Phone and tablet layouts were inspected.
+
+Device readback confirmed individual amp copying from Path 1 to Path 2, delay
+copying from 1A to 2B and back from 2B to 1B, and whole-path copying in both
+directions over existing blocks and routing. Copied values included non-default
+parameters, Trails, other harness settings and bypass. Sources stayed unchanged.
+The destination chooser correctly disabled a third amp on a primary path.
+Independent B inputs and outputs copied correctly over a split path; the reverse
+case reset those endpoints before installing split/merge routing. These checks
+used unsaved edits only. The original preset, snapshot and Auto-Cab preference
+were restored and read back.
+
+All 189 mobile tests, typechecking and iOS/Android bundle exports pass; lint has
+no errors and two existing warnings. Claude's follow-up review found no remaining
+medium/high issues. Its final low finding is covered by a readback regression test
+and the live B-endpoint replacement check above. Auto-Cab recovery failure paths
+are covered by automated tests; no device failure was induced during live checks.
+
+The earlier iOS 11 and Android 12 artifacts predate the copy changes and are
+superseded. Fresh signed builds are required for submission.
 
 Automated tests cover acknowledgements, visible versus internal block IDs,
 stale presets, stale move sources, topology, readback failures, native move plans,

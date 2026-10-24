@@ -702,7 +702,7 @@ export class HelixClient {
       '/GetContainerContents', 3000
     );
     const decoded = decodeCommandBlob(vals);
-    if (!Array.isArray(decoded) && requireComplete) throw new Error('The song library could not be read. Refresh before trying again.');
+    if (!Array.isArray(decoded) && requireComplete) throw new Error('The library could not be read. Refresh before trying again.');
     return Array.isArray(decoded) ? decoded : [];
   }
 

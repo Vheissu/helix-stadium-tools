@@ -1,38 +1,25 @@
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
-import { Action as Pressable } from '../accessibility/controls';
-import { AccessibilitySettings } from '../accessibility/controls';
-import React, { useEffect, useRef } from 'react';
-import {
-  AccessibilityInfo,
-  Animated,
-  Easing,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-import Svg, { Rect, Circle } from 'react-native-svg';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { Action, AccessibilitySettings } from '../accessibility/controls';
 import { AppInfo } from './AppInfo';
+import { BottomSheet } from './BottomSheet';
+import { BrandMark } from './BrandMark';
 import { StadiumSearch } from './StadiumSearch';
+import { UtilityIcon } from './UtilityIcon';
 import type { StadiumDevice } from '../utils/stadiumDiscovery';
-import appConfig from '../../app.json';
 import { COLORS, FONT } from '../theme/colors';
 import { getConnectionErrorMessage } from '../utils/connection';
-import {
-  getConnectionHint,
-  type ConnectionTransport,
-} from '../utils/connectionTransport';
+import { getConnectionHint, type ConnectionTransport } from '../utils/connectionTransport';
 
 interface ConnectionGateProps {
   host: string;
   port: number;
   onHostChange: (value: string) => void;
   onDeviceSelect: (device: StadiumDevice) => void;
+  selectedDevice?: StadiumDevice | null;
   transport: ConnectionTransport;
   onTransportChange: (value: ConnectionTransport) => void;
   onConnect: () => void;
@@ -41,395 +28,178 @@ interface ConnectionGateProps {
   status: string;
 }
 
-const DeviceMark = ({ pulse }: { pulse: boolean }) => {
-  const opacity = useRef(new Animated.Value(pulse ? 0.45 : 1)).current;
+export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selectedDevice, transport, onTransportChange, onConnect, onPreview, connecting, status }: ConnectionGateProps) {
+  const { screenReader } = useAccessibilityPreferences();
+  const { width, height, fontScale } = useWindowDimensions();
+  const [sheet, setSheet] = useState<'manual' | 'help' | null>(null);
+  const [searching, setSearching] = useState(false);
+  const compact = height < 900 || fontScale > 1.3;
+  const wide = width >= 840 && fontScale <= 1.3 && !screenReader;
+  const largeText = fontScale > 1.5;
+  const directUsb = Platform.OS === 'android' && transport === 'usb';
+  const error = getConnectionErrorMessage(status);
+  const canConnect = !connecting && (directUsb || !!host.trim());
+  const connect = () => { if (!connecting) { setSheet(null); onConnect(); } };
+  const connectButton = <Action accessibilityLabel={connecting ? 'Connecting to your Stadium' : 'Connect'} accessibilityHint={!canConnect && !connecting ? 'Choose a Stadium or enter its address first' : undefined} disabled={!canConnect}
+    onPress={connect} style={({ pressed }) => [styles.connect, pressed && styles.connectPressed, !canConnect && styles.connectBusy]}>
+    <Text style={styles.connectLabel}>{connecting ? 'Connecting…' : 'Connect'}</Text>
+    {!connecting && <UtilityIcon name="arrow" color={COLORS.bg} />}
+  </Action>;
 
-  useEffect(() => {
-    if (!pulse) {
-      opacity.setValue(1);
-      return;
-    }
-    const anim = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.45,
-          duration: 900,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    let disposed = false;
-    const updateMotion = (reduce: boolean) => {
-      anim.stop();
-      opacity.setValue(1);
-      if (!reduce && !disposed) anim.start();
-    };
-    void AccessibilityInfo.isReduceMotionEnabled().then(updateMotion);
-    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', updateMotion);
-    return () => { disposed = true; anim.stop(); subscription.remove(); };
-  }, [pulse, opacity]);
-
-  return (
-    <View style={styles.deviceMark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Svg width={120} height={48} viewBox="0 0 120 48">
-        <Rect x="2" y="6" width="116" height="36" rx="6" stroke={COLORS.stroke} strokeWidth={1} fill={COLORS.panel} />
-        <Rect x="14" y="14" width="44" height="20" rx="3" fill={COLORS.bg} stroke={COLORS.stroke} strokeWidth={0.75} />
-        <Circle cx="74" cy="24" r="3" fill={COLORS.muted} />
-        <Circle cx="86" cy="24" r="3" fill={COLORS.muted} />
-        <Circle cx="98" cy="24" r="3" fill={COLORS.muted} />
-        <Circle cx="110" cy="24" r="3" fill={COLORS.muted} />
-      </Svg>
-      <Animated.View style={[styles.deviceDot, { opacity }]} />
+  const brand = <View style={[styles.brand, compact && styles.brandCompact, wide && styles.brandWide]}>
+    <View style={[styles.brandIdentity, largeText && styles.brandIdentityCompact]}>
+      <View style={!largeText && styles.emblem}><BrandMark size={largeText ? 30 : compact ? 64 : 80} active={connecting || (!directUsb && searching)} /></View>
+      <Text accessibilityRole="header" accessibilityLabel="Helyon" maxFontSizeMultiplier={1.2} style={[styles.wordmark, compact && styles.wordmarkCompact, largeText && styles.wordmarkAccessible]}>HELYON</Text>
     </View>
-  );
-};
+    <Text style={styles.tagline}>Independent Helix Stadium editor</Text>
+  </View>;
 
-const SpinnerDot = () => {
-  const rotation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: 1200,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [rotation]);
-
-  const spin = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  return (
-    <Animated.View style={[styles.spinner, { transform: [{ rotate: spin }] }]}>
-      <View style={styles.spinnerDot} />
-    </Animated.View>
-  );
-};
-
-export const ConnectionGate: React.FC<ConnectionGateProps> = ({
-  host,
-  port,
-  onHostChange,
-  onDeviceSelect,
-  transport,
-  onTransportChange,
-  onConnect,
-  onPreview,
-  connecting,
-  status,
-}) => {
-  const { accessibleLayout, screenReader } = useAccessibilityPreferences();
-  const { fontScale } = useWindowDimensions();
-  const stackChoices = accessibleLayout || screenReader || fontScale > 1.3;
-  const errorMessage = getConnectionErrorMessage(status);
-
-  return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.safe}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <View style={styles.spacer} />
-
-          <DeviceMark pulse={!connecting} />
-
-          <Text accessibilityRole="header" style={styles.title}>{appConfig.expo.name}</Text>
-          <Text style={styles.subtitle}>
-            Unofficial mobile editor for the Helix Stadium
-          </Text>
-
-          <View style={styles.form}>
-            <View style={styles.transportWrap}>
-              <Text style={styles.inputLabel}>Connection</Text>
-              <View style={[styles.transportRow, stackChoices && { flexDirection: 'column' }]}>
-                {(['auto', 'usb', 'wifi'] as const).map((option) => {
-                  const selected = transport === option;
-                  const label = option === 'auto' ? 'Automatic' : option === 'usb' ? 'USB' : 'Wi-Fi';
-                  return (
-                    <Pressable
-                      key={option}
-                      style={[styles.transportButton, selected && styles.transportButtonSelected, stackChoices && { flex: 0, alignSelf: 'stretch' }]}
-                      onPress={() => onTransportChange(option)}
-                      disabled={connecting}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected, disabled: connecting }}
-                    >
-                      <Text style={[styles.transportText, selected && styles.transportTextSelected]}>
-                        {label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-
-            {!(Platform.OS === 'android' && transport === 'usb') && <>
-            <StadiumSearch host={host} port={port} disabled={connecting} onSelect={onDeviceSelect} />
-            <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>Or enter a device name or IP address</Text>
-              <TextInput
-                accessibilityLabel="Device name or IP address"
-                style={styles.input}
-                value={host}
-                onChangeText={onHostChange}
-                placeholder="Device name or IP address"
-                placeholderTextColor={COLORS.muted}
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!connecting}
-                returnKeyType="go"
-                onSubmitEditing={onConnect}
-              />
-              <Text style={styles.addressHint}>
-                On your Stadium, open Menu → Wi-Fi. The IP address is at the bottom of the right sidebar once connected.
-              </Text>
-            </View></>}
-
-            <Text style={styles.addressHint}>
-              Set Global Settings → Preferences → Remote Access to Allow on your Stadium.
-            </Text>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ disabled: connecting }}
-              style={[styles.connectBtn, connecting && styles.connectBtnDisabled]}
-              onPress={onConnect}
-              disabled={connecting}
-            >
-              {connecting ? (
-                <View style={styles.connectingRow}>
-                  <SpinnerDot />
-                  <Text style={styles.connectBtnText}>Connecting</Text>
-                </View>
-              ) : (
-                <Text style={styles.connectBtnText}>Connect</Text>
-              )}
-            </Pressable>
-
-            {errorMessage && (
-              <View style={styles.errorRow}>
-                <View style={styles.errorDot} />
-                <Text accessibilityRole="alert" style={styles.errorText}>{errorMessage}</Text>
-              </View>
-            )}
+  return <SafeAreaProvider><SafeAreaView style={styles.safe}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.scroll, wide && styles.scrollWide]}>
+        {brand}
+        <View style={[styles.connection, wide && styles.connectionWide]}>
+          <View style={styles.intro}>
+            <Text accessibilityRole="header" style={styles.title}>Connect your Stadium</Text>
+            <Text style={styles.hint}>{getConnectionHint(transport)}</Text>
+          </View>
+          <View style={[styles.transports, fontScale > 1.5 && styles.transportsStack]} accessibilityRole="radiogroup" accessibilityLabel="Connection method">
+            {(['auto', 'usb', 'wifi'] as const).map(option => {
+              const selected = transport === option;
+              const label = option === 'auto' ? 'Automatic' : option === 'usb' ? 'USB' : 'Wi-Fi';
+              return <Action key={option} accessibilityRole="radio" accessibilityLabel={label}
+                accessibilityState={{ checked: selected, disabled: connecting }} disabled={connecting}
+                onPress={() => onTransportChange(option)}
+                style={({ pressed }) => [styles.transport, selected && styles.transportSelected, pressed && styles.pressed, fontScale > 1.5 && styles.transportStack]}>
+                <UtilityIcon name={option === 'auto' ? 'automatic' : option} size={18} color={selected ? COLORS.text : COLORS.muted} />
+                <Text style={[styles.transportLabel, selected && styles.transportLabelSelected]}>{label}</Text>
+              </Action>;
+            })}
           </View>
 
-          <Pressable style={styles.previewButton} accessibilityRole="button" disabled={connecting} onPress={onPreview}>
-            <Text style={styles.transportText}>Try offline preview</Text>
-          </Pressable>
-          <View style={styles.bottomInfo}>
-            <Text style={styles.hint}>
-              {getConnectionHint(transport)}
-            </Text>
-            <AccessibilitySettings />
-          <AppInfo />
+          {directUsb ? <View style={styles.usb}>
+            <View style={styles.usbIcon}><UtilityIcon name="usb" size={34} color={COLORS.text} /></View>
+            <View style={styles.flex}><Text style={styles.usbTitle}>Plug in. Take control.</Text>
+              <Text style={styles.hint}>Connect a USB data cable, then tap Connect. Allow USB access when asked.</Text></View>
+          </View> : <StadiumSearch host={host} port={port} disabled={connecting} onSelect={onDeviceSelect} onActivityChange={setSearching} />}
+
+          <View style={styles.manualOptions}>
+          {!directUsb && <Action disabled={connecting} onPress={() => setSheet('manual')} accessibilityLabel="Enter a device name or IP address"
+            style={({ pressed }) => [styles.manual, pressed && styles.pressed]}>
+            <View style={styles.flex}><Text style={styles.manualTitle}>Enter an address</Text>
+              {host.trim() !== '' && !selectedDevice && <Text style={styles.address} numberOfLines={1}>{host.trim()}</Text>}</View>
+            <UtilityIcon name="chevron" size={17} />
+          </Action>}
+          <Action disabled={connecting} accessibilityLabel="Connection help" onPress={() => setSheet('help')} style={styles.setup}>
+            <UtilityIcon name="help" size={17} /><Text style={styles.setupText}>{directUsb ? 'Connection help' : 'Help'}</Text>
+          </Action>
           </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </SafeAreaProvider>
-  );
-};
+
+          {error && <View style={styles.error} accessibilityRole="alert"><UtilityIcon name="help" color={COLORS.danger} />
+            <Text style={styles.errorText}>{error}</Text></View>}
+
+          {wide && connectButton}
+
+          {(wide || largeText) && <View style={styles.previewWrap}>
+            <Action disabled={connecting} onPress={onPreview} accessibilityLabel="Try offline preview" style={({ pressed }) => [styles.preview, pressed && styles.pressed]}>
+              <View style={styles.flex}><Text style={styles.previewTitle}>Explore HELYON</Text><Text style={styles.hint}>Try a sample preset without connecting.</Text></View>
+              <UtilityIcon name="arrow" size={20} />
+            </Action>
+          </View>}
+          <View style={styles.footer}><AccessibilitySettings compact /><AppInfo compact /></View>
+        </View>
+      </ScrollView>
+      {!wide && <View style={styles.connectDock}>
+        {connectButton}
+        {!largeText && <Action disabled={connecting} onPress={onPreview} accessibilityLabel="Try offline preview" accessibilityHint="Explore a sample preset without connecting" style={styles.dockPreview}>
+          <Text style={styles.dockPreviewText}>Try offline preview</Text><UtilityIcon name="arrow" size={17} />
+        </Action>}
+      </View>}
+    </KeyboardAvoidingView>
+    <BottomSheet visible={sheet === 'manual'} onClose={() => setSheet(null)} title="Connect by address" subtitle="Device name or IP address">
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetContent}>
+        <Text style={styles.hint}>On your Stadium, open Menu → Wi-Fi. Its IP address appears at the bottom of the right sidebar.</Text>
+        <TextInput accessibilityLabel="Device name or IP address" value={host} onChangeText={onHostChange}
+          placeholder="p35x1.local or 192.168.1.10" placeholderTextColor={COLORS.muted}
+          style={styles.input} autoCapitalize="none" autoCorrect={false} autoFocus editable={!connecting}
+          returnKeyType="go" onSubmitEditing={connect} />
+        <Text style={styles.hint}>Set Global Settings → Preferences → Remote Access to Allow on your Stadium.</Text>
+        <Action disabled={connecting || !host.trim()} onPress={connect} style={({ pressed }) => [styles.connect, pressed && styles.connectPressed, (!host.trim() || connecting) && styles.connectBusy]}>
+          <Text style={styles.connectLabel}>Connect to this address</Text><UtilityIcon name="arrow" color={COLORS.bg} />
+        </Action>
+      </ScrollView>
+    </BottomSheet>
+    <BottomSheet visible={sheet === 'help'} onClose={() => setSheet(null)} title="Get connected">
+      <ScrollView contentContainerStyle={styles.sheetContent}>
+        {[
+          { title: 'Allow remote control', body: 'On your Stadium, set Global Settings → Preferences → Remote Access to Allow.' },
+          { title: transport === 'usb' ? 'Connect a data cable' : 'Join the same Wi-Fi', body: transport === 'usb' ? 'Use a USB cable that carries data. On Android, allow USB access when prompted. On iPhone or iPad, a compatible USB network connection is required.' : 'Your phone or tablet and Stadium need to be on the same network. Allow Local Network access when your device asks.' },
+          { title: 'Choose your Stadium', body: 'Select it from Nearby Stadiums, then tap Connect. If it does not appear, use Enter an address.' },
+        ].map((step, index) => <View key={step.title} style={styles.step}>
+          <View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View>
+          <View style={styles.flex}><Text style={styles.stepTitle}>{step.title}</Text><Text style={styles.hint}>{step.body}</Text></View>
+        </View>)}
+      </ScrollView>
+    </BottomSheet>
+  </SafeAreaView></SafeAreaProvider>;
+}
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: COLORS.bg,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  scrollContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 560, alignSelf: 'center' },
-  previewButton: {
-    minHeight: 48,
-    marginTop: 12,
-    borderRadius: 10,
-    backgroundColor: COLORS.control,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  spacer: {
-    flex: 1,
-    minHeight: 20,
-  },
-
-  deviceMark: {
-    width: 120,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    position: 'relative',
-  },
-  deviceDot: {
-    position: 'absolute',
-    top: 14,
-    right: 30,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.signal,
-  },
-
-  title: {
-    fontSize: 26,
-    color: COLORS.text,
-    ...FONT.bold,
-    letterSpacing: 0.1,
-    marginBottom: 6,
-  },
-  subtitle: {
-    color: COLORS.muted,
-    ...FONT.body,
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
-  },
-
-  form: {
-    width: '100%',
-    gap: 14,
-  },
-  inputWrap: {
-    gap: 6,
-  },
-  transportWrap: {
-    gap: 8,
-  },
-  transportRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  transportButton: {
-    flex: 1,
-    minHeight: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panel,
-  },
-  transportButtonSelected: {
-    borderColor: COLORS.accent,
-    backgroundColor: COLORS.accent,
-  },
-  transportText: {
-    color: COLORS.muted,
-    ...FONT.semibold,
-    fontSize: 13,
-  },
-  transportTextSelected: {
-    color: COLORS.bg,
-  },
-  inputLabel: {
-    color: COLORS.muted,
-    ...FONT.body,
-    fontSize: 13,
-  },
-  addressHint: {
-    color: COLORS.muted,
-    ...FONT.body,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  input: {
-    padding: 14,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    color: COLORS.text,
-    ...FONT.numeric,
-    fontSize: 16,
-    backgroundColor: COLORS.panel,
-  },
-  connectBtn: {
-    paddingVertical: 16,
-    borderRadius: 4,
-    backgroundColor: COLORS.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  connectBtnDisabled: {
-    opacity: 0.7,
-  },
-  connectBtnText: {
-    color: COLORS.bg,
-    ...FONT.semibold,
-    fontSize: 16,
-    letterSpacing: 0.1,
-  },
-  connectingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-
-  spinner: {
-    width: 18,
-    height: 18,
-  },
-  spinnerDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.bg,
-  },
-
-  errorRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    paddingHorizontal: 4,
-  },
-  errorDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.danger,
-    marginTop: 6,
-  },
-  errorText: {
-    color: COLORS.danger,
-    ...FONT.body,
-    fontSize: 13,
-    lineHeight: 18,
-    flex: 1,
-  },
-
-  bottomInfo: {
-    // Grow into spare space but never shrink below the content, which would
-    // push it up over the preview button.
-    flexGrow: 1,
-    flexShrink: 0,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 24,
-    minHeight: 80,
-  },
-  hint: {
-    color: COLORS.muted,
-    ...FONT.body,
-    fontSize: 13,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
+  safe: { flex: 1, backgroundColor: COLORS.bg },
+  container: { flex: 1 },
+  connectDock: { paddingTop: 12, paddingBottom: 8, paddingHorizontal: 24, width: '100%', maxWidth: 540, alignSelf: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.hairline, backgroundColor: COLORS.bg },
+  dockPreview: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  dockPreviewText: { color: COLORS.muted, fontSize: 15, ...FONT.medium },
+  scroll: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 22, paddingBottom: 18, maxWidth: 540, width: '100%', alignSelf: 'center' },
+  scrollWide: { maxWidth: 1080, flexDirection: 'row', gap: 64, alignItems: 'center', paddingHorizontal: 48 },
+  brand: { alignItems: 'center', paddingTop: 4, paddingBottom: 22 },
+  brandCompact: { paddingTop: 0, paddingBottom: 20 },
+  brandWide: { flex: 1 },
+  brandIdentity: { alignItems: 'center' },
+  brandIdentityCompact: { flexDirection: 'row', gap: 16, alignSelf: 'flex-start' },
+  emblem: { marginBottom: 12 },
+  wordmark: { color: COLORS.text, fontWeight: '700', fontSize: 42, letterSpacing: 6, marginLeft: 6 },
+  wordmarkCompact: { fontSize: 34 },
+  wordmarkAccessible: { fontSize: 25, letterSpacing: 3 },
+  tagline: { color: COLORS.muted, fontSize: 15, marginTop: 6, letterSpacing: 0.4 },
+  connection: { gap: 14 },
+  connectionWide: { flex: 1.1, paddingVertical: 20 },
+  intro: { gap: 6 },
+  title: { color: COLORS.text, ...FONT.semibold, fontSize: 23, letterSpacing: -0.6 },
+  hint: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 22 },
+  transports: { flexDirection: 'row', padding: 4, backgroundColor: COLORS.panel, borderRadius: 14, gap: 4 },
+  transportsStack: { flexDirection: 'column' },
+  transport: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 10 },
+  transportStack: { flex: 0, justifyContent: 'flex-start', paddingHorizontal: 16 },
+  transportSelected: { backgroundColor: COLORS.raised },
+  transportLabel: { color: COLORS.muted, ...FONT.medium, fontSize: 15, flexShrink: 1 },
+  transportLabelSelected: { color: COLORS.text },
+  pressed: { backgroundColor: COLORS.control },
+  manualOptions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 16 },
+  manual: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, gap: 12, flexGrow: 1, flexShrink: 1, minWidth: 160 },
+  manualTitle: { color: COLORS.text, fontSize: 15, ...FONT.medium },
+  address: { color: COLORS.muted, fontSize: 14, marginTop: 3 },
+  connect: { minHeight: 56, borderRadius: 14, backgroundColor: COLORS.text, paddingHorizontal: 20, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  connectPressed: { backgroundColor: '#d5d1c7' },
+  connectBusy: { opacity: 0.6 },
+  connectLabel: { color: COLORS.bg, ...FONT.semibold, fontSize: 17, flexShrink: 1 },
+  setup: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 4, maxWidth: '100%' },
+  setupText: { color: COLORS.muted, fontSize: 15 },
+  previewWrap: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke, paddingTop: 12 },
+  preview: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 8 },
+  previewTitle: { color: COLORS.text, fontSize: 16, ...FONT.medium, marginBottom: 3 },
+  footer: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
+  disclaimer: { color: COLORS.muted, fontSize: 12, lineHeight: 18, textAlign: 'center' },
+  flex: { flex: 1, minWidth: 0 },
+  error: { padding: 14, backgroundColor: COLORS.panel, borderRadius: 12, flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  errorText: { color: COLORS.danger, fontSize: 15, lineHeight: 22, flex: 1 },
+  usb: { backgroundColor: COLORS.panel, padding: 20, borderRadius: 16, flexDirection: 'row', gap: 18, alignItems: 'center' },
+  usbIcon: { width: 42, alignItems: 'center' },
+  usbTitle: { color: COLORS.text, fontSize: 18, ...FONT.semibold, marginBottom: 6 },
+  sheetContent: { gap: 20, paddingBottom: 16 },
+  input: { color: COLORS.text, fontSize: 17, backgroundColor: COLORS.bg, padding: 18, borderRadius: 12, borderWidth: 1, borderColor: COLORS.stroke },
+  step: { flexDirection: 'row', gap: 16, alignItems: 'flex-start' },
+  stepNumber: { width: 30, height: 30, borderRadius: 15, backgroundColor: COLORS.raised, alignItems: 'center', justifyContent: 'center' },
+  stepNumberText: { color: COLORS.text, fontSize: 14, ...FONT.semibold },
+  stepTitle: { color: COLORS.text, fontSize: 17, ...FONT.semibold, marginBottom: 7 },
 });

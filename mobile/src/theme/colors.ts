@@ -11,6 +11,9 @@ import type { TextStyle } from 'react-native';
 // Each signal-chain row sits on a `lane` band so rows read as rows.
 export const COLORS = {
   bg: '#0a0a0c',
+  // HELYON emblem. Reserved for the brand and its small navigation accents.
+  brand: '#ff481e',
+  brandDim: 'rgba(255, 72, 30, 0.10)',
   // Lane bands and grouped surfaces
   panel: '#151519',
   panelAlt: '#111114',

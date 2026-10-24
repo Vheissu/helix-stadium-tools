@@ -47,8 +47,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         <View style={styles.handleBar} accessible={false} />
         <View style={styles.header}>
           <View style={styles.headerText} ref={heading} accessible accessibilityRole="header" accessibilityLabel={title ?? 'Options'}>
-            <Text style={styles.title}>{title ?? 'Options'}</Text>
-            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+            <Text maxFontSizeMultiplier={1.5} style={styles.title}>{title ?? 'Options'}</Text>
+            {subtitle && <Text maxFontSizeMultiplier={1.5} style={styles.subtitle}>{subtitle}</Text>}
           </View>
           <Pressable disabled={closeDisabled} accessibilityState={{ disabled: closeDisabled }} accessibilityRole="button" onPress={requestClose} accessibilityLabel={`Close ${title ?? 'options'}`} style={styles.closeBtn}>
             <Svg width={20} height={20} viewBox="0 0 24 24" accessible={false}><Path d="M6 6l12 12M18 6L6 18" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" /></Svg>

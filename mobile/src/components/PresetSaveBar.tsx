@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { COLORS, FONT } from '../theme/colors';
@@ -14,14 +14,16 @@ interface PresetSaveBarProps {
 }
 
 export function PresetSaveBar({ name, edited, saving, saved, disabled, preview = false, onSave }: PresetSaveBarProps) {
+  const { fontScale } = useWindowDimensions();
+  const largeText = fontScale > 1.5;
   const message = preview ? 'Preview · edits are not saved'
     : saving ? 'Saving to Stadium…'
-    : edited ? 'Unsaved changes · Tap Save to keep'
+    : edited ? 'Unsaved changes'
     : saved ? 'Saved to Stadium'
-    : 'Tap Save to keep edits on the Stadium';
+    : 'On your Stadium';
   return (
-    <View style={styles.bar}>
-      <View style={styles.copy}>
+    <View style={[styles.bar, largeText && { flexDirection: 'column', alignItems: 'stretch' }]}>
+      <View style={[styles.copy, largeText && { flexBasis: 'auto' }]}>
         <Text style={styles.name}>{name}</Text>
         <Text accessibilityLiveRegion="polite" style={[styles.hint, edited && styles.unsaved]}>{message}</Text>
       </View>

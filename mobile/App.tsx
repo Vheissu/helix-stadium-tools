@@ -1,3 +1,5 @@
+import { populatedSlots, setlistAppendPosition, setlistMovePosition } from './src/utils/librarySlots';
+import { LibraryHeading, LibraryButton, LibrarySearch, LibrarySegments, LibraryRow, libraryStyles } from './src/components/LibraryChrome';
 import { ShowcaseLibrary } from './src/components/ShowcaseLibrary';
 import { presetStorageId } from './src/protocol/presetSave';
 import { isEmptyUserSlot } from './src/protocol/presetCreation';
@@ -24,13 +26,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   FlatList,
+  Keyboard,
   Image,
   ScrollView,
   StyleSheet,
   TextInput,
   View,
   Platform,
-  Switch,
   useWindowDimensions,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -45,6 +47,10 @@ import { BLOCK_IMAGES } from './src/icons/CategoryImages';
 import { TabBar } from './src/components/TabBar';
 import type { TabKey } from './src/components/TabBar';
 import { ConnectionGate } from './src/components/ConnectionGate';
+import { BrandMark } from './src/components/BrandMark';
+import { settingsFeedback } from './src/utils/settingsFeedback';
+import { UtilityIcon } from './src/components/UtilityIcon';
+import { SettingsGroup, SettingsRow, SettingsToggle } from './src/components/SettingsGroup';
 import { BottomSheet } from './src/components/BottomSheet';
 import { ParamKnob } from './src/components/ParamKnob';
 import { ParamSlider } from './src/components/ParamSlider';
@@ -226,13 +232,6 @@ const isBlockTypeKey = (kind: string): kind is BlockTypeKey =>
 type ControlStyle = 'sliders' | 'knobs';
 const CONTROL_STYLE_KEY = 'helix.controlStyle';
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <View style={styles.section}>
-    <Text accessibilityRole="header" style={styles.sectionTitle}>{title}</Text>
-    <View style={styles.sectionBody}>{children}</View>
-  </View>
-);
-
 export default function App() {
   const onReadyLayout = useCallback(() => {
     void SplashScreen.hideAsync().catch(() => {});
@@ -351,13 +350,19 @@ function EditorApp() {
   const [ioPickerType, setIoPickerType] = useState<IOType>('input');
   const [ioPickerQuery, setIoPickerQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabKey>('flow');
+  const [settingsSyncing, setSettingsSyncing] = useState(false);
+  const [settingsPage, setSettingsPage] = useState<'tempo' | 'tuner' | 'accessibility' | 'advanced' | null>(null);
   const [screen, setScreen] = useState<'main' | 'editor' | 'performance' | 'tuner'>('main');
   const [tunerReturnScreen, setTunerReturnScreen] = useState<'main' | 'performance'>('main');
-  const [libraryRoot, setLibraryRoot] = useState<PresetLibraryRoot>('setlists');
+  const [libraryRoot, setLibraryRootState] = useState<PresetLibraryRoot>('setlists');
+  const libraryRootRef = useRef<PresetLibraryRoot>('setlists');
+  const setLibraryRoot = (root: PresetLibraryRoot) => { libraryRootRef.current = root; setLibraryRootState(root); };
   const [librarySection, setLibrarySection] = useState<'setlists' | 'showcase'>('setlists');
   const [showcaseBusy, setShowcaseBusy] = useState(false);
   const [setlists, setSetlists] = useState<HelixContentRef[]>([]);
-  const [selectedContainerId, setSelectedContainerId] = useState<number | null>(null);
+  const [selectedContainerId, setSelectedContainerIdState] = useState<number | null>(null);
+  const selectedContainerRef = useRef<number | null>(null);
+  const setSelectedContainerId = (id: number | null) => { selectedContainerRef.current = id; setSelectedContainerIdState(id); };
   const [selectedContainerName, setSelectedContainerName] = useState('Setlists');
   const [targetSetlistId, setTargetSetlistId] = useState<number | null>(null);
   const [presetItems, setPresetItems] = useState<HelixContentRef[]>([]);
@@ -369,7 +374,9 @@ function EditorApp() {
   const [performView, setPerformView] = useState<PerformView>('snapshots');
   const [stompBanks, setStompBanks] = useState<StompBanks | null>(null);
   const [_activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
-  const [_libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryLoading, setLibraryLoadingState] = useState(false);
+  const libraryLoadingRef = useRef(false);
+  const setLibraryLoading = (loading: boolean) => { libraryLoadingRef.current = loading; setLibraryLoadingState(loading); };
   const [presetEdited, setPresetEdited] = useState<boolean | null>(null);
   const [presetSaved, setPresetSaved] = useState(false);
   const [presetSaving, setPresetSaving] = useState(false);
@@ -391,7 +398,6 @@ function EditorApp() {
   const [snapshotCopyTarget, setSnapshotCopyTarget] = useState<number | null>(null);
   const [pathClipboard, setPathClipboard] = useState<(HelixPathClipboard & { presetId: number }) | null>(null);
   const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
-  const [targetSetlistPickerOpen, setTargetSetlistPickerOpen] = useState(false);
   const [setlistAddSheetOpen, setSetlistAddSheetOpen] = useState(false);
   const [setlistAddSource, setSetlistAddSource] = useState<SetlistAddSource>('user');
   const [setlistAddItems, setSetlistAddItems] = useState<HelixContentRef[]>([]);
@@ -399,6 +405,12 @@ function EditorApp() {
   const [setlistAddLoading, setSetlistAddLoading] = useState(false);
   const [selectedSetlistAddIds, setSelectedSetlistAddIds] = useState<number[]>([]);
   const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
+  const libraryRequest = useRef(0);
+  const libraryMutation = useRef(false);
+  const [libraryBusy, setLibraryBusy] = useState(false);
+  const [libraryRefreshing, setLibraryRefreshing] = useState(false);
+  const [presetPanel, setPresetPanel] = useState<'browse' | 'snapshots' | 'notes'>('browse');
+  const [setlistOptionsOpen, setSetlistOptionsOpen] = useState(false);
   const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
   const [flowScrollEnabled, setFlowScrollEnabled] = useState(true);
   const [liveTempoBpm, setLiveTempoBpm] = useState<number | null>(null);
@@ -623,10 +635,6 @@ function EditorApp() {
   const activeSetlist = useMemo(
     () => setlists.find((item) => item.cid_ === selectedContainerId) ?? null,
     [selectedContainerId, setlists]
-  );
-  const targetSetlist = useMemo(
-    () => setlists.find((item) => item.cid_ === targetSetlistId) ?? null,
-    [targetSetlistId, setlists]
   );
   const activeSnapshot = useMemo(
     () => snapshots.find((item) => item.index === activeSnapshotIndex) ?? null,
@@ -899,6 +907,11 @@ function EditorApp() {
   };
 
   const disconnect = () => {
+    libraryRequest.current += 1;
+    setLibraryLoading(false);
+    setLibraryRefreshing(false);
+    setSettingsPage(null);
+    setSettingsSyncing(false);
     presetEditGuard.current.invalidate();
     setMoveSource(null);
     if (previewMode) {
@@ -956,7 +969,6 @@ function EditorApp() {
     setSnapshotCopyTarget(null);
     setPathClipboard(null);
     setSetlistPickerOpen(false);
-    setTargetSetlistPickerOpen(false);
     setSetlistAddSheetOpen(false);
     setSetlistAddSource('user');
     setSetlistAddItems([]);
@@ -1138,20 +1150,21 @@ function EditorApp() {
     }
   };
 
-  const loadPresetContainer = async (containerId: number, label: string) => {
+  const loadPresetContainer = async (containerId: number, label: string, request = libraryRequest.current) => {
     const client = requireClient();
     if (!client) return;
     const items = await client.getContainerContents(containerId);
+    if (clientRef.current !== client || request !== libraryRequest.current) return;
     setSelectedContainerId(containerId);
     setSelectedContainerName(label);
-    setPresetItems(items as HelixContentRef[]);
+    setPresetItems(containerId > 0 ? populatedSlots(items as HelixContentRef[]) : items as HelixContentRef[]);
   };
 
   const refreshPresetContext = async () => {
     const client = requireClient();
     if (!client) return;
     const saveRevision = presetSaveRevision.current;
-    setLibraryLoading(true);
+    const request = libraryRequest.current;
     try {
       const [activeId, snapshotTotal, snapshotIndex, setlistItems, edited, snapshotItems] = await Promise.all([
         client.getActivePresetContentId(),
@@ -1164,6 +1177,7 @@ function EditorApp() {
       const nextSetlists = (setlistItems as HelixContentRef[]) ?? [];
       const nextSnapshots = (snapshotItems as SnapshotRef[]) ?? [];
       const activeRef = activeId !== null ? ((await client.getContentRef(activeId)) as HelixContentRef | null) : null;
+      if (clientRef.current !== client) return;
       setSetlists(nextSetlists);
       setTargetSetlistId((prev) => {
         if (prev !== null && nextSetlists.some((item) => item.cid_ === prev)) return prev;
@@ -1181,80 +1195,97 @@ function EditorApp() {
       if (clientRef.current !== client) return;
       if (!presetSaveOperation.current && saveRevision === presetSaveRevision.current) setPresetEdited(edited);
       await refreshTransportContext(client);
+      if (clientRef.current !== client || request !== libraryRequest.current || libraryLoadingRef.current) return;
 
-      if (libraryRoot === 'factory') {
-        await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets');
+      if (libraryRootRef.current === 'factory') {
+        await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets', request);
         return;
       }
-      if (libraryRoot === 'user') {
-        await loadPresetContainer(USER_PRESETS_CID, 'User Presets');
+      if (libraryRootRef.current === 'user') {
+        await loadPresetContainer(USER_PRESETS_CID, 'User Presets', request);
         return;
       }
 
       const defaultSetlist =
+        nextSetlists.find((item) => item.cid_ === selectedContainerRef.current) ??
         nextSetlists.find((item) => item.cid_ === activeRef?.ccid) ??
-        nextSetlists.find((item) => item.cid_ === selectedContainerId) ??
         nextSetlists[0] ??
         null;
 
       if (defaultSetlist && typeof defaultSetlist.cid_ === 'number') {
-        await loadPresetContainer(defaultSetlist.cid_, defaultSetlist.name ?? 'Setlist');
+        await loadPresetContainer(defaultSetlist.cid_, defaultSetlist.name ?? 'Setlist', request);
       } else {
         setSelectedContainerId(null);
         setSelectedContainerName('Setlists');
         setPresetItems([]);
       }
-    } finally {
-      setLibraryLoading(false);
+    } catch (error) {
+      if (clientRef.current === client && request === libraryRequest.current) setStatus(`Library refresh failed: ${error instanceof Error ? error.message : 'Check the connection'}`);
     }
   };
 
   const handleLibraryRootChange = async (nextRoot: PresetLibraryRoot) => {
+    if (libraryMutation.current) return;
+    const request = ++libraryRequest.current;
     setLibraryRoot(nextRoot);
+    setSelectedContainerId(null);
+    setPresetItems([]);
+    setPresetFilter('');
     const client = requireClient();
     if (!client) return;
     setLibraryLoading(true);
     try {
       if (nextRoot === 'factory') {
-        await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets');
+        await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets', request);
         return;
       }
       if (nextRoot === 'user') {
-        await loadPresetContainer(USER_PRESETS_CID, 'User Presets');
+        await loadPresetContainer(USER_PRESETS_CID, 'User Presets', request);
         return;
       }
       const nextSetlists = setlists.length ? setlists : ((await client.getContainerContents(SETLIST_DIRECTORY_CID)) as HelixContentRef[]);
+      if (clientRef.current !== client || request !== libraryRequest.current) return;
       setSetlists(nextSetlists);
       const targetSetlist =
+        nextSetlists.find((item) => item.cid_ === targetSetlistId) ??
         nextSetlists.find((item) => item.cid_ === activePresetRef?.ccid) ??
         nextSetlists.find((item) => item.cid_ === selectedContainerId) ??
         nextSetlists[0] ??
         null;
       if (targetSetlist && typeof targetSetlist.cid_ === 'number') {
-        await loadPresetContainer(targetSetlist.cid_, targetSetlist.name ?? 'Setlist');
+        await loadPresetContainer(targetSetlist.cid_, targetSetlist.name ?? 'Setlist', request);
       } else {
         setSelectedContainerId(null);
         setSelectedContainerName('Setlists');
         setPresetItems([]);
       }
+    } catch {
+      if (request === libraryRequest.current) setStatus('Library refresh failed. Check the connection and try again.');
     } finally {
-      setLibraryLoading(false);
+      if (request === libraryRequest.current) setLibraryLoading(false);
     }
   };
 
   const handleSetlistSelect = async (item: HelixContentRef) => {
-    if (typeof item.cid_ !== 'number') return;
+    if (libraryMutation.current || typeof item.cid_ !== 'number' || !setlists.some(setlist => setlist.cid_ === item.cid_)) return;
+    const request = ++libraryRequest.current;
+    setPresetItems([]);
+    setSelectedContainerId(null);
+    setPresetFilter('');
     setTargetSetlistId(item.cid_);
     setLibraryLoading(true);
     try {
-      await loadPresetContainer(item.cid_, item.name ?? 'Setlist');
+      await loadPresetContainer(item.cid_, item.name ?? 'Setlist', request);
+    } catch {
+      if (request === libraryRequest.current) setStatus('Library refresh failed. Check the connection and try again.');
     } finally {
-      setLibraryLoading(false);
+      if (request === libraryRequest.current) setLibraryLoading(false);
     }
   };
 
   const handleTabChange = (nextTab: TabKey) => {
-    if (showcaseBusy) return;
+    if (showcaseBusy || libraryMutation.current) return;
+    if (nextTab !== activeTab) setPresetFilter('');
     setActiveTab(nextTab);
     if (nextTab === 'setlists' && libraryRoot !== 'setlists') {
       void handleLibraryRootChange('setlists');
@@ -1268,6 +1299,8 @@ function EditorApp() {
   };
 
   const handlePresetLoad = async (item: HelixContentRef) => {
+    if (libraryMutation.current || libraryLoadingRef.current || (libraryRoot === 'setlists' && !activeSetlist)) return;
+    Keyboard.dismiss();
     if (creationPending.current) { setStatus('Wait for the new preset to finish creating.'); return; }
     if (presetSaveOperation.current) { setStatus('Wait for the current preset to finish saving.'); return; }
     const client = requireClient();
@@ -1276,7 +1309,7 @@ function EditorApp() {
       setStatus(`Already on ${item.name ?? 'this preset'}`);
       return;
     }
-    if (libraryRoot === 'setlists' && typeof selectedContainerId === 'number' && typeof item.posi === 'number') {
+    if (libraryRoot === 'setlists' && activeSetlist && typeof selectedContainerId === 'number' && typeof item.posi === 'number') {
       client.loadPresetAtContainerPosition(selectedContainerId, item.posi);
     } else if (typeof item.cid_ === 'number') {
       client.loadPresetWithCid(item.cid_);
@@ -1592,12 +1625,13 @@ function EditorApp() {
 
   const handleRenameContent = async (contentId: number, name: string, label: string) => {
     const client = requireClient();
-    if (!client) return;
+    if (!client || libraryMutation.current) return;
     const trimmed = name.trim();
     if (!trimmed) {
       setStatus(`A ${label.toLowerCase()} name is required`);
       return;
     }
+    libraryMutation.current = true; setLibraryBusy(true);
     try {
       await client.renameContent(contentId, trimmed);
       setStatus(`Renamed ${label.toLowerCase()} to ${trimmed}`);
@@ -1605,29 +1639,32 @@ function EditorApp() {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Rename failed: ${message}`);
-    }
+    } finally { libraryMutation.current = false; setLibraryBusy(false); }
   };
 
-  const handleAddPresetToSetlist = async (item: HelixContentRef) => {
+  const handleAddPresetToSetlist = async (item: HelixContentRef, destinationId = targetSetlistId) => {
     const client = requireClient();
-    if (!client) return;
+    if (!client || libraryMutation.current) return;
     if (typeof item.cid_ !== 'number') {
       setStatus('Preset is missing a content id');
       return;
     }
-    if (typeof targetSetlistId !== 'number') {
+    if (typeof destinationId !== 'number' || !setlists.some(setlist => setlist.cid_ === destinationId)) {
       setStatus('Select a target setlist first');
       return;
     }
+    libraryMutation.current = true; setLibraryBusy(true);
     try {
-      const targetItems = (await client.getContainerContents(targetSetlistId)) as HelixContentRef[];
-      const position = Array.isArray(targetItems) ? targetItems.length : 0;
-      await client.addContentsToContainer(targetSetlistId, [item.cid_], position);
-      setStatus(`Added ${item.name ?? 'preset'} to ${targetSetlist?.name ?? 'setlist'}`);
+      const targetItems = (await client.getContainerContents(destinationId, undefined, true)) as HelixContentRef[];
+      const position = setlistAppendPosition(targetItems, 1);
+      await client.addContentsToContainer(destinationId, [item.cid_], position);
+      setStatus(`Added ${item.name ?? 'preset'} to ${setlists.find(setlist => setlist.cid_ === destinationId)?.name ?? 'setlist'}`);
       await refreshPresetContext();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Add to setlist failed: ${message}`);
+    } finally {
+      libraryMutation.current = false; setLibraryBusy(false);
     }
   };
 
@@ -1639,7 +1676,7 @@ function EditorApp() {
     setSetlistAddLoading(true);
     try {
       const items = (await client.getContainerContents(sourceInfo.containerId)) as HelixContentRef[];
-      setSetlistAddItems(items);
+      setSetlistAddItems(populatedSlots(items));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Preset search failed: ${message}`);
@@ -1650,7 +1687,7 @@ function EditorApp() {
   };
 
   const handleOpenSetlistAddSheet = () => {
-    if (typeof selectedContainerId !== 'number') {
+    if (!activeSetlist || typeof selectedContainerId !== 'number') {
       setStatus('Select a setlist first');
       return;
     }
@@ -1679,8 +1716,8 @@ function EditorApp() {
 
   const handleAddSelectedPresetsToSetlist = async () => {
     const client = requireClient();
-    if (!client) return;
-    if (typeof selectedContainerId !== 'number') {
+    if (!client || libraryMutation.current) return;
+    if (!activeSetlist || typeof selectedContainerId !== 'number') {
       setStatus('Select a setlist first');
       return;
     }
@@ -1688,9 +1725,10 @@ function EditorApp() {
       setStatus('Select presets to add');
       return;
     }
+    libraryMutation.current = true; setLibraryBusy(true);
     try {
-      const targetItems = (await client.getContainerContents(selectedContainerId)) as HelixContentRef[];
-      const position = Array.isArray(targetItems) ? targetItems.length : 0;
+      const targetItems = (await client.getContainerContents(selectedContainerId, undefined, true)) as HelixContentRef[];
+      const position = setlistAppendPosition(targetItems, selectedSetlistAddIds.length);
       await client.addContentsToContainer(selectedContainerId, selectedSetlistAddIds, position);
       const count = selectedSetlistAddIds.length;
       setStatus(`Added ${count} preset${count === 1 ? '' : 's'} to ${activeSetlist?.name ?? selectedContainerName}`);
@@ -1700,16 +1738,19 @@ function EditorApp() {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Add to setlist failed: ${message}`);
+    } finally {
+      libraryMutation.current = false; setLibraryBusy(false);
     }
   };
 
   const handleRemovePresetFromSetlist = async (item: HelixContentRef) => {
     const client = requireClient();
-    if (!client) return;
-    if (typeof selectedContainerId !== 'number' || typeof item.cid_ !== 'number') {
+    if (!client || libraryMutation.current) return;
+    if (!activeSetlist || typeof selectedContainerId !== 'number' || typeof item.cid_ !== 'number') {
       setStatus('Select a setlist entry first');
       return;
     }
+    libraryMutation.current = true; setLibraryBusy(true);
     try {
       await client.removeContent(selectedContainerId, [item.cid_]);
       setStatus(`Removed ${item.name ?? 'preset'} from ${selectedContainerName}`);
@@ -1717,29 +1758,30 @@ function EditorApp() {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Remove failed: ${message}`);
+    } finally {
+      libraryMutation.current = false; setLibraryBusy(false);
     }
   };
 
   const handleMoveSetlistPreset = async (item: HelixContentRef, delta: -1 | 1) => {
     const client = requireClient();
-    if (!client) return;
-    if (typeof selectedContainerId !== 'number' || typeof item.cid_ !== 'number' || typeof item.posi !== 'number') {
+    if (!client || libraryMutation.current) return;
+    if (!activeSetlist || typeof selectedContainerId !== 'number' || typeof item.cid_ !== 'number' || typeof item.posi !== 'number') {
       setStatus('Only setlist entries can be reordered');
       return;
     }
-    const currentIndex = item.posi;
-    const nextIndex = currentIndex + delta;
-    if (nextIndex < 0 || nextIndex >= presetItems.length) {
-      return;
-    }
-    const insertionIndex = nextIndex > currentIndex ? nextIndex + 1 : nextIndex;
+    const insertionIndex = setlistMovePosition(presetItems, item.posi, delta);
+    if (insertionIndex === null) return;
+    libraryMutation.current = true; setLibraryBusy(true);
     try {
       await client.reorderContainerContent(selectedContainerId, [item.cid_], insertionIndex);
-      setStatus(`Moved ${item.name ?? 'preset'} to slot ${nextIndex + 1}`);
+      setStatus(`Moved ${item.name ?? 'preset'} ${delta < 0 ? 'earlier' : 'later'} in the setlist`);
       await refreshPresetContext();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Reorder failed: ${message}`);
+    } finally {
+      libraryMutation.current = false; setLibraryBusy(false);
     }
   };
 
@@ -3196,150 +3238,34 @@ function EditorApp() {
     );
   };
 
-  const renderPresetTab = () => (
-    <ScrollView keyboardShouldPersistTaps="handled"
-      style={styles.tabContent}
-      contentContainerStyle={styles.tabPadding}
-      showsVerticalScrollIndicator={false}
-    >
-      <Section title="Library">
-        {/* Compact active preset bar */}
-        <View style={styles.activePresetBar}>
-          <View style={styles.activePresetInfo}>
-            <Text style={styles.activePresetBarName} numberOfLines={linearControls ? undefined : 1}>{activePresetName}</Text>
-            <Text style={styles.libraryMeta}>
-              {activePresetRef
-                ? `Slot ${formatPresetPosition(activePresetRef.posi)}${presetSaving ? ' \u00b7 Saving…' : presetEdited ? ' \u00b7 Unsaved' : ''}`
-                : 'No active preset'}
-            </Text>
-          </View>
-          <Pressable accessibilityLabel="Refresh presets and snapshots" style={[styles.compactIconBtn, linearControls && { width: 'auto', height: 'auto', padding: 8 }]} onPress={refreshPresetContext} hitSlop={8}>
-            {linearControls ? <Text style={styles.pathActionText}>Refresh</Text> : <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-              <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>}
-          </Pressable>
-        </View>
+  const libraryFeedback = libraryBusy ? 'Updating the setlist…' : /failed|not confirmed/i.test(status) ? 'That action was not confirmed. Refresh and try again.'
+    : /^(Added |Removed |Moved |Renamed |Notes |Snapshot |Copied snapshot)/i.test(status) ? status : '';
+  const renderLibraryFeedback = () => libraryFeedback ? <Text accessibilityLiveRegion="polite" style={libraryStyles.muted}>{libraryFeedback}</Text> : null;
 
-        <View style={styles.segmentedControl}>
-          {([
-            ['user', 'User'],
-            ['factory', 'Factory'],
-          ] as Array<[PresetLibraryRoot, string]>).map(([key, label], idx) => {
-            const active = libraryRoot === key;
-            return (
-              <Pressable accessibilityState={{ selected: active }}
-                key={key}
-                style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
-                onPress={() => {
-                  void handleLibraryRootChange(key);
-                }}
-              >
-                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{label}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+  const refreshLibraryList = async () => {
+    if (libraryRefreshing || libraryMutation.current || libraryLoading) return;
+    setLibraryRefreshing(true);
+    try { await refreshPresetContext(); } finally { setLibraryRefreshing(false); }
+  };
 
-        {/* Add-to-setlist dropdown (when browsing user/factory) */}
-        {(libraryRoot === 'user' || libraryRoot === 'factory') && setlists.length > 0 && (
-          <Pressable style={styles.dropdownButton} onPress={() => setTargetSetlistPickerOpen(true)}>
-            <View style={styles.dropdownContent}>
-              <Text style={styles.dropdownLabel}>Add to Setlist</Text>
-              <Text style={styles.dropdownValue}>
-                {targetSetlist?.name ?? 'Select target setlist'}
-              </Text>
-            </View>
-            <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
-          </Pressable>
-        )}
+  const renderLibraryPresetRow = (item: HelixContentRef) => {
+    const empty = libraryRoot === 'user' && isEmptyUserSlot(item);
+    return <LibraryRow title={empty ? 'Empty slot' : item.name ?? 'Unnamed preset'} position={formatPresetPosition(item.posi)}
+      empty={empty} selected={isPresetActive(item)} disabled={presetCreating || presetSaving || libraryLoading || libraryBusy}
+      accessibilityLabel={empty ? `Create preset in empty slot ${formatPresetPosition(item.posi)}` : `Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
+      onPress={() => { if (empty) void openPresetCreation(item.posi); else void handlePresetLoad(item); }}
+      onOptions={!empty && (libraryRoot === 'setlists' || isPresetActive(item) || setlists.length > 0) ? () => { setPresetRenameText(activePresetName); setPresetActionTarget(item); } : undefined} />;
+  };
 
-        {/* Preset list */}
-        <View style={styles.libraryList}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{selectedContainerName}</Text>
-            <View style={styles.listHeaderRight}>
-              {libraryRoot === 'user' && <Pressable accessibilityLabel="Create a preset in an empty User slot" disabled={presetCreating || presetSaving} onPress={() => { void openPresetCreation(); }}><Text style={styles.pathActionText}>New preset</Text></Pressable>}
-              <Text style={styles.libraryMeta}>
-                {filteredPresetItems.length}/{presetItems.length}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.searchRow}>
-            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-              <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
-            </Svg>
-            <TextInput accessibilityLabel="Search presets"
-              style={styles.searchInputInline}
-              value={presetFilter}
-              onChangeText={setPresetFilter}
-              placeholder="Search presets..."
-              placeholderTextColor={COLORS.muted}
-            />
-            {presetFilter.trim().length > 0 && (
-              <Pressable accessibilityLabel="Clear search" onPress={() => setPresetFilter('')} hitSlop={8}>
-                <Text style={styles.searchClearText}>Clear</Text>
-              </Pressable>
-            )}
-          </View>
-          {filteredPresetItems.length === 0 ? (
-            <Text style={styles.paramHint}>
-              {presetItems.length > 0 ? 'No matches' : 'No presets here'}
-            </Text>
-          ) : (
-            filteredPresetItems.map((item) => {
-              const active = isPresetActive(item);
-              const empty = libraryRoot === 'user' && isEmptyUserSlot(item);
-              const canAddToSetlist =
-                (libraryRoot === 'user' || libraryRoot === 'factory') && typeof item.cid_ === 'number' && typeof targetSetlistId === 'number';
-              const hasActions = active;
-              return (
-                <View key={`${String(item.cid_ ?? 'preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable disabled={presetCreating} accessibilityState={{ selected: active }} accessibilityLabel={empty ? `Create preset in empty slot ${formatPresetPosition(item.posi)}` : `Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
-
-                  style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
-                  onPress={() => {
-                    if (empty) void openPresetCreation(item.posi); else void handlePresetLoad(item);
-                  }}
-                  onLongPress={empty ? undefined : () => setPresetActionTarget(item)}
-                >
-                  <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
-                    {formatPresetPosition(item.posi)}
-                  </Text>
-                  <View style={styles.libraryRowCopy}>
-                    <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
-                      {empty ? 'Empty slot · Create preset' : item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
-                    </Text>
-                  </View>
-                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  </Pressable>{canAddToSetlist && (
-                    <Pressable accessibilityLabel={`Add ${item.name ?? 'preset'} to ${targetSetlist?.name ?? 'setlist'}`}
-                      style={styles.setlistAddButton}
-                      hitSlop={8}
-                      onPress={() => {
-                        void handleAddPresetToSetlist(item);
-                      }}
-                    >
-                      <Text style={styles.setlistAddButtonText}>Add</Text>
-                    </Pressable>
-                  )}
-                  {hasActions && (
-                    <Pressable accessibilityLabel={`Options for ${item.name ?? 'preset'}`}
-                      style={[styles.presetMoreButton, linearControls && { width: 'auto', height: 'auto', padding: 8 }]}
-                      hitSlop={8}
-                      onPress={() => setPresetActionTarget(item)}
-                    >
-                      <Text style={linearControls ? styles.pathActionText : styles.presetMoreText}>{linearControls ? 'Options' : '\u22EF'}</Text>
-                    </Pressable>
-                  )}
-                </View>
-              );
-            })
-          )}
-        </View>
-      </Section>
-
-      <Section title="Snapshots">
-        <Text style={styles.libraryMeta}>
+  const renderPresetTab = () => {
+    if (presetPanel !== 'browse') return <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" style={styles.tabContent} contentContainerStyle={libraryStyles.content}>
+      <LibraryButton label="Presets" icon="back" onPress={() => setPresetPanel('browse')} />
+      <View style={{ marginTop: 20 }}><LibraryHeading title={presetPanel === 'snapshots' ? 'Snapshots' : 'Preset notes'} focusKey={`preset-${presetPanel}`} /></View>
+      {renderPresetSaveBar()}
+      <View style={{ gap: 16, paddingTop: 20 }}>
+        {renderLibraryFeedback()}
+        {presetPanel === 'snapshots' ? <>
+        <Text style={libraryStyles.muted}>
           {snapshotCount > 0
             ? `Active ${activeSnapshotIndex !== null ? activeSnapshotIndex + 1 : '\u2014'} of ${snapshotCount}${
                 activeSnapshot?.name ? ` \u00b7 ${activeSnapshot.name}` : ''
@@ -3357,9 +3283,9 @@ function EditorApp() {
                     ? SNAPSHOT_COLOR_OPTIONS.find((o) => o.value === snapshot.colr) ?? null
                     : null;
                 return (
-                  <View key={index}><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Activate snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`}
+                  <View key={index} style={[libraryStyles.row, active && libraryStyles.selectedRow]}><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Activate snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`}
 
-                    style={[styles.libraryRow, active && styles.libraryRowActive]}
+                    style={libraryStyles.rowMain}
                     onPress={() => handleSnapshotActivate(index)}
                     onLongPress={() => setSnapshotActionIndex(index)}
                   >
@@ -3370,27 +3296,26 @@ function EditorApp() {
                       ]}
                     />
                     <View style={styles.libraryRowCopy}>
-                      <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
+                      <Text style={libraryStyles.rowTitle}>
                         {index + 1}. {snapshot?.name ?? `Snapshot ${index + 1}`}
                       </Text>
                     </View>
                     {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  </Pressable><Pressable accessibilityLabel={`Options for snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`} onPress={() => setSnapshotActionIndex(index)}><Text style={styles.pathActionText}>Snapshot options</Text></Pressable></View>
+                  </Pressable><Pressable accessibilityLabel={`Options for snapshot ${index + 1}, ${snapshot?.name ?? 'Unnamed'}`} style={libraryStyles.iconButton} onPress={() => setSnapshotActionIndex(index)}><UtilityIcon name="more" /></Pressable></View>
                 );
               })}
             </View>
 
             {activeSnapshot && (
               <>
-                <Text style={styles.label}>Snapshot Color</Text>
+                <Text style={libraryStyles.section}>Snapshot colour</Text>
                 <View style={styles.libraryPills}>
                   {SNAPSHOT_COLOR_OPTIONS.map((option) => (
                     <Pressable accessibilityState={{ selected: activeSnapshot?.colr === option.value }} accessibilityLabel={`Snapshot colour, ${option.label}`}
                       key={`snapshot-color-${option.value}`}
                       style={[
-                        styles.togglePill,
-                        styles.snapshotColorPill,
-                        activeSnapshot?.colr === option.value && styles.togglePillActive,
+                        libraryStyles.button,
+                        activeSnapshot?.colr === option.value && libraryStyles.primary,
                       ]}
                       onPress={() => {
                         void handleSnapshotColor(option.value);
@@ -3413,16 +3338,16 @@ function EditorApp() {
 
             {snapshotCount > 1 && (
               <>
-                <Text style={styles.label}>Copy Snapshot</Text>
-                <View style={styles.inlineLabelRow}>
-                  <Text style={styles.libraryMeta}>Source</Text>
+                <Text style={libraryStyles.section}>Copy snapshot</Text>
+                <View style={{ gap: 10 }}>
+                  <Text style={libraryStyles.muted}>Source</Text>
                   <View style={styles.libraryPills}>
                     {Array.from({ length: snapshotCount }, (_item, index) => {
                       const active = snapshotCopySource === index;
                       return (
                         <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Copy from snapshot ${index + 1}`}
                           key={`copy-source-${index}`}
-                          style={[styles.togglePill, active && styles.togglePillActive]}
+                          style={[libraryStyles.button, active && libraryStyles.primary]}
                           onPress={() => setSnapshotCopySource(index)}
                         >
                           <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
@@ -3433,15 +3358,15 @@ function EditorApp() {
                     })}
                   </View>
                 </View>
-                <View style={styles.inlineLabelRow}>
-                  <Text style={styles.libraryMeta}>Target</Text>
+                <View style={{ gap: 10 }}>
+                  <Text style={libraryStyles.muted}>Target</Text>
                   <View style={styles.libraryPills}>
                     {Array.from({ length: snapshotCount }, (_item, index) => {
                       const active = snapshotCopyTarget === index;
                       return (
                         <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Copy to snapshot ${index + 1}`}
                           key={`copy-target-${index}`}
-                          style={[styles.togglePill, active && styles.togglePillActive]}
+                          style={[libraryStyles.button, active && libraryStyles.primary]}
                           onPress={() => setSnapshotCopyTarget(index)}
                         >
                           <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
@@ -3452,24 +3377,18 @@ function EditorApp() {
                     })}
                   </View>
                 </View>
-                <Pressable style={[styles.button, styles.buttonGhost]} onPress={() => void handleSnapshotCopy()}>
-                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Copy Snapshot</Text>
-                </Pressable>
+                <LibraryButton label="Copy snapshot" disabled={snapshotCopySource === snapshotCopyTarget} onPress={() => void handleSnapshotCopy()} />
               </>
             )}
           </>
         ) : (
-          <Text style={styles.paramHint}>Open the Presets tab to load snapshots.</Text>
+          <Text style={styles.paramHint}>No snapshots loaded. Refresh to read the current preset.</Text>
         )}
-      </Section>
 
-      <Section title="Notes">
-        <View style={styles.rowBetween}>
-          <Text style={styles.label}>Show on device</Text>
-          <Switch accessibilityLabel="Show preset notes on device" value={notesVisible} onValueChange={handleNotesToggle} />
-        </View>
+        </> : <>
+        <SettingsToggle label="Show on device" accessibilityLabel="Show preset notes on device" value={notesVisible} onChange={handleNotesToggle} />
         <TextInput
-          style={styles.textArea}
+          style={[styles.textArea, { borderWidth: 0, backgroundColor: COLORS.panel, borderRadius: 16, fontSize: 16, lineHeight: 24, padding: 16 }]}
           accessibilityLabel="Preset notes"
           value={notesText}
           onChangeText={setNotesText}
@@ -3478,208 +3397,96 @@ function EditorApp() {
           placeholder="Write preset notes..."
           placeholderTextColor={COLORS.muted}
         />
-        <Pressable style={[styles.button, styles.buttonPrimary]} onPress={handleNotesSend}>
-          <Text style={styles.buttonText}>Send Notes</Text>
-        </Pressable>
-      </Section>
+        <LibraryButton label="Send notes" primary onPress={handleNotesSend} />
 
-    </ScrollView>
-  );
-
-  const renderSetlistsTab = () => (
-    <ScrollView keyboardShouldPersistTaps="handled"
-      style={styles.tabContent}
-      contentContainerStyle={styles.tabPadding}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-        {(['setlists', 'showcase'] as const).map(section => <Pressable key={section} disabled={showcaseBusy} accessibilityRole="tab" accessibilityState={{ selected: librarySection === section, disabled: showcaseBusy }} onPress={() => setLibrarySection(section)} style={[styles.togglePill, librarySection === section && styles.togglePillActive]}><Text style={[styles.togglePillText, librarySection === section && styles.togglePillTextActive]}>{section === 'setlists' ? 'Setlists' : 'Showcase'}</Text></Pressable>)}
+        </>}
       </View>
-      {librarySection === 'showcase' ? <ShowcaseLibrary client={clientRef.current} onBusy={setShowcaseBusy} onSongChange={() => { void refreshTransportContext(); void handleSync(true); }} /> : <>
-      <Section title="Setlists">
-        {setlists.length > 0 ? (
-          <>
-            <Pressable style={styles.dropdownButton} onPress={() => setSetlistPickerOpen(true)}>
-              <View style={styles.dropdownContent}>
-                <Text style={styles.dropdownLabel}>Setlist</Text>
-                <Text style={styles.dropdownValue}>
-                  {activeSetlist?.name ?? 'Select a setlist'}
-                </Text>
-              </View>
-              <Text style={styles.dropdownChevron}>{'\u25BE'}</Text>
-            </Pressable>
-            <View style={styles.sheetRenameRow}>
-              <TextInput accessibilityLabel="Setlist name"
-                style={[styles.input, styles.inlineInput]}
-                value={setlistRenameText}
-                onChangeText={setSetlistRenameText}
-                placeholder="Rename setlist"
-                placeholderTextColor={COLORS.muted}
-                autoCapitalize="words"
-                autoCorrect={false}
-              />
-              <Pressable
-                style={[styles.button, styles.buttonGhost, styles.inlineButton, !activeSetlist && styles.buttonDisabled]}
-                disabled={!activeSetlist}
-                onPress={() => {
-                  if (typeof activeSetlist?.cid_ === 'number') {
-                    void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
-                  }
-                }}
-              >
-                <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-              </Pressable>
-            </View>
-            <Pressable
-              style={[styles.button, styles.buttonPrimary]}
-              onPress={handleOpenSetlistAddSheet}
-            >
-              <Text style={styles.buttonText}>Add Presets</Text>
-            </Pressable>
-          </>
-        ) : (
-          <Text style={styles.paramHint}>Sync after connecting to load setlists.</Text>
-        )}
-
-        <View style={styles.libraryList}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{selectedContainerName}</Text>
-            <View style={styles.listHeaderRight}>
-              <Text style={styles.libraryMeta}>
-                {filteredPresetItems.length}/{presetItems.length}
-              </Text>
-            </View>
+    </ScrollView>;
+    return <FlatList style={styles.tabContent} contentContainerStyle={libraryStyles.content}
+      data={filteredPresetItems} keyExtractor={item => `${item.cid_ ?? 'preset'}-${item.posi ?? 'slot'}`}
+      keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" refreshing={libraryRefreshing} onRefresh={() => { void refreshLibraryList(); }}
+      ListHeaderComponent={<>
+        <LibraryHeading title="Presets" focusKey="presets" />
+        <View style={libraryStyles.header}>
+          {renderLibraryFeedback()}
+          {renderPresetSaveBar()}
+          <View style={libraryStyles.toolbar}>
+            <LibraryButton label="Snapshots" icon="snapshots" onPress={() => setPresetPanel('snapshots')} />
+            <LibraryButton label="Notes" icon="notes" onPress={() => setPresetPanel('notes')} />
           </View>
-          <View style={styles.searchRow}>
-            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-              <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />
-            </Svg>
-            <TextInput accessibilityLabel="Search presets"
-              style={styles.searchInputInline}
-              value={presetFilter}
-              onChangeText={setPresetFilter}
-              placeholder="Search setlist..."
-              placeholderTextColor={COLORS.muted}
-            />
-            {presetFilter.trim().length > 0 && (
-              <Pressable accessibilityLabel="Clear search" onPress={() => setPresetFilter('')} hitSlop={8}>
-                <Text style={styles.searchClearText}>Clear</Text>
-              </Pressable>
-            )}
+          <LibrarySegments label="Preset library" options={[['user', 'User'], ['factory', 'Factory']]} value={libraryRoot === 'factory' ? 'factory' : 'user'}
+            disabled={libraryLoading} onChange={key => { void handleLibraryRootChange(key); }} />
+          <LibrarySearch value={presetFilter} onChange={setPresetFilter} />
+          <View style={[libraryStyles.toolbar, { justifyContent: 'space-between' }]}>
+            <Text style={libraryStyles.section}>{presetFilter.trim() ? `${filteredPresetItems.length} of ${presetItems.length}` : `${presetItems.length} presets`}</Text>
+            {libraryRoot === 'user' && <LibraryButton label="New preset" icon="plus" disabled={presetCreating || presetSaving || libraryLoading || libraryBusy} onPress={() => { void openPresetCreation(); }} />}
           </View>
-          {filteredPresetItems.length === 0 ? (
-            <Text style={styles.paramHint}>
-              {presetItems.length > 0 ? 'No presets match that search.' : 'No presets in this setlist yet.'}
-            </Text>
-          ) : (
-            filteredPresetItems.map((item) => {
-              const active = isPresetActive(item);
-              const canMoveUp = typeof item.posi === 'number' && item.posi > 0;
-              const canMoveDown = typeof item.posi === 'number' && item.posi < presetItems.length - 1;
-              return (
-                <View key={`${String(item.cid_ ?? 'setlist-preset')}-${String(item.posi ?? 'slot')}`} style={[styles.libraryRow, active && styles.libraryRowActive, linearControls && { flexDirection: 'column', alignItems: 'stretch' }]} ><Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
-
-                  style={{ flex: 1, flexDirection: linearControls ? 'column' : 'row', alignItems: linearControls ? 'flex-start' : 'center', gap: 8 }}
-                  onPress={() => {
-                    void handlePresetLoad(item);
-                  }}
-                  onLongPress={() => setPresetActionTarget(item)}
-                >
-                  <Text style={[styles.presetSlotNum, active && styles.presetSlotNumActive]}>
-                    {formatPresetPosition(item.posi)}
-                  </Text>
-                  <View style={styles.libraryRowCopy}>
-                    <Text style={styles.sheetListText} numberOfLines={linearControls ? undefined : 1}>
-                      {item.name ?? `Preset ${formatPresetPosition(item.posi)}`}
-                    </Text>
-                  </View>
-                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                  </Pressable><View style={styles.setlistRowActions}>
-                    <Pressable accessibilityLabel={`Move ${item.name ?? 'preset'} earlier in setlist`}
-                      style={[styles.setlistRowActionButton, !canMoveUp && styles.setlistRowActionButtonDisabled]}
-                      hitSlop={8}
-                      disabled={!canMoveUp}
-                      onPress={() => {
-                        void handleMoveSetlistPreset(item, -1);
-                      }}
-                    >
-                      <Text style={[styles.setlistRowActionText, !canMoveUp && styles.setlistRowActionTextDisabled]}>Up</Text>
-                    </Pressable>
-                    <Pressable accessibilityLabel={`Move ${item.name ?? 'preset'} later in setlist`}
-                      style={[styles.setlistRowActionButton, !canMoveDown && styles.setlistRowActionButtonDisabled]}
-                      hitSlop={8}
-                      disabled={!canMoveDown}
-                      onPress={() => {
-                        void handleMoveSetlistPreset(item, 1);
-                      }}
-                    >
-                      <Text style={[styles.setlistRowActionText, !canMoveDown && styles.setlistRowActionTextDisabled]}>Down</Text>
-                    </Pressable>
-                    <Pressable accessibilityLabel={`Remove ${item.name ?? 'preset'} from setlist`}
-                      style={[styles.setlistRowActionButton, styles.setlistRowActionDanger]}
-                      hitSlop={8}
-                      onPress={() => {
-                        void handleRemovePresetFromSetlist(item);
-                      }}
-                    >
-                      <Text style={[styles.setlistRowActionText, styles.setlistRowActionDangerText]}>Remove</Text>
-                    </Pressable>
-                  </View>
-                  {active && (
-                    <Pressable accessibilityLabel={`Options for ${item.name ?? 'preset'}`}
-                      style={[styles.presetMoreButton, linearControls && { width: 'auto', height: 'auto', padding: 8 }]}
-                      hitSlop={8}
-                      onPress={() => setPresetActionTarget(item)}
-                    >
-                      <Text style={linearControls ? styles.pathActionText : styles.presetMoreText}>{linearControls ? 'Options' : '\u22EF'}</Text>
-                    </Pressable>
-                  )}
-                </View>
-              );
-            })
-          )}
         </View>
-      </Section>
       </>}
-    </ScrollView>
-  );
+      ListEmptyComponent={<Text style={libraryStyles.muted}>{libraryLoading ? 'Loading presets…' : presetItems.length ? 'No presets match that search.' : 'No presets here. Pull down to refresh.'}</Text>}
+      renderItem={({ item }) => renderLibraryPresetRow(item)} />;
+  };
+
+  const renderSetlistsTab = () => <View style={styles.tabContent}>
+    <View style={[libraryStyles.content, { paddingBottom: 16 }]}>
+      <LibraryHeading title="Library" focusKey="library" />
+      <LibrarySegments label="Library section" options={[['setlists', 'Setlists'], ['showcase', 'Showcase']]} value={librarySection}
+        disabled={showcaseBusy} onChange={setLibrarySection} />
+    </View>
+    {librarySection === 'showcase' ? <ShowcaseLibrary client={clientRef.current} onBusy={setShowcaseBusy}
+      onSongChange={() => { void refreshTransportContext(); void handleSync(true); }} /> :
+      <FlatList style={styles.tabContent} contentContainerStyle={[libraryStyles.content, { paddingTop: 0 }]}
+        keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" data={filteredPresetItems} keyExtractor={item => `${item.cid_ ?? 'preset'}-${item.posi ?? 'slot'}`}
+        refreshing={libraryRefreshing} onRefresh={() => { void refreshLibraryList(); }}
+        ListHeaderComponent={<View style={libraryStyles.header}>
+          {renderLibraryFeedback()}
+          {setlists.length > 0 ? <>
+            <View style={[libraryStyles.row, libraryStyles.selectedRow]}>
+              <Pressable accessibilityLabel={`Choose setlist, ${activeSetlist?.name ?? 'none selected'}`} onPress={() => setSetlistPickerOpen(true)} style={libraryStyles.rowMain}>
+                <View style={libraryStyles.rowCopy}><Text style={libraryStyles.rowHint}>SETLIST</Text><Text style={libraryStyles.rowTitle}>{activeSetlist?.name ?? 'Select a setlist'}</Text></View>
+                <UtilityIcon name="chevron" size={18} />
+              </Pressable>
+              <Pressable accessibilityLabel="Setlist options" style={libraryStyles.iconButton} onPress={() => { setSetlistRenameText(activeSetlist?.name ?? ''); setSetlistOptionsOpen(true); }}><UtilityIcon name="more" /></Pressable>
+            </View>
+            <View style={[libraryStyles.toolbar, { justifyContent: 'space-between' }]}>
+              <Text style={libraryStyles.muted}>{presetItems.length} presets</Text>
+              <LibraryButton label="Add presets" icon="plus" primary disabled={libraryLoading || libraryBusy || !activeSetlist} onPress={handleOpenSetlistAddSheet} />
+            </View>
+            <LibrarySearch value={presetFilter} onChange={setPresetFilter} placeholder="Search this setlist" />
+          </> : <Text style={libraryStyles.muted}>{libraryLoading ? 'Loading setlists…' : 'No setlists loaded. Pull down to refresh.'}</Text>}
+        </View>}
+        ListEmptyComponent={setlists.length > 0 ? <Text style={libraryStyles.muted}>{libraryLoading ? 'Loading presets…' : presetItems.length ? 'No presets match that search.' : 'This setlist is empty. Add presets to build your running order.'}</Text> : undefined}
+        renderItem={({ item }) => renderLibraryPresetRow(item)} />}
+    <BottomSheet visible={setlistOptionsOpen} onClose={() => setSetlistOptionsOpen(false)} title="Setlist options" subtitle={activeSetlist?.name}>
+      <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" contentContainerStyle={{ gap: 16 }}>
+        <Text style={libraryStyles.section}>Name</Text>
+        <TextInput accessibilityLabel="Setlist name" style={styles.input} value={setlistRenameText} onChangeText={setSetlistRenameText} autoCapitalize="words" autoCorrect={false} />
+        <LibraryButton label="Rename setlist" primary disabled={!activeSetlist || !setlistRenameText.trim()} onPress={() => {
+          if (typeof activeSetlist?.cid_ === 'number') void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
+          setSetlistOptionsOpen(false);
+        }} />
+      </ScrollView>
+    </BottomSheet>
+  </View>;
 
   const renderMatrixTab = () => (
     <ScrollView keyboardShouldPersistTaps="handled"
       style={styles.tabContent}
-      contentContainerStyle={styles.tabPadding}
+      contentContainerStyle={libraryStyles.content}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.deviceHero}>
-        <Text style={styles.deviceTitle}>Matrix</Text>
-        <Text style={styles.deviceSubtitle}>Global output levels from the Helix</Text>
-      </View>
-
-      <Section title="Outputs">
-        <View style={styles.segmentedControl}>
-          {MATRIX_LAYERS.map((layer, idx) => {
-            const active = selectedMatrixLayerId === layer.id;
-            return (
-              <Pressable accessibilityState={{ selected: active }}
-                key={`matrix-layer-${layer.id}`}
-                style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
-                onPress={() => setSelectedMatrixLayerId(layer.id)}
-              >
-                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{layer.label}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+      <LibraryHeading title="Matrix" focusKey="matrix" />
+      <Text style={[libraryStyles.muted, { marginBottom: 20 }]}>Output levels from your Stadium. Adjust these on the device.</Text>
+      <View style={{ gap: 16, marginBottom: 24 }}>
+        <LibrarySegments label="Matrix output" options={MATRIX_LAYERS.map(layer => [String(layer.id), layer.label] as const)}
+          value={String(selectedMatrixLayerId)} onChange={key => setSelectedMatrixLayerId(Number(key))} />
         <View style={styles.matrixStatusRow}>
           <Text style={styles.matrixStatusLabel}>Selected on device</Text>
           <Text style={styles.matrixStatusValue}>{attachedMatrixLayerLabel}</Text>
         </View>
-        <Pressable style={[styles.button, styles.buttonGhost]} onPress={() => void refreshMatrixMixerContext()}>
-          <Text style={[styles.buttonText, styles.buttonTextGhost]}>Refresh Matrix</Text>
-        </Pressable>
-      </Section>
-
-      <Section title={selectedMatrixLayer?.label ?? 'Channels'}>
+        <LibraryButton label="Refresh levels" onPress={() => void refreshMatrixMixerContext()} />
+      </View>
+      <SettingsGroup title={selectedMatrixLayer?.label ?? 'Channels'}>
         {!selectedMatrixLayer ? (
           <Text style={styles.paramHint}>Sync after connecting to load Matrix Mixer levels.</Text>
         ) : (
@@ -3691,10 +3498,10 @@ function EditorApp() {
                 <View
                   key={`matrix-channel-${selectedMatrixLayer.id}-${channel.id}`}
                   accessible accessibilityLabel={`${channel.label}, ${muted ? 'muted' : 'open'}${solo ? ', solo' : ''}, level ${formatMatrixVolume(channel.volumeDb)}, pan ${formatMatrixPan(channel.pan)}`}
-                  style={[styles.matrixChannelRow, muted && styles.matrixChannelRowMuted]}
+                  style={[styles.matrixChannelRow, { borderWidth: 0, borderRadius: 0, backgroundColor: 'transparent', padding: 16 }, windowDims.fontScale > 1.3 && { flexDirection: 'column', alignItems: 'stretch' }]}
                 >
                   <View style={styles.matrixChannelMain}>
-                    <Text style={styles.matrixChannelName} numberOfLines={linearControls ? undefined : 1}>{channel.label}</Text>
+                    <Text style={styles.matrixChannelName} >{channel.label}</Text>
                     <View style={styles.matrixFlags}>
                       <Text style={[styles.matrixFlagText, muted && styles.matrixFlagTextActive]}>
                         {muted ? 'Muted' : 'Open'}
@@ -3717,236 +3524,110 @@ function EditorApp() {
             })}
           </View>
         )}
-      </Section>
+      </SettingsGroup>
     </ScrollView>
   );
 
+  const settingsMessage = settingsFeedback(status, { syncing: settingsSyncing, activity: !!libraryActivityLabel, preview: previewMode, connected });
+  const syncFromSettings = async () => {
+    const client = clientRef.current;
+    if (!client || settingsSyncing) return;
+    setSettingsSyncing(true);
+    try { await handleFullSync(); }
+    finally { if (clientRef.current === client) setSettingsSyncing(false); }
+  };
+
   const renderSettingsTab = () => (
-    <ScrollView keyboardShouldPersistTaps="handled"
-      style={styles.tabContent}
-      contentContainerStyle={styles.tabPadding}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.deviceHero}>
-        <Text style={styles.deviceTitle}>Settings</Text>
-        <Text style={styles.deviceSubtitle}>Manage connection, sync, and app preferences</Text>
-      </View>
+    <>
+      <ScrollView keyboardShouldPersistTaps="handled" style={styles.tabContent} contentContainerStyle={styles.settingsContent}>
+        <View style={styles.settingsHeading}>
+          <View style={styles.settingsFlex}><ScreenHeading maxFontSizeMultiplier={1.5} focusKey="settings" style={styles.settingsTitle}>Settings</ScreenHeading></View>
+          <BrandMark size={32} />
+        </View>
 
-      <Section title="Connection">
-        <TextInput
-          style={styles.input}
-          accessibilityLabel="Device name or IP address"
-          value={host}
-          onChangeText={setHost}
-          placeholder="p35x1.local or IP address"
-          placeholderTextColor={COLORS.muted}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        <View style={styles.row}>
-          <Pressable
-            style={[styles.button, styles.buttonFlex, connected ? styles.buttonGhost : styles.buttonPrimary]}
-            onPress={connect}
-          >
-            <Text style={[styles.buttonText, connected && styles.buttonTextGhost]}>
-              {connecting ? 'Connecting\u2026' : 'Connect'}
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, styles.buttonFlex, styles.buttonGhost]}
-            onPress={disconnect}
-          >
-            <Text style={[styles.buttonText, styles.buttonTextGhost]}>Disconnect</Text>
-          </Pressable>
-        </View>
-        <View style={styles.statusRow}>
-          <View
-            style={[styles.statusDot, { backgroundColor: connected ? COLORS.success : COLORS.danger }]}
-          />
-          <Text style={styles.statusText} >{libraryActivityLabel ?? status}</Text>
-        </View>
-      </Section>
-
-      <AccessibilitySettings />
-      <Section title="App Settings">
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Auto-Cab</Text>
-            <Text style={styles.labelHint}>Add a matching cab with each amp</Text>
+        <View style={styles.connectionSummary}>
+          <View style={styles.connectionSummaryTop}>
+            <View style={styles.settingsDeviceIcon}><UtilityIcon name="device" size={32} color={COLORS.text} /></View>
+            <View style={styles.settingsFlex}>
+              <Text style={styles.settingsDeviceName}>{previewMode ? 'Offline preview' : discoveredDevice?.name || host.replace(/\.local\.?$/i, '') || 'Your Stadium'}</Text>
+              <View style={styles.settingsConnectionState}><View style={[styles.pillDot, { backgroundColor: connected && !previewMode ? COLORS.signal : COLORS.muted }]} />
+                <Text style={styles.settingsHint}>{previewMode ? 'Sample preset · no device connected' : connected ? 'Connected to your Stadium' : 'Not connected'}</Text></View>
+            </View>
           </View>
-          <Switch accessibilityLabel="Add a matching cab with each amp" value={autoCab} onValueChange={handleAutoCab} />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Background Sync</Text>
-            <Text style={styles.labelHint}>Pick up edits from the device or desktop editor</Text>
-          </View>
-          <Switch accessibilityLabel="Background sync" value={autoSyncEnabled} onValueChange={setAutoSyncEnabled} />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Source Model Names</Text>
-            <Text style={styles.labelHint}>Show the original amp, cab, and pedal names</Text>
-          </View>
-          <Switch accessibilityLabel="Show source model names" value={showRealBlockNames} onValueChange={setShowRealBlockNames} />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Block Labels</Text>
-            <Text style={styles.labelHint}>Custom labels stay in the app</Text>
-          </View>
-          <Switch accessibilityLabel="Custom block labels" value={blockLabelMode} onValueChange={setBlockLabelMode} />
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={styles.rowBetweenInfo}>
-            <Text style={styles.label}>Knob Controls</Text>
-            <Text style={styles.labelHint}>Use rotary knobs instead of sliders for parameters</Text>
-          </View>
-          <Switch accessibilityLabel="Knob controls"
-            value={controlStyle === 'knobs'}
-            onValueChange={(value) => setControlStyle(value ? 'knobs' : 'sliders')}
-          />
-        </View>
-      </Section>
-
-      <Section title="Advanced">
-        <View style={styles.rowBetween}>
-          <View style={styles.rowBetweenInfo}>
-            <Text style={styles.label}>Extended DSP budget</Text>
-            <Text style={styles.labelHint}>Allow estimates up to {EXTENDED_DSP_CAP} per path for this connection. May cause audio dropouts or instability.</Text>
-          </View>
-          <Switch accessibilityLabel="Extended DSP budget" value={extendedDspEnabled} onValueChange={handleExtendedDsp} />
-        </View>
-        <Text style={styles.labelHint}>Estimates are not measured CPU load. The device can still reject edits. Disconnecting restores the normal budget.</Text>
-      </Section>
-      <Section title="Help & Privacy"><AppInfo /></Section>
-
-      <Section title="Tempo">
-        <View style={styles.transportHeroCard}>
-          <Text style={styles.transportHeroValue}>
-            {formatTempoBpm(liveTempoBpm ?? globalTempoBpm)}
-            <Text style={styles.transportHeroUnit}> BPM</Text>
-          </Text>
-          <Text style={styles.transportHeroMeta}>
-            {tempoFollow ? 'Following external tempo' : 'Tap, nudge, or set the BPM'}
-          </Text>
-        </View>
-        <View style={styles.transportAdjustRow}>
-          {[
-            { key: 'dev-tempo--5', label: '-5', onPress: () => handleTempoAdjust(-5) },
-            { key: 'dev-tempo--1', label: '-1', onPress: () => handleTempoAdjust(-1) },
-            { key: 'dev-tempo-tap', label: 'Tap Tempo', onPress: handleTapTempo, accent: true },
-            { key: 'dev-tempo-+1', label: '+1', onPress: () => handleTempoAdjust(1) },
-            { key: 'dev-tempo-+5', label: '+5', onPress: () => handleTempoAdjust(5) },
-          ].map((action) => (
-            <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
-              key={action.key}
-              style={[
-                styles.transportAdjustButton,
-                action.accent && styles.transportAdjustButtonAccent,
-              ]}
-              onPress={action.onPress}
-            >
-              <Text
-                style={[
-                  styles.transportAdjustButtonText,
-                  action.accent && styles.transportAdjustButtonTextAccent,
-                ]}
-              >
-                {action.label}
-              </Text>
+          <View style={styles.settingsConnectionActions}>
+            {!previewMode && <Pressable disabled={connecting || blockBusy || showcaseBusy || settingsSyncing} onPress={() => void syncFromSettings()}
+              accessibilityLabel={settingsSyncing ? "Syncing with the Stadium" : "Sync with the Stadium"} style={({ pressed }) => [styles.settingsSecondaryButton, pressed && styles.settingsPressed]}>
+              <Text style={styles.settingsButtonText}>{settingsSyncing ? 'Syncing…' : 'Sync now'}</Text>
+            </Pressable>}
+            <Pressable onPress={disconnect}
+              style={({ pressed }) => [styles.settingsSecondaryButton, pressed && styles.settingsPressed]}>
+              <Text style={styles.settingsButtonText}>{previewMode ? 'Exit preview' : 'Disconnect'}</Text>
             </Pressable>
-          ))}
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Follow External Tempo</Text>
-            <Text style={styles.labelHint}>Use the device's tempo source instead of the app</Text>
           </View>
-          <Switch accessibilityLabel="Follow external tempo"
-            value={Boolean(tempoFollow)}
-            onValueChange={handleTempoFollowToggle}
-          />
+          <Text accessibilityRole={settingsMessage.error ? 'alert' : 'text'} accessibilityLiveRegion="polite" style={settingsMessage.error ? styles.settingsError : styles.settingsHint}>{settingsMessage.text}</Text>
         </View>
-      </Section>
 
-      <Section title="Tuner Remote">
-        <View style={styles.transportHeroCard}>
-          <Text style={styles.transportHeroValue}>
-            {tunerReferencePitch ?? 440}
-            <Text style={styles.transportHeroUnit}> Hz</Text>
-          </Text>
-          <Text style={styles.transportHeroMeta}>{TUNER_REMOTE_META}</Text>
-        </View>
-        <View style={styles.transportAdjustRow}>
-          <Pressable accessibilityLabel="Decrease reference pitch by 1 hertz" style={styles.transportAdjustButton} onPress={() => handleTunerReferenceAdjust(-1)}>
-            <Text style={styles.transportAdjustButtonText}>-1 Hz</Text>
-          </Pressable>
-          <Pressable accessibilityLabel="Increase reference pitch by 1 hertz" style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]} onPress={() => handleTunerReferenceAdjust(1)}>
-            <Text style={[styles.transportAdjustButtonText, styles.transportAdjustButtonTextAccent]}>+1 Hz</Text>
-          </Pressable>
-          <Pressable style={styles.transportAdjustButton} onPress={handleExitTuner}>
-            <Text style={styles.transportAdjustButtonText}>Close On Helix</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.transportAdjustButton, styles.transportAdjustButtonAccent]}
-            onPress={() => handleOpenTuner('main')}
-          >
-            <Text style={[styles.transportAdjustButtonText, styles.transportAdjustButtonTextAccent]}>Open On Helix</Text>
-          </Pressable>
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Always On In Stomp View</Text>
-            <Text style={styles.labelHint}>Pin the tuner button in Stomp view</Text>
-          </View>
-          <Switch accessibilityLabel="Always show tuner in Stomp view"
-            value={Boolean(tunerAlwaysOnStomp)}
-            onValueChange={handleTunerAlwaysOnStompToggle}
-          />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Always On In Play View</Text>
-            <Text style={styles.labelHint}>Pin the tuner button in Play view</Text>
-          </View>
-          <Switch accessibilityLabel="Always show tuner in Play view"
-            value={Boolean(tunerAlwaysOnPlayView)}
-            onValueChange={handleTunerAlwaysOnPlayViewToggle}
-          />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Volume Pedal Opens Tuner</Text>
-            <Text style={styles.labelHint}>Heel-down the volume pedal to open the tuner</Text>
-          </View>
-          <Switch accessibilityLabel="Volume pedal opens tuner"
-            value={Boolean(tunerVolPedalOpens)}
-            onValueChange={handleTunerVolPedalOpensToggle}
-          />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Tuner Trails</Text>
-            <Text style={styles.labelHint}>Let delays and reverbs decay when the tuner opens</Text>
-          </View>
-          <Switch accessibilityLabel="Tuner trails"
-            value={Boolean(tunerTrails)}
-            onValueChange={handleTunerTrailsToggle}
-          />
-        </View>
-        <View style={styles.rowBetween}>
-          <View>
-            <Text style={styles.label}>Per-String Offsets</Text>
-            <Text style={styles.labelHint}>Custom offsets per string for alternate tunings</Text>
-          </View>
-          <Switch accessibilityLabel="Per-string tuner offsets"
-            value={Boolean(tunerOffsetsEnabled)}
-            onValueChange={handleTunerOffsetsEnabledToggle}
-          />
-        </View>
-      </Section>
-    </ScrollView>
+        <SettingsGroup title="Stadium">
+          <SettingsToggle label="Auto-Cab" hint="Add a matching cab with each amp" accessibilityLabel="Add a matching cab with each amp"
+            value={autoCab} onChange={handleAutoCab} disabled={previewMode || blockBusy} />
+          <SettingsRow label="Tempo" icon="tempo" value={`${formatTempoBpm(liveTempoBpm ?? globalTempoBpm)} BPM`} onPress={() => setSettingsPage('tempo')} />
+          <SettingsRow label="Tuner remote" icon="tuner" value={`${tunerReferencePitch ?? 440} Hz`} onPress={() => setSettingsPage('tuner')} />
+        </SettingsGroup>
+        <SettingsGroup title="Editing">
+          <SettingsToggle label="Background sync" hint="Pick up edits from the Stadium or desktop editor" value={autoSyncEnabled} onChange={setAutoSyncEnabled} />
+          <SettingsToggle label="Source model names" hint="Show the original amp, cab and pedal names" accessibilityLabel="Show source model names" value={showRealBlockNames} onChange={setShowRealBlockNames} />
+          <SettingsToggle label="Custom block labels" hint="Labels stay in this app" value={blockLabelMode} onChange={setBlockLabelMode} />
+          <SettingsToggle label="Knob controls" hint="Use rotary knobs instead of sliders" value={controlStyle === 'knobs'} onChange={value => setControlStyle(value ? 'knobs' : 'sliders')} />
+        </SettingsGroup>
+        <SettingsGroup title="Preferences">
+          <SettingsRow label="Display & accessibility" icon="accessibility" hint="Editor layout and screen-reader controls" onPress={() => setSettingsPage('accessibility')} />
+          <SettingsRow label="Advanced" icon="sliders" onPress={() => setSettingsPage('advanced')} />
+        </SettingsGroup>
+        <View style={styles.settingsAbout}><Text style={styles.settingsGroupTitle}>Help & About</Text><AppInfo /></View>
+      </ScrollView>
+      <BottomSheet visible={settingsPage !== null} onClose={() => setSettingsPage(null)} title={settingsPage === 'tempo' ? 'Tempo' : settingsPage === 'tuner' ? 'Tuner remote' : settingsPage === 'advanced' ? 'Advanced' : 'Display & accessibility'}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.settingsSheetContent}>
+          {settingsPage === 'accessibility' && <AccessibilitySettings showHeading={false} elevated />}
+          {settingsPage === 'advanced' && <SettingsGroup elevated title="Processing" footer="Estimates are not measured CPU load. The device can still reject edits. Disconnecting restores the normal budget.">
+            <SettingsToggle label="Extended DSP budget" hint={`Allow estimates up to ${EXTENDED_DSP_CAP} per path for this connection. May cause audio dropouts or instability.`}
+              value={extendedDspEnabled} onChange={handleExtendedDsp} disabled={previewMode || blockBusy} />
+          </SettingsGroup>}
+          {settingsPage === 'tempo' && <>
+            <View style={styles.settingsReadout}><Text maxFontSizeMultiplier={1.5} style={styles.settingsReadoutValue}>{formatTempoBpm(liveTempoBpm ?? globalTempoBpm)}<Text style={styles.settingsReadoutUnit}> BPM</Text></Text>
+              <Text style={styles.settingsHint}>{tempoFollow ? 'Following external tempo' : 'Tap or nudge the tempo'}</Text></View>
+            <View style={styles.settingsStepper}>
+              {[-5, -1, 1, 5].map(delta => <Pressable key={delta} disabled={previewMode}
+                accessibilityLabel={`${delta < 0 ? 'Decrease' : 'Increase'} tempo by ${Math.abs(delta)} BPM`}
+                onPress={() => handleTempoAdjust(delta)} style={({ pressed }) => [styles.settingsStepButton, pressed && styles.settingsPressed, previewMode && styles.buttonDisabled]}>
+                <Text style={styles.settingsButtonText}>{delta > 0 ? '+' : '−'}{Math.abs(delta)}</Text>
+              </Pressable>)}
+            </View>
+            <Pressable disabled={previewMode} onPress={handleTapTempo} style={({ pressed }) => [tempoFollow ? styles.settingsSecondaryButton : styles.settingsPrimaryButton, pressed && { opacity: 0.8 }, previewMode && styles.buttonDisabled]}>
+              <Text style={tempoFollow ? styles.settingsButtonText : styles.settingsPrimaryText}>Tap tempo</Text>
+            </Pressable>
+            <SettingsGroup elevated title="Tempo source"><SettingsToggle label="Follow external tempo" hint="Use the Stadium’s tempo source" value={Boolean(tempoFollow)} onChange={handleTempoFollowToggle} disabled={previewMode} /></SettingsGroup>
+          </>}
+          {settingsPage === 'tuner' && <>
+            <View style={styles.settingsReadout}><Text maxFontSizeMultiplier={1.5} style={styles.settingsReadoutValue}>{tunerReferencePitch ?? 440}<Text style={styles.settingsReadoutUnit}> Hz</Text></Text>
+              <Text style={styles.settingsHint}>{TUNER_REMOTE_META}</Text></View>
+            <View style={styles.settingsStepper}>
+              {[-1, 1].map(delta => <Pressable key={delta} disabled={previewMode} accessibilityLabel={`${delta < 0 ? 'Decrease' : 'Increase'} reference pitch by 1 hertz`} onPress={() => handleTunerReferenceAdjust(delta)}
+                style={({ pressed }) => [styles.settingsStepButton, pressed && styles.settingsPressed, previewMode && styles.buttonDisabled]}><Text style={styles.settingsButtonText}>{delta < 0 ? '−1' : '+1'} Hz</Text></Pressable>)}
+            </View>
+            <Pressable disabled={previewMode} onPress={() => handleOpenTuner('main')} style={({ pressed }) => [styles.settingsPrimaryButton, pressed && { opacity: 0.8 }, previewMode && styles.buttonDisabled]}><Text style={styles.settingsPrimaryText}>Open tuner on Stadium</Text></Pressable>
+            <Pressable disabled={previewMode} onPress={handleExitTuner} style={styles.settingsSecondaryButton}><Text style={styles.settingsButtonText}>Close tuner on Stadium</Text></Pressable>
+            <SettingsGroup elevated title="Tuner behaviour">
+              <SettingsToggle label="Show in Stomp view" hint="Keep the tuner button in Stomp view" accessibilityLabel="Always show tuner in Stomp view" value={Boolean(tunerAlwaysOnStomp)} onChange={handleTunerAlwaysOnStompToggle} disabled={previewMode} />
+              <SettingsToggle label="Show in Play view" hint="Keep the tuner button in Play view" accessibilityLabel="Always show tuner in Play view" value={Boolean(tunerAlwaysOnPlayView)} onChange={handleTunerAlwaysOnPlayViewToggle} disabled={previewMode} />
+              <SettingsToggle label="Volume pedal opens tuner" hint="Open the tuner at heel-down" value={Boolean(tunerVolPedalOpens)} onChange={handleTunerVolPedalOpensToggle} disabled={previewMode} />
+              <SettingsToggle label="Tuner trails" hint="Let delays and reverbs decay when the tuner opens" value={Boolean(tunerTrails)} onChange={handleTunerTrailsToggle} disabled={previewMode} />
+              <SettingsToggle label="Per-string offsets" hint="Custom offsets for alternate tunings" accessibilityLabel="Per-string tuner offsets" value={Boolean(tunerOffsetsEnabled)} onChange={handleTunerOffsetsEnabledToggle} disabled={previewMode} />
+            </SettingsGroup>
+          </>}
+          {previewMode && (settingsPage === 'tempo' || settingsPage === 'tuner' || settingsPage === 'advanced') && <Text style={styles.settingsHint}>Connect your Stadium to use these controls.</Text>}
+        </ScrollView>
+      </BottomSheet>
+    </>
   );
 
   const renderPerformanceMode = () => {
@@ -5067,6 +4748,7 @@ function EditorApp() {
         port={discoveredDevice?.host === host.trim() ? discoveredDevice.port : 2001}
         onHostChange={value => { setHost(value); setDiscoveredDevice(null); }}
         onDeviceSelect={device => { setHost(device.host); setDiscoveredDevice(device); }}
+        selectedDevice={discoveredDevice}
         transport={connectionTransport}
         onTransportChange={setConnectionTransport}
         onConnect={connect}
@@ -5230,7 +4912,7 @@ function EditorApp() {
         <View style={[styles.shell, useNavRail && styles.shellRow]}>
           {useNavRail && <TabBar variant="rail" activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />}
           <View style={styles.shellMain}>
-            {linearControls ? linearChrome : visualChrome}
+            {activeTab === 'flow' ? (linearControls ? linearChrome : visualChrome) : previewBanner}
 
             {/* ── Tab content ──────────────────────────────────────── */}
             {activeTab === 'flow' && renderFlowTab()}
@@ -5249,7 +4931,7 @@ function EditorApp() {
         <BottomSheet
           visible={setlistPickerOpen}
           onClose={() => setSetlistPickerOpen(false)}
-          title="Select Setlist"
+          title="Select setlist"
         >
           <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList}>
             {setlists.map((item) => {
@@ -5257,57 +4939,10 @@ function EditorApp() {
               return (
                 <Pressable accessibilityState={{ selected: active }}
                   key={`setlist-pick-${String(item.cid_)}`}
-                  style={[styles.sheetListItem, active && styles.sheetListItemActive]}
+                  style={[libraryStyles.rowMain, active && libraryStyles.selectedRow]}
                   onPress={() => {
                     setSetlistPickerOpen(false);
                     void handleSetlistSelect(item);
-                  }}
-                >
-                  <Text style={styles.sheetListText}>{item.name ?? `Setlist ${item.posi ?? '\u2014'}`}</Text>
-                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-          {activeSetlist && (
-            <View style={styles.sheetRenameRow}>
-              <TextInput accessibilityLabel="Setlist name"
-                style={[styles.input, styles.inlineInput]}
-                value={setlistRenameText}
-                onChangeText={setSetlistRenameText}
-                placeholder="Rename setlist"
-                placeholderTextColor={COLORS.muted}
-              />
-              <Pressable
-                style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-                onPress={() => {
-                  if (typeof activeSetlist.cid_ === 'number') {
-                    void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
-                  }
-                }}
-              >
-                <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-              </Pressable>
-            </View>
-          )}
-        </BottomSheet>
-
-        {/* ── Bottom Sheet: Target Setlist Picker ──────────────── */}
-        <BottomSheet
-          visible={targetSetlistPickerOpen}
-          onClose={() => setTargetSetlistPickerOpen(false)}
-          title="Add to Setlist"
-        >
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList}>
-            {setlists.map((item) => {
-              const active = item.cid_ === targetSetlistId;
-              return (
-                <Pressable accessibilityState={{ selected: active }}
-                  key={`target-pick-${String(item.cid_)}`}
-                  style={[styles.sheetListItem, active && styles.sheetListItemActive]}
-                  onPress={() => {
-                    setTargetSetlistId(item.cid_ ?? null);
-                    setTargetSetlistPickerOpen(false);
                   }}
                 >
                   <Text style={styles.sheetListText}>{item.name ?? `Setlist ${item.posi ?? '\u2014'}`}</Text>
@@ -5321,8 +4956,9 @@ function EditorApp() {
         {/* ── Bottom Sheet: Add Presets to Setlist ─────────────── */}
         <BottomSheet
           visible={setlistAddSheetOpen}
+          closeDisabled={libraryBusy}
           onClose={() => setSetlistAddSheetOpen(false)}
-          title="Add Presets"
+          title="Add presets"
           subtitle={activeSetlist?.name ?? selectedContainerName}
         >
           <View style={styles.segmentedControl}>
@@ -5332,6 +4968,7 @@ function EditorApp() {
                 <Pressable accessibilityState={{ selected: active }}
                   key={`setlist-add-source-${source.key}`}
                   style={[styles.segment, active && styles.segmentActive, idx > 0 && styles.segmentDivider]}
+                  disabled={setlistAddLoading || libraryBusy}
                   onPress={() => handleSetlistAddSourceChange(source.key)}
                 >
                   <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{source.label}</Text>
@@ -5356,6 +4993,7 @@ function EditorApp() {
               </Pressable>
             )}
           </View>
+          {libraryFeedback ? <Text accessibilityLiveRegion="polite" style={libraryStyles.muted}>{libraryFeedback}</Text> : null}
           <View style={styles.setlistAddToolRow}>
             <Text style={styles.libraryMeta}>
               {selectedSetlistAddIds.length} selected
@@ -5418,7 +5056,7 @@ function EditorApp() {
             </View>
             <Pressable
               style={[styles.button, styles.buttonPrimary, !selectedSetlistAddIds.length && styles.buttonDisabled]}
-              disabled={!selectedSetlistAddIds.length}
+              disabled={setlistAddLoading || libraryBusy || !selectedSetlistAddIds.length}
               onPress={() => {
                 void handleAddSelectedPresetsToSetlist();
               }}
@@ -5437,9 +5075,9 @@ function EditorApp() {
           title={presetActionTarget?.name ?? 'Preset'}
           subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${formatPresetPosition(presetActionTarget.posi)}` : undefined}
         >
-          <View style={styles.sheetActions}>
+          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetActions}>
             {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
-              <View style={styles.sheetRenameRow}>
+              <View style={{ gap: 12 }}>
                 <TextInput accessibilityLabel="Preset name"
                   style={[styles.input, styles.inlineInput]}
                   value={presetRenameText}
@@ -5449,6 +5087,7 @@ function EditorApp() {
                 />
                 <Pressable
                   style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                  disabled={libraryBusy || !presetRenameText.trim() || presetRenameText.trim() === activePresetName}
                   onPress={() => {
                     void handleRenameContent(activePresetStorageId, presetRenameText, 'Preset');
                   }}
@@ -5457,63 +5096,58 @@ function EditorApp() {
                 </Pressable>
               </View>
             )}
-            {libraryRoot === 'setlists' && typeof selectedContainerId === 'number' && presetActionTarget && (
+            {libraryRoot === 'setlists' && activeSetlist && presetActionTarget && (
               <>
                 <Pressable
                   style={[
-                    styles.actionButton,
-                    styles.actionButtonPrimary,
-                    (typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi <= 0) && styles.buttonDisabled,
+                    libraryStyles.button,
+                    (setlistMovePosition(presetItems, presetActionTarget.posi, -1) === null) && styles.buttonDisabled,
                   ]}
-                  disabled={typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi <= 0}
+                  disabled={setlistMovePosition(presetItems, presetActionTarget.posi, -1) === null}
                   onPress={() => {
                     const target = presetActionTarget;
                     setPresetActionTarget(null);
                     void handleMoveSetlistPreset(target, -1);
                   }}
                 >
-                  <Text style={styles.actionButtonPrimaryText}>Move Up</Text>
+                  <Text style={libraryStyles.buttonText}>Move earlier</Text>
                 </Pressable>
                 <Pressable
                   style={[
-                    styles.actionButton,
-                    styles.actionButtonPrimary,
-                    (typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi >= presetItems.length - 1) && styles.buttonDisabled,
+                    libraryStyles.button,
+                    (setlistMovePosition(presetItems, presetActionTarget.posi, 1) === null) && styles.buttonDisabled,
                   ]}
-                  disabled={typeof presetActionTarget.posi !== 'number' || presetActionTarget.posi >= presetItems.length - 1}
+                  disabled={setlistMovePosition(presetItems, presetActionTarget.posi, 1) === null}
                   onPress={() => {
                     const target = presetActionTarget;
                     setPresetActionTarget(null);
                     void handleMoveSetlistPreset(target, 1);
                   }}
                 >
-                  <Text style={styles.actionButtonPrimaryText}>Move Down</Text>
+                  <Text style={libraryStyles.buttonText}>Move later</Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.actionButton, styles.actionButtonDanger]}
+                  style={[libraryStyles.button, { backgroundColor: COLORS.control }]}
                   onPress={() => {
                     const target = presetActionTarget;
                     setPresetActionTarget(null);
                     void handleRemovePresetFromSetlist(target);
                   }}
                 >
-                <Text style={styles.actionButtonDangerText}>Remove from Setlist</Text>
+                <Text style={styles.actionButtonDangerText}>Remove from setlist</Text>
                 </Pressable>
               </>
             )}
-            {(libraryRoot === 'user' || libraryRoot === 'factory') && typeof presetActionTarget?.cid_ === 'number' && typeof targetSetlistId === 'number' && (
-              <Pressable
-                style={[styles.actionButton, styles.actionButtonPrimary]}
-                onPress={() => {
+            {(libraryRoot === 'user' || libraryRoot === 'factory') && setlists.length > 0 && <View style={libraryStyles.header}>
+              <Text style={libraryStyles.section}>Add to setlist</Text>
+              {setlists.map(setlist => <Pressable key={setlist.cid_} style={libraryStyles.rowMain}
+                accessibilityLabel={`Add to ${setlist.name ?? 'setlist'}`} onPress={() => {
                   const target = presetActionTarget;
                   setPresetActionTarget(null);
-                  if (target) void handleAddPresetToSetlist(target);
-                }}
-              >
-                <Text style={styles.actionButtonPrimaryText}>Add to {targetSetlist?.name ?? 'Setlist'}</Text>
-              </Pressable>
-            )}
-          </View>
+                  if (target && typeof setlist.cid_ === 'number') void handleAddPresetToSetlist(target, setlist.cid_);
+                }}><Text style={libraryStyles.rowTitle}>{setlist.name ?? 'Setlist'}</Text><UtilityIcon name="plus" /></Pressable>)}
+            </View>}
+          </ScrollView>
         </BottomSheet>
 
         {/* ── Bottom Sheet: Snapshot Actions ───────────────────── */}
@@ -5525,7 +5159,7 @@ function EditorApp() {
         >
           <View style={styles.sheetActions}>
             {snapshotActionIndex === activeSnapshotIndex && (
-              <View style={styles.sheetRenameRow}>
+              <View style={{ gap: 12 }}>
                 <TextInput accessibilityLabel="Snapshot name"
                   style={[styles.input, styles.inlineInput]}
                   value={snapshotRenameText}
@@ -5548,13 +5182,13 @@ function EditorApp() {
             )}
             {snapshotActionIndex !== null && snapshotActionIndex !== activeSnapshotIndex && (
               <Pressable
-                style={[styles.actionButton, styles.actionButtonPrimary]}
+                style={libraryStyles.button}
                 onPress={() => {
                   handleSnapshotActivate(snapshotActionIndex);
                   setSnapshotActionIndex(null);
                 }}
               >
-                <Text style={styles.actionButtonPrimaryText}>Activate Snapshot</Text>
+                <Text style={libraryStyles.buttonText}>Activate snapshot</Text>
               </Pressable>
             )}
           </View>
@@ -5834,20 +5468,20 @@ const styles = StyleSheet.create({
   performanceEyebrow: {
     color: COLORS.muted,
     ...FONT.semibold,
-    fontSize: 13,
+    fontSize: 15,
   },
   performanceHost: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 12,
+    fontSize: 14,
   },
   performanceExitButton: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: 'rgba(17,20,25,0.92)',
+    backgroundColor: COLORS.control,
   },
   performanceExitText: {
     color: COLORS.text,
@@ -5875,7 +5509,7 @@ const styles = StyleSheet.create({
   performanceHeroKicker: {
     color: COLORS.muted,
     ...FONT.semibold,
-    fontSize: 13,
+    fontSize: 15,
   },
   performanceHeroTitle: {
     color: COLORS.text,
@@ -5899,12 +5533,12 @@ const styles = StyleSheet.create({
   performanceHeroStatusDot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: 12,
   },
   performanceHeroStatusText: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 0.1,
   },
   performanceSection: {
@@ -5929,7 +5563,7 @@ const styles = StyleSheet.create({
   performanceSectionMeta: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 0.1,
   },
   performanceActionGrid: {
@@ -5938,13 +5572,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   performanceActionCard: {
-    width: '48%',
-    minHeight: 110,
+    width: '100%',
+    minHeight: 76,
     padding: 14,
-    borderRadius: 4,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    backgroundColor: COLORS.panel,
     justifyContent: 'space-between',
   },
   performanceActionCardActive: {
@@ -5967,7 +5601,7 @@ const styles = StyleSheet.create({
   performanceActionMeta: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 12,
+    fontSize: 14,
     lineHeight: 16,
   },
   performanceTempoCard: {
@@ -5976,10 +5610,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     paddingHorizontal: 14,
-    borderRadius: 4,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    backgroundColor: COLORS.panel,
   },
   performanceTempoValue: {
     color: COLORS.text,
@@ -5990,12 +5624,12 @@ const styles = StyleSheet.create({
   performanceTempoUnit: {
     color: COLORS.muted,
     ...FONT.semibold,
-    fontSize: 13,
+    fontSize: 15,
   },
   performanceTempoMeta: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 12,
+    fontSize: 14,
     lineHeight: 16,
     textAlign: 'center',
     marginTop: 4,
@@ -6010,9 +5644,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    backgroundColor: COLORS.panel,
     alignItems: 'center',
   },
   performanceChipAccent: {
@@ -6022,7 +5656,7 @@ const styles = StyleSheet.create({
   performanceChipText: {
     color: COLORS.text,
     ...FONT.semibold,
-    fontSize: 13,
+    fontSize: 15,
   },
   performanceChipTextAccent: {
     color: COLORS.accent,
@@ -6034,7 +5668,7 @@ const styles = StyleSheet.create({
   performanceInlineLabel: {
     color: COLORS.text,
     ...FONT.semibold,
-    fontSize: 13,
+    fontSize: 15,
   },
   performanceInlineActions: {
     flexDirection: 'row',
@@ -6045,9 +5679,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    backgroundColor: COLORS.panel,
   },
   performanceInlinePillActive: {
     borderColor: COLORS.accentMid,
@@ -6059,7 +5693,7 @@ const styles = StyleSheet.create({
   performanceInlinePillText: {
     color: COLORS.muted,
     ...FONT.semibold,
-    fontSize: 12,
+    fontSize: 14,
   },
   performanceInlinePillTextActive: {
     color: COLORS.accent,
@@ -6067,7 +5701,7 @@ const styles = StyleSheet.create({
   tunerOffsetHint: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 12,
+    fontSize: 14,
     lineHeight: 18,
   },
   tunerOffsetGrid: {
@@ -6080,9 +5714,9 @@ const styles = StyleSheet.create({
     minHeight: 126,
     padding: 12,
     borderRadius: 18,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    backgroundColor: COLORS.panel,
     gap: 10,
   },
   tunerOffsetCardDisabled: {
@@ -6096,7 +5730,7 @@ const styles = StyleSheet.create({
   tunerOffsetLabel: {
     color: COLORS.text,
     ...FONT.semibold,
-    fontSize: 13,
+    fontSize: 15,
   },
   tunerOffsetShortLabel: {
     color: COLORS.muted,
@@ -6119,7 +5753,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 9,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
     backgroundColor: COLORS.panel,
     alignItems: 'center',
@@ -6131,7 +5765,7 @@ const styles = StyleSheet.create({
   tunerOffsetAdjustButtonText: {
     color: COLORS.text,
     ...FONT.semibold,
-    fontSize: 12,
+    fontSize: 14,
   },
   tunerOffsetAdjustButtonTextAccent: {
     color: COLORS.accent,
@@ -6146,9 +5780,9 @@ const styles = StyleSheet.create({
     minHeight: 96,
     padding: 14,
     borderRadius: 18,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: COLORS.stroke,
-    backgroundColor: COLORS.panelAlt,
+    backgroundColor: COLORS.panel,
     gap: 8,
   },
   performancePresetCardActive: {
@@ -6176,7 +5810,7 @@ const styles = StyleSheet.create({
   performanceEmptyText: {
     color: COLORS.muted,
     ...FONT.body,
-    fontSize: 13,
+    fontSize: 15,
     lineHeight: 18,
   },
   transportHeroCard: {
@@ -6962,6 +6596,32 @@ const styles = StyleSheet.create({
   statusText: { color: COLORS.muted, ...FONT.body, fontSize: 13 },
 
   /* ── Device hero ──────────────────────────────────────────────── */
+  settingsContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32, width: '100%', maxWidth: 700, alignSelf: 'center' },
+  settingsHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  settingsEyebrow: { color: COLORS.muted, fontSize: 12, letterSpacing: 2.4, ...FONT.semibold, marginBottom: 4 },
+  settingsTitle: { color: COLORS.text, fontSize: 30, ...FONT.bold, letterSpacing: -0.8 },
+  connectionSummary: { padding: 18, backgroundColor: COLORS.panel, borderRadius: 16, gap: 16 },
+  connectionSummaryTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  settingsDeviceIcon: { width: 44, alignItems: 'center' },
+  settingsFlex: { flex: 1, minWidth: 0 },
+  settingsDeviceName: { color: COLORS.text, fontSize: 18, ...FONT.semibold, marginBottom: 5 },
+  settingsConnectionState: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  settingsHint: { color: COLORS.muted, fontSize: 15, lineHeight: 22, flexShrink: 1 },
+  settingsConnectionActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  settingsSecondaryButton: { minHeight: 48, paddingVertical: 12, paddingHorizontal: 18, backgroundColor: COLORS.control, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexGrow: 1 },
+  settingsButtonText: { color: COLORS.text, fontSize: 16, ...FONT.medium },
+  settingsPressed: { backgroundColor: COLORS.raised },
+  settingsError: { color: COLORS.danger, fontSize: 15, lineHeight: 22 },
+  settingsAbout: { marginTop: 24, gap: 10 },
+  settingsGroupTitle: { color: COLORS.muted, ...FONT.semibold, fontSize: 15, paddingHorizontal: 4 },
+  settingsSheetContent: { paddingBottom: 20, gap: 12 },
+  settingsReadout: { alignItems: 'center', paddingVertical: 20, gap: 8 },
+  settingsReadoutValue: { color: COLORS.text, fontSize: 48, ...FONT.bold, ...FONT.numeric, letterSpacing: -1.5 },
+  settingsReadoutUnit: { color: COLORS.muted, fontSize: 18, ...FONT.medium, letterSpacing: 0 },
+  settingsStepper: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  settingsStepButton: { flexGrow: 1, minWidth: 64, backgroundColor: COLORS.control, borderRadius: 10, padding: 14, alignItems: 'center' },
+  settingsPrimaryButton: { backgroundColor: COLORS.text, padding: 16, alignItems: 'center', borderRadius: 12 },
+  settingsPrimaryText: { color: COLORS.bg, ...FONT.semibold, fontSize: 17 },
   deviceHero: { paddingTop: 12, paddingBottom: 8, gap: 6 },
   deviceTitle: { fontSize: 28, color: COLORS.text, ...FONT.bold, letterSpacing: -0.4 },
   deviceSubtitle: { color: COLORS.muted, ...FONT.body, fontSize: 13, lineHeight: 18 },

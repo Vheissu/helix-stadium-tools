@@ -13,7 +13,7 @@ export function AccessibleText({ style, numberOfLines, ...props }: TextProps) {
     ...(flat.color === COLORS.muted ? { color: '#b7b8c0' } : {}),
   }]} />;
 }
-export function ScreenHeading({ children, focusKey, style }: { children: React.ReactNode; focusKey: string; style?: TextProps['style'] }) {
+export function ScreenHeading({ children, focusKey, style, maxFontSizeMultiplier }: { children: React.ReactNode; focusKey: string; style?: TextProps['style']; maxFontSizeMultiplier?: number }) {
   const ref = useRef<ViewInstance>(null);
   const { screenReader } = useAccessibilityPreferences();
   useEffect(() => {
@@ -21,5 +21,5 @@ export function ScreenHeading({ children, focusKey, style }: { children: React.R
     const timer = setTimeout(() => { if (ref.current) AccessibilityInfo.sendAccessibilityEvent(ref.current, 'focus'); }, 200);
     return () => clearTimeout(timer);
   }, [screenReader, focusKey]);
-  return <Text ref={ref} accessibilityRole="header" style={style}>{children}</Text>;
+  return <Text ref={ref} accessibilityRole="header" maxFontSizeMultiplier={maxFontSizeMultiplier} style={style}>{children}</Text>;
 }

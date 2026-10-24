@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseStadiumDevices, startStadiumSearch, type DiscoveryTransport } from './stadiumDiscovery';
+import { formatDiscoveryError, parseStadiumDevices, startStadiumSearch, type DiscoveryTransport } from './stadiumDiscovery';
+
+test('discovery recovery messages distinguish permission, timeout and missing support without exposing native diagnostics', () => {
+  assert.match(formatDiscoveryError(new Error('NSNetService permission denied: -72008')), /Allow Local Network/);
+  assert.match(formatDiscoveryError(new Error('The search timed out.')), /Search took too long/);
+  assert.match(formatDiscoveryError(new Error('Network search is unavailable in this installation.')), /Enter your Stadium/);
+  for (const error of [new Error('socket at 127.0.0.1:2001 failed with ZMTP'), 'secret native error', null]) {
+    const message = formatDiscoveryError(error);
+    assert.match(message, /Check Wi-Fi/);
+    assert.doesNotMatch(message, /socket|127\.0|2001|ZMTP|secret/);
+  }
+});
 
 const device = { name: 'Stadium XL', host: 'p35x1.local.', port: 2001, type: '_stadiumserver._tcp.' };
 

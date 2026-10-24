@@ -9,6 +9,15 @@ export interface DiscoveryTransport {
   cancel: (requestId: number) => void;
 }
 
+/** Native discovery errors can contain transport details; keep recovery copy actionable. */
+export function formatDiscoveryError(error: unknown): string {
+  const message = error instanceof Error ? error.message.toLowerCase() : '';
+  if (message.includes('unavailable in this installation')) return 'Network search is unavailable. Enter your Stadium’s address to connect.';
+  if (message.includes('denied') || message.includes('permission') || message.includes('not authorized')) return 'Allow Local Network access in your device settings, then search again. You can also enter an address.';
+  if (message.includes('timed out')) return 'Search took too long. Check Wi-Fi and search again, or enter an address.';
+  return 'Could not search this network. Check Wi-Fi and Local Network access, or enter your Stadium’s address.';
+}
+
 export function parseStadiumDevices(value: unknown): StadiumDevice[] {
   if (!Array.isArray(value)) return [];
   const devices = new Map<string, StadiumDevice>();

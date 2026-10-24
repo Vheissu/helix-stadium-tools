@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
   tabTextSelected: { color: COLORS.bg },
   heading: { color: COLORS.text, ...FONT.semibold, fontSize: 18 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
-  tile: { backgroundColor: COLORS.panelAlt, borderColor: COLORS.stroke, borderWidth: 1, borderRadius: 8, padding: 12, gap: 10, minHeight: 88 },
-  tileSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
+  tile: { backgroundColor: COLORS.panel, borderColor: COLORS.stroke, borderWidth: 0, borderRadius: 12, padding: 12, gap: 10, minHeight: 88 },
+  tileSelected: { backgroundColor: COLORS.raised, borderLeftWidth: 2, borderLeftColor: COLORS.brand },
   tileHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   swatch: { width: 12, height: 12, borderRadius: 6 },
   number: { color: COLORS.text, ...FONT.numeric, fontSize: 15 },
@@ -92,6 +92,6 @@ const styles = StyleSheet.create({
   name: { color: COLORS.text, ...FONT.body, fontSize: 16, lineHeight: 22 },
   unassigned: { color: COLORS.muted },
   hint: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 22 },
-  refresh: { alignSelf: 'flex-start', paddingHorizontal: 14, borderRadius: 6, borderWidth: 1, borderColor: COLORS.stroke },
+  refresh: { alignSelf: 'flex-start', paddingHorizontal: 14, borderRadius: 12, backgroundColor: COLORS.control },
   refreshText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
 });

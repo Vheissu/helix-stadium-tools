@@ -108,7 +108,7 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
                 />
               )}
             </View>
-            <Text style={[styles.label, active && styles.labelActive]}>{label}</Text>
+            <Text maxFontSizeMultiplier={1.5} style={[styles.label, active && styles.labelActive]}>{label}</Text>
           </Pressable>
         );
       })}

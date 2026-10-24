@@ -49,6 +49,10 @@
       "body": "Open a block and tap Move to choose an empty position on the same row or another path. The block keeps its settings and assignments. Moving a split or merge also moves its connection to row B. Drag effects within a row to reorder them. Undo and Redo act on the whole preset, including edits made on the Stadium. As in the desktop editor, Undo after removing a block may not restore its footswitch or controller assignments."
     },
     {
+      "title": "Copy between paths",
+      "body": "Open an amp or effect and tap Copy to… to duplicate its current settings into an empty position on either path or an existing branch. The original stays in place. Snapshot and controller assignments are not copied. For a whole path, tap Copy path, select the other Path tab, then Paste here and confirm. Whole-path copying includes both rows and their input/output settings. Use the desktop editor to copy IRs, Clones or blocks with multiple cab models."
+    },
+    {
       "title": "DSP numbers beside effects",
       "body": "DSP is the processing capacity used by amps and effects. Numbers beside models and path meters are estimates from the model catalogue, not live CPU percentages. Larger numbers use more of the path's budget. Lower numbers leave room for more effects. Bypassing a block does not free its capacity. Tap a path's DSP estimate for an explanation."
     },

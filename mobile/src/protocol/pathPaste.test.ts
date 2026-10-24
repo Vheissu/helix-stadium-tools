@@ -13,5 +13,5 @@ test('path paste rejects feedback routing, excess amps and DSP before writing', 
   assert.doesNotThrow(() => validatePathPaste(clipboard, {}, 1, 66));
   assert.throws(() => validatePathPaste({ ...clipboard, entries: [...clipboard.entries, entry(13, 779)] }, {}, 1, 66), /feeds Path 2/);
   assert.throws(() => validatePathPaste({ ...clipboard, entries: [...clipboard.entries, entry(10, 536)] }, {}, 1, 66), /two amps/);
-  assert.throws(() => validatePathPaste(clipboard, {}, 1, 20), /processing capacity/);
+  assert.throws(() => validatePathPaste(clipboard, {}, 1, 20), /processing budget/);
 });

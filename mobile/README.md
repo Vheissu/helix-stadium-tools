@@ -143,6 +143,11 @@ tool must sign it before a device will install it.
   full-screen editor. Touch and hold a block in the tablet lanes, then drag to
   move it within its row. Use **Move** in a block's editor to choose an empty
   position on another row or path, or to reposition a split or merge.
+- **Copy to…** duplicates an amp/effect's current settings into an empty position
+  on either primary path or an existing branch. For a whole path, use **Copy path**,
+  select the other Path tab, then **Paste here**. Copies do not include snapshot or
+  controller assignments; IRs, Clones and blocks with multiple cab models require
+  the desktop editor. See [copy limits and pending device checks](../docs/MOBILE_ROUTING.md).
 - This project only targets native mobile builds; there is no separate web target to maintain.
 
 ## Store builds

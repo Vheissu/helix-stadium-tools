@@ -35,7 +35,7 @@ function requirePresetId(presetId: number) {
   if (!Number.isInteger(presetId) || presetId <= 0) throw new Error('Sync the current preset before editing.');
 }
 
-function policyGrid(state: unknown): SignalFlowGrid {
+export function policyGrid(state: unknown): SignalFlowGrid {
   return Array.from({ length: 4 }, (_, row) => Array.from({ length: 12 }, (_, column) => {
     const block = readBlockAt(state, Math.floor(row / 2), column + (row % 2 ? 15 : 1));
     const id = block?.mdls?.[0]?.id__;
@@ -47,7 +47,7 @@ function policyGrid(state: unknown): SignalFlowGrid {
   }));
 }
 
-function activeBranchPositions(state: unknown, grid: SignalFlowGrid, flow: number) {
+export function activeBranchPositions(state: unknown, grid: SignalFlowGrid, flow: number) {
   const input = readBlockAt(state, flow, 14)?.mdls?.[0]?.id__;
   const output = readBlockAt(state, flow, 27)?.mdls?.[0]?.id__;
   const independent = (input !== undefined && input !== 771) || (output !== undefined && output !== 789);
@@ -103,6 +103,12 @@ export interface RoutingTransport {
   send(address: string, types: string, args: number[]): Promise<unknown>;
 }
 
+async function checkActivePreset(io: RoutingTransport, presetId: number, action: string) {
+  const current = await io.activeId();
+  if (current === null) throw new Error('Could not confirm the current preset. Sync and try again.');
+  if (current !== presetId) throw new Error(`The preset changed. Sync before ${action}.`);
+}
+
 export function moveBlockCommand(fromFlow: number, fromPosition: number, toFlow: number, toPosition: number) {
   const effectPosition = (position: number) => Number.isInteger(position) &&
     ((position >= 1 && position <= 12) || (position >= 15 && position <= 26));
@@ -117,9 +123,7 @@ export async function moveBlockAndConfirm(io: RoutingTransport, target: {
 }): Promise<unknown> {
   requirePresetId(target.presetId);
   const command = moveBlockCommand(target.fromFlow, target.fromPosition, target.toFlow, target.toPosition);
-  const checkPreset = async () => {
-    if (await io.activeId() !== target.presetId) throw new Error('The preset changed. Sync before moving a block.');
-  };
+  const checkPreset = () => checkActivePreset(io, target.presetId, 'moving a block');
   await checkPreset();
   const before = await io.state();
   const source = readBlockAt(before, target.fromFlow, target.fromPosition);
@@ -183,9 +187,7 @@ export async function reorderBlockAndConfirm(io: ReorderTransport, target: {
   presetId: number; flow: number; from: number; to: number; modelId: number; instanceId?: number;
 }, knownModels: ReadonlySet<number>): Promise<unknown> {
   requirePresetId(target.presetId);
-  const check = async () => {
-    if (await io.activeId() !== target.presetId) throw new Error('The preset changed. Sync before moving a block.');
-  };
+  const check = () => checkActivePreset(io, target.presetId, 'moving a block');
   await check();
   const before = await io.state();
   const source = readBlockAt(before, target.flow, target.from);
@@ -210,9 +212,7 @@ export async function changeRoutingLink(io: RoutingTransport, target: {
 }): Promise<unknown> {
   requirePresetId(target.presetId);
   const command = routingLinkCommand(target.flow, target.position, target.modelId, target.linkedPosition);
-  const checkPreset = async () => {
-    if (await io.activeId() !== target.presetId) throw new Error('The preset changed. Reopen the block before editing its routing.');
-  };
+  const checkPreset = () => checkActivePreset(io, target.presetId, 'editing its routing');
   await checkPreset();
   const beforeState = await io.state();
   const before = readBlockAt(beforeState, target.flow, target.position);

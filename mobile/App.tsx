@@ -16,6 +16,8 @@ import { RoutingControls } from './src/components/RoutingControls';
 import { isRoutingModel, isSplitModel, routingInsertReason, routingLinkChoices, routingName, ROUTING_DESCRIPTIONS, SPLIT_MODELS } from './src/utils/routing';
 import { readBlockAt } from './src/protocol/blockCommands';
 import { PresetEditGuard, blockActionMessage } from './src/protocol/presetEditGuard';
+import { blockCopyDestinationReason, type BlockSettingsCopy } from './src/protocol/blockCopy';
+import { CopyOperationError } from './src/protocol/copyOperation';
 import { blockLimitReason } from './src/utils/blockLimits';
 import { derivedIOReason, ioModelAllowed, hasIndependentIO } from './src/utils/ioRouting';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -334,6 +336,7 @@ function EditorApp() {
   const [blockEditorOpen, setBlockEditorOpen] = useState(false);
   const [blockBusy, setBlockBusy] = useState(false);
   const [moveSource, setMoveSource] = useState<(BlockSlot & { modelId: number; instanceId?: number }) | null>(null);
+  const [blockCopy, setBlockCopy] = useState<{ presetId: number; copy: BlockSettingsCopy } | null>(null);
   const blockOperation = useRef(false);
   const presetEditGuard = useRef(new PresetEditGuard());
   const [blockEditorSlot, setBlockEditorSlot] = useState<BlockSlot | null>(null);
@@ -386,7 +389,7 @@ function EditorApp() {
   const [presetFilter, setPresetFilter] = useState('');
   const [snapshotCopySource, setSnapshotCopySource] = useState<number | null>(null);
   const [snapshotCopyTarget, setSnapshotCopyTarget] = useState<number | null>(null);
-  const [pathClipboard, setPathClipboard] = useState<HelixPathClipboard | null>(null);
+  const [pathClipboard, setPathClipboard] = useState<(HelixPathClipboard & { presetId: number }) | null>(null);
   const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
   const [targetSetlistPickerOpen, setTargetSetlistPickerOpen] = useState(false);
   const [setlistAddSheetOpen, setSetlistAddSheetOpen] = useState(false);
@@ -825,6 +828,8 @@ function EditorApp() {
       setPickerOpen(false);
       setSlotMenuOpen(false);
       setMoveSource(null);
+      setBlockCopy(null);
+      setPathClipboard(null);
       setIoPickerOpen(false);
       setScreen(current => current === 'editor' ? 'main' : current);
       recentParamEditsRef.current.clear();
@@ -917,6 +922,7 @@ function EditorApp() {
     setBlockEditorOpen(false);
     setBlockEditorSlot(null);
     setSelectedSlot(null);
+    setBlockCopy(null);
     setActiveTab('flow');
     setScreen('main');
     setTunerReturnScreen('main');
@@ -1738,21 +1744,28 @@ function EditorApp() {
   };
 
   const handleCopyPath = async (pathNum: 1 | 2) => {
+    if (editLocked() || previewMode) return;
     const client = requireClient();
     if (!client) return;
     const flowIndex = pathNum - 1;
+    const presetId = activePresetContentId;
+    if (presetId === null) return;
+    blockOperation.current = true; setBlockBusy(true);
     try {
-      const clipboard = await client.capturePath(flowIndex);
-      if (!clipboard.entries.length) {
-        setStatus(`Path ${pathNum} has no devices to copy`);
+      const clipboard = await client.capturePath(flowIndex, presetId);
+      if (clientRef.current !== client) return;
+      if (!presetEditGuard.current.ready(presetId)) { setStatus('The preset changed. Sync before copying.'); return; }
+      if (!clipboard.entries.some(entry => (entry.position >= 1 && entry.position <= 12) || (entry.position >= 15 && entry.position <= 26))) {
+        setStatus(`Path ${pathNum} has no blocks to copy`);
         return;
       }
-      setPathClipboard(clipboard);
-      setStatus(`Copied Path ${pathNum} (${clipboard.entries.length} blocks)`);
+      setPathClipboard({ ...clipboard, presetId });
+      setStatus(`Copied Path ${pathNum}. Select Path ${pathNum === 1 ? 2 : 1} and tap Paste here.`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Copy path failed: ${message}`);
-    }
+      Alert.alert('Cannot copy this path', message);
+    } finally { blockOperation.current = false; setBlockBusy(false); }
   };
 
   const handlePastePath = async (pathNum: 1 | 2) => {
@@ -1762,6 +1775,7 @@ function EditorApp() {
     if (!client || !clipboard || clipboard.sourcePath === pathNum - 1 || previewMode) return;
     const presetId = activePresetContentId;
     if (presetId === null) return;
+    if (clipboard.presetId !== presetId) { setPathClipboard(null); Alert.alert('Preset changed', 'Copy the path again before pasting.'); return; }
     Alert.alert(`Replace Path ${pathNum}?`, 'This replaces its blocks with the copied settings and routing. Snapshot and controller assignments are not copied. Use the desktop editor for a full preset copy.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Replace path', style: 'destructive', onPress: () => {
@@ -1772,15 +1786,16 @@ function EditorApp() {
             const result = await client.pastePathClipboard(clipboard, pathNum - 1, presetId, getDspLimit(extendedDspEnabled));
             if (clientRef.current !== client) return;
             recentParamEditsRef.current.clear();
-            const state = await client.getEditBufferState();
-            if (!presetEditGuard.current.ready(presetId)) return;
-            applyEditBufferState(state);
+            if (result.warning) Alert.alert('Check Auto-Cab', result.warning);
+            if (!presetEditGuard.current.ready(presetId)) { setStatus('Paste finished. Syncing the current preset…'); return; }
+            applyEditBufferState(result.state);
             setStatus(`Pasted ${result.entryCount} blocks to Path ${pathNum}`);
             setPresetEdited(true);
           } catch (error) {
             const message = blockActionMessage(error);
             setStatus(`Paste not confirmed: ${message}`);
-            Alert.alert('Paste not confirmed', `${message} The path may be partly updated. Sync and inspect it before saving.`);
+            const detail = error instanceof CopyOperationError && !error.mayHaveChanged ? '' : ' The path may be partly updated. Sync and inspect it before saving.';
+            Alert.alert('Paste not confirmed', `${message}${detail}${error instanceof CopyOperationError && error.warning ? `\n\n${error.warning}` : ''}`);
           } finally { blockOperation.current = false; setBlockBusy(false); scheduleSync(200, { silent: true }); }
         })();
       } },
@@ -2312,6 +2327,59 @@ function EditorApp() {
     setSlotMenuOpen(false); closeEditor(); setMoveSource({ ...slot, modelId: block.id, instanceId: block.instanceId });
   };
 
+  const openBlockCopy = async (slot: BlockSlot) => {
+    if (editLocked() || previewMode) return;
+    const client = requireClient();
+    const block = grid[slot.path]?.[slot.block];
+    const presetId = activePresetContentId;
+    if (!client || !block || presetId === null) return;
+    blockOperation.current = true; setBlockBusy(true);
+    setStatus('Reading block settings…');
+    try {
+      const copy = await client.captureBlock({ presetId, flow: rowToFlow(slot.path), position: effectBlockIndex(slot.path, slot.block), modelId: block.id, instanceId: block.instanceId });
+      if (clientRef.current !== client) return;
+      if (!presetEditGuard.current.ready(presetId)) { setStatus('The preset changed. Sync before copying.'); return; }
+      setSlotMenuOpen(false); closeEditor(); setMoveSource(null);
+      setBlockCopy({ presetId, copy: { ...copy, name: getBlockDisplayName(block) } });
+      setStatus('Choose an empty position for the copy.');
+    } catch (error) {
+      const message = blockActionMessage(error);
+      setStatus(message); Alert.alert('Cannot copy this block', message);
+    } finally { blockOperation.current = false; setBlockBusy(false); }
+  };
+
+  const copyDestinations: MoveDestination[] = blockCopy ? grid.flatMap((row, path) => row.flatMap((block, index) => {
+    if (block) return [];
+    const slot = { path: path as PathIndex, block: index as BlockSlot['block'] };
+    if (path % 2 && !availableBranchPositions(slot.path)?.includes(index)) return [];
+    return [{ slot, reason: blockCopyDestinationReason(grid, slot, blockCopy.copy.settings.modelId, getDspLimit(extendedDspEnabled)) }];
+  })) : [];
+
+  const handleCopyBlockTo = async (destination: BlockSlot) => {
+    if (editLocked() || !blockCopy || previewMode) return;
+    const client = requireClient();
+    if (!client) return;
+    const { presetId, copy } = blockCopy;
+    blockOperation.current = true; setBlockBusy(true); setStatus('Copying block settings…');
+    try {
+      const result = await client.copyBlock(copy, { presetId, flow: rowToFlow(destination.path),
+        position: effectBlockIndex(destination.path, destination.block), dspLimit: getDspLimit(extendedDspEnabled) });
+      if (clientRef.current !== client) return;
+      setBlockCopy(null);
+      if (result.warning) Alert.alert('Check Auto-Cab', result.warning);
+      if (!presetEditGuard.current.ready(presetId)) { setStatus('Copy finished. Syncing the current preset…'); return; }
+      recentParamEditsRef.current.clear(); applyEditBufferState(result.value); setPresetEdited(true);
+      setSelectedSlot(destination); setPhonePath(destination.path < 2 ? 1 : 2);
+      setStatus(`Copied ${copy.name} to ${rowLabels[destination.path]}, position ${destination.block + 1}`);
+    } catch (error) {
+      const message = blockActionMessage(error);
+      const detail = error instanceof CopyOperationError && !error.mayHaveChanged ? '' : ' The new block may be partly configured. Sync and inspect it before saving.';
+      setStatus(`Copy not confirmed: ${message}`);
+      setBlockCopy(null);
+      Alert.alert('Copy not confirmed', `${message}${detail}${error instanceof CopyOperationError && error.warning ? `\n\n${error.warning}` : ''}`);
+    } finally { blockOperation.current = false; setBlockBusy(false); scheduleSync(200, { silent: true }); }
+  };
+
   const setIOModel = async (model: IOModel) => {
     if (editLocked()) return;
     const client = requireClient();
@@ -2763,7 +2831,15 @@ function EditorApp() {
       const beforePreset = await client.getActivePresetContentId();
       const state = await client.getEditBufferState();
       const afterPreset = await client.getActivePresetContentId();
-      if (beforePreset === null || beforePreset !== afterPreset || revision !== presetEditGuard.current.beginSync()) return false;
+      if (beforePreset === null || afterPreset === null) {
+        if (!silent) setStatus('Could not confirm the current preset. Check the connection and sync again.');
+        return false;
+      }
+      if (beforePreset !== afterPreset || revision !== presetEditGuard.current.beginSync()) {
+        if (!silent) setStatus('The preset changed. Syncing the current preset…');
+        scheduleSync(900, { silent: true, full: true });
+        return false;
+      }
       if (clientRef.current !== client || blockOperation.current) return false;
       if (!state) {
         if (!silent) setStatus('Sync failed: no response');
@@ -2921,7 +2997,7 @@ function EditorApp() {
     const ratio = Math.min(usage / STANDARD_DSP_CAP, 1);
     const dspColor = usage > STANDARD_DSP_CAP ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
     const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
-    const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex;
+    const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex && !previewMode && !blockBusy && !focusBusy && !presetSaving && !presetCreating;
     const phoneSwitcher = !dockEditor && !linearControls;
     return (
       <View style={[styles.pathHeader, linearControls && styles.pathHeaderStacked]}>
@@ -2954,9 +3030,9 @@ function EditorApp() {
             onPress={() => { void handleHistory(direction); }}>
             <Text style={[styles.pathActionText, (previewMode || blockBusy) && styles.pathActionTextDisabled]}>{direction === 'undo' ? 'Undo' : 'Redo'}</Text>
           </Pressable>)}
-          {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied</Text>}
-          <Pressable accessibilityLabel={`Copy path ${pathNum}`} style={styles.pathActionButton} onPress={() => { void handleCopyPath(pathNum); }}>
-            <Text style={styles.pathActionText}>Copy</Text>
+          {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied · select Path {pathNum === 1 ? 2 : 1}</Text>}
+          <Pressable accessibilityLabel={`Copy path ${pathNum}`} disabled={previewMode || blockBusy || focusBusy || presetSaving || presetCreating} style={styles.pathActionButton} onPress={() => { void handleCopyPath(pathNum); }}>
+            <Text style={[styles.pathActionText, previewMode && styles.pathActionTextDisabled]}>Copy path</Text>
           </Pressable>
           <Pressable
             accessibilityLabel={`Paste copied path into path ${pathNum}`}
@@ -2965,7 +3041,7 @@ function EditorApp() {
             onPress={() => { void handlePastePath(pathNum); }}
           >
             <Text style={[styles.pathActionText, !canPasteClipboard && styles.pathActionTextDisabled]}>
-              {pathClipboard ? `Paste Path ${pathClipboard.sourcePath + 1}` : 'Paste'}
+              {pathClipboard ? `Paste Path ${pathClipboard.sourcePath + 1} here` : 'Paste here'}
             </Text>
           </Pressable>
         </View>
@@ -4784,6 +4860,11 @@ function EditorApp() {
           style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openMove(blockEditorSlot)}>
           <Text style={styles.toolButtonText}>Move</Text>
         </Pressable>}
+        {modelLookup.has(activeBlock.id) && !isRoutingModel(activeBlock.id) && <Pressable accessibilityLabel={`Copy ${displayName} to another position`}
+          disabled={previewMode || focusBusy || blockBusy || presetSaving || presetCreating}
+          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => { void openBlockCopy(blockEditorSlot); }}>
+          <Text style={styles.toolButtonText}>Copy to…</Text>
+        </Pressable>}
         <Pressable accessibilityLabel={`Replace ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
           style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
           onPress={() => {
@@ -5484,6 +5565,9 @@ function EditorApp() {
           destinations={moveDestinations} busy={blockBusy} onMove={destination => { void handleMoveTo(destination); }}
           onClose={() => { if (!blockOperation.current) setMoveSource(null); }} />
 
+        <MoveBlockSheet action="copy" name={blockCopy?.copy.name ?? null} destinations={copyDestinations} busy={blockBusy}
+          onMove={destination => { void handleCopyBlockTo(destination); }} onClose={() => { if (!blockOperation.current) setBlockCopy(null); }} />
+
         {/* ── Bottom Sheet: Slot Actions ───────────────────────── */}
         <BottomSheet
           visible={slotMenuOpen}
@@ -5498,6 +5582,11 @@ function EditorApp() {
           <View style={styles.sheetActions}>
             {slotMenuTarget && grid[slotMenuTarget.path]?.[slotMenuTarget.block] && modelLookup.has(grid[slotMenuTarget.path][slotMenuTarget.block]!.id) &&
               <Pressable style={[styles.actionButton, styles.actionButtonGhost]} onPress={() => openMove(slotMenuTarget)}><Text style={styles.actionButtonText}>Move to another position</Text></Pressable>}
+            {slotMenuTarget && grid[slotMenuTarget.path]?.[slotMenuTarget.block] && !isRoutingModel(grid[slotMenuTarget.path][slotMenuTarget.block]!.id) &&
+              <Pressable disabled={previewMode || blockBusy || focusBusy || presetSaving || presetCreating}
+                style={[styles.actionButton, styles.actionButtonGhost]} onPress={() => { void openBlockCopy(slotMenuTarget); }}>
+                <Text style={styles.actionButtonText}>Copy to another position…</Text>
+              </Pressable>}
             <Pressable
               style={[styles.actionButton, styles.actionButtonPrimary]}
               onPress={() => {
@@ -6404,12 +6493,15 @@ const styles = StyleSheet.create({
   dspFill: { height: '100%', borderRadius: 3 },
   pathActionRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    maxWidth: '100%',
     gap: 6,
     marginLeft: 'auto',
   },
   pathActionButton: {
-    minHeight: 36,
+    minHeight: 44,
     paddingHorizontal: 12,
     borderRadius: 8,
     justifyContent: 'center',
@@ -6417,7 +6509,7 @@ const styles = StyleSheet.create({
   pathActionText: {
     color: COLORS.text,
     ...FONT.semibold,
-    fontSize: 14,
+    fontSize: 15,
   },
   pathActionTextDisabled: {
     color: COLORS.muted,

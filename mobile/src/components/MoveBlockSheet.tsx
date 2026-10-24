@@ -6,14 +6,16 @@ import type { BlockSlot, PathIndex } from '../types/signalFlow';
 import { BottomSheet } from './BottomSheet';
 
 export interface MoveDestination { slot: BlockSlot; reason: string | null; }
-export function MoveBlockSheet({ name, destinations, busy, onMove, onClose, routing = false }: {
+export function MoveBlockSheet({ name, destinations, busy, onMove, onClose, routing = false, action = 'move' }: {
   name: string | null; destinations: MoveDestination[]; busy: boolean;
   routing?: boolean;
+  action?: 'move' | 'copy';
   onMove: (slot: BlockSlot) => void; onClose: () => void;
 }) {
-  return <BottomSheet visible={name !== null} title={`Move ${name ?? 'block'}`} subtitle="Choose an empty position" closeDisabled={busy} onClose={onClose}>
+  const verb = action === 'copy' ? 'Copy' : 'Move';
+  return <BottomSheet visible={name !== null} title={`${verb} ${name ?? 'block'}`} subtitle="Choose an empty position" closeDisabled={busy} onClose={onClose}>
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-      <Text style={styles.hint}>{routing ? 'Moving a split or merge also moves its connection to row B. Its parameter settings stay the same.' : 'The block keeps its settings and assignments. Add a split first to move it onto a new branch.'}</Text>
+      <Text style={styles.hint}>{action === 'copy' ? 'Copies current settings and bypass state. Snapshot and controller assignments are not copied. The original block stays in place. Add a split first to copy onto a new branch.' : routing ? 'Moving a split or merge also moves its connection to row B. Its parameter settings stay the same.' : 'The block keeps its settings and assignments. Add a split first to move it onto a new branch.'}</Text>
       {([0, 1, 2, 3] as PathIndex[]).map(row => {
         const choices = destinations.filter(destination => destination.slot.path === row);
         if (!choices.length) return null;
@@ -23,7 +25,7 @@ export function MoveBlockSheet({ name, destinations, busy, onMove, onClose, rout
           {!!reason && <Text style={styles.hint}>{reason}</Text>}
           <View style={styles.positions}>
             {choices.map(({ slot, reason }) => <Action key={slot.block} disabled={busy || !!reason}
-              accessibilityLabel={`Move to ${['1A', '1B', '2A', '2B'][row]}, position ${slot.block + 1}${reason ? `. ${reason}` : ''}`}
+              accessibilityLabel={`${verb} to ${['1A', '1B', '2A', '2B'][row]}, position ${slot.block + 1}${reason ? `. ${reason}` : ''}`}
               onPress={() => onMove(slot)} style={[styles.position, !!reason && styles.disabled]}>
               <Text style={styles.text}>{slot.block + 1}</Text>
             </Action>)}

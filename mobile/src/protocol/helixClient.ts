@@ -7,7 +7,9 @@ import { applyFocusChanges, type FocusTarget } from './focusSession';
 import type { FocusChange } from '../utils/focus';
 import blankPreset from '../data/blankPreset.json';
 import blockCatalog from '../data/blockTypes.json';
-import { clipboardParameterType, copiedValueMatches, validatePathPaste } from './pathPaste';
+import { capturePathSettings, pastePathSettings } from './pathCopy';
+import { captureBlockSettings, copyBlockSettings, type BlockCopyTransport, type BlockSettingsCopy } from './blockCopy';
+import { confirmCopyPreset } from './copyOperation';
 import { parameterValueCommand } from './parameterCommand';
 import { confirmedSongId, type SongIngestion } from './songImport';
 import { resolveShowcaseSongs, requireShowcaseAcknowledgement, SONG_LIBRARY_ID, songSelectionCommand, songTransportCommand, type ShowcaseTransportAction } from './showcase';
@@ -16,7 +18,7 @@ import { Buffer } from 'buffer';
 import { decode as decodeMsgpack, encode as encodeMsgpack } from '@msgpack/msgpack';
 import { buildOsc } from './osc';
 import { ZmtpSocket, zmtpHandshake, type NetworkInterfacePreference } from './zmtp';
-import { coerceHelixBoolean, extractSnapshots, findFlows, hasFlowState } from '../utils/helixState';
+import { extractSnapshots, hasFlowState } from '../utils/helixState';
 import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } from '../utils/matrixMixer';
 import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
 
@@ -61,9 +63,7 @@ export type HelixEvent = {
   libraryOperation?: LibraryOperation | null;
 };
 
-const ROUTING_MODEL_IDS = new Set([474, 475, 476, 477, 478]);
 const SPLIT_MODEL_IDS = new Set([474, 475, 476, 477]);
-const JOIN_MODEL_IDS = new Set([478]);
 
 export class HelixClient {
   readonly tempo = new TempoController(this);
@@ -966,90 +966,46 @@ export class HelixClient {
     throw new Error('decode failed');
   }
 
-  async capturePath(path: number) {
+  async capturePath(path: number, expectedPresetId: number) {
+    await confirmCopyPreset(() => this.getActivePresetContentId(), expectedPresetId);
     const state = await this.getEditBufferState();
-    return extractPathClipboard(state, path);
+    await confirmCopyPreset(() => this.getActivePresetContentId(), expectedPresetId);
+    return capturePathSettings(state, path);
+  }
+
+  private copyTransport(): BlockCopyTransport {
+    return {
+      activeId: () => this.getActivePresetContentId(), state: () => this.getEditBufferState(),
+      autoCab: () => this.getAutoCabEnabled(),
+      setAutoCab: enabled => this.setPropertyWait('global.modelselect.addcabblock', enabled ? 1 : 0, 'i'),
+      model: (flow, position, modelId) => this.setModelWait(flow, position, modelId, 0),
+      enabled: (flow, position, enabled) => this.setBlockEnableWait(flow, position, enabled),
+      parameter: (flow, position, paramId, value, type, harness) => harness
+        ? this.setHarnessParamValueWait(flow, position, paramId, value, -1, type)
+        : this.setParamValueWait(flow, position, paramId, value, 0, -1, type),
+    };
+  }
+
+  async captureBlock(target: { presetId: number; flow: number; position: number; modelId: number; instanceId?: number }) {
+    await confirmCopyPreset(() => this.getActivePresetContentId(), target.presetId);
+    const state = await this.getEditBufferState();
+    await confirmCopyPreset(() => this.getActivePresetContentId(), target.presetId);
+    return captureBlockSettings(state, target);
+  }
+
+  async copyBlock(copy: BlockSettingsCopy, target: { presetId: number; flow: number; position: number; dspLimit?: number }) {
+    return copyBlockSettings(this.copyTransport(), copy, target);
   }
 
   async pastePathClipboard(clipboard: HelixPathClipboard, targetPath: number, expectedPresetId: number, dspLimit = 66) {
-    if (!clipboard) {
-      throw new Error('No copied path is available');
-    }
-    if (clipboard.sourcePath === targetPath) {
-      throw new Error('Source and target paths must differ');
-    }
-    const state = await this.getEditBufferState();
-    const checkPreset = async () => {
-      if (!Number.isInteger(expectedPresetId) || expectedPresetId <= 0 || await this.getActivePresetContentId() !== expectedPresetId) throw new Error('The preset changed. Sync before pasting a path.');
-    };
-    await checkPreset();
-    validatePathPaste(clipboard, state, targetPath, dspLimit);
-    const occupiedTargetPositions = extractPathClipboard(state, targetPath).entries
-      .map((entry) => entry.position)
-      .filter((position) => CLEARABLE_FLOW_POSITIONS.includes(position));
-    const autoCab = await this.getAutoCabEnabled();
-    if (autoCab === null) throw new Error('Could not read Auto-cab. Sync before pasting a path.');
-    try {
-      if (autoCab) await this.setPropertyWait('global.modelselect.addcabblock', 0, 'i');
-      await checkPreset();
-      if (occupiedTargetPositions.length) {
-        for (const position of occupiedTargetPositions) { await checkPreset(); await this.clearBlock(targetPath, position); }
-      }
-      for (const entry of clipboard.entries) {
-        await checkPreset();
-        await this.setModelWait(targetPath, entry.position, entry.modelId, 0);
-      }
-      for (const entry of clipboard.entries) {
-        await checkPreset();
-        if (typeof entry.linkFlow !== 'number' || typeof entry.linkPosition !== 'number') continue;
-        const mappedLinkFlow = entry.linkFlow === clipboard.sourcePath ? targetPath : entry.linkFlow;
-        if (SPLIT_MODEL_IDS.has(entry.modelId)) {
-          await this.setSplitDestination(targetPath, entry.position, mappedLinkFlow, entry.linkPosition);
-        } else if (JOIN_MODEL_IDS.has(entry.modelId)) {
-          await this.setJoinOrigin(targetPath, entry.position, mappedLinkFlow, entry.linkPosition);
-        }
-      }
-      const defaults = await this.getEditBufferState();
-      for (const entry of clipboard.entries) {
-        await checkPreset();
-        const current = resolveFlowBlock(getFlow(defaults, targetPath), entry.position).block;
-        if (CLEARABLE_FLOW_POSITIONS.includes(entry.position) && coerceHelixBoolean(current?.enbl, true) !== entry.enabled) await this.setBlockEnableWait(targetPath, entry.position, entry.enabled);
-        for (const param of entry.params) {
-          if (copiedValueMatches(current?.mdls?.[0]?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value)) continue;
-          await checkPreset();
-          const valueType = clipboardParameterType(entry.modelId, param.paramId, param.value);
-          await this.setParamValueWait(targetPath, entry.position, param.paramId, param.value, 0, -1, valueType);
-        }
-        for (const param of entry.harnessParams ?? []) {
-          if (copiedValueMatches(current?.hrns?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value)) continue;
-          await checkPreset();
-          await this.setHarnessParamValueWait(targetPath, entry.position, param.paramId, param.value, -1, clipboardParameterType(entry.modelId, param.paramId, param.value, true));
-        }
-      }
-    } catch (error) {
-      if (__DEV__) console.warn('Path paste not confirmed', error);
-      throw error;
-    } finally {
-      if (autoCab) await this.setPropertyWait('global.modelselect.addcabblock', 1, 'i');
-    }
-    await checkPreset();
-    const confirmed = await this.getEditBufferState();
-    await checkPreset();
-    for (const entry of clipboard.entries) {
-      const block = getFlow(confirmed, targetPath);
-      const actual = resolveFlowBlock(block, entry.position).block;
-      if (actual?.mdls?.[0]?.id__ !== entry.modelId || (ROUTING_MODEL_IDS.has(entry.modelId) && actual?.bblk !== entry.linkPosition)) throw new Error('The Stadium has not confirmed the pasted path. Sync and inspect it before saving.');
-      if ((CLEARABLE_FLOW_POSITIONS.includes(entry.position) && coerceHelixBoolean(actual?.enbl, true) !== entry.enabled) ||
-          entry.params.some(param => !copiedValueMatches(actual?.mdls?.[0]?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value)) ||
-          (entry.harnessParams ?? []).some(param => !copiedValueMatches(actual?.hrns?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value))) throw new Error('The Stadium has not confirmed every copied setting. Sync and inspect the path before saving.');
-    }
-    return {
-      sourcePath: clipboard.sourcePath,
-      targetPath,
-      entryCount: clipboard.entries.length,
-      routingEntryCount: clipboard.entries.filter((entry) => ROUTING_MODEL_IDS.has(entry.modelId)).length,
-    };
+    return pastePathSettings({ ...this.copyTransport(),
+      clear: (flow, position) => this.clearBlock(flow, position),
+      link: (flow, position, modelId, linkedFlow, linkedPosition) => SPLIT_MODEL_IDS.has(modelId)
+        ? this.setSplitDestination(flow, position, linkedFlow, linkedPosition)
+        : this.setJoinOrigin(flow, position, linkedFlow, linkedPosition),
+    }, clipboard, targetPath, expectedPresetId, dspLimit);
   }
+
 }
 
 const align4 = (n: number) => n + ((4 - (n % 4)) % 4);
@@ -1235,91 +1191,5 @@ const decodeStateFromBlobs = (vals: Array<any> | null | undefined) => {
   return fallback;
 };
 
-const COPYABLE_FLOW_POSITIONS = [0, ...Array.from({ length: 12 }, (_value, index) => index + 1), 13, ...Array.from({ length: 12 }, (_value, index) => index + 15), 27];
-const CLEARABLE_FLOW_POSITIONS = [...Array.from({ length: 12 }, (_value, index) => index + 1), ...Array.from({ length: 12 }, (_value, index) => index + 15)];
-
-const getFlow = (state: any, flowIndex: number) => {
-  const flows = findFlows(state);
-  if (!flows || flowIndex < 0 || flowIndex >= flows.length) return null;
-  const flow = flows[flowIndex];
-  return flow && typeof flow === 'object' ? flow : null;
-};
-
-const resolveFlowBlock = (flow: any, position: number) => {
-  if (!flow || typeof flow !== 'object') return { blockId: null, block: null };
-  const bmap = Array.isArray(flow.bmap) ? flow.bmap : null;
-  const blks = Array.isArray(flow.blks) ? flow.blks : null;
-
-  if (blks && blks.length > 1 && typeof blks[0] === 'number') {
-    for (let idx = 1; idx < blks.length; idx += 2) {
-      const blockPosition = blks[idx - 1];
-      const block = blks[idx];
-      if (blockPosition !== position || !block || typeof block !== 'object') continue;
-      if (bmap && position >= 0 && position < bmap.length && typeof bmap[position] === 'number') {
-        return { blockId: bmap[position], block };
-      }
-      const blockId = Number((block as any).id__);
-      return { blockId: Number.isFinite(blockId) ? blockId : null, block };
-    }
-    return { blockId: null, block: null };
-  }
-
-  if (bmap && position >= 0 && position < bmap.length) {
-    const blockId = bmap[position];
-    if (typeof blockId === 'number') {
-      const block = blks && blockId >= 0 && blockId < blks.length ? blks[blockId] : null;
-      return { blockId, block };
-    }
-  }
-  if (blks && position >= 0 && position < blks.length) {
-    return { blockId: position, block: blks[position] };
-  }
-  return { blockId: null, block: null };
-};
-
-const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard => {
-  const flow = getFlow(state, flowIndex);
-  if (!flow) {
-    return { sourcePath: flowIndex, entries: [] };
-  }
-  const entries: HelixPathClipboardEntry[] = [];
-  COPYABLE_FLOW_POSITIONS.forEach((position) => {
-    const { blockId: _blockId, block } = resolveFlowBlock(flow, position);
-    if (!block || typeof block !== 'object') return;
-    const models = Array.isArray((block as any).mdls) ? (block as any).mdls : [];
-    if (models.length > 1) throw new Error('This path has a block with multiple cab models. Copy it in the desktop editor to keep both models.');
-    const model = models[0];
-    if (!model || typeof model !== 'object') return;
-    const modelId = Number((model as any).id__);
-    if (!Number.isFinite(modelId)) return;
-    const params = Array.isArray((model as any).parm)
-      ? (model as any).parm
-          .map((param: any) => {
-            const paramId = Number(param?.pid_);
-            const value = param?.valu;
-            if (!Number.isFinite(paramId)) return null;
-            if (typeof value !== 'number' && typeof value !== 'boolean') return null;
-            return { paramId, value };
-          })
-          .filter((item: any): item is { paramId: number; value: number | boolean } => item !== null)
-      : [];
-    entries.push({
-      position,
-      modelId,
-      enabled: coerceHelixBoolean((block as any).enbl, true),
-      params,
-      harnessParams: Array.isArray((block as any).hrns?.parm) ? (block as any).hrns.parm
-        .filter((param: any) => Number.isInteger(param.pid_) && (typeof param.valu === 'number' || typeof param.valu === 'boolean'))
-        .map((param: any) => ({ paramId: param.pid_, value: param.valu })) : [],
-      ...(Number.isInteger((block as any).bflw) && Number.isInteger((block as any).bblk)
-        ? {
-            linkFlow: Number((block as any).bflw),
-            linkPosition: Number((block as any).bblk),
-          }
-        : {}),
-    });
-  });
-  return { sourcePath: flowIndex, entries };
-};
 
 const buildRequestKey = (addr: string, cmdId: number) => `${addr}:${cmdId}`;

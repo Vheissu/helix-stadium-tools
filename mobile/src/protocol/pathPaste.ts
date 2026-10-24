@@ -22,6 +22,7 @@ export function clipboardParameterType(modelId: number, paramId: number, value: 
 
 export function validatePathPaste(clipboard: HelixPathClipboard, state: unknown, target: number, dspLimit: number) {
   if (![0, 1].includes(target) || target === clipboard.sourcePath) throw new Error('Choose the other primary path.');
+  if (![66, 82].includes(dspLimit)) throw new Error('Choose a supported processing budget.');
   const grid: SignalFlowGrid = Array.from({ length: 4 }, () => Array(12).fill(null));
   // Keep the other path when checking preset-wide limits such as one looper.
   for (let row = 0; row < 4; row++) {
@@ -47,7 +48,7 @@ export function validatePathPaste(clipboard: HelixPathClipboard, state: unknown,
     const reason = blockLimitReason(grid, slot, model);
     if (reason) throw new Error(reason);
     grid[slot.path][slot.block] = { id: model.id, name: model.name, kind: model.kind, usage: model.usage };
-    usage += model.usage ?? 0;
+    usage += model.usage ?? Infinity;
   }
   if (usage > dspLimit) throw new Error('There is not enough processing capacity for this copied path.');
 }

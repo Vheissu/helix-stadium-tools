@@ -36,11 +36,27 @@ Undo and Redo act on the entire preset. A multi-position drag is one undoable
 operation. The device's own limitation still applies: undoing a removed block
 does not necessarily restore its bypass/stomp/controller assignments.
 
-Path paste requires confirmation, checks the destination's routing and resource
-limits, and restores Auto-cab after use. It copies current settings and routing;
-it does not claim to copy snapshot/controller assignments. Paths containing a
-block with multiple cab models are rejected before clearing anything. Use the
-desktop editor for those copies. A failed paste requires inspection before saving.
+## Copying blocks and paths
+
+Open an amp or effect and choose **Copy to…**, then an empty position on the same
+row, an existing branch or the other primary path. The source stays in place.
+This copies current parameters, harness settings and bypass state. Snapshot and
+controller assignments are not duplicated; the destination sheet explains that
+before the copy starts. Use **Move** to preserve a block's assignments while
+relocating it. Split and merge routing is copied through the whole-path action.
+
+To copy a whole primary path, tap **Copy path**, select the other Path tab, then
+**Paste Path 1 here** (or **Paste Path 2 here**). Path paste requires confirmation,
+checks the destination's routing and resource limits, and copies both A and B
+inputs/outputs, including an absent B endpoint as None. It copies current settings
+and routing; it does not copy snapshot/controller assignments.
+
+Blocks with multiple cab models, IRs and Clones are rejected during capture so
+their extra models or file references cannot be silently lost. Use the desktop
+editor for those copies. Auto-Cab is suspended while adding copied blocks and
+restored afterwards, with a retry and readback. If restoration cannot be confirmed,
+the app reports it separately from the copy result. A copy failure reports whether
+any block writes had begun; inspect a partially updated destination before saving.
 
 ## Verified public protocol operations
 
@@ -79,6 +95,16 @@ and Undo restored them. A fresh app session pasted the dual-amp path successfull
 readback matched all models, settings, bypass states and branch connections.
 The original preset and snapshot were restored after testing, and the spare
 preset's saved signal flow was unchanged.
+
+The individual-block copy action, row-B input copying and Auto-Cab recovery changes
+were implemented after that device test. All 189 mobile tests, typechecking and
+iOS/Android bundle exports pass; lint has no errors and two existing warnings.
+Claude's follow-up review found no remaining medium/high issues. Its final low
+finding is covered by a new readback test for an ignored B-endpoint reset.
+The automated checks are complete;
+simulator and hardware verification remains pending until the owner is home.
+The existing iOS 11 and Android 12 artifacts predate these changes and must not be
+submitted as the completed copy-feature release. Rebuild after device verification.
 
 Automated tests cover acknowledgements, visible versus internal block IDs,
 stale presets, stale move sources, topology, readback failures, native move plans,

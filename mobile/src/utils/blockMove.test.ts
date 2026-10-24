@@ -51,3 +51,21 @@ test('drags stay between routing nodes and inside the visible positions', () => 
   assert.equal(dropRange(row, 8, fixed), null);
   assert.deepEqual(dropRange(['amp', null, 'reverb', null], 2, fixed), [0, 3]);
 });
+
+test('parallel branch positions remain available before the first block', async () => {
+  const { visibleBlockIndices } = await import('./blockMove');
+  const empty = Array(12).fill(null);
+  assert.deepEqual(visibleBlockIndices(empty, [3, 4, 5, 6]), [3, 4, 5, 6]);
+  empty[4] = 'Amp';
+  assert.equal(reorderPathBlocks(empty, 4, 2, [3, 4, 5, 6]), null);
+  assert.equal(reorderPathBlocks(empty, 4, 6, [3, 4, 5, 6])?.[6], 'Amp');
+});
+
+test('move sheets retain the selected instance even when another identical model takes its slot', async () => {
+  const { matchesMoveSource } = await import('./blockMove');
+  const source = { modelId: 536, instanceId: 5 };
+  assert.equal(matchesMoveSource({ id: 536, instanceId: 5 }, source), true);
+  assert.equal(matchesMoveSource({ id: 536, instanceId: 6 }, source), false);
+  assert.equal(matchesMoveSource({ id: 594, instanceId: 5 }, source), false);
+  assert.equal(matchesMoveSource(null, source), false);
+});

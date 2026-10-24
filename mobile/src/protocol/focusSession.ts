@@ -1,4 +1,4 @@
-import { findFlows } from '../utils/helixState';
+import { readBlockAt } from './blockCommands';
 import type { FocusChange, FocusValue } from '../utils/focus';
 
 export interface FocusTarget {
@@ -11,9 +11,7 @@ export interface FocusTransport {
 }
 
 export function readFocusValues(state: unknown, target: FocusTarget): Record<number, FocusValue> {
-  const flow = findFlows(state)?.[target.flow] as { blks?: Array<unknown> } | undefined;
-  const block = flow?.blks?.find(item => !!item && typeof item === 'object' && (item as { id__?: number }).id__ === target.blockId) as
-    { mdls?: Array<{ id__?: number; parm?: Array<{ pid_: number; valu: FocusValue }> }> } | undefined;
+  const block = readBlockAt(state, target.flow, target.blockId);
   const model = block?.mdls?.[target.slot ?? 0];
   const snapshot = (state as { cg__?: { asnp?: number } })?.cg__?.asnp;
   if (model?.id__ !== target.modelId || snapshot !== target.snapshotIndex) {

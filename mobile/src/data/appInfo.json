@@ -41,6 +41,14 @@
       "body": "Edits change the sound immediately. Tap Save beside the preset name to keep your changes on the Stadium. Save is available above the signal flow and in the block editor, even if no unsaved-change indicator is showing. Wait for Saved to Stadium before disconnecting or loading another preset."
     },
     {
+      "title": "Splits, dual amps and parallel effects",
+      "body": "Tap an empty position on row A, choose Split / Merge, then Split Y. Add one amp to each row and add a Merge Mixer later on row A to bring them together. Tap the split to choose Y, A/B, Crossover or Dynamic, and set where the branch starts. Tap the merge to set its connection, levels, pan and polarity. Each primary path shares its processing budget and two-amp limit across rows A and B."
+    },
+    {
+      "title": "Move blocks and undo edits",
+      "body": "Open a block and tap Move to choose an empty position on the same row or another path. The block keeps its settings and assignments. Moving a split or merge also moves its connection to row B. Drag effects within a row to reorder them. Undo and Redo act on the whole preset, including edits made on the Stadium. As in the desktop editor, Undo after removing a block may not restore its footswitch or controller assignments."
+    },
+    {
       "title": "DSP numbers beside effects",
       "body": "DSP is the processing capacity used by amps and effects. Numbers beside models and path meters are estimates from the model catalogue, not live CPU percentages. Larger numbers use more of the path's budget. Lower numbers leave room for more effects. Bypassing a block does not free its capacity. Tap a path's DSP estimate for an explanation."
     },

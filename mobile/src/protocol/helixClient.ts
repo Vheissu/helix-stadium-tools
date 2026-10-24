@@ -1,10 +1,13 @@
 import { TempoController } from './tempo';
+import { changeRoutingLink, moveBlockAndConfirm, reorderBlockAndConfirm, requireBlockAcknowledgement } from './blockCommands';
 import { buildPropertyBlob } from './propertyBlob';
 import { presetSaveCommand, presetStorageId, requireSaveAcknowledgement, savePresetAndConfirm } from './presetSave';
 import { createEmptyPreset, createdPresetId, presetCreationCommand, snapshotMetadataChanged, type UserPresetSlot } from './presetCreation';
 import { applyFocusChanges, type FocusTarget } from './focusSession';
 import type { FocusChange } from '../utils/focus';
 import blankPreset from '../data/blankPreset.json';
+import blockCatalog from '../data/blockTypes.json';
+import { clipboardParameterType, copiedValueMatches, validatePathPaste } from './pathPaste';
 import { parameterValueCommand } from './parameterCommand';
 import { confirmedSongId, type SongIngestion } from './songImport';
 import { resolveShowcaseSongs, requireShowcaseAcknowledgement, SONG_LIBRARY_ID, songSelectionCommand, songTransportCommand, type ShowcaseTransportAction } from './showcase';
@@ -34,6 +37,7 @@ export type HelixPathClipboardEntry = {
   modelId: number;
   enabled: boolean;
   params: Array<{ paramId: number; value: number | boolean }>;
+  harnessParams?: Array<{ paramId: number; value: number | boolean }>;
   linkFlow?: number;
   linkPosition?: number;
 };
@@ -467,7 +471,44 @@ export class HelixClient {
   }
 
   async clearBlock(flow: number, position: number) {
-    return await this.request('/clrBlock', 'ii', [flow, position], '/status', 2500);
+    const values = await this.sendAndWaitStatusCode('/clrBlock', 'ii', [flow, position], 2500);
+    requireBlockAcknowledgement(values);
+    return values;
+  }
+
+  async updateRoutingLink(target: { presetId: number; flow: number; position: number; modelId: number; linkedPosition: number; instanceId?: number }) {
+    return changeRoutingLink({
+      activeId: () => this.getActivePresetContentId(),
+      state: () => this.getEditBufferState(),
+      send: (address, types, args) => this.sendAndWaitStatusCode(address, types, args),
+    }, target);
+  }
+
+  async moveBlock(target: { presetId: number; fromFlow: number; fromPosition: number; toFlow: number; toPosition: number; modelId: number; instanceId?: number; dspLimit?: number }) {
+    return moveBlockAndConfirm({
+      activeId: () => this.getActivePresetContentId(),
+      state: () => this.getEditBufferState(),
+      send: (address, types, args) => this.sendAndWaitStatusCode(address, types, args),
+    }, target);
+  }
+
+  async reorderBlock(target: { presetId: number; flow: number; from: number; to: number; modelId: number; instanceId?: number }) {
+    return reorderBlockAndConfirm({
+      activeId: () => this.getActivePresetContentId(),
+      state: () => this.getEditBufferState(),
+      send: (address, types, args) => this.sendAndWaitStatusCode(address, types, args),
+      agenda: commands => this.request('/doAgenda', 'b', [Buffer.from(encodeMsgpack(commands))], '/status', 4000),
+    }, target, new Set(Object.values(blockCatalog).flatMap(group => group.models.map(model => model.id))));
+  }
+
+  async undo() {
+    requireBlockAcknowledgement(await this.sendAndWaitStatusCode('/undo', '', []));
+    return this.getEditBufferState();
+  }
+
+  async redo() {
+    requireBlockAcknowledgement(await this.sendAndWaitStatusCode('/redo', '', []));
+    return this.getEditBufferState();
   }
 
   async setSplitDestination(flow: number, position: number, linkedFlow: number, linkedPosition: number) {
@@ -930,7 +971,7 @@ export class HelixClient {
     return extractPathClipboard(state, path);
   }
 
-  async pastePathClipboard(clipboard: HelixPathClipboard, targetPath: number) {
+  async pastePathClipboard(clipboard: HelixPathClipboard, targetPath: number, expectedPresetId: number, dspLimit = 66) {
     if (!clipboard) {
       throw new Error('No copied path is available');
     }
@@ -938,21 +979,28 @@ export class HelixClient {
       throw new Error('Source and target paths must differ');
     }
     const state = await this.getEditBufferState();
+    const checkPreset = async () => {
+      if (!Number.isInteger(expectedPresetId) || expectedPresetId <= 0 || await this.getActivePresetContentId() !== expectedPresetId) throw new Error('The preset changed. Sync before pasting a path.');
+    };
+    await checkPreset();
+    validatePathPaste(clipboard, state, targetPath, dspLimit);
     const occupiedTargetPositions = extractPathClipboard(state, targetPath).entries
       .map((entry) => entry.position)
       .filter((position) => CLEARABLE_FLOW_POSITIONS.includes(position));
     const autoCab = await this.getAutoCabEnabled();
-    if (autoCab) {
-      this.setAutoCab(false);
-    }
+    if (autoCab === null) throw new Error('Could not read Auto-cab. Sync before pasting a path.');
     try {
+      if (autoCab) await this.setPropertyWait('global.modelselect.addcabblock', 0, 'i');
+      await checkPreset();
       if (occupiedTargetPositions.length) {
-        await this.clearBlocks(targetPath, occupiedTargetPositions);
+        for (const position of occupiedTargetPositions) { await checkPreset(); await this.clearBlock(targetPath, position); }
       }
       for (const entry of clipboard.entries) {
+        await checkPreset();
         await this.setModelWait(targetPath, entry.position, entry.modelId, 0);
       }
       for (const entry of clipboard.entries) {
+        await checkPreset();
         if (typeof entry.linkFlow !== 'number' || typeof entry.linkPosition !== 'number') continue;
         const mappedLinkFlow = entry.linkFlow === clipboard.sourcePath ? targetPath : entry.linkFlow;
         if (SPLIT_MODEL_IDS.has(entry.modelId)) {
@@ -961,18 +1009,39 @@ export class HelixClient {
           await this.setJoinOrigin(targetPath, entry.position, mappedLinkFlow, entry.linkPosition);
         }
       }
+      const defaults = await this.getEditBufferState();
       for (const entry of clipboard.entries) {
-        await this.setBlockEnableWait(targetPath, entry.position, entry.enabled);
+        await checkPreset();
+        const current = resolveFlowBlock(getFlow(defaults, targetPath), entry.position).block;
+        if (CLEARABLE_FLOW_POSITIONS.includes(entry.position) && coerceHelixBoolean(current?.enbl, true) !== entry.enabled) await this.setBlockEnableWait(targetPath, entry.position, entry.enabled);
         for (const param of entry.params) {
-          const valueType: 'i' | 'f' | 'b' =
-            typeof param.value === 'boolean' ? 'b' : Number.isInteger(param.value) ? 'i' : 'f';
+          if (copiedValueMatches(current?.mdls?.[0]?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value)) continue;
+          await checkPreset();
+          const valueType = clipboardParameterType(entry.modelId, param.paramId, param.value);
           await this.setParamValueWait(targetPath, entry.position, param.paramId, param.value, 0, -1, valueType);
         }
+        for (const param of entry.harnessParams ?? []) {
+          if (copiedValueMatches(current?.hrns?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value)) continue;
+          await checkPreset();
+          await this.setHarnessParamValueWait(targetPath, entry.position, param.paramId, param.value, -1, clipboardParameterType(entry.modelId, param.paramId, param.value, true));
+        }
       }
+    } catch (error) {
+      if (__DEV__) console.warn('Path paste not confirmed', error);
+      throw error;
     } finally {
-      if (autoCab) {
-        this.setAutoCab(true);
-      }
+      if (autoCab) await this.setPropertyWait('global.modelselect.addcabblock', 1, 'i');
+    }
+    await checkPreset();
+    const confirmed = await this.getEditBufferState();
+    await checkPreset();
+    for (const entry of clipboard.entries) {
+      const block = getFlow(confirmed, targetPath);
+      const actual = resolveFlowBlock(block, entry.position).block;
+      if (actual?.mdls?.[0]?.id__ !== entry.modelId || (ROUTING_MODEL_IDS.has(entry.modelId) && actual?.bblk !== entry.linkPosition)) throw new Error('The Stadium has not confirmed the pasted path. Sync and inspect it before saving.');
+      if ((CLEARABLE_FLOW_POSITIONS.includes(entry.position) && coerceHelixBoolean(actual?.enbl, true) !== entry.enabled) ||
+          entry.params.some(param => !copiedValueMatches(actual?.mdls?.[0]?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value)) ||
+          (entry.harnessParams ?? []).some(param => !copiedValueMatches(actual?.hrns?.parm?.find((item: any) => item.pid_ === param.paramId)?.valu, param.value))) throw new Error('The Stadium has not confirmed every copied setting. Sync and inspect the path before saving.');
     }
     return {
       sourcePath: clipboard.sourcePath,
@@ -1218,6 +1287,7 @@ const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard
     const { blockId: _blockId, block } = resolveFlowBlock(flow, position);
     if (!block || typeof block !== 'object') return;
     const models = Array.isArray((block as any).mdls) ? (block as any).mdls : [];
+    if (models.length > 1) throw new Error('This path has a block with multiple cab models. Copy it in the desktop editor to keep both models.');
     const model = models[0];
     if (!model || typeof model !== 'object') return;
     const modelId = Number((model as any).id__);
@@ -1238,6 +1308,9 @@ const extractPathClipboard = (state: any, flowIndex: number): HelixPathClipboard
       modelId,
       enabled: coerceHelixBoolean((block as any).enbl, true),
       params,
+      harnessParams: Array.isArray((block as any).hrns?.parm) ? (block as any).hrns.parm
+        .filter((param: any) => Number.isInteger(param.pid_) && (typeof param.valu === 'number' || typeof param.valu === 'boolean'))
+        .map((param: any) => ({ paramId: param.pid_, value: param.valu })) : [],
       ...(Number.isInteger((block as any).bflw) && Number.isInteger((block as any).bblk)
         ? {
             linkFlow: Number((block as any).bflw),

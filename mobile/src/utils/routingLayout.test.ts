@@ -43,3 +43,10 @@ test('links outside row B fall back to the node column', () => {
   assert.equal(isMergeBlock(block('routing', 'Dynamic')), false);
   assert.equal(isMergeBlock(block('reverb', 'Mixer')), false);
 });
+
+test('row B editable positions follow its actual endpoints rather than the row A node columns', () => {
+  const rowA = row({ 1: block('routing', 'Y', 18), 9: block('routing', 'Mixer', 21) });
+  const segments = computeBranchSegments(rowA, row({}));
+  assert.deepEqual(segments, [{ splitColumn: 1, mergeColumn: 9, from: 3, to: 6 }]);
+  assert.deepEqual([...branchColumns(segments)], [3, 4, 5, 6]);
+});

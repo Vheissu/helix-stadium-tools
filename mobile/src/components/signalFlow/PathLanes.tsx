@@ -8,7 +8,7 @@ import { BlockIcon } from '../../icons/BlockIcons';
 import { BLOCK_IMAGES } from '../../icons/CategoryImages';
 import { COLORS, FONT, getBlockAppearance } from '../../theme/colors';
 import { dropRange, movedIndex } from '../../utils/blockMove';
-import { branchColumns, computeBranchSegments, isMergeBlock, isRoutingBlock, type BranchSegment } from '../../utils/routingLayout';
+import { branchColumns, computeBranchSegments, isMergeBlock, isRoutingBlock, linkedColumn, type BranchSegment } from '../../utils/routingLayout';
 import type { BlockData, BlockIndex, BlockSlot, IOType, PathIndex } from '../../types/signalFlow';
 
 type RowIO = { input: string | null; output: string | null };
@@ -21,6 +21,8 @@ interface PathLanesProps {
   ioB: RowIO;
   /** Row B has its own input or output block configured. */
   rowBHasIO?: boolean;
+  inputALabel?: string | null;
+  inputBLabel?: string | null;
   selectedSlot: BlockSlot | null;
   onSelectSlot?: (slot: BlockSlot) => void;
   onOpenSlotMenu?: (slot: BlockSlot) => void;
@@ -145,6 +147,8 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
   ioA,
   ioB,
   rowBHasIO = false,
+  inputALabel,
+  inputBLabel,
   selectedSlot,
   onSelectSlot,
   onOpenSlotMenu,
@@ -406,7 +410,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
   const renderBranchWires = (geometry: Geometry, segment: BranchSegment, key: number) => {
     const fullRow = segment.splitColumn === null;
     const left = fullRow ? geometry.padH + geometry.pillW : columnCenter(geometry, segment.from);
-    const right = fullRow || segment.mergeColumn === null
+    const right = segment.mergeColumn === null
       ? geometry.width - geometry.padH - geometry.pillW
       : columnCenter(geometry, segment.to);
     return <View key={`wire-${key}`} style={[styles.wire, { left, width: Math.max(right - left, 2), top: geometry.wireY - 1 }]} />;
@@ -440,7 +444,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
           {connectorColumns.map((column) => (
             <View key={`a-${column}`} style={[styles.connector, { left: columnCenter(geometry, column) - 1, top: geometry.wireY, height: geometry.laneHeight - geometry.wireY }]} />
           ))}
-          {renderPill(rowAIndex, 'input', labelA, usableName(ioA.input) ?? 'Input', geometry, false)}
+          {renderPill(rowAIndex, 'input', labelA, inputALabel ?? usableName(ioA.input) ?? 'Input', geometry, !!inputALabel)}
           {!compact && <View style={{ width: geometry.gap }} />}
           {compact && <View style={{ width: geometry.gap }} />}
           {renderDropTarget(rowAIndex, geometry)}
@@ -455,9 +459,9 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
           <View style={[laneStyle, { height: laneBHeight, paddingHorizontal: geometry.padH, paddingVertical: geometry.padV }]}>
             {segments.map((segment, index) => renderBranchWires(geometry, segment, index))}
             {connectorColumns.map((column) => (
-              <View key={`b-${column}`} style={[styles.connector, { left: columnCenter(geometry, column) - 1, top: 0, height: geometry.wireY }]} />
+              <View key={`b-${column}`} style={[styles.connector, { left: columnCenter(geometry, linkedColumn(rowA[column], column)) - 1, top: 0, height: geometry.wireY }]} />
             ))}
-            {renderPill(rowBIndex, 'input', labelB, segments.some((segment) => segment.splitColumn === null) ? (usableName(ioB.input) ?? 'Input') : 'From split', geometry, true)}
+            {renderPill(rowBIndex, 'input', labelB, inputBLabel ?? (segments.some((segment) => segment.splitColumn === null) ? (usableName(ioB.input) ?? 'Input') : 'From split'), geometry, !!inputBLabel || !segments.some((segment) => segment.splitColumn === null))}
             <View style={{ width: geometry.gap }} />
             {renderDropTarget(rowBIndex, geometry)}
             <View ref={(view) => { trackRefs.current[rowBIndex] = view; }} style={styles.track}>
@@ -473,9 +477,12 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
           </View>
         )}
 
-        {connectorColumns.map((column) => (
-          <View key={`gap-${column}`} style={[styles.connector, { left: columnCenter(geometry, column) - 1, top: geometry.laneHeight, height: compact ? 4 : LANE_GAP }]} />
-        ))}
+        <Svg pointerEvents="none" width={geometry.width} height={compact ? 4 : LANE_GAP}
+          style={{ position: 'absolute', left: 0, top: geometry.laneHeight }}>
+          {connectorColumns.map(column => <Path key={`gap-${column}`}
+            d={`M ${columnCenter(geometry, column)} 0 L ${columnCenter(geometry, linkedColumn(rowA[column], column))} ${compact ? 4 : LANE_GAP}`}
+            stroke={COLORS.wire} strokeWidth={2} fill="none" />)}
+        </Svg>
       </View>
     );
   };

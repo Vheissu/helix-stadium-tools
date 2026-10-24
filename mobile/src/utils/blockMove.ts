@@ -1,17 +1,28 @@
 /** The editor exposes one empty position after the last block, up to 12 slots. */
+export function matchesMoveSource(block: { id: number; instanceId?: number } | null | undefined, source: { modelId: number; instanceId?: number }): boolean {
+  return !!block && block.id === source.modelId && block.instanceId === source.instanceId;
+}
+
 export function visibleBlockCount<T>(blocks: readonly (T | null)[]): number {
   const last = blocks.reduce<number>((result, block, index) => block !== null ? index : result, -1);
   return Math.min(last + 2, blocks.length, 12);
 }
 
 /** Move within a path without replacing the destination or losing empty slots. */
-export function reorderPathBlocks<T>(blocks: readonly (T | null)[], from: number, to: number): (T | null)[] | null {
-  const count = visibleBlockCount(blocks);
+export function reorderPathBlocks<T>(blocks: readonly (T | null)[], from: number, to: number, availablePositions?: readonly number[]): (T | null)[] | null {
+  const count = availablePositions ? blocks.length : visibleBlockCount(blocks);
+  if (availablePositions && !availablePositions.includes(to)) return null;
   if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to < 0 || from >= count || to >= count || blocks[from] === null || from === to) return null;
   const next = [...blocks];
   const [block] = next.splice(from, 1);
   next.splice(to, 0, block);
   return next;
+}
+
+/** An empty parallel branch must expose its actual positions, even before its first block. */
+export function visibleBlockIndices<T>(blocks: readonly (T | null)[], availablePositions?: readonly number[]): number[] {
+  if (!availablePositions) return Array.from({ length: visibleBlockCount(blocks) }, (_, index) => index);
+  return blocks.flatMap((block, index) => block || availablePositions.includes(index) ? [index] : []);
 }
 
 /** Where a position ends up after `reorderPathBlocks(blocks, from, to)`. */

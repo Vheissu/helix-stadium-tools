@@ -35,6 +35,9 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       return () => clearTimeout(timer);
     }
   }, [visible, screenReader]);
+  // Fully release the native modal between openings. Retaining hidden modal
+  // hosts can leave a reopened sheet absent from the iOS accessibility tree.
+  if (!visible) return null;
   const requestClose = () => { if (!closeDisabled) onClose(); };
   return <Modal visible={visible} transparent animationType={reduceMotion ? 'none' : 'slide'} onRequestClose={requestClose}
     onShow={() => { if (screenReader && heading.current) AccessibilityInfo.sendAccessibilityEvent(heading.current, 'focus'); }}>

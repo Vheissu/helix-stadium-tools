@@ -4,13 +4,13 @@ import { announce, useAccessibilityPreferences } from '../../accessibility/Acces
 import { AccessibleText as Text } from '../../accessibility/AccessibleText';
 import { Action } from '../../accessibility/controls';
 import { COLORS } from '../../theme/colors';
-import { visibleBlockCount } from '../../utils/blockMove';
+import { visibleBlockIndices } from '../../utils/blockMove';
 import type { BlockIndex } from '../../types/signalFlow';
 import type { DraggableEffectListProps } from './DraggableEffectList';
 
 type Pickup = { index: number; name: string; signature: string };
 
-export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelectSlot, onOpenSlotMenu, onReorder, onToggleEnabled }: Omit<DraggableEffectListProps, 'onOpenSlotMenu'> & { onOpenSlotMenu?: DraggableEffectListProps['onOpenSlotMenu'] }) {
+export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelectSlot, onOpenSlotMenu, onReorder, onToggleEnabled, availablePositions }: Omit<DraggableEffectListProps, 'onOpenSlotMenu'> & { onOpenSlotMenu?: DraggableEffectListProps['onOpenSlotMenu'] }) {
   const { screenReader } = useAccessibilityPreferences();
   const [pickup, setPickup] = useState<Pickup | null>(null);
   const [moving, setMoving] = useState(false);
@@ -19,12 +19,12 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
   const targets = useRef<(ViewInstance | null)[]>([]);
   const focusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // A changed path invalidates a pending pick-up, including changes from the device.
-  const signature = JSON.stringify(blocks);
+  const signature = JSON.stringify([blocks, availablePositions]);
   const latestSignature = useRef(signature);
   latestSignature.current = signature;
   const picked = pickup?.signature === signature ? pickup : null;
   const path = ['1A', '1B', '2A', '2B'][pathIndex];
-  const count = visibleBlockCount(blocks);
+  const indices = visibleBlockIndices(blocks, availablePositions);
 
   useEffect(() => {
     mounted.current = true;
@@ -52,7 +52,7 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
     focus(picked.index);
   };
   const move = async (from: number, to: number) => {
-    if (busy.current || signature !== latestSignature.current || to < 0 || to >= count || !blocks[from]) return;
+    if (busy.current || signature !== latestSignature.current || !indices.includes(to) || !blocks[from]) return;
     if (from === to) { cancel(); return; }
     busy.current = true;
     setMoving(true);
@@ -77,7 +77,8 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
       <Text style={styles.text}>Moving {picked.name}. Choose a position in path {path}, then activate Drop here. Other blocks shift to make room.</Text>
       <Action disabled={moving} accessibilityLabel={`Cancel moving ${picked.name}`} onPress={cancel}><Text style={styles.text}>Cancel move</Text></Action>
     </View>}
-    {blocks.slice(0, count).map((block, index) => {
+    {indices.map((index) => {
+      const block = blocks[index];
       const slot = { path: pathIndex, block: index as BlockIndex };
       const selected = selectedSlot?.path === pathIndex && selectedSlot.block === index;
       const name = block?.name ?? 'Empty slot';
@@ -103,8 +104,8 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
           {onOpenSlotMenu && <Action disabled={moving} accessibilityLabel={`Options for ${name}, ${location}`} onPress={() => onOpenSlotMenu(slot)}><Text style={styles.text}>Options</Text></Action>}
           <Action disabled={moving} accessibilityLabel={`Pick up ${name}, ${location}`} accessibilityHint="Choose a destination, then activate Drop here."
             onPress={() => { setPickup({ index, name, signature }); announce(`Picked up ${name}. Choose a position in path ${path} and activate Drop here, or Cancel move.`); focus(index); }}><Text style={styles.text}>Pick up</Text></Action>
-          <Action accessibilityLabel={`Move ${name} earlier, ${location}`} disabled={moving || index === 0} onPress={() => { void move(index, index - 1); }}><Text style={styles.text}>Move earlier</Text></Action>
-          <Action accessibilityLabel={`Move ${name} later, ${location}`} disabled={moving || index === count - 1} onPress={() => { void move(index, index + 1); }}><Text style={styles.text}>Move later</Text></Action>
+          <Action accessibilityLabel={`Move ${name} earlier, ${location}`} disabled={moving || !indices.includes(index - 1)} onPress={() => { void move(index, index - 1); }}><Text style={styles.text}>Move earlier</Text></Action>
+          <Action accessibilityLabel={`Move ${name} later, ${location}`} disabled={moving || !indices.includes(index + 1)} onPress={() => { void move(index, index + 1); }}><Text style={styles.text}>Move later</Text></Action>
         </View>
       </View>;
     })}

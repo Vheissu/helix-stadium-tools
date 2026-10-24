@@ -106,6 +106,14 @@ tool must sign it before a device will install it.
 
 ## App notes
 
+- **Split / Merge** adds Y, A/B, Crossover and Dynamic splits and the Merge Mixer.
+  Tap a routing node to change its type or branch connection. For dual amps, add
+  a split, place an amp on each row, and add a merge later on row A.
+- **Move** in the block editor moves a block into an empty position on another
+  row or path. Dragging within a row uses the device's native reordering, keeping
+  block settings and assignments. **Undo / Redo** apply to the whole preset.
+  See [routing and verification notes](../docs/MOBILE_ROUTING.md).
+
 - The connection screen finds Stadiums advertised on your local network. Choose
   a device, then tap Connect. Search again refreshes the list; manual device name
   or IP address entry remains available if your network blocks discovery.
@@ -133,7 +141,8 @@ tool must sign it before a device will install it.
   beneath it; wide tablets use a side rail for navigation. Phones show a
   two-path overview above the selected path's block list and open blocks in a
   full-screen editor. Touch and hold a block in the tablet lanes, then drag to
-  move it within its row; split and merge positions stay fixed.
+  move it within its row. Use **Move** in a block's editor to choose an empty
+  position on another row or path, or to reposition a split or merge.
 - This project only targets native mobile builds; there is no separate web target to maintain.
 
 ## Store builds

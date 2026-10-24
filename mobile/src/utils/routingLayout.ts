@@ -2,7 +2,7 @@
 const ROW_B_FIRST_POSITION = 15;
 const COLUMN_COUNT = 12;
 
-type RoutingCell = { kind: string; name: string; modelName?: string; linkPosition?: number } | null;
+type RoutingCell = { id?: number; kind: string; name: string; modelName?: string; linkPosition?: number } | null;
 
 /** A stretch of row B that runs alongside row A between a split and a merge. */
 export interface BranchSegment {
@@ -19,9 +19,9 @@ export const isRoutingBlock = (block: RoutingCell): boolean => block?.kind === '
 
 /** Mixer nodes close a branch; every other routing model opens one. */
 export const isMergeBlock = (block: RoutingCell): boolean =>
-  isRoutingBlock(block) && /mixer|merge|join/i.test(block?.modelName ?? block?.name ?? '');
+  isRoutingBlock(block) && (block?.id === 478 || /mixer|merge|join/i.test(block?.modelName ?? block?.name ?? ''));
 
-const linkedColumn = (block: RoutingCell, fallback: number) => {
+export const linkedColumn = (block: RoutingCell, fallback: number) => {
   const column = typeof block?.linkPosition === 'number' ? block.linkPosition - ROW_B_FIRST_POSITION : NaN;
   return Number.isInteger(column) && column >= 0 && column < COLUMN_COUNT ? column : fallback;
 };
@@ -48,7 +48,7 @@ export function computeBranchSegments(rowA: readonly RoutingCell[], rowB: readon
     const start = linkedColumn(rowA[splitColumn], splitColumn);
     const mergeColumn = merges.find((column) => column > splitColumn && !usedMerges.has(column)) ?? null;
     if (mergeColumn === null) {
-      segments.push({ splitColumn, mergeColumn: null, from: Math.min(splitColumn, start), to: COLUMN_COUNT - 1 });
+      segments.push({ splitColumn, mergeColumn: null, from: start, to: COLUMN_COUNT - 1 });
       continue;
     }
     usedMerges.add(mergeColumn);
@@ -56,15 +56,21 @@ export function computeBranchSegments(rowA: readonly RoutingCell[], rowB: readon
     segments.push({
       splitColumn,
       mergeColumn,
-      from: Math.min(splitColumn, start, end),
-      to: Math.max(mergeColumn, start, end),
+      from: Math.min(start, end),
+      to: Math.max(start, end),
     });
+  }
+
+  // A merge without a preceding split is fed by row B's independent input.
+  for (const mergeColumn of merges) {
+    if (usedMerges.has(mergeColumn)) continue;
+    segments.push({ splitColumn: null, mergeColumn, from: 0, to: linkedColumn(rowA[mergeColumn], mergeColumn) });
   }
 
   if (!segments.length && (rowBHasIO || rowB.some((block) => block !== null))) {
     segments.push({ splitColumn: null, mergeColumn: null, from: 0, to: COLUMN_COUNT - 1 });
   }
-  return segments;
+  return segments.sort((a, b) => a.from - b.from);
 }
 
 /** Row-B columns that sit on a branch wire, where an empty slot can take a block. */

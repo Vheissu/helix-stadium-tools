@@ -23,6 +23,11 @@ export const formatParamValue = (
     const range = max - min;
     const t = range > 0 ? (numeric - min) / range : 0;
     const displayVal = displayMin + t * (displayMax - displayMin);
+    if (displayMin === -100 && displayMax === 100 && (unit === 'Left' || unit === 'A')) {
+      if (Math.abs(displayVal) < 0.05) return unit === 'A' ? 'Even split' : 'Center';
+      const side = unit === 'A' ? (displayVal < 0 ? 'A' : 'B') : (displayVal < 0 ? 'L' : 'R');
+      return `${side} ${Math.abs(displayVal).toFixed(precision)}`;
+    }
     const formatted = type === 'i' ? Math.round(displayVal).toString() : displayVal.toFixed(precision);
     return unit && unit !== 'unitless' ? `${formatted} ${unit}` : formatted;
   }

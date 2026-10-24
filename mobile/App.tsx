@@ -9,7 +9,15 @@ import { AccessibleText as Text, ScreenHeading } from './src/accessibility/Acces
 import { Action as Pressable, AccessibilitySettings } from './src/accessibility/controls';
 import { AccessibilityProvider, useAccessibilityPreferences, announce } from './src/accessibility/AccessibilityPreferences';
 import { AccessibleParameter } from './src/accessibility/AccessibleParameter';
-import { reorderPathBlocks } from './src/utils/blockMove';
+import { reorderPathBlocks, movedIndex, matchesMoveSource } from './src/utils/blockMove';
+import { branchColumns, computeBranchSegments } from './src/utils/routingLayout';
+import { MoveBlockSheet, type MoveDestination } from './src/components/MoveBlockSheet';
+import { RoutingControls } from './src/components/RoutingControls';
+import { isRoutingModel, isSplitModel, routingInsertReason, routingLinkChoices, routingName, ROUTING_DESCRIPTIONS, SPLIT_MODELS } from './src/utils/routing';
+import { readBlockAt } from './src/protocol/blockCommands';
+import { PresetEditGuard, blockActionMessage } from './src/protocol/presetEditGuard';
+import { blockLimitReason } from './src/utils/blockLimits';
+import { derivedIOReason, ioModelAllowed, hasIndependentIO } from './src/utils/ioRouting';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -324,6 +332,10 @@ function EditorApp() {
   const [slotMenuOpen, setSlotMenuOpen] = useState(false);
   const [slotMenuTarget, setSlotMenuTarget] = useState<BlockSlot | null>(null);
   const [blockEditorOpen, setBlockEditorOpen] = useState(false);
+  const [blockBusy, setBlockBusy] = useState(false);
+  const [moveSource, setMoveSource] = useState<(BlockSlot & { modelId: number; instanceId?: number }) | null>(null);
+  const blockOperation = useRef(false);
+  const presetEditGuard = useRef(new PresetEditGuard());
   const [blockEditorSlot, setBlockEditorSlot] = useState<BlockSlot | null>(null);
   const [grid, setGrid] = useState<SignalFlowGrid>(() =>
     Array.from({ length: 4 }, () => Array.from({ length: 12 }, () => null))
@@ -446,13 +458,13 @@ function EditorApp() {
 
   const hasSplit1 = useMemo(() => {
     const hasBlocks = grid[1]?.some((b) => b !== null) ?? false;
-    const hasIO = (ioGrid[1]?.input?.modelId ?? null) !== null || (ioGrid[1]?.output?.modelId ?? null) !== null;
-    return hasBlocks || hasIO;
+    const hasIO = hasIndependentIO(ioGrid[1]);
+    return hasBlocks || hasIO || grid[0].some(block => block && isRoutingModel(block.id));
   }, [grid, ioGrid]);
   const hasSplit2 = useMemo(() => {
     const hasBlocks = grid[3]?.some((b) => b !== null) ?? false;
-    const hasIO = (ioGrid[3]?.input?.modelId ?? null) !== null || (ioGrid[3]?.output?.modelId ?? null) !== null;
-    return hasBlocks || hasIO;
+    const hasIO = hasIndependentIO(ioGrid[3]);
+    return hasBlocks || hasIO || grid[2].some(block => block && isRoutingModel(block.id));
   }, [grid, ioGrid]);
 
   const rowLabels = ['1A', '1B', '2A', '2B'];
@@ -505,6 +517,7 @@ function EditorApp() {
     return next;
   };
   const blockTypeOrder: BlockTypeKey[] = [
+    'routing',
     'amp',
     'preamp',
     'cab',
@@ -522,23 +535,28 @@ function EditorApp() {
   ];
   const pickerModels = useMemo(() => {
     if (!pickerType) return [];
-    const items = blockCatalog[pickerType].models;
+    const current = grid[targetSlot.path]?.[targetSlot.block];
+    const items = blockCatalog[pickerType].models.filter(model => !current || !isRoutingModel(current.id) || (isRoutingModel(model.id) && isSplitModel(model.id) === isSplitModel(current.id)));
+    if (pickerType === 'routing') {
+      const order: readonly number[] = [...SPLIT_MODELS, 478];
+      items.sort((left, right) => order.indexOf(left.id) - order.indexOf(right.id));
+    }
     if (!pickerQuery.trim()) return items;
     const q = pickerQuery.trim().toLowerCase();
     return items.filter((item) =>
       item.name.toLowerCase().includes(q) || (item.based_on ?? '').toLowerCase().includes(q)
     );
-  }, [pickerType, pickerQuery]);
+  }, [pickerType, pickerQuery, grid, targetSlot]);
   const pickerModelSections = useMemo<ModelSection<BlockModel>[]>(
     () => groupModelsByChannel(pickerModels),
     [pickerModels]
   );
   const ioPickerModels = useMemo(() => {
-    const items = ioPickerType === 'input' ? ioData.inputs.models : ioData.outputs.models;
+    const items = (ioPickerType === 'input' ? ioData.inputs.models : ioData.outputs.models).filter(model => ioModelAllowed(ioPickerRow, ioPickerType, model.id));
     if (!ioPickerQuery.trim()) return items;
     const q = ioPickerQuery.trim().toLowerCase();
     return items.filter((item) => item.name.toLowerCase().includes(q));
-  }, [ioPickerQuery, ioPickerType, ioData]);
+  }, [ioPickerQuery, ioPickerType, ioPickerRow, ioData]);
   const activeIOModel = ioGrid[ioPickerRow]?.[ioPickerType] ?? null;
   const activeIOModelMeta = activeIOModel?.modelId
     ? ioModelLookup.get(activeIOModel.modelId) ?? null
@@ -547,16 +565,23 @@ function EditorApp() {
     ? grid[blockEditorSlot.path]?.[blockEditorSlot.block] ?? null
     : null;
   const activeBlockMeta = activeBlock?.id ? modelLookup.get(activeBlock.id) ?? null : null;
+  useEffect(() => {
+    if (moveSource && !matchesMoveSource(grid[moveSource.path]?.[moveSource.block], moveSource)) {
+      setMoveSource(null);
+      setStatus('The block changed. Choose it again before moving.');
+    }
+  }, [grid, moveSource]);
   const activePresetName = activePresetRef?.name ?? 'None';
   const activePresetStorageId = presetStorageId(activePresetContentId, activePresetRef);
   const isUsefulRealName = (realName?: string | null) =>
     Boolean(realName && realName.trim() && realName.trim().toLowerCase() !== 'line 6 original');
-  const getBlockLabelOverrideKey = (path: number, blockId: number | undefined, modelId: number) =>
-    `${activePresetStorageId ?? 'live'}:${path}:${blockId ?? 'slot'}:${modelId}`;
+  const getBlockLabelOverrideKey = (path: number, blockId: number | undefined, modelId: number, instanceId?: number) =>
+    `${activePresetStorageId ?? 'live'}:${instanceId !== undefined ? `instance-${instanceId}` : `${path}:${blockId ?? 'slot'}`}:${modelId}`;
   const getBlockDisplayName = (block: BlockData | null) => {
     if (!block) return '';
     const customName = block.customName?.trim();
     if (blockLabelMode && customName) return customName;
+    if (isRoutingModel(block.id)) return routingName(block.id);
     if (showRealBlockNames && isUsefulRealName(block.realName)) return block.realName!.trim();
     return block.modelName ?? block.name;
   };
@@ -794,6 +819,15 @@ function EditorApp() {
       return;
     }
     if (key === 'server.active.preset.id') {
+      presetEditGuard.current.invalidate();
+      setBlockEditorOpen(false);
+      setBlockEditorSlot(null);
+      setPickerOpen(false);
+      setSlotMenuOpen(false);
+      setMoveSource(null);
+      setIoPickerOpen(false);
+      setScreen(current => current === 'editor' ? 'main' : current);
+      recentParamEditsRef.current.clear();
       const value = coerceNumber(property?.value);
       if (value !== null) {
         setActivePresetContentId(value);
@@ -860,6 +894,8 @@ function EditorApp() {
   };
 
   const disconnect = () => {
+    presetEditGuard.current.invalidate();
+    setMoveSource(null);
     if (previewMode) {
       setPreviewMode(false);
       setAutoSyncEnabled(true);
@@ -993,11 +1029,25 @@ function EditorApp() {
   }, [activeSnapshotIndex, activePresetContentId]);
 
   const requireClient = () => {
+    if (blockOperation.current) { setStatus('Finishing the last change…'); return null; }
     if (!clientRef.current) {
       setStatus('Not connected');
       return null;
     }
     return clientRef.current;
+  };
+
+  const editLocked = () => {
+    if (blockOperation.current || focusWrites.current > 0 || creationPending.current || presetSaveOperation.current) {
+      setStatus('Finishing the last change…');
+      return true;
+    }
+    if (!previewMode && !presetEditGuard.current.ready(activePresetContentId)) {
+      setStatus('Syncing the current preset. Wait before editing.');
+      if (!syncTimerRef.current) scheduleSync(900, { silent: true });
+      return true;
+    }
+    return false;
   };
 
   const refreshTransportContext = async (clientArg?: HelixClient | null) => {
@@ -1706,26 +1756,35 @@ function EditorApp() {
   };
 
   const handlePastePath = async (pathNum: 1 | 2) => {
+    if (editLocked()) return;
     const client = requireClient();
-    if (!client) return;
-    if (!pathClipboard) {
-      setStatus('Copy a path first');
-      return;
-    }
-    const targetFlow = pathNum - 1;
-    if (pathClipboard.sourcePath === targetFlow) {
-      setStatus('Choose a different target path');
-      return;
-    }
-    try {
-      const result = await client.pastePathClipboard(pathClipboard, targetFlow);
-      const routingNote = result.routingEntryCount > 0 ? `, ${result.routingEntryCount} split/join nodes` : '';
-      setStatus(`Pasted Path ${pathClipboard.sourcePath + 1} to Path ${pathNum} (${result.entryCount} blocks${routingNote})`);
-      scheduleSync(1800);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Paste path failed: ${message}`);
-    }
+    const clipboard = pathClipboard;
+    if (!client || !clipboard || clipboard.sourcePath === pathNum - 1 || previewMode) return;
+    const presetId = activePresetContentId;
+    if (presetId === null) return;
+    Alert.alert(`Replace Path ${pathNum}?`, 'This replaces its blocks with the copied settings and routing. Snapshot and controller assignments are not copied. Use the desktop editor for a full preset copy.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Replace path', style: 'destructive', onPress: () => {
+        void (async () => {
+          if (editLocked()) return;
+          blockOperation.current = true; setBlockBusy(true); setStatus('Pasting copied path…');
+          try {
+            const result = await client.pastePathClipboard(clipboard, pathNum - 1, presetId, getDspLimit(extendedDspEnabled));
+            if (clientRef.current !== client) return;
+            recentParamEditsRef.current.clear();
+            const state = await client.getEditBufferState();
+            if (!presetEditGuard.current.ready(presetId)) return;
+            applyEditBufferState(state);
+            setStatus(`Pasted ${result.entryCount} blocks to Path ${pathNum}`);
+            setPresetEdited(true);
+          } catch (error) {
+            const message = blockActionMessage(error);
+            setStatus(`Paste not confirmed: ${message}`);
+            Alert.alert('Paste not confirmed', `${message} The path may be partly updated. Sync and inspect it before saving.`);
+          } finally { blockOperation.current = false; setBlockBusy(false); scheduleSync(200, { silent: true }); }
+        })();
+      } },
+    ]);
   };
 
   const openPerform = (view: PerformView) => {
@@ -1831,26 +1890,60 @@ function EditorApp() {
     setStatus('Notes sent');
   };
 
-  const insertModel = async (model: BlockModel, kind: string) => {
+  const insertModel = async (model: BlockModel, kind: string, slot = targetSlot) => {
+    if (editLocked()) return;
     const client = requireClient();
     if (!client) return;
-    const p = targetSlot.path as PathIndex;
-    const b = targetSlot.block;
+    if (blockOperation.current || focusWrites.current > 0 || creationPending.current || presetSaveOperation.current) return;
+    const p = slot.path as PathIndex;
+    const b = slot.block;
+    const current = grid[p]?.[b] ?? null;
+    const reason = routingInsertReason(grid, { path: p, block: b as BlockSlot['block'] }, model.id) ??
+      blockLimitReason(grid, { path: p, block: b as BlockSlot['block'] }, { id: model.id, kind }, shouldBudgetAutoCab(model));
+    if (reason) { Alert.alert('Cannot add block here', reason); return; }
     const blockId = effectBlockIndex(p, b);
     const meta = modelLookup.get(model.id);
     const usage = model.usage ?? 0;
     const requiredUsage = getProjectedInsertUsage(model);
-    if (!fitsDspBudget(requiredUsage, availableUsage)) {
+    const headroom = getDspHeadroom(p < 2 ? pathUsage.path1 : pathUsage.path2, current?.usage ?? 0, extendedDspEnabled);
+    if (!fitsDspBudget(requiredUsage, headroom)) {
       setStatus('Not enough processing headroom for that block');
       return;
     }
     const flow = rowToFlow(p);
+    blockOperation.current = true;
+    setBlockBusy(true);
     try {
+      if (!previewMode) {
+        if (await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The preset changed. Sync before adding a block.');
+        const before = readBlockAt(await client.getEditBufferState(), flow, blockId);
+        if ((before?.mdls?.[0]?.id__ ?? null) !== (current?.id ?? null) || (current?.instanceId !== undefined && before?.id__ !== current.instanceId)) throw new Error('This position changed. Sync before adding a block.');
+        if (clientRef.current !== client || await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The connection or preset changed. Sync before adding a block.');
+      }
       await client.setModelWait(flow, blockId, model.id, 0);
+      if (!previewMode) {
+        const state = await client.getEditBufferState();
+        const added = readBlockAt(state, flow, blockId);
+        if (await client.getActivePresetContentId() !== activePresetContentId || added?.mdls?.[0]?.id__ !== model.id) throw new Error('The Stadium has not confirmed this block. Sync before trying again.');
+        if (current && isRoutingModel(current.id) && added?.bblk !== current.linkPosition) throw new Error('The branch connection changed unexpectedly. Sync and check the routing before continuing.');
+        if (!presetEditGuard.current.ready(activePresetContentId)) throw new Error('The preset changed. Sync before editing.');
+        recentParamEditsRef.current.clear();
+        applyEditBufferState(state);
+        setStatus(`${isRoutingModel(model.id) ? routingName(model.id) : model.name} ready on ${rowLabels[p]}`);
+        setPresetEdited(true);
+        scheduleSync(300, { silent: true });
+        setPickerOpen(false);
+        return;
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const message = blockActionMessage(err);
       setStatus(`Insert failed: ${message}`);
+      Alert.alert('Block change not confirmed', message);
+      scheduleSync(150, { silent: true });
       return;
+    } finally {
+      blockOperation.current = false;
+      setBlockBusy(false);
     }
     setStatus(`Inserted ${model.name} into ${rowLabels[p]}-${b + 1}`);
     setGrid((prev) => {
@@ -1866,6 +1959,7 @@ function EditorApp() {
           enabled: true,
           blockId,
           params: buildParamDefaults(meta?.params ?? []),
+          ...(isRoutingModel(model.id) ? { linkPosition: current?.linkPosition ?? b + 15 } : {}),
         };
       }
       return next;
@@ -1874,7 +1968,11 @@ function EditorApp() {
     scheduleSync();
   };
 
+  const availableBranchPositions = (row: PathIndex) => row % 2 === 1
+    ? [...branchColumns(computeBranchSegments(grid[row - 1], grid[row], hasIndependentIO(ioGrid[row])))] : undefined;
+
   const selectSlot = (slot: BlockSlot) => {
+    if (editLocked()) return;
     setSelectedSlot(slot);
     const existingBlock = grid[slot.path]?.[slot.block] ?? null;
     if (existingBlock) {
@@ -1900,6 +1998,7 @@ function EditorApp() {
   };
 
   const openSlotMenu = (slot: BlockSlot) => {
+    if (editLocked()) return;
     setSlotMenuTarget(slot);
     setSlotMenuOpen(true);
   };
@@ -1937,8 +2036,10 @@ function EditorApp() {
   };
 
   const selectIO = (row: PathIndex, ioType: IOType) => {
-    if (ioType === 'input' && row % 2 === 1) {
-      setStatus('1B/2B inputs derive from the split and cannot be set directly');
+    if (blockOperation.current) return;
+    const reason = derivedIOReason(grid, ioGrid, row, ioType);
+    if (reason) {
+      setStatus(reason);
       return;
     }
     setIoPickerRow(row);
@@ -1959,8 +2060,9 @@ function EditorApp() {
   };
 
   const toggleBlockEnabled = async (slot: BlockSlot) => {
+    if (editLocked()) return;
     const client = requireClient();
-    if (!client) return;
+    if (!client || blockOperation.current) return;
     const block = grid[slot.path]?.[slot.block] ?? null;
     if (!block) return;
 
@@ -1976,7 +2078,7 @@ function EditorApp() {
       await client.setBlockEnableWait(flow, blockId, nextEnabled);
       scheduleSync(350);
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const message = blockActionMessage(err);
       setLocalBlockEnabled(slot, currentEnabled);
       setStatus(`Block toggle failed: ${message}`);
       scheduleSync(150);
@@ -1984,163 +2086,273 @@ function EditorApp() {
   };
 
   const clearSlot = async (slot: BlockSlot) => {
+    if (editLocked()) return;
     const client = requireClient();
-    if (!client) return;
-    const position = effectBlockIndex(slot.path, slot.block);
-    const existingBlock = grid[slot.path]?.[slot.block] ?? null;
-    await client.clearBlocks(rowToFlow(slot.path), [position]);
-    if (existingBlock) {
-      const overrideKey = getBlockLabelOverrideKey(slot.path, existingBlock.blockId, existingBlock.id);
-      setBlockLabelOverrides((prev) => {
-        if (!prev[overrideKey]) return prev;
-        const next = { ...prev };
-        delete next[overrideKey];
-        return next;
-      });
-    }
-    setGrid((prev) => {
-      const next = cloneGrid(prev);
-      if (next[slot.path] && next[slot.path][slot.block] !== undefined) {
-        next[slot.path][slot.block] = null;
+    if (!client || blockOperation.current) return;
+    const existing = grid[slot.path]?.[slot.block];
+    if (!existing) return;
+    const clear = async () => {
+      if (editLocked()) return;
+      blockOperation.current = true;
+      setBlockBusy(true);
+      try {
+        if (!previewMode) {
+          if (await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The preset changed. Sync before removing a block.');
+          const before = readBlockAt(await client.getEditBufferState(), rowToFlow(slot.path), effectBlockIndex(slot.path, slot.block));
+          if (before?.mdls?.[0]?.id__ !== existing.id || (existing.instanceId !== undefined && before.id__ !== existing.instanceId) || clientRef.current !== client || await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The block or preset changed. Sync before removing a block.');
+        }
+        await client.clearBlock(rowToFlow(slot.path), effectBlockIndex(slot.path, slot.block));
+        if (clientRef.current !== client) return;
+        if (previewMode) {
+          setGrid(previous => { const next = cloneGrid(previous); next[slot.path][slot.block] = null; return next; });
+        } else {
+          const state = await client.getEditBufferState();
+          if (await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The preset changed. Sync to see the current preset.');
+          if (readBlockAt(state, rowToFlow(slot.path), effectBlockIndex(slot.path, slot.block))?.mdls?.length) throw new Error('The block is still present. Sync before trying again.');
+          applyEditBufferState(state);
+          setPresetEdited(true);
+        }
+        if (blockEditorSlot?.path === slot.path && blockEditorSlot?.block === slot.block) closeEditor();
+        setSlotMenuOpen(false);
+        setStatus(`Removed ${getBlockDisplayName(existing)}`);
+      } catch (error) {
+        const message = blockActionMessage(error);
+        setStatus(`Remove failed: ${message}`);
+        Alert.alert('Block removal not confirmed', message);
+      } finally {
+        blockOperation.current = false;
+        setBlockBusy(false);
+        scheduleSync(150, { silent: true });
       }
-      return next;
-    });
-    if (blockEditorSlot?.path === slot.path && blockEditorSlot?.block === slot.block) {
-      setBlockEditorOpen(false);
-      setBlockEditorSlot(null);
+    };
+    if (isRoutingModel(existing.id)) {
+      Alert.alert('Remove routing block?', isSplitModel(existing.id)
+        ? 'This changes how row B receives its signal. Its effects stay in the preset. Check the input and remaining splits afterwards.'
+        : 'Row B will use its own output or the next merge. Its effects stay in the preset. Check the output afterwards.',
+      [{ text: 'Cancel', style: 'cancel' }, { text: 'Remove', style: 'destructive', onPress: () => { void clear(); } }]);
+    } else await clear();
+  };
+
+  const handleRoutingLink = async (slot: BlockSlot, linkedPosition: number) => {
+    if (editLocked()) return;
+    const client = requireClient();
+    const block = grid[slot.path]?.[slot.block];
+    if (!client || !block || blockOperation.current || !routingLinkChoices(grid, slot).includes(linkedPosition)) return;
+    if (block.linkPosition === linkedPosition) return;
+    blockOperation.current = true;
+    setBlockBusy(true);
+    try {
+      if (previewMode) {
+        setGrid(previous => {
+          const next = cloneGrid(previous);
+          next[slot.path][slot.block] = { ...block, linkPosition: linkedPosition };
+          return next;
+        });
+      } else {
+        if (activePresetContentId === null) throw new Error('Sync the preset before changing its routing.');
+        const state = await client.updateRoutingLink({ presetId: activePresetContentId, flow: rowToFlow(slot.path),
+          position: effectBlockIndex(slot.path, slot.block), modelId: block.id, linkedPosition, instanceId: block.instanceId });
+        if (clientRef.current !== client) return;
+        applyEditBufferState(state);
+        setPresetEdited(true);
+      }
+      setStatus(`Connected ${getBlockDisplayName(block)} to ${rowLabels[slot.path + 1]}, position ${linkedPosition - 14}`);
+    } catch (error) {
+      const message = blockActionMessage(error);
+      setStatus(`Routing change failed: ${message}`);
+      Alert.alert('Connection not confirmed', message);
+    } finally {
+      blockOperation.current = false;
+      setBlockBusy(false);
+      scheduleSync(150, { silent: true });
     }
-    setStatus(`Cleared ${rowLabels[slot.path]}-${slot.block + 1}`);
-    setSlotMenuOpen(false);
-    scheduleSync(500);
+  };
+
+  const handleHistory = async (direction: 'undo' | 'redo') => {
+    if (editLocked()) return;
+    const client = requireClient();
+    if (!client || previewMode || blockOperation.current) return;
+    blockOperation.current = true;
+    setBlockBusy(true);
+    try {
+      if (await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The preset changed. Sync before using Undo or Redo.');
+      const state = await client[direction]();
+      if (clientRef.current !== client) return;
+      if (await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The preset changed. Sync to see the current preset.');
+      recentParamEditsRef.current.clear();
+      applyEditBufferState(state);
+      closeEditor();
+      setStatus(direction === 'undo' ? 'Undid the last edit' : 'Redid the last edit');
+    } catch (error) {
+      const message = blockActionMessage(error);
+      setStatus(message);
+      Alert.alert('Edit history unavailable', message);
+    } finally {
+      blockOperation.current = false;
+      setBlockBusy(false);
+      scheduleSync(150, { silent: true });
+    }
   };
 
   const moveBlockInPath = async (pIdx: PathIndex, fromDisplay: number, toDisplay: number) => {
-    if (fromDisplay === toDisplay) return false;
+    if (editLocked()) return false;
     const client = requireClient();
-    if (!client) return false;
-
-    const flow = rowToFlow(pIdx);
+    if (!client || fromDisplay === toDisplay) return false;
     const currentBlocks = grid[pIdx];
-
-    const visible = reorderPathBlocks(currentBlocks, fromDisplay, toDisplay);
-    if (!visible) return false;
+    const available = availableBranchPositions(pIdx);
+    const visible = reorderPathBlocks(currentBlocks, fromDisplay, toDisplay, available);
     const moved = currentBlocks[fromDisplay];
-
-    const minIdx = Math.min(fromDisplay, toDisplay);
-    const maxIdx = Math.max(fromDisplay, toDisplay);
-
-    // Moving rewrites each position in the range by model, which would drop a
-    // split or merge node's link to row B. Keep those nodes where they are.
-    if (currentBlocks.slice(minIdx, maxIdx + 1).some((block) => block?.kind === 'routing' || typeof block?.linkPosition === 'number')) {
-      setStatus('Move blocks between splits and merges. Split and merge positions stay fixed.');
+    if (!visible || !moved) return false;
+    const low = Math.min(fromDisplay, toDisplay), high = Math.max(fromDisplay, toDisplay);
+    if (currentBlocks.slice(low, high + 1).some(block => block && (isRoutingModel(block.id) || !modelLookup.has(block.id))) ||
+        (available && Array.from({ length: high - low + 1 }, (_, index) => low + index).some(index => !available.includes(index)))) {
+      setStatus('Move effects within the same branch. Split and merge positions stay fixed.');
       return false;
     }
-
-    // Update local grid immediately (optimistic)
-    setGrid((prev) => {
-      const next = cloneGrid(prev);
-      for (let i = 0; i < visible.length; i++) {
-        const blk = visible[i];
-        next[pIdx][i] = blk
-          ? { ...blk, blockId: effectBlockIndex(pIdx, i), params: blk.params ? { ...blk.params } : {} }
-          : null;
-      }
-      return next;
-    });
-
-    setStatus(`Moving ${moved?.name ?? 'block'} in path ${rowLabels[pIdx]}...`);
-
-    // Send protocol commands to the device
+    blockOperation.current = true;
+    setBlockBusy(true);
     try {
-      for (let i = minIdx; i <= maxIdx; i++) {
-        const oldBlock = currentBlocks[i];
-        if (oldBlock) {
-          await client.clearBlock(flow, effectBlockIndex(pIdx, i));
-        }
+      if (previewMode) {
+        setGrid(previous => { const next = cloneGrid(previous); next[pIdx] = visible.map((block, index) => block ? { ...block, blockId: effectBlockIndex(pIdx, index) } : null); return next; });
+      } else {
+        if (activePresetContentId === null) throw new Error('Sync the preset before moving blocks.');
+        const state = await client.reorderBlock({ presetId: activePresetContentId, flow: rowToFlow(pIdx),
+          from: effectBlockIndex(pIdx, fromDisplay), to: effectBlockIndex(pIdx, toDisplay), modelId: moved.id, instanceId: moved.instanceId });
+        if (clientRef.current !== client || !presetEditGuard.current.ready(activePresetContentId)) return false;
+        recentParamEditsRef.current.clear();
+        applyEditBufferState(state);
+        setPresetEdited(true);
       }
-      for (let i = minIdx; i <= maxIdx; i++) {
-        const newBlock = visible[i];
-        if (newBlock) {
-          const pos = effectBlockIndex(pIdx, i);
-          await client.setModelWait(flow, pos, newBlock.id, 0);
-        }
-      }
-      for (let i = minIdx; i <= maxIdx; i++) {
-        const newBlock = visible[i];
-        if (!newBlock) continue;
-        const pos = effectBlockIndex(pIdx, i);
-        if (newBlock.enabled !== undefined) {
-          await client.setBlockEnableWait(flow, pos, newBlock.enabled);
-        }
-        if (newBlock.params) {
-          const meta = modelLookup.get(newBlock.id);
-          for (const [key, value] of Object.entries(newBlock.params)) {
-            const paramMeta = meta?.params.find((param) => paramStateKey(param) === key);
-            const paramId = paramMeta?.id ?? parseInt(key.replace(/^h:/, ''), 10);
-            if (isNaN(paramId)) continue;
-            const vt: 'i' | 'f' | 'b' =
-              paramMeta?.type ?? (typeof value === 'boolean' ? 'b' : Number.isInteger(value as number) ? 'i' : 'f');
-            if (paramMeta?.harness || key.startsWith('h:')) {
-              await client.setHarnessParamValueWait(flow, pos, paramId, value, -1, vt);
-            } else {
-              await client.setParamValueWait(flow, pos, paramId, value, 0, -1, vt);
-            }
-          }
-        }
-      }
-      setSelectedSlot({ path: pIdx, block: toDisplay as BlockSlot['block'] });
-      setStatus(`Moved ${moved?.name ?? 'block'} to path ${rowLabels[pIdx]}, position ${toDisplay + 1}`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setStatus(`Could not finish moving the block: ${msg}`);
-      scheduleSync(800);
+      const slot = { path: pIdx, block: toDisplay as BlockSlot['block'] };
+      setSelectedSlot(slot);
+      if (blockEditorSlot?.path === pIdx) setBlockEditorSlot({ path: pIdx, block: movedIndex(blockEditorSlot.block, fromDisplay, toDisplay) as BlockSlot['block'] });
+      setStatus(`Moved ${getBlockDisplayName(moved)} to path ${rowLabels[pIdx]}, position ${toDisplay + 1}`);
+      return true;
+    } catch (error) {
+      const message = blockActionMessage(error);
+      setStatus(`Move not confirmed: ${message}`);
+      Alert.alert('Move not confirmed', message);
       return false;
+    } finally {
+      blockOperation.current = false;
+      setBlockBusy(false);
+      scheduleSync(200, { silent: true });
     }
+  };
 
-    scheduleSync(800);
-    return true;
+  const moveDestinationReason = (source: BlockSlot, destination: BlockSlot) => {
+    const block = grid[source.path]?.[source.block];
+    if (!block || !modelLookup.has(block.id)) return 'Choose a recognised block to move.';
+    if (isRoutingModel(block.id)) {
+      if (destination.path !== source.path || destination.path % 2) return 'Move this routing node within its row A.';
+      const low = Math.min(source.block, destination.block), high = Math.max(source.block, destination.block);
+      if (grid[source.path].slice(low, high + 1).some((node, index) => low + index !== source.block && node && isRoutingModel(node.id))) return 'Keep this node between its neighbouring split and merge.';
+    }
+    if (grid[destination.path]?.[destination.block]) return 'Choose an empty position.';
+    const positions = availableBranchPositions(destination.path);
+    if (positions && !positions.includes(destination.block)) return 'This position is outside the branch.';
+    const withoutSource = cloneGrid(grid);
+    withoutSource[source.path][source.block] = null;
+    const reason = blockLimitReason(withoutSource, destination, block);
+    if (reason) return reason;
+    if (rowToFlow(source.path) !== rowToFlow(destination.path)) {
+      const usage = destination.path < 2 ? pathUsage.path1 : pathUsage.path2;
+      if (!Number.isFinite(block.usage) || !fitsDspBudget(block.usage!, getDspHeadroom(usage, 0, extendedDspEnabled))) return 'There is not enough processing capacity on this path.';
+    }
+    return null;
+  };
+
+  const moveDestinations: MoveDestination[] = moveSource ? grid.flatMap((row, path) => row.flatMap((block, index) => {
+    if (block) return [];
+    const moving = grid[moveSource.path]?.[moveSource.block];
+    if (moving && isRoutingModel(moving.id) && path !== moveSource.path) return [];
+    const slot = { path: path as PathIndex, block: index as BlockSlot['block'] };
+    if (path % 2 && !availableBranchPositions(slot.path)?.includes(index)) return [];
+    return [{ slot, reason: moveDestinationReason(moveSource, slot) }];
+  })) : [];
+
+  const handleMoveTo = async (destination: BlockSlot) => {
+    if (!moveSource || editLocked()) return;
+    const source = moveSource;
+    const block = grid[source.path]?.[source.block];
+    const client = requireClient();
+    if (!block || !client) return;
+    if (!matchesMoveSource(block, source)) { setMoveSource(null); Alert.alert('Block changed', 'Choose the block again before moving it.'); return; }
+    const reason = moveDestinationReason(source, destination);
+    if (reason) { Alert.alert('Cannot move here', reason); return; }
+    blockOperation.current = true; setBlockBusy(true);
+    try {
+      if (previewMode) {
+        setGrid(previous => {
+          const next = cloneGrid(previous); next[source.path][source.block] = null;
+          next[destination.path][destination.block] = { ...block, blockId: effectBlockIndex(destination.path, destination.block) };
+          return next;
+        });
+      } else {
+        if (activePresetContentId === null) throw new Error('Sync the preset before moving a block.');
+        const state = await client.moveBlock({ presetId: activePresetContentId, fromFlow: rowToFlow(source.path),
+          fromPosition: effectBlockIndex(source.path, source.block), toFlow: rowToFlow(destination.path),
+          toPosition: effectBlockIndex(destination.path, destination.block), modelId: block.id, instanceId: block.instanceId, dspLimit: getDspLimit(extendedDspEnabled) });
+        if (clientRef.current !== client || !presetEditGuard.current.ready(activePresetContentId)) return;
+        recentParamEditsRef.current.clear(); applyEditBufferState(state); setPresetEdited(true);
+      }
+      setMoveSource(null); setSelectedSlot(destination); setPhonePath(destination.path < 2 ? 1 : 2);
+      setStatus(`Moved ${getBlockDisplayName(block)} to ${rowLabels[destination.path]}, position ${destination.block + 1}`);
+    } catch (error) {
+      const message = blockActionMessage(error); setStatus(`Move not confirmed: ${message}`); Alert.alert('Move not confirmed', message);
+    } finally {
+      blockOperation.current = false; setBlockBusy(false); scheduleSync(200, { silent: true });
+    }
+  };
+
+  const openMove = (slot: BlockSlot) => {
+    if (editLocked()) return;
+    const block = grid[slot.path]?.[slot.block];
+    if (!block) return;
+    setSlotMenuOpen(false); closeEditor(); setMoveSource({ ...slot, modelId: block.id, instanceId: block.instanceId });
   };
 
   const setIOModel = async (model: IOModel) => {
+    if (editLocked()) return;
     const client = requireClient();
-    if (!client) return;
+    if (!client || blockOperation.current || derivedIOReason(grid, ioGrid, ioPickerRow, ioPickerType) || !ioModelAllowed(ioPickerRow, ioPickerType, model.id)) return;
     const row = ioPickerRow;
-    const blockId = ioBlockIndex(row, ioPickerType);
+    const position = ioBlockIndex(row, ioPickerType);
     const flow = rowToFlow(row);
+    blockOperation.current = true;
+    setBlockBusy(true);
     try {
-      await client.setModelWait(flow, blockId, model.id, 0);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setStatus(`Set ${ioPickerType} failed: ${message}`);
-      return;
-    }
-    const nextParams: Record<string, number | boolean> = {};
-    model.params.forEach((param) => {
-      if (typeof param.def === 'number' || typeof param.def === 'boolean') {
-        const key = paramStateKey(param);
-        nextParams[key] = param.def;
+      if (!previewMode && await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The preset changed. Sync before changing its input or output.');
+      await client.setModelWait(flow, position, model.id, 0);
+      if (clientRef.current !== client) return;
+      if (previewMode) {
+        setIoGrid(previous => {
+          const next = previous.map(entry => ({ ...entry }));
+          next[row] = { ...next[row], [ioPickerType]: { blockId: position, modelId: model.id, name: model.name,
+            params: buildParamDefaults(model.params) } };
+          return next;
+        });
+      } else {
+        const state = await client.getEditBufferState();
+        if (clientRef.current !== client || await client.getActivePresetContentId() !== activePresetContentId) throw new Error('The connection or preset changed. Sync to see the current preset.');
+        if (readBlockAt(state, flow, position)?.mdls?.[0]?.id__ !== model.id) throw new Error('The Stadium has not confirmed this input or output.');
+        applyEditBufferState(state);
+        setPresetEdited(true);
       }
-    });
-    setIoGrid((prev) => {
-      const next = prev.map((entry) => ({
-        input: entry.input ? { ...entry.input } : null,
-        output: entry.output ? { ...entry.output } : null,
-      }));
-      const entry = next[row] ?? { input: null, output: null };
-      entry[ioPickerType] = {
-        blockId,
-        modelId: model.id,
-        name: model.name,
-        params: nextParams,
-      };
-      next[row] = entry;
-      return next;
-    });
-    setStatus(`Set ${rowLabels[row]} ${ioPickerType} to ${model.name}`);
-    scheduleSync(500);
+      setStatus(`Set ${rowLabels[row]} ${ioPickerType} to ${model.name}`);
+    } catch (error) {
+      const message = blockActionMessage(error);
+      setStatus(`Set ${ioPickerType} failed: ${message}`);
+      Alert.alert('Input or output not confirmed', message);
+    } finally {
+      blockOperation.current = false;
+      setBlockBusy(false);
+      scheduleSync(200, { silent: true });
+    }
   };
 
   const updateIOParam = (param: IOModelParam, value: number | boolean) => {
+    if (editLocked()) return;
     const client = requireClient();
     if (!client) return;
     const row = ioPickerRow;
@@ -2176,7 +2388,7 @@ function EditorApp() {
         client.setParamValue(flow, blockId, param.id, nextValue, 0, -1, param.type);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const message = blockActionMessage(err);
       setStatus(`Update failed: ${message}`);
       scheduleSync(150);
       return;
@@ -2185,8 +2397,9 @@ function EditorApp() {
   };
 
   const updateBlockParam = (param: EditorParam, value: number | boolean) => {
+    if (editLocked()) return;
     const client = requireClient();
-    if (!client || !blockEditorSlot || !activeBlock || param.id === null) return;
+    if (!client || blockOperation.current || !blockEditorSlot || !activeBlock || param.id === null) return;
     const nextValue = clampParamValue(param, value);
     if (nextValue === null || activeBlock.blockId === undefined) return;
     const row = blockEditorSlot.path;
@@ -2215,16 +2428,22 @@ function EditorApp() {
           .setHarnessParamValueWait(rowToFlow(row), activeBlock.blockId, param.id, nextValue, -1, param.type)
           .then(() => scheduleSync(250))
           .catch((err) => {
-            const message = err instanceof Error ? err.message : String(err);
+            const message = blockActionMessage(err);
             setStatus(`Update failed: ${message}`);
             scheduleSync(150);
           });
         return;
       } else {
-        client.setParamValue(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type);
+        void client.setParamValueWait(rowToFlow(row), activeBlock.blockId, param.id, nextValue, 0, -1, param.type)
+          .then(() => scheduleSync(250, { silent: true }))
+          .catch(error => {
+            if (recentParamEditsRef.current.get(`${row}|${activeBlock.blockId}|${paramKey}`)?.value === nextValue) recentParamEditsRef.current.delete(`${row}|${activeBlock.blockId}|${paramKey}`);
+            setStatus(`Parameter update: ${blockActionMessage(error)}`);
+            scheduleSync(150, { silent: true });
+          });
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const message = blockActionMessage(err);
       setStatus(`Update failed: ${message}`);
       scheduleSync(150);
       return;
@@ -2235,7 +2454,7 @@ function EditorApp() {
   const handleBlockLabelApply = () => {
     if (!blockEditorSlot || !activeBlock) return;
     const trimmed = blockLabelDraft.trim();
-    const overrideKey = getBlockLabelOverrideKey(blockEditorSlot.path, activeBlock.blockId, activeBlock.id);
+    const overrideKey = getBlockLabelOverrideKey(blockEditorSlot.path, activeBlock.blockId, activeBlock.id, activeBlock.instanceId);
     setBlockLabelOverrides((prev) => {
       const next = { ...prev };
       if (trimmed) {
@@ -2340,7 +2559,7 @@ function EditorApp() {
       row.forEach((block) => {
         const customName = block?.customName?.trim();
         if (block && customName) {
-          previousCustomLabels.set(`${rowIndex}:${block.id}`, customName);
+          previousCustomLabels.set(block.instanceId !== undefined ? `instance-${block.instanceId}` : `${rowIndex}:${block.blockId}:${block.id}`, customName);
         }
       });
     });
@@ -2351,23 +2570,25 @@ function EditorApp() {
       params: Record<string, number | boolean>,
       blockId: number,
       enabled: boolean,
-      linkPosition: number | null
+      linkPosition: number | null,
+      instanceId?: number
     ) => {
       if (!nextGrid[rowIndex]) return;
       if (slotIndex < 0 || slotIndex >= 12) return;
       if (typeof modelId === 'number' && modelLookup.has(modelId)) {
         const info = modelLookup.get(modelId)!;
-        const overrideKey = getBlockLabelOverrideKey(rowIndex, blockId, modelId);
+        const overrideKey = getBlockLabelOverrideKey(rowIndex, blockId, modelId, instanceId);
         nextGrid[rowIndex][slotIndex] = {
           id: modelId,
           name: info.name,
           modelName: info.name,
           realName: info.realName,
-          customName: blockLabelOverrides[overrideKey] ?? previousCustomLabels.get(`${rowIndex}:${modelId}`) ?? null,
+          customName: blockLabelOverrides[overrideKey] ?? previousCustomLabels.get(instanceId !== undefined ? `instance-${instanceId}` : `${rowIndex}:${blockId}:${modelId}`) ?? null,
           kind: info.kind,
           usage: info.usage,
           enabled,
           blockId,
+          instanceId,
           params,
           ...(linkPosition !== null ? { linkPosition } : {}),
         };
@@ -2381,6 +2602,7 @@ function EditorApp() {
           usage: 0,
           enabled,
           blockId,
+          instanceId,
           params,
         };
       }
@@ -2455,11 +2677,11 @@ function EditorApp() {
         }
 
         if (pos >= 1 && pos <= 12) {
-          assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos, enabled, linkPosition);
+          assignSlot(rowA, pos - 1, typeof mid === 'number' ? mid : null, params, pos, enabled, linkPosition, Number.isInteger(blk.id__) ? blk.id__ : undefined);
           return;
         }
         if (pos >= 15 && pos <= 26) {
-          assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos, enabled, linkPosition);
+          assignSlot(rowB, pos - 15, typeof mid === 'number' ? mid : null, params, pos, enabled, linkPosition, Number.isInteger(blk.id__) ? blk.id__ : undefined);
         }
       };
 
@@ -2528,21 +2750,30 @@ function EditorApp() {
   };
 
   const handleSync = async (silent = false) => {
+    if (blockOperation.current || previewMode) return false;
     const client = requireClient();
     if (!client) return false;
-    if (flowSyncInFlightRef.current) return false;
+    if (flowSyncInFlightRef.current || blockOperation.current) return false;
     flowSyncInFlightRef.current = true;
     if (!silent) {
       setStatus('Syncing from device...');
     }
     try {
+      const revision = presetEditGuard.current.beginSync();
+      const beforePreset = await client.getActivePresetContentId();
       const state = await client.getEditBufferState();
-      if (clientRef.current !== client) return false;
+      const afterPreset = await client.getActivePresetContentId();
+      if (beforePreset === null || beforePreset !== afterPreset || revision !== presetEditGuard.current.beginSync()) return false;
+      if (clientRef.current !== client || blockOperation.current) return false;
       if (!state) {
         if (!silent) setStatus('Sync failed: no response');
         return false;
       }
       if (!applyEditBufferState(state, silent)) return false;
+      if (!knobDraggingRef.current && focusWrites.current === 0) {
+        presetEditGuard.current.acceptSync(revision, beforePreset);
+        setActivePresetContentId(beforePreset);
+      }
       // The grid was left alone while a control is being dragged; skip the notes read too.
       if (knobDraggingRef.current || focusWrites.current > 0) return true;
       try {
@@ -2587,12 +2818,12 @@ function EditorApp() {
   };
 
   const scheduleSync = (delayMs = 350, options: { full?: boolean; silent?: boolean } = {}) => {
-    if (syncTimerRef.current) {
-      clearTimeout(syncTimerRef.current);
-    }
+    const pending = syncTimerRef.current ? scheduledSyncOptionsRef.current : null;
+    if (pending?.full && !presetEditGuard.current.isSynced()) return;
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
     scheduledSyncOptionsRef.current = {
-      full: options.full ?? true,
-      silent: options.silent ?? false,
+      full: (options.full ?? true) || !!pending?.full,
+      silent: (options.silent ?? false) && (pending?.silent ?? true),
     };
     syncTimerRef.current = setTimeout(() => {
       syncTimerRef.current = null;
@@ -2653,10 +2884,11 @@ function EditorApp() {
   const renderIORow = (rowIndex: PathIndex, ioType: IOType) => {
     const entry = ioGrid[rowIndex]?.[ioType] ?? null;
     const isInput = ioType === 'input';
-    const disabled = isInput && rowIndex % 2 === 1;
+    const derivedLabel = derivedIOReason(grid, ioGrid, rowIndex, ioType);
+    const disabled = !!derivedLabel;
     return (
       <Pressable
-        accessibilityLabel={`Path ${rowLabels[rowIndex]} ${isInput ? 'input' : 'output'}, ${disabled ? 'From split' : (entry?.name ?? 'None')}`}
+        accessibilityLabel={`Path ${rowLabels[rowIndex]} ${isInput ? 'input' : 'output'}, ${disabled ? derivedLabel : (entry?.name ?? 'None')}`}
         style={[styles.ioRow, disabled && { opacity: 0.4 }]}
         onPress={disabled ? undefined : () => selectIO(rowIndex, ioType)}
         disabled={disabled}
@@ -2672,7 +2904,7 @@ function EditorApp() {
         </View>
         <View style={styles.ioInfo}>
           <Text style={styles.ioLabel}>{isInput ? 'Input' : 'Output'}</Text>
-          <Text style={styles.ioName}>{disabled ? 'From Split' : (entry?.name ?? 'None')}</Text>
+          <Text style={styles.ioName}>{disabled ? derivedLabel : (entry?.name ?? 'None')}</Text>
         </View>
         {!disabled && (
           <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -2716,6 +2948,12 @@ function EditorApp() {
           </Text>
         </Pressable>
         <View style={styles.pathActionRow}>
+          {(phoneSwitcher || pathNum === 1) && (['undo', 'redo'] as const).map(direction => <Pressable key={direction}
+            accessibilityLabel={direction === 'undo' ? 'Undo last preset edit' : 'Redo last preset edit'}
+            disabled={previewMode || blockBusy || focusBusy || presetSaving || presetCreating} style={styles.pathActionButton}
+            onPress={() => { void handleHistory(direction); }}>
+            <Text style={[styles.pathActionText, (previewMode || blockBusy) && styles.pathActionTextDisabled]}>{direction === 'undo' ? 'Undo' : 'Redo'}</Text>
+          </Pressable>)}
           {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied</Text>}
           <Pressable accessibilityLabel={`Copy path ${pathNum}`} style={styles.pathActionButton} onPress={() => { void handleCopyPath(pathNum); }}>
             <Text style={styles.pathActionText}>Copy</Text>
@@ -2739,6 +2977,7 @@ function EditorApp() {
     <DraggableEffectList
       key={`${activePresetStorageId}:${row}`}
       blocks={decorateDisplayBlocks(grid[row])}
+      availablePositions={availableBranchPositions(row)}
       pathIndex={row}
       selectedSlot={selectedSlot}
       onSelectSlot={selectSlot}
@@ -2753,12 +2992,12 @@ function EditorApp() {
 
   // A block dropped in the lanes becomes the selected block, wherever it lands.
   const handleLaneMove = (row: PathIndex, from: number, to: number) => {
-    const dropped = { path: row, block: to as BlockSlot['block'] };
-    setSelectedSlot(dropped);
-    setBlockEditorSlot(dropped);
-    setBlockEditorOpen(true);
-    setFocusOpen(false);
-    void moveBlockInPath(row, from, to);
+    void moveBlockInPath(row, from, to).then(moved => {
+      if (!moved) return;
+      setBlockEditorSlot({ path: row, block: to as BlockSlot['block'] });
+      setBlockEditorOpen(true);
+      setFocusOpen(false);
+    });
   };
 
   const renderPathSection = (pathNum: 1 | 2) => {
@@ -2778,6 +3017,9 @@ function EditorApp() {
             pathNumber={pathNum}
             rowA={decorateDisplayBlocks(grid[primary])}
             rowB={decorateDisplayBlocks(grid[split])}
+            rowBHasIO={hasIndependentIO(ioGrid[split])}
+            inputALabel={derivedIOReason(grid, ioGrid, primary, 'input')}
+            inputBLabel={derivedIOReason(grid, ioGrid, split, 'input')}
             ioA={{ input: ioGrid[primary]?.input?.name ?? null, output: ioGrid[primary]?.output?.name ?? null }}
             ioB={{ input: ioGrid[split]?.input?.name ?? null, output: ioGrid[split]?.output?.name ?? null }}
             selectedSlot={selectedSlot}
@@ -2791,15 +3033,15 @@ function EditorApp() {
         ) : (
           <>
             {!linearControls && <Text style={styles.rowHeading}>Row {pathNum}A</Text>}
+            {renderIORow(primary, 'input')}
             {renderEffectList(primary)}
-            {linearControls && renderIORow(primary, 'input')}
-            {linearControls && renderIORow(primary, 'output')}
+            {renderIORow(primary, 'output')}
             {hasSplit && (
               <View style={!linearControls && styles.branchSection}>
                 <Text style={styles.rowHeading}>Row {pathNum}B · split branch</Text>
+                {renderIORow(split, 'input')}
                 {renderEffectList(split)}
-                {linearControls && renderIORow(split, 'input')}
-                {linearControls && renderIORow(split, 'output')}
+                {renderIORow(split, 'output')}
               </View>
             )}
           </>
@@ -2820,6 +3062,7 @@ function EditorApp() {
             pathNumber={pathNum}
             rowA={grid[primary]}
             rowB={grid[split]}
+            rowBHasIO={hasIndependentIO(ioGrid[split])}
             ioA={{ input: null, output: null }}
             ioB={{ input: null, output: null }}
             selectedSlot={selectedSlot}
@@ -4496,7 +4739,7 @@ function EditorApp() {
     const focusListLayout = focusOpen && (linearControls || windowDims.fontScale > 1.3);
     const subtitle = [
       kindLabel(activeBlock.kind),
-      metaName && metaName !== displayName && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null,
+      !isRoutingModel(activeBlock.id) && metaName && metaName !== displayName && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null,
       `Row ${rowLabels[blockEditorSlot.path]}, position ${blockEditorSlot.block + 1}`,
       typeof activeBlock.usage === 'number' ? `${activeBlock.usage.toFixed(1)} DSP` : null,
     ].filter(Boolean).join(' · ');
@@ -4522,6 +4765,7 @@ function EditorApp() {
         accessibilityRole="switch"
         accessibilityLabel={`${displayName} enabled`}
         accessibilityState={{ checked: isEnabled }}
+        disabled={blockBusy || presetSaving || presetCreating}
         onPress={() => { void toggleBlockEnabled(blockEditorSlot); }}
         style={({ pressed }) => [
           styles.powerPill,
@@ -4536,7 +4780,11 @@ function EditorApp() {
     const tools = (
       <>
         {powerButton}
-        <Pressable accessibilityLabel={`Replace ${displayName}`} disabled={focusBusy}
+        {modelLookup.has(activeBlock.id) && <Pressable accessibilityLabel={`Move ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
+          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openMove(blockEditorSlot)}>
+          <Text style={styles.toolButtonText}>Move</Text>
+        </Pressable>}
+        <Pressable accessibilityLabel={`Replace ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
           style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
           onPress={() => {
             if (!docked) closeEditor();
@@ -4544,11 +4792,10 @@ function EditorApp() {
           }}>
           <Text style={styles.toolButtonText}>Replace</Text>
         </Pressable>
-        <Pressable accessibilityLabel={`Remove ${displayName}`} disabled={focusBusy}
+        <Pressable accessibilityLabel={`Remove ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
           style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
           onPress={() => {
-            clearSlot(blockEditorSlot);
-            closeEditor();
+            void clearSlot(blockEditorSlot);
           }}>
           <Text style={[styles.toolButtonText, styles.toolButtonDanger]}>Remove</Text>
         </Pressable>
@@ -4556,11 +4803,11 @@ function EditorApp() {
     );
     const viewTabs = canFocus ? (
       <View accessibilityRole="tablist" style={[styles.segmentTrack, focusListLayout && styles.segmentTrackStacked]}>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy}
+        <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
           style={[styles.segmentItem, !focusOpen && styles.segmentItemActive]} onPress={() => setFocusOpen(false)}>
           <Text style={[styles.segmentItemText, !focusOpen && styles.segmentItemTextActive]}>Parameters</Text>
         </Pressable>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy}
+        <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
           style={[styles.segmentItem, focusOpen && styles.segmentItemActive]} onPress={() => setFocusOpen(true)}>
           <Text style={[styles.segmentItemText, focusOpen && styles.segmentItemTextActive]}>Focus View</Text>
         </Pressable>
@@ -4575,6 +4822,15 @@ function EditorApp() {
         scrollEnabled={editorScrollEnabled}
         keyboardShouldPersistTaps="handled"
       >
+        {isRoutingModel(activeBlock.id) && <RoutingControls
+          modelId={activeBlock.id} row={rowLabels[blockEditorSlot.path + 1] ?? 'B'}
+          linkPosition={activeBlock.linkPosition} choices={routingLinkChoices(grid, blockEditorSlot)} disabled={blockBusy || presetSaving || presetCreating}
+          onType={id => {
+            const model = blockCatalog.routing.models.find(item => item.id === id);
+            if (model && id !== activeBlock.id) void insertModel(model, 'routing', blockEditorSlot);
+          }}
+          onLink={position => { void handleRoutingLink(blockEditorSlot, position); }}
+        />}
         {blockLabelMode && (
           <View style={styles.blockLabelEditor}>
             <Text style={styles.paramSectionTitle}>Block Label</Text>
@@ -4653,7 +4909,7 @@ function EditorApp() {
     return (
       <>
         <View style={styles.editorTopRow}>
-          <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy} style={styles.editorBack}
+          <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy || blockBusy || presetSaving || presetCreating} style={styles.editorBack}
             onPress={() => { setFocusOpen(false); closeEditor(); }} hitSlop={12}>
             <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
               <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -4749,8 +5005,8 @@ function EditorApp() {
   const renderTopBar = () => {
     const canStepBackward = activePresetIndexInList > 0;
     const canStepForward = activePresetIndexInList >= 0 && activePresetIndexInList < presetItems.length - 1;
-    const busy = presetSaving || presetCreating || showcaseBusy;
-    const saveDisabled = previewMode || !connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy || presetSaving;
+    const busy = presetSaving || presetCreating || showcaseBusy || blockBusy;
+    const saveDisabled = previewMode || !connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy || presetSaving || blockBusy;
     const presetLabel = `${formatPresetPosition(activePresetRef?.posi)} ${activePresetName}`;
     const tempo = formatTempoBpm(liveTempoBpm ?? globalTempoBpm);
     const presetRow = (
@@ -4847,7 +5103,7 @@ function EditorApp() {
           <SnapshotStrip
             snapshots={snapshotChips}
             activeIndex={activeSnapshotIndex}
-            disabled={presetSaving || presetCreating}
+            disabled={presetSaving || presetCreating || blockBusy}
             columns={isTablet ? (isLandscape ? 8 : 4) : undefined}
             onActivate={handleSnapshotActivate}
           />
@@ -5223,6 +5479,11 @@ function EditorApp() {
           </View>
         </BottomSheet>
 
+        <MoveBlockSheet name={moveSource ? getBlockDisplayName(grid[moveSource.path]?.[moveSource.block] ?? null) : null}
+          routing={!!moveSource && isRoutingModel(grid[moveSource.path]?.[moveSource.block]?.id ?? 0)}
+          destinations={moveDestinations} busy={blockBusy} onMove={destination => { void handleMoveTo(destination); }}
+          onClose={() => { if (!blockOperation.current) setMoveSource(null); }} />
+
         {/* ── Bottom Sheet: Slot Actions ───────────────────────── */}
         <BottomSheet
           visible={slotMenuOpen}
@@ -5235,6 +5496,8 @@ function EditorApp() {
           }
         >
           <View style={styles.sheetActions}>
+            {slotMenuTarget && grid[slotMenuTarget.path]?.[slotMenuTarget.block] && modelLookup.has(grid[slotMenuTarget.path][slotMenuTarget.block]!.id) &&
+              <Pressable style={[styles.actionButton, styles.actionButtonGhost]} onPress={() => openMove(slotMenuTarget)}><Text style={styles.actionButtonText}>Move to another position</Text></Pressable>}
             <Pressable
               style={[styles.actionButton, styles.actionButtonPrimary]}
               onPress={() => {
@@ -5283,6 +5546,7 @@ function EditorApp() {
               return (
                 <Pressable accessibilityState={{ selected: isActive }}
                   key={model.id}
+                  disabled={blockBusy}
                   style={[styles.sheetListItem, isActive && styles.sheetListItemActive]}
                   onPress={() => setIOModel(model)}
                 >
@@ -5301,7 +5565,7 @@ function EditorApp() {
         {/* ── Bottom Sheet: Block Picker ───────────────────────── */}
         <BottomSheet
           visible={pickerOpen}
-          onClose={() => setPickerOpen(false)}
+          onClose={() => { if (!blockOperation.current) setPickerOpen(false); }}
           title={pickerStep === 'type' ? (targetBlock ? 'Replace Block' : 'Add Block') : blockCatalog[pickerType ?? 'amp']?.label}
           subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 DSP available ${Math.max(0, availableUsage).toFixed(1)}/${dspLimit}${extendedDspEnabled ? ' · Extended budget' : ''}`}
         >
@@ -5312,7 +5576,7 @@ function EditorApp() {
                   const group = blockCatalog[typeKey];
                   const color = getBlockColor(typeKey);
                   return (
-                    <Pressable key={typeKey} style={styles.typeCard} onPress={() => selectBlockType(typeKey)}>
+                    <Pressable key={typeKey} disabled={blockBusy || (typeKey === 'routing' && targetSlot.path % 2 === 1) || (!!targetBlock && isRoutingModel(targetBlock.id) && typeKey !== 'routing')} style={styles.typeCard} onPress={() => selectBlockType(typeKey)}>
                       <View style={[styles.typeAccent, { backgroundColor: color }]} />
                       <View style={[styles.typeIconWrap, { backgroundColor: `${color}18` }]}>
                         {BLOCK_IMAGES[typeKey] ? (
@@ -5323,7 +5587,7 @@ function EditorApp() {
                       </View>
                       <View style={styles.typeInfo}>
                         <Text style={styles.typeLabel}>{group.label}</Text>
-                        <Text style={styles.typeMeta}>{group.models.length} models</Text>
+                        <Text style={styles.typeMeta}>{typeKey === 'routing' ? targetSlot.path % 2 ? 'Add on row A' : 'Parallel paths and dual amps' : `${group.models.length} models`}</Text>
                       </View>
                       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                         <Path d="M9 18l6-6-6-6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -5350,7 +5614,8 @@ function EditorApp() {
                 placeholder="Search models…"
                 placeholderTextColor={COLORS.muted}
               />
-              <Text style={styles.pickerDspHint}>DSP numbers estimate processing use. Lower numbers leave room for more effects; they are not CPU percentages.</Text>
+              {pickerType === 'routing' && <Text style={styles.pickerDspHint}>For dual amps, add a split, place one amp on each row, then add a Merge Mixer after them on row A.</Text>}
+              {pickerType !== 'routing' && <Text style={styles.pickerDspHint}>DSP numbers estimate processing use. Lower numbers leave room for more effects; they are not CPU percentages.</Text>}
               <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
                 {pickerModelSections.map((section, sectionIndex) => (
                   <View key={`${section.title ?? 'models'}-${sectionIndex}`}>
@@ -5361,13 +5626,16 @@ function EditorApp() {
                     )}
                     {section.models.map((item) => {
                       const required = getProjectedInsertUsage(item);
-                      const canInsert = fitsDspBudget(required, availableUsage);
+                      const routingReason = routingInsertReason(grid, targetSlot as BlockSlot, item.id) ??
+                        blockLimitReason(grid, targetSlot as BlockSlot, { id: item.id, kind: pickerType ?? item.category }, shouldBudgetAutoCab(item));
+                      const blockedReason = routingReason ?? (!fitsDspBudget(required, availableUsage) ? 'Not enough processing capacity.' : null);
+                      const canInsert = !blockBusy && !blockedReason;
                       const color = getBlockColor(pickerType ?? '');
                       const sourceName = isUsefulRealName(item.based_on) ? item.based_on!.trim() : null;
-                      const primaryName = showRealBlockNames && sourceName ? sourceName : item.name;
-                      const secondaryName = showRealBlockNames && sourceName ? item.name : sourceName;
+                      const primaryName = isRoutingModel(item.id) ? routingName(item.id) : showRealBlockNames && sourceName ? sourceName : item.name;
+                      const secondaryName = blockedReason ?? ROUTING_DESCRIPTIONS[item.id] ?? (showRealBlockNames && sourceName ? item.name : sourceName);
                       return (
-                        <Pressable accessibilityLabel={`${primaryName}${secondaryName ? ', ' + secondaryName : ''}, DSP estimate ${required.toFixed(1)}${canInsert ? '' : ', not enough space or processing capacity'}`}
+                        <Pressable accessibilityLabel={`${primaryName}${secondaryName ? ', ' + secondaryName : ''}, DSP estimate ${required.toFixed(1)}`}
                           key={item.id}
                           style={[styles.sheetListItem, !canInsert && styles.sheetListItemDisabled]}
                           onPress={() => insertModel(item, pickerType ?? 'fx')}
@@ -5377,7 +5645,7 @@ function EditorApp() {
                           <View style={styles.modelInfo}>
                             <Text style={[styles.sheetListText, !canInsert && styles.sheetListTextDim]}>{primaryName}</Text>
                             {secondaryName && (
-                              <Text style={styles.modelMetaText} numberOfLines={linearControls ? undefined : 1}>{secondaryName}</Text>
+                              <Text style={styles.modelMetaText} numberOfLines={linearControls || pickerType === 'routing' ? undefined : 1}>{secondaryName}</Text>
                             )}
                           </View>
                           <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>

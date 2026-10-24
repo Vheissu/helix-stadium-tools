@@ -25,6 +25,8 @@ export interface BlockData {
   customName?: string | null;
   kind: string;
   blockId?: number;
+  /** Stable edit-buffer identity; blockId is the visible command position. */
+  instanceId?: number;
   enabled?: boolean;
   usage?: number;
   params?: Record<string, number | boolean>;

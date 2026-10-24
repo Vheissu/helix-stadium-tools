@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { applyFocusChanges, type FocusTarget, type FocusTransport } from './focusSession';
+import { applyFocusChanges, readFocusValues, type FocusTarget, type FocusTransport } from './focusSession';
 import type { FocusChange } from '../utils/focus';
 const target: FocusTarget = { presetId: 904, flow: 0, blockId: 1, modelId: 628, snapshotIndex: 0 };
 const changes: FocusChange[] = [{ id: 1, key: 'Drive', type: 'f', value: 0.8 }];
+test('Focus on path 2 resolves visible positions instead of internal block IDs', () => {
+  const state = { cg__: { asnp: 0 }, sfg_: { flow: [{ blks: [] }, { blks: [1, { id__: 29, mdls: [{ id__: 628, parm: [{ pid_: 1, valu: 0.7 }] }] }] }] } };
+  assert.equal(readFocusValues(state, { ...target, flow: 1 })[1], 0.7);
+});
 const harness = () => {
   const device = { preset: 904, model: 628, snapshot: 0, drive: 0.33, writes: 0 };
   const io: FocusTransport = {

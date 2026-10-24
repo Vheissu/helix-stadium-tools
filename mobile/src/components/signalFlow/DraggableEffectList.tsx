@@ -17,6 +17,7 @@ import { BlockIcon } from '../../icons/BlockIcons';
 import { BLOCK_IMAGES } from '../../icons/CategoryImages';
 import { COLORS, FONT, getBlockAppearance } from '../../theme/colors';
 import type { BlockData, BlockIndex, BlockSlot, PathIndex } from '../../types/signalFlow';
+import { visibleBlockIndices } from '../../utils/blockMove';
 
 
 export interface DraggableEffectListProps {
@@ -28,6 +29,7 @@ export interface DraggableEffectListProps {
   onReorder: (pathIndex: PathIndex, fromSlot: number, toSlot: number) => Promise<boolean>;
   onToggleEnabled: (slot: BlockSlot) => void;
   kindLabel: (kind: string) => string;
+  availablePositions?: readonly number[];
   /** Called when drag starts — parent should disable ScrollView */
   onDragStart?: () => void;
   /** Called when drag ends — parent should re-enable ScrollView */
@@ -44,6 +46,7 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
     onReorder,
     onToggleEnabled,
     kindLabel,
+    availablePositions,
     onDragStart,
     onDragEnd,
   }) => {
@@ -70,7 +73,7 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
 
     // ── Visible items ─────────────────────────────────────────
     const lastPopulated = blocks.reduce((last, b, i) => (b ? i : last), -1);
-    const visibleCount = Math.min(lastPopulated + 2, 12);
+    const visibleIndices = visibleBlockIndices(blocks, availablePositions);
 
     // ── Layout handlers ───────────────────────────────────────
     const measureContainer = useCallback(() => {
@@ -89,15 +92,15 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
     const computeTarget = useCallback(
       (pageY: number): number => {
         const localY = pageY - containerPageY.current;
-        for (let i = 0; i < visibleCount; i++) {
+        for (const i of visibleIndices) {
           const y = itemYPositions.current[i];
           const h = itemHeights.current[i];
           if (y === undefined || h === undefined) continue;
           if (localY < y + h / 2) return i;
         }
-        return Math.max(visibleCount - 1, 0);
+        return visibleIndices[visibleIndices.length - 1] ?? 0;
       },
-      [visibleCount],
+      [visibleIndices],
     );
 
     // ── Drag lifecycle ────────────────────────────────────────
@@ -181,14 +184,14 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
     // ── Build display-order items ─────────────────────────────
     const buildDisplayItems = (): { block: BlockData | null; realIndex: number }[] => {
       const items: { block: BlockData | null; realIndex: number }[] = [];
-      for (let i = 0; i < visibleCount; i++) {
+      for (const i of visibleIndices) {
         items.push({ block: blocks[i], realIndex: i });
       }
       if (!dragInfo || dragInfo.fromSlot === dragInfo.targetSlot) return items;
 
       const result = [...items];
-      const [dragged] = result.splice(dragInfo.fromSlot, 1);
-      result.splice(dragInfo.targetSlot, 0, dragged);
+      const [dragged] = result.splice(visibleIndices.indexOf(dragInfo.fromSlot), 1);
+      result.splice(visibleIndices.indexOf(dragInfo.targetSlot), 0, dragged);
       return result;
     };
 
@@ -208,14 +211,14 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
         style={styles.wrapper}
       >
         <View style={styles.effectList}>
-          {displayItems.map((item, displayIdx) => {
+          {displayItems.map((item, displayIndex) => {
             const { block, realIndex } = item;
             const isDraggedItem = dragging && realIndex === dragInfo.fromSlot;
 
             return (
               <View
                 key={`slot-${realIndex}`}
-                onLayout={(e) => onItemLayout(displayIdx, e)}
+                onLayout={(e) => onItemLayout(visibleIndices[displayIndex], e)}
               >
                 <EffectRow
                   block={block}
@@ -248,7 +251,7 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
         </View>
 
         {/* More slots */}
-        {lastPopulated + 2 < 12 && !dragging && (
+        {!availablePositions && lastPopulated + 2 < 12 && !dragging && (
           <Pressable
             style={styles.moreSlotsBtn}
             onPress={() =>

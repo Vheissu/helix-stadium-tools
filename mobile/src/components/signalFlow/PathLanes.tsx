@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Image, PanResponder, Platform, ScrollView, StyleSheet, View, type LayoutChangeEvent, type ViewInstance } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { Animated, Easing, Image, PanResponder, Platform, ScrollView, StyleSheet, Text as NativeText, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type ScrollViewInstance, type ViewInstance } from 'react-native';
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { AccessibleText as Text } from '../../accessibility/AccessibleText';
 import { useAccessibilityPreferences } from '../../accessibility/AccessibilityPreferences';
 import { Action as Pressable } from '../../accessibility/controls';
@@ -9,6 +9,7 @@ import { BLOCK_IMAGES } from '../../icons/CategoryImages';
 import { COLORS, FONT, getBlockAppearance } from '../../theme/colors';
 import { dropRange, movedIndex } from '../../utils/blockMove';
 import { branchColumns, computeBranchSegments, isMergeBlock, isRoutingBlock, linkedColumn, type BranchSegment } from '../../utils/routingLayout';
+import { centeredColumnOffset, columnSnapOffsets, measurePhoneLanes, revealColumnOffset, type PhoneLaneMetrics } from '../../utils/phoneLaneLayout';
 import type { BlockData, BlockIndex, BlockSlot, IOType, PathIndex } from '../../types/signalFlow';
 
 type RowIO = { input: string | null; output: string | null };
@@ -34,15 +35,22 @@ interface PathLanesProps {
   kindLabel?: (kind: string) => string;
   /** Phone overview: small solid tiles, no names, the whole path is one target. */
   compact?: boolean;
+  /**
+   * Phone grid: full-size tiles with names, both rows scrolling sideways
+   * together beside fixed row labels. Ignored when `compact` is set.
+   */
+  phone?: boolean;
   selected?: boolean;
   onPress?: () => void;
 }
 
 const COLUMNS = 12;
 const LANE_GAP = 8;
+const FADE_W = 28;
 // Read left to right like the signal: one line in and two out, or two in and one out.
 const SPLIT_GLYPH = 'M3 12h7M10 12l9-6M10 12l9 6';
 const MERGE_GLYPH = 'M5 6l9 6M5 18l9-6M14 12h7';
+const PLUS_GLYPH = 'M12 5v14M5 12h14';
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 const columns = Array.from({ length: COLUMNS }, (_, column) => column);
@@ -53,7 +61,8 @@ const blockName = (block: BlockData) => block.customName?.trim() || block.name;
 // a move recreates blocks by model, which would drop those links.
 const isFixedBlock = (block: BlockData) => isRoutingBlock(block) || typeof block.linkPosition === 'number';
 // Let long model names wrap after a slash or hyphen instead of mid-word.
-const wrappableName = (block: BlockData) => blockName(block).replace(/([/-])/g, '$1\u200B');
+const wrappableText = (text: string) => text.replace(/([/-])/g, '$1\u200B');
+const wrappableName = (block: BlockData) => wrappableText(blockName(block));
 
 type NameMode = 'inside' | 'below' | 'none';
 
@@ -112,6 +121,21 @@ const RouteGlyph = ({ merge, size }: { merge: boolean; size: number }) => (
   </Svg>
 );
 
+// Shades a lane edge that has more positions beyond it.
+const EdgeFade = ({ id, side, height, opacity }: { id: string; side: 'left' | 'right'; height: number; opacity: Animated.AnimatedInterpolation<number> }) => (
+  <Animated.View pointerEvents="none" style={[styles.fade, side === 'left' ? { left: 0 } : { right: 0 }, { height, opacity }]}>
+    <Svg width={FADE_W} height={height}>
+      <Defs>
+        <LinearGradient id={id} x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor={COLORS.bg} stopOpacity={side === 'left' ? 1 : 0} />
+          <Stop offset="1" stopColor={COLORS.bg} stopOpacity={side === 'left' ? 0 : 1} />
+        </LinearGradient>
+      </Defs>
+      <Rect width={FADE_W} height={height} fill={`url(#${id})`} />
+    </Svg>
+  </Animated.View>
+);
+
 /**
  * A grid cell that can slide sideways. While a block is dragged the other
  * cells ease into their previewed positions; the dragged cell tracks the
@@ -157,6 +181,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
   onDragActive,
   kindLabel,
   compact = false,
+  phone = false,
   selected = false,
   onPress,
 }) => {
@@ -167,8 +192,17 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
   const labelB = `${pathNumber}B`;
   const segments = useMemo(() => computeBranchSegments(rowA, rowB, rowBHasIO), [rowA, rowB, rowBHasIO]);
   const branch = useMemo(() => branchColumns(segments), [segments]);
-  const g = useMemo(() => (available > 0 ? measure(available, compact) : null), [available, compact]);
-  const { reduceMotion } = useAccessibilityPreferences();
+  const { fontScale } = useWindowDimensions();
+  const { reduceMotion, accessibleLayout } = useAccessibilityPreferences();
+  const phoneMetrics = useMemo(
+    () => (phone && !compact ? measurePhoneLanes(available, fontScale, accessibleLayout) : null),
+    [phone, compact, available, fontScale, accessibleLayout],
+  );
+  const g = useMemo<Geometry | null>(() => {
+    if (available <= 0) return null;
+    if (phoneMetrics) return { ...phoneMetrics, nameMode: 'below', scroll: true };
+    return measure(available, compact);
+  }, [available, compact, phoneMetrics]);
   const [drag, setDragState] = useState<DragState | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const dragMoved = useRef(false);
@@ -181,6 +215,59 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
     dragRef.current = next;
     setDragState(next);
   };
+
+  // Phone lanes scroll sideways; the offset is tracked without re-rendering.
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollOffset = useRef(0);
+  const panning = useRef(false);
+  const contentReady = useRef(false);
+  const pendingScroll = useRef<number | null>(null);
+  const shownPath = useRef<number | null>(null);
+  const snapOffsets = useMemo(() => (phoneMetrics && phoneMetrics.maxOffset > 0 ? columnSnapOffsets(phoneMetrics) : undefined), [phoneMetrics]);
+  const onLanesScroll = useMemo(() => Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    {
+      useNativeDriver: Platform.OS !== 'web',
+      listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => { scrollOffset.current = event.nativeEvent.contentOffset.x; },
+    },
+  ), [scrollX]);
+
+  const scrollLanesTo = (x: number, animated: boolean) => {
+    scrollOffset.current = x;
+    if (!contentReady.current) {
+      pendingScroll.current = x;
+      return;
+    }
+    scrollRef.current?.scrollTo({ x, animated });
+  };
+
+  const onLanesSized = () => {
+    contentReady.current = true;
+    if (pendingScroll.current === null) return;
+    scrollRef.current?.scrollTo({ x: pendingScroll.current, animated: false });
+    pendingScroll.current = null;
+  };
+
+  // Keep the selected block in view when the lanes first appear (such as on
+  // return from its editor), when switching paths, and when it is chosen
+  // somewhere else. Parameter updates never move the lanes, and neither does
+  // a selection change while the user is panning.
+  const selectedColumn = selectedSlot && (selectedSlot.path === rowAIndex || selectedSlot.path === rowBIndex) ? selectedSlot.block : null;
+  const firstOccupiedColumn = columns.find(column => rowA[column] || rowB[column]) ?? 0;
+  useEffect(() => {
+    if (!phoneMetrics || !g) return;
+    const switched = shownPath.current !== pathNumber;
+    shownPath.current = pathNumber;
+    if (switched) {
+      scrollLanesTo(centeredColumnOffset(phoneMetrics, selectedColumn ?? firstOccupiedColumn), false);
+      return;
+    }
+    if (selectedColumn === null || panning.current) return;
+    const target = revealColumnOffset(phoneMetrics, selectedColumn, scrollOffset.current);
+    if (target !== null) scrollLanesTo(target, !reduceMotion);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phoneMetrics, pathNumber, selectedColumn, firstOccupiedColumn]);
 
   const rowBlocks = (rowIndex: PathIndex) => (rowIndex === rowAIndex ? rowA : rowB);
 
@@ -257,7 +344,109 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
     return `${blockName(block)}, ${kind}, row ${row}, position ${column + 1}${block.enabled === false ? ', bypassed' : ''}`;
   };
 
+  const moveActionsFor = (range: [number, number] | null, column: number) => (range ? [
+    ...(column > range[0] ? [{ name: 'moveEarlier', label: 'Move earlier' }] : []),
+    ...(column < range[1] ? [{ name: 'moveLater', label: 'Move later' }] : []),
+  ] : []);
+
+  // Phone cells: the tile and the name under it are one target, the full
+  // column wide. Split and merge nodes get their names too.
+  const renderPhoneBlock = (block: BlockData, rowIndex: PathIndex, rowLabel: string, column: number, m: PhoneLaneMetrics) => {
+    const enabled = block.enabled !== false;
+    const isSelected = selectedSlot?.path === rowIndex && selectedSlot?.block === column;
+    const slot = { path: rowIndex, block: column as BlockIndex };
+    const routing = isRoutingBlock(block);
+    const merge = routing && isMergeBlock(block);
+    const range = routing ? null : dragRange(rowIndex, column);
+    const appearance = getBlockAppearance(block.kind, enabled, COLORS.panel);
+    const image = BLOCK_IMAGES[block.kind] ?? null;
+    const iconSize = Math.round(m.tile * 0.46);
+    const node = Math.round(m.tile * 0.5);
+    const hint = routing ? undefined
+      : range ? 'Opens the block. Touch and hold, then drag to move it.'
+        : onOpenSlotMenu ? 'Opens the block. Touch and hold for more options.' : 'Opens the block\'s parameters';
+    return (
+      <Pressable
+        accessibilityLabel={routing ? `${blockName(block)}, ${merge ? 'merge' : 'split'}, row ${rowLabel}, position ${column + 1}` : describe(block, rowLabel, column)}
+        accessibilityHint={hint}
+        accessibilityState={{ selected: isSelected }}
+        accessibilityActions={moveActionsFor(range, column)}
+        onAccessibilityAction={(event) => {
+          if (event.nativeEvent.actionName === 'moveEarlier') onMoveBlock?.(rowIndex, column, column - 1);
+          if (event.nativeEvent.actionName === 'moveLater') onMoveBlock?.(rowIndex, column, column + 1);
+        }}
+        onPress={onSelectSlot ? () => onSelectSlot(slot) : undefined}
+        onLongPress={routing ? (onOpenSlotMenu ? () => onOpenSlotMenu(slot) : undefined) : () => liftBlock(rowIndex, column)}
+        onPressOut={routing ? undefined : () => { if (dragRef.current && !dragMoved.current) endDrag(true); }}
+        delayLongPress={350}
+        style={({ pressed }) => [styles.phoneCell, { width: m.col - 8, height: m.laneHeight - m.padV * 2 }, pressed && styles.phoneCellPressed]}
+      >
+        {routing ? (
+          <View style={{ width: m.tile, height: m.tile, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={[styles.routeNode, { width: node, height: node, borderRadius: node / 2 }, isSelected && styles.routeNodeSelected]}>
+              <RouteGlyph merge={merge} size={node * 0.52} />
+            </View>
+          </View>
+        ) : (
+          <View style={[styles.tile, styles.phoneTile, {
+            width: m.tile,
+            height: m.tile,
+            backgroundColor: appearance.fill,
+            borderColor: appearance.outline,
+            borderStyle: appearance.outlineStyle,
+          }]}>
+            {image ? (
+              <Image source={image} style={{ width: iconSize, height: iconSize, tintColor: appearance.icon }} resizeMode="contain" />
+            ) : (
+              <BlockIcon type={block.kind} size={iconSize} color={appearance.icon} />
+            )}
+          </View>
+        )}
+        {/* Lane heights are fixed so both rows and their labels line up; screen readers get the full name. */}
+        <NativeText
+          style={[styles.phoneName, {
+            maxWidth: m.col - 8,
+            marginTop: m.nameGap,
+            fontSize: m.nameSize,
+            lineHeight: m.nameLineHeight,
+            color: routing || !enabled ? COLORS.muted : COLORS.text,
+          }, routing && styles.phoneRouteName]}
+          numberOfLines={m.nameLines}
+          maxFontSizeMultiplier={2}
+        >
+          {wrappableName(block)}
+        </NativeText>
+      </Pressable>
+    );
+  };
+
+  const renderPhoneEmpty = (rowIndex: PathIndex, rowLabel: string, column: number, m: PhoneLaneMetrics) => (
+    <Pressable
+      accessibilityLabel={`Add block, row ${rowLabel}, position ${column + 1}`}
+      onPress={onSelectSlot ? () => onSelectSlot({ path: rowIndex, block: column as BlockIndex }) : undefined}
+      style={[styles.phoneCell, { width: m.col - 8, height: m.laneHeight - m.padV * 2 }]}
+    >
+      {({ pressed }) => (
+        <View style={[styles.phoneEmpty, { width: m.tile, height: m.tile }, pressed && styles.phoneEmptyPressed]}>
+          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+            <Path d={PLUS_GLYPH} stroke={COLORS.faint} strokeWidth={2} strokeLinecap="round" />
+          </Svg>
+        </View>
+      )}
+    </Pressable>
+  );
+
+  // Row labels sit outside the scrolling lanes so they stay visible.
+  const renderRowLabel = (label: string, m: PhoneLaneMetrics) => (
+    <View accessible accessibilityLabel={`Row ${label}`} style={[styles.rowGutter, { height: m.laneHeight, paddingTop: m.padV }]}>
+      <View style={{ height: m.tile, justifyContent: 'center' }}>
+        <Text style={styles.rowLabel} maxFontSizeMultiplier={2}>{label}</Text>
+      </View>
+    </View>
+  );
+
   const renderTile = (block: BlockData, rowIndex: PathIndex, rowLabel: string, column: number, geometry: Geometry) => {
+    if (phoneMetrics) return renderPhoneBlock(block, rowIndex, rowLabel, column, phoneMetrics);
     const enabled = block.enabled !== false;
     const isSelected = selectedSlot?.path === rowIndex && selectedSlot?.block === column;
     const slot = { path: rowIndex, block: column as BlockIndex };
@@ -288,10 +477,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
     const appearance = getBlockAppearance(block.kind, enabled, COLORS.panel);
     const image = BLOCK_IMAGES[block.kind] ?? null;
     const range = !compact ? dragRange(rowIndex, column) : null;
-    const moveActions = range ? [
-      ...(column > range[0] ? [{ name: 'moveEarlier', label: 'Move earlier' }] : []),
-      ...(column < range[1] ? [{ name: 'moveLater', label: 'Move later' }] : []),
-    ] : [];
+    const moveActions = moveActionsFor(range, column);
     if (compact) {
       return (
         <View style={[styles.miniTile, {
@@ -362,7 +548,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
         {block ? renderTile(block, rowIndex, rowLabel, column, geometry) : onBranch ? (
           compact ? (
             <View style={[styles.miniEmpty, { width: geometry.tile, height: geometry.tile }]} />
-          ) : (
+          ) : phoneMetrics ? renderPhoneEmpty(rowIndex, rowLabel, column, phoneMetrics) : (
             <Pressable
               accessibilityLabel={`Add block, row ${rowLabel}, position ${column + 1}`}
               onPress={onSelectSlot ? () => onSelectSlot({ path: rowIndex, block: column as BlockIndex }) : undefined}
@@ -374,7 +560,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
         ) : (
           <View style={{ width: geometry.tile, height: geometry.tile }} />
         )}
-        {geometry.nameMode === 'below' && (
+        {geometry.nameMode === 'below' && !phoneMetrics && (
           <Text style={[styles.belowName, { width: geometry.col - 2, color: block && block.enabled !== false ? COLORS.text : COLORS.muted }]} numberOfLines={2} maxFontSizeMultiplier={1.2}>
             {block ? wrappableName(block) : ''}
           </Text>
@@ -390,6 +576,23 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
         : null;
     }
     const pressable = !!onSelectIO && !inactive;
+    if (phoneMetrics) {
+      return (
+        <Pressable
+          accessibilityLabel={`Row ${label} ${type}, ${value}`}
+          disabled={!pressable}
+          onPress={pressable ? () => onSelectIO?.(rowIndex, type) : undefined}
+          style={({ pressed }) => [styles.pill, styles.phonePill, { width: geometry.pillW, height: geometry.laneHeight - geometry.padV * 2 }, inactive && styles.pillInactive, pressed && styles.pillPressed]}
+        >
+          <NativeText style={styles.phonePillCaption} numberOfLines={1} maxFontSizeMultiplier={2}>
+            {type === 'input' ? 'In' : 'Out'}
+          </NativeText>
+          <NativeText style={[styles.pillValue, { fontSize: phoneMetrics.nameSize, lineHeight: phoneMetrics.nameLineHeight }]} numberOfLines={phoneMetrics.nameLines + 1} maxFontSizeMultiplier={2}>
+            {wrappableText(value)}
+          </NativeText>
+        </Pressable>
+      );
+    }
     return (
       <Pressable
         accessibilityLabel={`Row ${label} ${type}, ${value}`}
@@ -436,7 +639,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
     const bActive = segments.length > 0;
     const allMerged = bActive && segments.every((segment) => segment.mergeColumn !== null);
     const laneBHeight = bActive ? geometry.laneHeight : compact ? 12 : 40;
-    const laneStyle = compact ? styles.miniLane : styles.lane;
+    const laneStyle = compact ? styles.miniLane : phoneMetrics ? [styles.lane, styles.phoneLane] : styles.lane;
     return (
       <View style={{ width: geometry.width, gap: compact ? 4 : LANE_GAP }} {...(compact ? {} : responder.panHandlers)}>
         <View style={[laneStyle, { height: geometry.laneHeight, paddingHorizontal: geometry.padH, paddingVertical: geometry.padV }]}>
@@ -470,7 +673,7 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
             {!compact && <View style={{ width: geometry.gap }} />}
             {renderPill(rowBIndex, 'output', labelB, allMerged ? `Into ${labelA}` : (usableName(ioB.output) ?? 'Output'), geometry, allMerged)}
           </View>
-        ) : (
+        ) : phoneMetrics ? null : (
           <View style={[laneStyle, styles.laneIdle, { height: laneBHeight, paddingHorizontal: geometry.padH }]}>
             <Text style={[compact ? styles.miniLabel : styles.idleRow, { width: geometry.pillW }]} maxFontSizeMultiplier={1.2}>{labelB}</Text>
             {!compact && <Text style={styles.idleText} maxFontSizeMultiplier={1.2}>No split. Add a split block to row {labelA} to branch here.</Text>}
@@ -499,6 +702,78 @@ export const PathLanes: React.FC<PathLanesProps> = React.memo(({
       >
         <View onLayout={onLayout}>{g ? renderLanes(g) : <View style={{ height: 52 }} />}</View>
       </Pressable>
+    );
+  }
+
+  if (phoneMetrics) {
+    const m = phoneMetrics;
+    if (!g) return <View onLayout={onLayout} style={{ height: m.laneHeight * 2 + LANE_GAP }} />;
+    const bActive = segments.length > 0;
+    const lanesHeight = bActive ? m.laneHeight * 2 + LANE_GAP : m.laneHeight;
+    const scrolls = m.maxOffset > 0;
+    const thumbW = scrolls ? Math.max(32, Math.round((m.viewport * m.viewport) / m.width)) : 0;
+    return (
+      <View onLayout={onLayout}>
+        {scrolls && <Text style={styles.phoneGridHint} maxFontSizeMultiplier={2}>Swipe across to explore. Tap a block to edit.</Text>}
+        <View style={styles.phoneGrid}>
+          <View style={{ width: m.gutterW, gap: LANE_GAP }}>
+            {renderRowLabel(labelA, m)}
+            {bActive && renderRowLabel(labelB, m)}
+          </View>
+          <View style={{ width: m.viewport, height: lanesHeight }}>
+            <Animated.ScrollView
+              ref={scrollRef}
+              horizontal
+              scrollEnabled={!drag}
+              showsHorizontalScrollIndicator={false}
+              onScroll={onLanesScroll}
+              scrollEventThrottle={16}
+              onScrollBeginDrag={() => { panning.current = true; }}
+              onScrollEndDrag={() => { panning.current = false; }}
+              onMomentumScrollBegin={() => { panning.current = true; }}
+              onMomentumScrollEnd={() => { panning.current = false; }}
+              onContentSizeChange={onLanesSized}
+              snapToOffsets={snapOffsets}
+              style={{ width: m.viewport, height: lanesHeight }}
+            >
+              {renderLanes(g)}
+            </Animated.ScrollView>
+            {scrolls && (
+              <EdgeFade
+                id={`lanes-${pathNumber}-start`}
+                side="left"
+                height={lanesHeight}
+                opacity={scrollX.interpolate({ inputRange: [0, FADE_W], outputRange: [0, 1], extrapolate: 'clamp' })}
+              />
+            )}
+            {scrolls && (
+              <EdgeFade
+                id={`lanes-${pathNumber}-end`}
+                side="right"
+                height={lanesHeight}
+                opacity={scrollX.interpolate({ inputRange: [m.maxOffset - FADE_W, m.maxOffset], outputRange: [1, 0], extrapolate: 'clamp' })}
+              />
+            )}
+          </View>
+        </View>
+        {!bActive && (
+          <View style={styles.phoneIdle}>
+            <View style={{ width: m.gutterW, alignItems: 'center' }}>
+              <Text style={[styles.rowLabel, styles.rowLabelIdle]} maxFontSizeMultiplier={2}>{labelB}</Text>
+            </View>
+            <Text style={styles.phoneIdleText} maxFontSizeMultiplier={2}>No split. Add a split block to row {labelA} to branch here.</Text>
+          </View>
+        )}
+        {/* Shows how much of the row is in view and that the rest is a swipe away. */}
+        {scrolls && (
+          <View pointerEvents="none" style={[styles.scrollTrack, { marginLeft: m.gutterW, width: m.viewport }]}>
+            <Animated.View style={[styles.scrollThumb, {
+              width: thumbW,
+              transform: [{ translateX: scrollX.interpolate({ inputRange: [0, m.maxOffset], outputRange: [0, m.viewport - thumbW], extrapolate: 'clamp' }) }],
+            }]} />
+          </View>
+        )}
+      </View>
     );
   }
 
@@ -692,5 +967,105 @@ const styles = StyleSheet.create({
   miniEmpty: {
     borderRadius: 5,
     backgroundColor: 'rgba(255, 255, 255, 0.045)',
+  },
+  phoneGrid: {
+    flexDirection: 'row',
+  },
+  phoneGridHint: { color: COLORS.muted, ...FONT.body, fontSize: 13, marginBottom: 10 },
+  rowGutter: {
+    alignItems: 'center',
+    backgroundColor: COLORS.panel,
+    borderTopLeftRadius: 14,
+    borderBottomLeftRadius: 14,
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderRightColor: COLORS.stroke,
+  },
+  rowLabel: {
+    color: COLORS.text,
+    ...FONT.bold,
+    fontSize: 15,
+  },
+  rowLabelIdle: {
+    color: COLORS.muted,
+  },
+  phoneLane: {
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  },
+  phoneCell: {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  phoneCellPressed: {
+    transform: [{ scale: 0.97 }],
+  },
+  phoneTile: {
+    justifyContent: 'center',
+  },
+  phoneName: {
+    ...FONT.semibold,
+    textAlign: 'center',
+  },
+  // Sits on the branch wire like a label, hiding the line behind the text.
+  phoneRouteName: {
+    backgroundColor: COLORS.panel,
+    paddingHorizontal: 4,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  phoneEmpty: {
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: '#3a3a42',
+    backgroundColor: COLORS.panelAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  phoneEmptyPressed: {
+    backgroundColor: COLORS.raised,
+  },
+  phonePill: {
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  phonePillCaption: {
+    color: COLORS.muted,
+    ...FONT.body,
+    fontSize: 13,
+    lineHeight: 17,
+  },
+  phoneIdle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 48,
+    marginTop: LANE_GAP,
+    paddingVertical: 10,
+    paddingRight: 12,
+    borderRadius: 14,
+    backgroundColor: COLORS.panel,
+  },
+  phoneIdleText: {
+    flex: 1,
+    color: COLORS.muted,
+    ...FONT.body,
+    fontSize: 14,
+  },
+  fade: {
+    position: 'absolute',
+    top: 0,
+    width: FADE_W,
+  },
+  scrollTrack: {
+    height: 4,
+    marginTop: 10,
+    borderRadius: 2,
+    backgroundColor: COLORS.hairline,
+    overflow: 'hidden',
+  },
+  scrollThumb: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.faint,
   },
 });

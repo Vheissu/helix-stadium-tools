@@ -309,6 +309,7 @@ function EditorApp() {
   // At accessibility text sizes and on landscape phones, screen headers scroll with the content so the content keeps its room.
   const scrollChrome = accessibilityText || phoneLandscape;
   const [phonePath, setPhonePath] = useState<1 | 2>(1);
+  const [phoneFlowView, setPhoneFlowView] = useState<'grid' | 'list'>('grid');
   // Per-parameter help sheet state. The sheet is shown when the user taps the
   // (?) glyph next to a parameter label.
   const [paramHelp, setParamHelp] = useState<{ title: string; subtitle?: string; body: string } | null>(null);
@@ -3092,7 +3093,7 @@ function EditorApp() {
         <View style={styles.pathHeader}>
           <Pressable accessibilityLabel={`Path ${pathNum} DSP estimate ${usage.toFixed(1)} of ${STANDARD_DSP_CAP}. Explain processing estimates`}
             onPress={showDspHelp} style={({ pressed }) => [styles.pathDsp, pressed && styles.pressedQuiet]}>
-            {!linearControls && <Text maxFontSizeMultiplier={2} style={styles.pathTitle}>Path {pathNum}</Text>}
+            {dockEditor && <Text maxFontSizeMultiplier={2} style={styles.pathTitle}>Path {pathNum}</Text>}
             <View style={styles.pathDspLine}>
               <View style={styles.dspTrack}>
                 <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
@@ -3171,8 +3172,10 @@ function EditorApp() {
 
         {pathNum === 1 && virtualNamRoute && <VirtualNamBlock route={virtualNamRoute} />}
 
-        {dockEditor ? (
+        {dockEditor || (!linearControls && phoneFlowView === 'grid') ? (
           <PathLanes
+            key={`path-${pathNum}`}
+            phone={!dockEditor}
             pathNumber={pathNum}
             rowA={decorateDisplayBlocks(grid[primary])}
             rowB={decorateDisplayBlocks(grid[split])}
@@ -3185,8 +3188,8 @@ function EditorApp() {
             onSelectSlot={selectSlot}
             onOpenSlotMenu={openSlotMenu}
             onSelectIO={selectIO}
-            onMoveBlock={handleLaneMove}
-            onDragActive={(active) => setFlowScrollEnabled(!active)}
+            onMoveBlock={dockEditor ? handleLaneMove : undefined}
+            onDragActive={dockEditor ? (active) => setFlowScrollEnabled(!active) : undefined}
             kindLabel={kindLabel}
           />
         ) : (
@@ -3209,27 +3212,22 @@ function EditorApp() {
     );
   };
 
-  const renderOverview = () => (
-    <View style={styles.overview}>
-      {([1, 2] as const).map((pathNum) => {
-        const primary: PathIndex = pathNum === 1 ? 0 : 2;
-        const split: PathIndex = pathNum === 1 ? 1 : 3;
-        return (
-          <PathLanes
-            key={pathNum}
-            compact
-            pathNumber={pathNum}
-            rowA={grid[primary]}
-            rowB={grid[split]}
-            rowBHasIO={hasIndependentIO(ioGrid[split])}
-            ioA={{ input: null, output: null }}
-            ioB={{ input: null, output: null }}
-            selectedSlot={selectedSlot}
-            selected={phonePath === pathNum}
-            onPress={() => setPhonePath(pathNum)}
-          />
-        );
-      })}
+  const renderPhoneFlowNavigation = () => (
+    <View style={[styles.phoneFlowNavigation, accessibilityText && styles.phoneFlowNavigationStacked]}>
+      <View accessibilityRole="tablist" accessibilityLabel="Signal path" style={[styles.phoneFlowTabs, accessibilityText && styles.phoneFlowTabsStacked]}>
+        {([1, 2] as const).map(path => <Pressable key={path} accessibilityRole="tab"
+          accessibilityLabel={`Path ${path}`} accessibilityState={{ selected: phonePath === path }}
+          onPress={() => setPhonePath(path)} style={({ pressed }) => [styles.phoneFlowTab, phonePath === path && styles.phoneFlowTabSelected, pressed && styles.pressedQuiet]}>
+          <Text maxFontSizeMultiplier={2} style={[styles.phoneFlowTabText, phonePath === path && styles.phoneFlowTabTextSelected]}>Path {path}</Text>
+        </Pressable>)}
+      </View>
+      <View accessibilityRole="tablist" accessibilityLabel="Signal chain view" style={[styles.phoneFlowTabs, accessibilityText && styles.phoneFlowTabsStacked]}>
+        {(['grid', 'list'] as const).map(view => <Pressable key={view} accessibilityRole="tab"
+          accessibilityLabel={`${view === 'grid' ? 'Grid' : 'List'} view`} accessibilityState={{ selected: phoneFlowView === view }}
+          onPress={() => setPhoneFlowView(view)} style={({ pressed }) => [styles.phoneFlowTab, phoneFlowView === view && styles.phoneFlowTabSelected, pressed && styles.pressedQuiet]}>
+          <Text maxFontSizeMultiplier={2} style={[styles.phoneFlowTabText, phoneFlowView === view && styles.phoneFlowTabTextSelected]}>{view === 'grid' ? 'Grid' : 'List'}</Text>
+        </Pressable>)}
+      </View>
     </View>
   );
 
@@ -3272,7 +3270,7 @@ function EditorApp() {
           </>
         ) : (
           <>
-            {renderOverview()}
+            {renderPhoneFlowNavigation()}
             {renderPathSection(phonePath)}
           </>
         )}
@@ -4206,7 +4204,7 @@ function EditorApp() {
       kindLabel(block.kind),
       !isRoutingModel(block.id) && metaName && metaName !== name && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null,
       `Row ${rowLabels[target.path]}, position ${target.block + 1}`,
-      typeof block.usage === 'number' ? `${block.usage.toFixed(1)} DSP` : null,
+      typeof block.usage === 'number' ? `${block.usage.toFixed(1)}\u00a0DSP` : null,
     ].filter(Boolean).join(' · ') : undefined;
     const closeMenu = () => setSlotMenuOpen(false);
     return (
@@ -4310,12 +4308,12 @@ function EditorApp() {
     );
     // Phones drop the category box: a small tinted glyph leads the metadata line, and long names and models wrap.
     const phoneTitle = (
-      <View style={[styles.phoneBlockTitleStack, accessibilityText && styles.editorTitleStackAccessible]}>
+      <View style={[styles.phoneBlockTitleStack, styles.editorTitleStackAccessible]}>
         <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={[styles.inspectorTitle, styles.editorBlockTitle]}>{displayName}</ScreenHeading>
       </View>
     );
     const phoneMetadata = (
-        <View style={[styles.editorMetaRow, accessibilityText && styles.editorMetaRowAccessible]}>
+        <View style={[styles.editorMetaRow, styles.editorMetaRowAccessible]}>
           <View style={styles.editorMetaGlyph} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">{glyph(16, color)}</View>
           <Text style={[styles.inspectorSubtitle, styles.editorMetaText]}>{subtitle}</Text>
         </View>
@@ -4390,6 +4388,21 @@ function EditorApp() {
     const headerInScroll = docked ? accessibilityText : scrollChrome;
     // At accessibility sizes the full preset name and status scroll with the editor.
     const saveInScroll = !docked && accessibilityText;
+    const backLabel = linearControls || phoneFlowView === 'list' ? 'Back to list' : 'Back to grid';
+    const phoneNavigation = (
+      <View style={styles.editorTopRow}>
+        <Pressable accessibilityLabel={backLabel} disabled={editBusy}
+          style={({ pressed }) => [styles.editorReturn, pressed && styles.iconActionPressed, editBusy && styles.stepButtonDisabled]}
+          onPress={() => { setFocusOpen(false); closeEditor(); }}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+            <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+          <Text maxFontSizeMultiplier={2} style={styles.editorReturnText}>{backLabel}</Text>
+        </Pressable>
+        <View style={styles.flexSpacer} />
+        {menuButton}
+      </View>
+    );
     const header = docked ? (
       <View style={styles.inspectorHeader}>
         {chip}
@@ -4399,18 +4412,7 @@ function EditorApp() {
       </View>
     ) : (
       <>
-        <View style={styles.editorTopRow}>
-          <Pressable accessibilityLabel="Back to signal flow" disabled={editBusy}
-            style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]}
-            onPress={() => { setFocusOpen(false); closeEditor(); }}>
-            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </Pressable>
-          {accessibilityText ? <View style={styles.flexSpacer} /> : phoneTitle}
-          {menuButton}
-        </View>
-        {accessibilityText && <View style={styles.editorAccessibleTitle}>{phoneTitle}</View>}
+        <View style={styles.editorAccessibleTitle}>{phoneTitle}</View>
         {phoneMetadata}
         <View style={[styles.editorToolRow, accessibilityText && styles.editorToolRowStacked, !saveInScroll && styles.editorToolRowDivided]}>
           {powerButton}
@@ -4478,6 +4480,7 @@ function EditorApp() {
 
     return (
       <>
+        {!docked && phoneNavigation}
         {!headerInScroll && header}
         {body}
       </>
@@ -5935,7 +5938,14 @@ const styles = StyleSheet.create({
   flowDock: { flex: 1 },
   flowLanes: { flexGrow: 0, flexShrink: 1 },
   flowLanesContent: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 8, gap: 6 },
-  overview: { gap: 6, marginBottom: 6 },
+  phoneFlowNavigation: { flexDirection: 'row', gap: 12, marginBottom: 8 },
+  phoneFlowNavigationStacked: { flexDirection: 'column' },
+  phoneFlowTabs: { flex: 1, minWidth: 0, flexDirection: 'row', gap: 4, padding: 4, borderRadius: 12, backgroundColor: COLORS.panel },
+  phoneFlowTabsStacked: { flex: 0 },
+  phoneFlowTab: { flex: 1, alignItems: 'center', paddingHorizontal: 6, paddingVertical: 8, borderRadius: 8 },
+  phoneFlowTabSelected: { backgroundColor: COLORS.raised },
+  phoneFlowTabText: { color: COLORS.muted, ...FONT.semibold, fontSize: 15, textAlign: 'center' },
+  phoneFlowTabTextSelected: { color: COLORS.text },
   inspector: {
     flex: 1,
     minHeight: 320,
@@ -6004,6 +6014,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.control,
   },
   editorTopRow: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 48, paddingHorizontal: 4 },
+  editorReturn: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1, margin: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, backgroundColor: COLORS.raised },
+  editorReturnText: { color: COLORS.text, ...FONT.semibold, fontSize: 15, flexShrink: 1 },
 
 
   stepButton: {

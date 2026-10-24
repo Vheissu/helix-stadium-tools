@@ -118,7 +118,10 @@ and the live B-endpoint replacement check above. Auto-Cab recovery failure paths
 are covered by automated tests; no device failure was induced during live checks.
 
 The earlier iOS 11 and Android 12 artifacts predate the copy changes and are
-superseded. Fresh signed builds are required for submission.
+superseded. Fresh signed releases were built from the verified copy code:
+iOS build 12 was uploaded to App Store Connect, and Android version code 13
+was uploaded as an internal-testing draft. The release already in review was
+not replaced. Android build 11 remains available to internal testers.
 
 Automated tests cover acknowledgements, visible versus internal block IDs,
 stale presets, stale move sources, topology, readback failures, native move plans,

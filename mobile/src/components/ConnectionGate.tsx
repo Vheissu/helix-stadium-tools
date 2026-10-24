@@ -36,6 +36,10 @@ export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selec
   const compact = height < 900 || fontScale > 1.3;
   const wide = width >= 840 && fontScale <= 1.3 && !screenReader;
   const largeText = fontScale > 1.5;
+  // Three equal method columns only while "Automatic", its icon and padding fit.
+  const methodColumn = (Math.min(width, 540) - 48 - 16) / 3;
+  const methodIcons = methodColumn >= 70 * fontScale + 42;
+  const stackMethods = largeText || methodColumn < 70 * fontScale + 18;
   const directUsb = Platform.OS === 'android' && transport === 'usb';
   const error = getConnectionErrorMessage(status);
   const canConnect = !connecting && (directUsb || !!host.trim());
@@ -63,15 +67,15 @@ export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selec
             <Text accessibilityRole="header" style={styles.title}>Connect your Stadium</Text>
             <Text style={styles.hint}>{getConnectionHint(transport)}</Text>
           </View>
-          <View style={[styles.transports, fontScale > 1.5 && styles.transportsStack]} accessibilityRole="radiogroup" accessibilityLabel="Connection method">
+          <View style={[styles.transports, stackMethods && styles.transportsStack]} accessibilityRole="radiogroup" accessibilityLabel="Connection method">
             {(['auto', 'usb', 'wifi'] as const).map(option => {
               const selected = transport === option;
               const label = option === 'auto' ? 'Automatic' : option === 'usb' ? 'USB' : 'Wi-Fi';
               return <Action key={option} accessibilityRole="radio" accessibilityLabel={label}
                 accessibilityState={{ checked: selected, disabled: connecting }} disabled={connecting}
                 onPress={() => onTransportChange(option)}
-                style={({ pressed }) => [styles.transport, selected && styles.transportSelected, pressed && styles.pressed, fontScale > 1.5 && styles.transportStack]}>
-                <UtilityIcon name={option === 'auto' ? 'automatic' : option} size={18} color={selected ? COLORS.text : COLORS.muted} />
+                style={({ pressed }) => [styles.transport, selected && styles.transportSelected, pressed && styles.pressed, stackMethods && styles.transportStack]}>
+                {(methodIcons || stackMethods) && <UtilityIcon name={option === 'auto' ? 'automatic' : option} size={18} color={selected ? COLORS.text : COLORS.muted} />}
                 <Text style={[styles.transportLabel, selected && styles.transportLabelSelected]}>{label}</Text>
               </Action>;
             })}
@@ -83,14 +87,14 @@ export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selec
               <Text style={styles.hint}>Connect a USB data cable, then tap Connect. Allow USB access when asked.</Text></View>
           </View> : <StadiumSearch host={host} port={port} disabled={connecting} onSelect={onDeviceSelect} onActivityChange={setSearching} />}
 
-          <View style={styles.manualOptions}>
+          <View style={[styles.manualOptions, fontScale > 1.3 && styles.manualOptionsStacked]}>
           {!directUsb && <Action disabled={connecting} onPress={() => setSheet('manual')} accessibilityLabel="Enter a device name or IP address"
             style={({ pressed }) => [styles.manual, pressed && styles.pressed]}>
             <View style={styles.flex}><Text style={styles.manualTitle}>Enter an address</Text>
               {host.trim() !== '' && !selectedDevice && <Text style={styles.address} numberOfLines={1}>{host.trim()}</Text>}</View>
             <UtilityIcon name="chevron" size={17} />
           </Action>}
-          <Action disabled={connecting} accessibilityLabel="Connection help" onPress={() => setSheet('help')} style={styles.setup}>
+          <Action disabled={connecting} accessibilityLabel="Connection help" onPress={() => setSheet('help')} style={[styles.setup, fontScale > 1.3 && styles.setupStacked]}>
             <UtilityIcon name="help" size={17} /><Text style={styles.setupText}>{directUsb ? 'Connection help' : 'Help'}</Text>
           </Action>
           </View>
@@ -116,7 +120,10 @@ export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selec
         </Action>}
       </View>}
     </KeyboardAvoidingView>
-    <BottomSheet visible={sheet === 'manual'} onClose={() => setSheet(null)} title="Connect by address" subtitle="Device name or IP address">
+    <BottomSheet visible={sheet === 'manual'} onClose={() => setSheet(null)} title="Connect by address" subtitle="Device name or IP address"
+      footer={<Action disabled={connecting || !host.trim()} onPress={connect} style={({ pressed }) => [styles.connect, pressed && styles.connectPressed, (!host.trim() || connecting) && styles.connectBusy]}>
+        <Text style={styles.connectLabel}>Connect to this address</Text><UtilityIcon name="arrow" color={COLORS.bg} />
+      </Action>}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetContent}>
         <Text style={styles.hint}>On your Stadium, open Menu → Wi-Fi. Its IP address appears at the bottom of the right sidebar.</Text>
         <TextInput accessibilityLabel="Device name or IP address" value={host} onChangeText={onHostChange}
@@ -124,9 +131,6 @@ export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selec
           style={styles.input} autoCapitalize="none" autoCorrect={false} autoFocus editable={!connecting}
           returnKeyType="go" onSubmitEditing={connect} />
         <Text style={styles.hint}>Set Global Settings → Preferences → Remote Access to Allow on your Stadium.</Text>
-        <Action disabled={connecting || !host.trim()} onPress={connect} style={({ pressed }) => [styles.connect, pressed && styles.connectPressed, (!host.trim() || connecting) && styles.connectBusy]}>
-          <Text style={styles.connectLabel}>Connect to this address</Text><UtilityIcon name="arrow" color={COLORS.bg} />
-        </Action>
       </ScrollView>
     </BottomSheet>
     <BottomSheet visible={sheet === 'help'} onClose={() => setSheet(null)} title="Get connected">
@@ -165,26 +169,28 @@ const styles = StyleSheet.create({
   connection: { gap: 14 },
   connectionWide: { flex: 1.1, paddingVertical: 20 },
   intro: { gap: 6 },
-  title: { color: COLORS.text, ...FONT.semibold, fontSize: 23, letterSpacing: -0.6 },
+  title: { color: COLORS.text, ...FONT.semibold, fontSize: 23, lineHeight: 28 },
   hint: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 22 },
   transports: { flexDirection: 'row', padding: 4, backgroundColor: COLORS.panel, borderRadius: 14, gap: 4 },
   transportsStack: { flexDirection: 'column' },
-  transport: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 10 },
+  transport: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 10 },
   transportStack: { flex: 0, justifyContent: 'flex-start', paddingHorizontal: 16 },
   transportSelected: { backgroundColor: COLORS.raised },
   transportLabel: { color: COLORS.muted, ...FONT.medium, fontSize: 15, flexShrink: 1 },
   transportLabelSelected: { color: COLORS.text },
   pressed: { backgroundColor: COLORS.control },
-  manualOptions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 16 },
-  manual: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, gap: 12, flexGrow: 1, flexShrink: 1, minWidth: 160 },
+  manualOptions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  manualOptionsStacked: { flexDirection: 'column', alignItems: 'stretch', gap: 4 },
+  manual: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, gap: 12, flexGrow: 1, flexShrink: 1, minWidth: 0 },
   manualTitle: { color: COLORS.text, fontSize: 15, ...FONT.medium },
   address: { color: COLORS.muted, fontSize: 14, marginTop: 3 },
   connect: { minHeight: 56, borderRadius: 14, backgroundColor: COLORS.text, paddingHorizontal: 20, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   connectPressed: { backgroundColor: '#d5d1c7' },
   connectBusy: { opacity: 0.6 },
   connectLabel: { color: COLORS.bg, ...FONT.semibold, fontSize: 17, flexShrink: 1 },
-  setup: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 4, maxWidth: '100%' },
-  setupText: { color: COLORS.muted, fontSize: 15 },
+  setup: { flexShrink: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 4, maxWidth: '100%' },
+  setupStacked: { flexShrink: 1, justifyContent: 'flex-start' },
+  setupText: { color: COLORS.muted, fontSize: 15, flexShrink: 1 },
   previewWrap: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke, paddingTop: 12 },
   preview: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 8 },
   previewTitle: { color: COLORS.text, fontSize: 16, ...FONT.medium, marginBottom: 3 },

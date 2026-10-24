@@ -1,10 +1,11 @@
 import { AccessibleParameter } from '../accessibility/AccessibleParameter';
 import { useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import React, { useCallback, useRef, useState } from 'react';
-import { PanResponder, Pressable, StyleSheet, Text, TextInput, View, Modal } from 'react-native';
+import { PanResponder, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { COLORS, FONT, colorWithAlpha } from '../theme/colors';
 import { formatParamValue } from '../utils/paramFormat';
+import { ParamValueEditor } from './ParamValueEditor';
 
 interface ParamKnobProps {
   label: string;
@@ -297,7 +298,7 @@ const VisualParamKnob: React.FC<ParamKnobProps> = React.memo(({
           <View style={styles.knobWrap}>
             <KnobBody norm={normalized} accent={accent} active={isOn} />
           </View>
-          <Text style={styles.label} numberOfLines={1}>{label}</Text>
+          <Text style={styles.label} numberOfLines={2}>{label}</Text>
           <Text
             style={[
               styles.value,
@@ -313,32 +314,9 @@ const VisualParamKnob: React.FC<ParamKnobProps> = React.memo(({
 
       {/* Precise edit modal — only relevant for continuous knobs */}
       {isNumeric && (
-        <Modal visible={editing} transparent animationType="fade" onRequestClose={() => setEditing(false)}>
-          <Pressable style={styles.editBackdrop} onPress={() => setEditing(false)}>
-            <View style={styles.editCard} onStartShouldSetResponder={() => true}>
-              <Text style={styles.editLabel}>{label}</Text>
-              <TextInput
-                style={styles.editInput}
-                value={editText}
-                onChangeText={setEditText}
-                keyboardType="numeric"
-                autoFocus
-                selectTextOnFocus
-                onSubmitEditing={handleEditSubmit}
-                returnKeyType="done"
-              />
-              {unit && unit !== 'unitless' && <Text style={styles.editUnit}>{unit}</Text>}
-              <View style={styles.editActions}>
-                <Pressable style={styles.editCancel} onPress={() => setEditing(false)}>
-                  <Text style={styles.editCancelText}>Cancel</Text>
-                </Pressable>
-                <Pressable style={styles.editConfirm} onPress={handleEditSubmit}>
-                  <Text style={styles.editConfirmText}>Set</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Pressable>
-        </Modal>
+        <ParamValueEditor visible={editing} label={label} unit={unit} value={editText}
+          allowNegative={typeof displayMin === 'number' && typeof displayMax === 'number' ? Math.min(displayMin, displayMax) < 0 : min < 0}
+          onChangeValue={setEditText} onSubmit={handleEditSubmit} onCancel={() => setEditing(false)} />
       )}
     </>
   );
@@ -371,6 +349,7 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
     ...FONT.semibold,
     fontSize: 13,
+    lineHeight: 16,
     textAlign: 'center',
   },
   value: {
@@ -379,74 +358,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 0.2,
     textAlign: 'center',
-  },
-  editBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editCard: {
-    backgroundColor: COLORS.panel,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    padding: 24,
-    width: 240,
-    alignItems: 'center',
-    gap: 12,
-  },
-  editLabel: {
-    color: COLORS.muted,
-    ...FONT.semibold,
-    fontSize: 13,
-  },
-  editInput: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.accent,
-    backgroundColor: COLORS.panelAlt,
-    color: COLORS.text,
-    ...FONT.numeric,
-    fontSize: 20,
-    textAlign: 'center',
-  },
-  editUnit: {
-    color: COLORS.muted,
-    ...FONT.numeric,
-    fontSize: 12,
-  },
-  editActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 4,
-  },
-  editCancel: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    alignItems: 'center',
-  },
-  editCancelText: {
-    color: COLORS.muted,
-    ...FONT.semibold,
-    fontSize: 14,
-  },
-  editConfirm: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: COLORS.accent,
-    alignItems: 'center',
-  },
-  editConfirmText: {
-    color: COLORS.bg,
-    ...FONT.semibold,
-    fontSize: 14,
   },
 });
 

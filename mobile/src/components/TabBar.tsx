@@ -1,6 +1,6 @@
-import { AccessibleText as Text } from '../accessibility/AccessibleText';
+import { useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import React from 'react';
-import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../theme/colors';
@@ -88,7 +88,8 @@ const TABS: Array<{ key: TabKey; label: string; Icon: typeof FlowIcon }> = [
 
 export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connected, variant = 'bar' }) => {
   const insets = useSafeAreaInsets();
-  const { fontScale } = useWindowDimensions();
+  const { accessibleLayout, screenReader } = useAccessibilityPreferences();
+  const largeLabels = accessibleLayout || screenReader;
   const rail = variant === 'rail';
   return (
     <View accessibilityRole="tablist" style={rail ? styles.rail : [styles.container, { paddingBottom: Math.max(insets.bottom, 6) }]}>
@@ -96,7 +97,7 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
         const active = activeTab === key;
         const color = active ? COLORS.text : COLORS.muted;
         return (
-          <Pressable accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={label} accessibilityValue={key === 'settings' ? { text: connected ? 'Connected' : 'Disconnected' } : undefined} key={key} style={rail ? [styles.railTab, active && styles.railTabActive] : [styles.tab, fontScale > 1.5 && { flexBasis: '33%', flexGrow: 1, flexShrink: 0, paddingVertical: 8 }]} onPress={() => onTabChange(key)}>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={label} accessibilityValue={key === 'settings' ? { text: connected ? 'Connected' : 'Disconnected' } : undefined} key={key} style={rail ? [styles.railTab, active && styles.railTabActive] : styles.tab} onPress={() => onTabChange(key)}>
             <View style={styles.iconWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
               <Icon color={color} size={22} />
               {key === 'settings' && (
@@ -108,7 +109,10 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange, connecte
                 />
               )}
             </View>
-            <Text maxFontSizeMultiplier={1.5} style={[styles.label, active && styles.labelActive]}>{label}</Text>
+            {/* One row at every text size, like the system tab bar: labels scale to
+                1.35x and then shrink to fit rather than wrapping the bar. */}
+            <Text maxFontSizeMultiplier={1.35} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}
+              style={[styles.label, largeLabels && styles.labelLarge, active && styles.labelActive]}>{label}</Text>
           </Pressable>
         );
       })}
@@ -137,7 +141,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.control,
   },
   container: {
-    flexWrap: 'wrap',
     flexDirection: 'row',
     backgroundColor: COLORS.bg,
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -147,6 +150,8 @@ const styles = StyleSheet.create({
   tab: {
     minHeight: 48,
     flex: 1,
+    minWidth: 0,
+    paddingHorizontal: 2,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
@@ -163,6 +168,9 @@ const styles = StyleSheet.create({
     ...FONT.body,
     fontSize: 11,
     letterSpacing: 0.1,
+  },
+  labelLarge: {
+    fontSize: 13,
   },
   labelActive: {
     color: COLORS.text,

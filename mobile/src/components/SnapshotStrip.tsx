@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action as Pressable } from '../accessibility/controls';
 import { COLORS, FONT, blendHexColors } from '../theme/colors';
+import { EqualGrid } from './EqualGrid';
 
 export interface SnapshotChip {
   index: number;
@@ -33,7 +34,6 @@ export function SnapshotStrip({ snapshots, activeIndex, disabled, columns, onAct
         onPress={() => onActivate(snapshot.index)}
         style={({ pressed }) => [
           styles.chip,
-          columns ? { flexBasis: `${100 / columns - 2}%`, flexGrow: 1 } : null,
           active && { backgroundColor: blendHexColors(COLORS.bg, snapshot.color, 0.22), borderColor: snapshot.color },
           pressed && !active && styles.chipPressed,
           disabled && styles.chipDisabled,
@@ -46,7 +46,8 @@ export function SnapshotStrip({ snapshots, activeIndex, disabled, columns, onAct
     );
   });
   if (columns) {
-    return <View accessibilityRole="tablist" style={styles.grid}>{chips}</View>;
+    // Equal cells with a padded last row, so 8 snapshots in 3 columns don't stretch the last two.
+    return <EqualGrid accessibilityRole="tablist" columns={[columns]}>{chips}</EqualGrid>;
   }
   return (
     <ScrollView accessibilityRole="tablist" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
@@ -56,17 +57,12 @@ export function SnapshotStrip({ snapshots, activeIndex, disabled, columns, onAct
 }
 
 const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
   row: {
     gap: 8,
     paddingRight: 16,
   },
   chip: {
-    minHeight: 44,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,

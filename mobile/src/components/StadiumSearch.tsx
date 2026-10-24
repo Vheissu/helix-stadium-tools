@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AppState, NativeModules, StyleSheet, View } from 'react-native';
+import { AppState, NativeModules, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { formatDiscoveryError, startStadiumSearch, type StadiumDevice } from '../utils/stadiumDiscovery';
@@ -22,6 +22,8 @@ export function StadiumSearch({ host, port, disabled, onSelect, onActivityChange
   const [attempt, setAttempt] = useState(0);
   const current = useRef<ReturnType<typeof startStadiumSearch> | null>(null);
   const userStopped = useRef(false);
+  const { fontScale } = useWindowDimensions();
+  const stackHeader = fontScale > 1.5;
   useEffect(() => {
     onActivityChange?.(searching);
     return () => onActivityChange?.(false);
@@ -64,7 +66,7 @@ export function StadiumSearch({ host, port, disabled, onSelect, onActivityChange
 
   return (
     <View style={styles.section}>
-      <View style={styles.header}>
+      <View style={[styles.header, stackHeader && styles.headerStacked]}>
         <Text accessibilityRole="header" style={styles.title}>Nearby Stadiums</Text>
         <Action disabled={disabled} accessibilityLabel={searching ? 'Stop searching for Stadiums' : 'Search for Stadiums again'}
           onPress={() => {
@@ -74,7 +76,7 @@ export function StadiumSearch({ host, port, disabled, onSelect, onActivityChange
               setSearching(false);
               setMessage('Search stopped. Search again or enter an address.');
             } else setAttempt(value => value + 1);
-          }}>
+          }} style={({ pressed }) => [styles.headerAction, stackHeader && styles.headerActionStacked, pressed && { opacity: 0.6 }, disabled && { opacity: 0.45 }]}>
           <Text style={styles.action}>{searching ? 'Stop' : 'Search again'}</Text>
         </Action>
       </View>
@@ -103,9 +105,13 @@ export function StadiumSearch({ host, port, disabled, onSelect, onActivityChange
 const styles = StyleSheet.create({
   section: { gap: 10 },
   devices: { gap: 10 },
-  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  title: { color: COLORS.text, ...FONT.semibold, fontSize: 15, flexShrink: 1 },
-  action: { color: COLORS.accent, ...FONT.semibold, fontSize: 14 },
+  // One row: the title shrinks and wraps, the action stays trailing.
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  title: { color: COLORS.text, ...FONT.semibold, fontSize: 15, lineHeight: 20, flex: 1, minWidth: 0 },
+  headerAction: { flexShrink: 0, alignItems: 'flex-end', paddingLeft: 8 },
+  headerStacked: { flexDirection: 'column', alignItems: 'stretch', gap: 0 },
+  headerActionStacked: { alignItems: 'flex-start', paddingLeft: 0 },
+  action: { color: COLORS.accent, ...FONT.semibold, fontSize: 15, textAlign: 'right' },
   hint: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 21 },
   device: { padding: 16, gap: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: 'transparent', borderRadius: 16, backgroundColor: COLORS.panel },
   selected: { borderColor: COLORS.accentMid, backgroundColor: COLORS.control },
@@ -116,6 +122,6 @@ const styles = StyleSheet.create({
   selection: { width: 22, height: 22, borderRadius: 11, borderWidth: 1, borderColor: COLORS.wire, alignItems: 'center', justifyContent: 'center' },
   selectionActive: { borderColor: COLORS.text, backgroundColor: COLORS.text },
   empty: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 20, backgroundColor: COLORS.panel, borderRadius: 16, minHeight: 112 },
-  emptyText: { flex: 1 },
+  emptyText: { flex: 1, minWidth: 0 },
   emptyTitle: { color: COLORS.text, ...FONT.medium, fontSize: 17, marginBottom: 6 },
 });

@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { StyleSheet, TextInput, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
 import { AccessibleText as Text, ScreenHeading } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { COLORS, FONT } from '../theme/colors';
@@ -13,11 +13,11 @@ export function LibraryHeading({ title, focusKey, children }: { title: string; f
   </View>;
 }
 
-export function LibraryButton({ label, icon, onPress, disabled = false, primary = false }: {
-  label: string; icon?: UtilityIconName; onPress: () => void; disabled?: boolean; primary?: boolean;
+export function LibraryButton({ label, icon, onPress, disabled = false, primary = false, style }: {
+  label: string; icon?: UtilityIconName; onPress: () => void; disabled?: boolean; primary?: boolean; style?: StyleProp<ViewStyle>;
 }) {
   return <Action accessibilityLabel={label} disabled={disabled} onPress={onPress}
-    style={({ pressed }) => [libraryStyles.button, primary && libraryStyles.primary, pressed && { opacity: 0.75 }, disabled && { opacity: 0.45 }]}>
+    style={({ pressed }) => [libraryStyles.button, primary && libraryStyles.primary, style, pressed && { opacity: 0.75 }, disabled && { opacity: 0.45 }]}>
     {icon && <UtilityIcon name={icon} color={primary ? COLORS.bg : COLORS.text} size={18} />}
     <Text style={[libraryStyles.buttonText, primary && { color: COLORS.bg }]}>{label}</Text>
   </Action>;
@@ -38,9 +38,16 @@ export function LibrarySegments<T extends string>({ options, value, onChange, di
   options: readonly (readonly [T, string])[]; value: T; onChange: (value: T) => void; disabled?: boolean; label: string;
 }) {
   const { fontScale } = useWindowDimensions();
-  return <View accessibilityRole="tablist" accessibilityLabel={label} style={libraryStyles.segments}>
+  const [width, setWidth] = useState(0);
+  // Equal columns while every label fits on one line; otherwise one full-width
+  // row per option. Never wrap into a ragged second line.
+  const longest = Math.max(...options.map(([, title]) => title.length));
+  const column = width > 0 ? (width - 8 - (options.length - 1) * 4) / options.length : Infinity;
+  const stacked = fontScale > 1.5 || column < longest * 9 * fontScale + 24;
+  return <View accessibilityRole="tablist" accessibilityLabel={label} onLayout={event => setWidth(event.nativeEvent.layout.width)}
+    style={[libraryStyles.segments, stacked && libraryStyles.segmentsStacked]}>
     {options.map(([key, title]) => <Action key={key} disabled={disabled} accessibilityRole="tab" accessibilityState={{ selected: value === key, disabled }}
-      onPress={() => onChange(key)} style={[libraryStyles.segment, fontScale > 1.5 && { flexBasis: '100%' }, value === key && libraryStyles.segmentSelected]}>
+      onPress={() => onChange(key)} style={[libraryStyles.segment, stacked && libraryStyles.segmentStacked, value === key && libraryStyles.segmentSelected]}>
       <Text style={[libraryStyles.segmentText, value === key && { color: COLORS.text }]}>{title}</Text>
     </Action>)}
   </View>;
@@ -69,27 +76,31 @@ export function LibraryRow({ title, position, selected = false, empty = false, d
 export const libraryStyles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32, width: '100%', maxWidth: 820, alignSelf: 'center' },
   heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 20 },
-  title: { color: COLORS.text, ...FONT.bold, fontSize: 28, flex: 1 },
+  title: { color: COLORS.text, ...FONT.bold, fontSize: 28, flex: 1, minWidth: 0 },
   header: { gap: 16, paddingBottom: 20 },
   toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   button: { minHeight: 48, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, backgroundColor: COLORS.control },
   primary: { backgroundColor: COLORS.text },
-  buttonText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
+  buttonText: { color: COLORS.text, ...FONT.semibold, fontSize: 15, flexShrink: 1, textAlign: 'center' },
   iconButton: { width: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
   search: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 14, borderRadius: 12, backgroundColor: COLORS.control },
   searchInput: { flex: 1, minWidth: 0, minHeight: 50, paddingVertical: 12, color: COLORS.text, fontSize: 16 },
-  segments: { flexDirection: 'row', flexWrap: 'wrap', padding: 4, gap: 4, borderRadius: 12, backgroundColor: COLORS.panel },
-  segment: { flexGrow: 1, flexBasis: 80, paddingVertical: 12, paddingHorizontal: 12, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 9 },
+  segments: { flexDirection: 'row', padding: 4, gap: 4, borderRadius: 12, backgroundColor: COLORS.panel },
+  segmentsStacked: { flexDirection: 'column' },
+  segment: { flex: 1, minWidth: 0, paddingVertical: 12, paddingHorizontal: 8, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 9 },
+  segmentStacked: { flex: 0, alignItems: 'flex-start', paddingHorizontal: 16 },
   segmentSelected: { backgroundColor: COLORS.raised },
-  segmentText: { color: COLORS.muted, ...FONT.semibold, fontSize: 15 },
+  segmentText: { color: COLORS.muted, ...FONT.semibold, fontSize: 15, textAlign: 'center' },
   section: { color: COLORS.muted, fontSize: 15, ...FONT.semibold },
   muted: { color: COLORS.muted, fontSize: 15, lineHeight: 22 },
   row: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.hairline, minHeight: 72 },
-  selectedRow: { backgroundColor: COLORS.control, borderRadius: 12, borderBottomColor: 'transparent', borderLeftWidth: 2, borderLeftColor: COLORS.brand },
+  // Selection is a fill; a side stripe fights the rounded corners.
+  selectedRow: { backgroundColor: COLORS.control, borderRadius: 12, borderBottomColor: 'transparent' },
   rowMain: { flex: 1, flexDirection: 'row', gap: 14, alignItems: 'center', paddingHorizontal: 12, paddingVertical: 17, minHeight: 72, borderRadius: 12 },
-  rowCopy: { flex: 1, gap: 4 },
+  rowCopy: { flex: 1, minWidth: 0, gap: 4 },
   rowTitle: { color: COLORS.text, ...FONT.medium, fontSize: 16, lineHeight: 22 },
   rowHint: { color: COLORS.muted, fontSize: 14 },
-  position: { color: COLORS.muted, ...FONT.numeric, fontSize: 15, minWidth: 32 },
+  // Wide enough for four-character slots such as 125D so titles share one column.
+  position: { color: COLORS.muted, ...FONT.numeric, fontSize: 15, minWidth: 44 },
   pressed: { backgroundColor: COLORS.raised },
 });

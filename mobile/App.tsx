@@ -49,7 +49,7 @@ import type { TabKey } from './src/components/TabBar';
 import { ConnectionGate } from './src/components/ConnectionGate';
 import { BrandMark } from './src/components/BrandMark';
 import { settingsFeedback } from './src/utils/settingsFeedback';
-import { UtilityIcon } from './src/components/UtilityIcon';
+import { UtilityIcon, type UtilityIconName } from './src/components/UtilityIcon';
 import { SettingsGroup, SettingsRow, SettingsToggle } from './src/components/SettingsGroup';
 import { BottomSheet } from './src/components/BottomSheet';
 import { ParamKnob } from './src/components/ParamKnob';
@@ -222,8 +222,9 @@ const TUNER_STRING_CONFIG = [
 const EMPTY_TUNER_STRING_OFFSETS = Object.fromEntries(
   TUNER_STRING_CONFIG.map(({ stringNumber }) => [stringNumber, null])
 ) as Record<number, number | null>;
-const TUNER_REMOTE_META = 'Note and needle stay on the Helix display';
-const TUNER_REMOTE_NOTE = 'Note and needle stay on the Helix display';
+const TUNER_REMOTE_NOTE = 'Note and needle show on the Helix display.';
+// iOS drops a sheet presented while another is still dismissing, so menus wait this long before opening the next one.
+const SHEET_HANDOFF_MS = 320;
 
 const blockCatalog = blockTypes as BlockCatalog;
 const isBlockTypeKey = (kind: string): kind is BlockTypeKey =>
@@ -297,7 +298,16 @@ function EditorApp() {
   // Tablets keep the signal chain on screen and dock the block editor beneath it.
   const dockEditor = isTablet && !linearControls;
   // Wide tablets move navigation to a side rail to give the lanes more height.
-  const useNavRail = dockEditor && isLandscape;
+  // Landscape phones have more width than height, so the tabs move to the side rail as well.
+  const phoneLandscape = isLandscape && !isTablet;
+  const useNavRail = (dockEditor && isLandscape) || (phoneLandscape && !linearControls);
+  // Large text moves secondary chrome into menus; accessibility sizes stack rows instead of wrapping them.
+  const largeText = windowDims.fontScale >= 1.2;
+  const accessibilityText = windowDims.fontScale >= 1.5;
+  // Lists in sheets that are not full height stay inside the visible screen.
+  const sheetListMaxHeight = Math.max(200, Math.round(windowDims.height * 0.5));
+  // At accessibility text sizes and on landscape phones, screen headers scroll with the content so the content keeps its room.
+  const scrollChrome = accessibilityText || phoneLandscape;
   const [phonePath, setPhonePath] = useState<1 | 2>(1);
   // Per-parameter help sheet state. The sheet is shown when the user taps the
   // (?) glyph next to a parameter label.
@@ -349,6 +359,11 @@ function EditorApp() {
   const [ioPickerRow, setIoPickerRow] = useState<PathIndex>(0);
   const [ioPickerType, setIoPickerType] = useState<IOType>('input');
   const [ioPickerQuery, setIoPickerQuery] = useState('');
+  const [ioModelListOpen, setIoModelListOpen] = useState(false);
+  const [presetToolsOpen, setPresetToolsOpen] = useState(false);
+  const [previewInfoOpen, setPreviewInfoOpen] = useState(false);
+  const [pathMenuPath, setPathMenuPath] = useState<1 | 2 | null>(null);
+  useEffect(() => { if (!ioPickerOpen) setIoModelListOpen(false); }, [ioPickerOpen]);
   const [activeTab, setActiveTab] = useState<TabKey>('flow');
   const [settingsSyncing, setSettingsSyncing] = useState(false);
   const [settingsPage, setSettingsPage] = useState<'tempo' | 'tuner' | 'accessibility' | 'advanced' | null>(null);
@@ -1617,8 +1632,8 @@ function EditorApp() {
     return () => clearTimeout(timer);
   }, [presetSaved]);
 
-  const renderPresetSaveBar = () => (
-    <PresetSaveBar name={activePresetName} edited={presetEdited} saving={presetSaving} saved={presetSaved} preview={previewMode}
+  const renderPresetSaveBar = (placement?: 'inline' | 'bottom') => (
+    <PresetSaveBar placement={placement} name={activePresetName} edited={presetEdited} saving={presetSaving} saved={presetSaved} preview={previewMode}
       disabled={previewMode || !connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy}
       onSave={() => { void handleSavePreset(); }} />
   );
@@ -2999,6 +3014,34 @@ function EditorApp() {
     return map[kind] ?? kind;
   };
 
+  // Runs the next step once a closing sheet has finished dismissing.
+  const afterSheetClose = (close: () => void, next: () => void) => {
+    close();
+    setTimeout(next, SHEET_HANDOFF_MS);
+  };
+
+  const renderMenuRow = ({ key, label, hint, icon, onPress, disabled = false, danger = false, accessibilityLabel }: {
+    key: string; label: string; hint?: string; icon?: UtilityIconName; onPress: () => void; disabled?: boolean; danger?: boolean; accessibilityLabel?: string;
+  }) => (
+    <Pressable key={key} accessibilityLabel={accessibilityLabel} disabled={disabled} onPress={onPress}
+      style={({ pressed }) => [styles.menuRow, pressed && styles.menuRowPressed, disabled && styles.menuRowDisabled]}>
+      {icon ? <UtilityIcon name={icon} size={20} color={danger ? COLORS.danger : COLORS.muted} /> : null}
+      <View style={styles.menuRowCopy}>
+        <Text style={[styles.menuRowText, danger && styles.menuRowDanger]}>{label}</Text>
+        {hint ? <Text style={styles.menuRowHint}>{hint}</Text> : null}
+      </View>
+    </Pressable>
+  );
+
+  const showDspHelp = () => setParamHelp({ title: 'DSP estimates', body: 'DSP is the processing capacity used by amps and effects. These numbers are estimates from the model catalogue, not live CPU percentages. Each path has its own budget. Larger numbers use more of it; bypassing a block does not free its capacity.' });
+
+  // User banks list every slot, including empty ones, so count slots there rather than presets.
+  const presetCountLabel = (items: HelixContentRef[]) => {
+    const empty = libraryRoot === 'user' ? items.filter(item => isEmptyUserSlot(item)).length : 0;
+    if (empty > 0) return `${items.length} slots · ${items.length - empty} used`;
+    return `${items.length} ${items.length === 1 ? 'preset' : 'presets'}`;
+  };
+
   const renderIORow = (rowIndex: PathIndex, ioType: IOType) => {
     const entry = ioGrid[rowIndex]?.[ioType] ?? null;
     const isInput = ioType === 'input';
@@ -3007,7 +3050,7 @@ function EditorApp() {
     return (
       <Pressable
         accessibilityLabel={`Path ${rowLabels[rowIndex]} ${isInput ? 'input' : 'output'}, ${disabled ? derivedLabel : (entry?.name ?? 'None')}`}
-        style={[styles.ioRow, disabled && { opacity: 0.4 }]}
+        style={({ pressed }) => [styles.ioRow, disabled && { opacity: 0.4 }, pressed && styles.menuRowPressed]}
         onPress={disabled ? undefined : () => selectIO(rowIndex, ioType)}
         disabled={disabled}
       >
@@ -3024,69 +3067,67 @@ function EditorApp() {
           <Text style={styles.ioLabel}>{isInput ? 'Input' : 'Output'}</Text>
           <Text style={styles.ioName}>{disabled ? derivedLabel : (entry?.name ?? 'None')}</Text>
         </View>
-        {!disabled && (
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 18l6-6-6-6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        )}
+        <View style={styles.ioTrailing}>
+          {!disabled && <UtilityIcon name="chevron" size={16} color={COLORS.muted} />}
+        </View>
       </Pressable>
     );
   };
 
   const renderPathHeader = (pathNum: 1 | 2) => {
     const flowIndex = pathNum - 1;
+    const otherPath = pathNum === 1 ? 2 : 1;
     const usage = pathNum === 1 ? pathUsage.path1 : pathUsage.path2;
     const ratio = Math.min(usage / STANDARD_DSP_CAP, 1);
-    const dspColor = usage > STANDARD_DSP_CAP ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
+    const overBudget = usage > STANDARD_DSP_CAP;
+    const dspColor = overBudget ? COLORS.danger : ratio >= 0.85 ? COLORS.warn : COLORS.accent;
     const clipboardMatches = pathClipboard?.sourcePath === flowIndex;
     const canPasteClipboard = !!pathClipboard && pathClipboard.sourcePath !== flowIndex && !previewMode && !blockBusy && !focusBusy && !presetSaving && !presetCreating;
-    const phoneSwitcher = !dockEditor && !linearControls;
+    const editDisabled = previewMode || blockBusy || focusBusy || presetSaving || presetCreating;
+    // Phones in the visual layout show one path at a time, so each header carries history; elsewhere only Path 1 does.
+    const showHistory = (!dockEditor && !linearControls) || pathNum === 1;
     return (
-      <View style={[styles.pathHeader, linearControls && styles.pathHeaderStacked]}>
-        {phoneSwitcher ? (
-          <View accessibilityRole="tablist" style={styles.segmentTrack}>
-            {([1, 2] as const).map((value) => (
-              <Pressable key={value} accessibilityRole="tab" accessibilityState={{ selected: phonePath === value }}
-                onPress={() => setPhonePath(value)} style={[styles.segmentItem, phonePath === value && styles.segmentItemActive]}>
-                <Text style={[styles.segmentItemText, phonePath === value && styles.segmentItemTextActive]}>Path {value}</Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : (
-          <Text accessibilityRole="header" style={styles.pathTitle}>Path {pathNum}</Text>
-        )}
-        <Pressable accessibilityLabel={`Path ${pathNum} DSP estimate ${usage.toFixed(1)} of ${STANDARD_DSP_CAP}. Explain processing estimates`}
-          onPress={() => setParamHelp({ title: 'DSP estimates', body: 'DSP is the processing capacity used by amps and effects. These numbers are estimates from the model catalogue, not live CPU percentages. Each path has its own budget. Larger numbers use more of it; bypassing a block does not free its capacity.' })}
-          style={styles.pathDsp}>
-          <View style={styles.dspTrack}>
-            <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
-          </View>
-          <Text style={[styles.pathDspText, usage > STANDARD_DSP_CAP && { color: COLORS.danger }]}>
-            {usage.toFixed(1)} of {STANDARD_DSP_CAP} DSP
-          </Text>
-        </Pressable>
-        <View style={styles.pathActionRow}>
-          {(phoneSwitcher || pathNum === 1) && (['undo', 'redo'] as const).map(direction => <Pressable key={direction}
-            accessibilityLabel={direction === 'undo' ? 'Undo last preset edit' : 'Redo last preset edit'}
-            disabled={previewMode || blockBusy || focusBusy || presetSaving || presetCreating} style={styles.pathActionButton}
-            onPress={() => { void handleHistory(direction); }}>
-            <Text style={[styles.pathActionText, (previewMode || blockBusy) && styles.pathActionTextDisabled]}>{direction === 'undo' ? 'Undo' : 'Redo'}</Text>
-          </Pressable>)}
-          {clipboardMatches && <Text style={styles.pathClipboardBadge}>Copied · select Path {pathNum === 1 ? 2 : 1}</Text>}
-          <Pressable accessibilityLabel={`Copy path ${pathNum}`} disabled={previewMode || blockBusy || focusBusy || presetSaving || presetCreating} style={styles.pathActionButton} onPress={() => { void handleCopyPath(pathNum); }}>
-            <Text style={[styles.pathActionText, previewMode && styles.pathActionTextDisabled]}>Copy path</Text>
+      <View style={styles.pathHeaderBlock}>
+        {linearControls && <Text accessibilityRole="header" style={styles.pathTitle}>Path {pathNum}</Text>}
+        <View style={styles.pathHeader}>
+          <Pressable accessibilityLabel={`Path ${pathNum} DSP estimate ${usage.toFixed(1)} of ${STANDARD_DSP_CAP}. Explain processing estimates`}
+            onPress={showDspHelp} style={({ pressed }) => [styles.pathDsp, pressed && styles.pressedQuiet]}>
+            {!linearControls && <Text maxFontSizeMultiplier={2} style={styles.pathTitle}>Path {pathNum}</Text>}
+            <View style={styles.pathDspLine}>
+              <View style={styles.dspTrack}>
+                <View style={[styles.dspFill, { width: `${ratio * 100}%`, backgroundColor: dspColor }]} />
+              </View>
+              <Text maxFontSizeMultiplier={2} style={[styles.pathDspText, overBudget && { color: COLORS.danger }]} numberOfLines={1}>
+                {usage.toFixed(1)} / {STANDARD_DSP_CAP} DSP
+              </Text>
+            </View>
           </Pressable>
-          <Pressable
-            accessibilityLabel={`Paste copied path into path ${pathNum}`}
-            disabled={!canPasteClipboard}
-            style={styles.pathActionButton}
-            onPress={() => { void handlePastePath(pathNum); }}
-          >
-            <Text style={[styles.pathActionText, !canPasteClipboard && styles.pathActionTextDisabled]}>
-              {pathClipboard ? `Paste Path ${pathClipboard.sourcePath + 1} here` : 'Paste here'}
-            </Text>
-          </Pressable>
+          <View style={styles.pathTools}>
+            {showHistory && (['undo', 'redo'] as const).map(direction => <Pressable key={direction}
+              accessibilityLabel={direction === 'undo' ? 'Undo last preset edit' : 'Redo last preset edit'}
+              disabled={editDisabled} style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]}
+              onPress={() => { void handleHistory(direction); }}>
+              <UtilityIcon name={direction} size={22} color={editDisabled ? COLORS.faint : COLORS.text} />
+            </Pressable>)}
+            <Pressable accessibilityLabel={`Path ${pathNum} options`} style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]}
+              onPress={() => setPathMenuPath(pathNum)}>
+              <UtilityIcon name="more" size={22} color={COLORS.text} />
+            </Pressable>
+          </View>
         </View>
+        {pathClipboard && (clipboardMatches ? (
+          <Text style={styles.clipboardNote}>
+            Path {pathNum} copied. {dockEditor || linearControls ? `Paste it into Path ${otherPath}.` : `Select Path ${otherPath} above to paste.`}
+          </Text>
+        ) : (
+          <View style={styles.clipboardStrip}>
+            <Text style={styles.clipboardText} numberOfLines={2}>Path {pathClipboard.sourcePath + 1} copied</Text>
+            <Pressable accessibilityLabel={`Paste copied path into path ${pathNum}`} disabled={!canPasteClipboard}
+              style={({ pressed }) => [styles.clipboardAction, pressed && styles.pressedQuiet]} onPress={() => { void handlePastePath(pathNum); }}>
+              <Text style={[styles.clipboardActionText, !canPasteClipboard && styles.pathActionTextDisabled]}>Paste here</Text>
+            </Pressable>
+          </View>
+        ))}
       </View>
     );
   };
@@ -3223,6 +3264,7 @@ function EditorApp() {
         showsVerticalScrollIndicator={false}
         scrollEnabled={flowScrollEnabled}
       >
+        {scrollChrome && <View style={styles.flowChromeBleed}>{flowChrome}</View>}
         {linearControls ? (
           <>
             {renderPathSection(1)}
@@ -3418,7 +3460,7 @@ function EditorApp() {
             disabled={libraryLoading} onChange={key => { void handleLibraryRootChange(key); }} />
           <LibrarySearch value={presetFilter} onChange={setPresetFilter} />
           <View style={[libraryStyles.toolbar, { justifyContent: 'space-between' }]}>
-            <Text style={libraryStyles.section}>{presetFilter.trim() ? `${filteredPresetItems.length} of ${presetItems.length}` : `${presetItems.length} presets`}</Text>
+            <Text style={libraryStyles.section}>{presetFilter.trim() ? `${filteredPresetItems.length} of ${presetItems.length}` : presetCountLabel(presetItems)}</Text>
             {libraryRoot === 'user' && <LibraryButton label="New preset" icon="plus" disabled={presetCreating || presetSaving || libraryLoading || libraryBusy} onPress={() => { void openPresetCreation(); }} />}
           </View>
         </View>
@@ -3427,18 +3469,22 @@ function EditorApp() {
       renderItem={({ item }) => renderLibraryPresetRow(item)} />;
   };
 
+  // At extreme sizes the setlist view scrolls its heading with the list; Showcase keeps it pinned above its own scroller.
+  const renderLibraryTop = (inList: boolean) => <View style={inList ? styles.libraryTopInList : [libraryStyles.content, { paddingBottom: 16 }]}>
+    <LibraryHeading title="Library" focusKey="library" />
+    <LibrarySegments label="Library section" options={[['setlists', 'Setlists'], ['showcase', 'Showcase']]} value={librarySection}
+      disabled={showcaseBusy} onChange={setLibrarySection} />
+  </View>;
+
   const renderSetlistsTab = () => <View style={styles.tabContent}>
-    <View style={[libraryStyles.content, { paddingBottom: 16 }]}>
-      <LibraryHeading title="Library" focusKey="library" />
-      <LibrarySegments label="Library section" options={[['setlists', 'Setlists'], ['showcase', 'Showcase']]} value={librarySection}
-        disabled={showcaseBusy} onChange={setLibrarySection} />
-    </View>
+    {!(scrollChrome && librarySection !== 'showcase') && renderLibraryTop(false)}
     {librarySection === 'showcase' ? <ShowcaseLibrary client={clientRef.current} onBusy={setShowcaseBusy}
       onSongChange={() => { void refreshTransportContext(); void handleSync(true); }} /> :
       <FlatList style={styles.tabContent} contentContainerStyle={[libraryStyles.content, { paddingTop: 0 }]}
         keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" data={filteredPresetItems} keyExtractor={item => `${item.cid_ ?? 'preset'}-${item.posi ?? 'slot'}`}
         refreshing={libraryRefreshing} onRefresh={() => { void refreshLibraryList(); }}
         ListHeaderComponent={<View style={libraryStyles.header}>
+          {scrollChrome && renderLibraryTop(true)}
           {renderLibraryFeedback()}
           {setlists.length > 0 ? <>
             <View style={[libraryStyles.row, libraryStyles.selectedRow]}>
@@ -3449,7 +3495,7 @@ function EditorApp() {
               <Pressable accessibilityLabel="Setlist options" style={libraryStyles.iconButton} onPress={() => { setSetlistRenameText(activeSetlist?.name ?? ''); setSetlistOptionsOpen(true); }}><UtilityIcon name="more" /></Pressable>
             </View>
             <View style={[libraryStyles.toolbar, { justifyContent: 'space-between' }]}>
-              <Text style={libraryStyles.muted}>{presetItems.length} presets</Text>
+              <Text style={libraryStyles.muted}>{presetCountLabel(presetItems)}</Text>
               <LibraryButton label="Add presets" icon="plus" primary disabled={libraryLoading || libraryBusy || !activeSetlist} onPress={handleOpenSetlistAddSheet} />
             </View>
             <LibrarySearch value={presetFilter} onChange={setPresetFilter} placeholder="Search this setlist" />
@@ -3609,7 +3655,7 @@ function EditorApp() {
           </>}
           {settingsPage === 'tuner' && <>
             <View style={styles.settingsReadout}><Text maxFontSizeMultiplier={1.5} style={styles.settingsReadoutValue}>{tunerReferencePitch ?? 440}<Text style={styles.settingsReadoutUnit}> Hz</Text></Text>
-              <Text style={styles.settingsHint}>{TUNER_REMOTE_META}</Text></View>
+              <Text style={styles.settingsHint}>{TUNER_REMOTE_NOTE}</Text></View>
             <View style={styles.settingsStepper}>
               {[-1, 1].map(delta => <Pressable key={delta} disabled={previewMode} accessibilityLabel={`${delta < 0 ? 'Decrease' : 'Increase'} reference pitch by 1 hertz`} onPress={() => handleTunerReferenceAdjust(delta)}
                 style={({ pressed }) => [styles.settingsStepButton, pressed && styles.settingsPressed, previewMode && styles.buttonDisabled]}><Text style={styles.settingsButtonText}>{delta < 0 ? '−1' : '+1'} Hz</Text></Pressable>)}
@@ -3638,70 +3684,27 @@ function EditorApp() {
         : 'No snapshot active';
     const canStepBackward = activePresetIndexInList > 0;
     const canStepForward = activePresetIndexInList >= 0 && activePresetIndexInList < presetItems.length - 1;
-    const quickActions = [
-      {
-        key: 'prev',
-        label: 'Previous Preset',
-        meta: canStepBackward ? 'Previous in container' : 'Start of container',
-        active: false,
-        disabled: presetSaving || !canStepBackward,
-        onPress: () => handlePerformancePresetStep(-1),
-      },
-      {
-        key: 'next',
-        label: 'Next Preset',
-        meta: canStepForward ? 'Next in container' : 'End of container',
-        active: false,
-        disabled: presetSaving || !canStepForward,
-        onPress: () => handlePerformancePresetStep(1),
-      },
-      {
-        key: 'notes',
-        label: notesVisible ? 'Hide Notes' : 'Show Notes',
-        meta: notesVisible ? 'Notes shown on the device' : 'Notes hidden on the device',
-        active: notesVisible,
-        disabled: false,
-        onPress: () => handleNotesToggle(!notesVisible),
-      },
-      {
-        key: 'tuner',
-        label: 'Tuner Remote',
-        meta: 'Open tuner on Helix and show the remote settings panel',
-        active: false,
-        disabled: false,
-        onPress: () => handleOpenTuner('performance'),
-      },
-      {
-        key: 'sync',
-        label: presetSaving ? 'Saving…' : presetEdited ? 'Save Preset' : 'Sync Device',
-        meta: presetEdited ? 'Commit current preset changes' : 'Refresh preset and snapshot state',
-        active: presetEdited === true,
-        disabled: presetSaving,
-        onPress: () => {
-          if (presetEdited) {
-            void handleSavePreset();
-            return;
-          }
-          void handleFullSync();
-        },
-      },
-    ];
+    const presetSlot = typeof activePresetRef?.posi === 'number' ? formatPresetPosition(activePresetRef.posi) : 'Live preset';
+    const footswitch = (delta: -1 | 1) => {
+      const enabled = delta < 0 ? canStepBackward : canStepForward;
+      return (
+        <Pressable accessibilityLabel={delta < 0 ? 'Previous preset' : 'Next preset'} disabled={presetSaving || !enabled}
+          style={({ pressed }) => [styles.footswitch, pressed && styles.toolButtonPressed, !enabled && styles.stepButtonDisabled]}
+          onPress={() => handlePerformancePresetStep(delta)}>
+          {delta < 0 && <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>}
+          <Text maxFontSizeMultiplier={2} style={styles.footswitchText}>{delta < 0 ? 'Previous' : 'Next'}</Text>
+          {delta > 0 && <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Path d="M9 18l6-6-6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>}
+        </Pressable>
+      );
+    };
 
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.performanceSafe} edges={['top', 'left', 'right', 'bottom']}>
-          <View style={styles.performanceBackdrop}>
-            <View style={styles.performanceGlowA} />
-            <View style={styles.performanceGlowB} />
-          </View>
-
-          <View style={styles.performanceHeader}>
-            <View style={styles.performanceHeaderCopy}>
-              <ScreenHeading focusKey="performance" style={styles.performanceEyebrow}>Perform</ScreenHeading>
-              {windowDims.fontScale <= 1.5 && <Text style={styles.performanceHost}>{host}</Text>}
-            </View>
-            <Pressable style={styles.performanceExitButton} onPress={() => setScreen('main')}>
-              <Text style={styles.performanceExitText}>Exit</Text>
+          <View style={styles.screenHeader}>
+            <ScreenHeading focusKey="performance" maxFontSizeMultiplier={2} style={styles.screenTitle}>Perform</ScreenHeading>
+            <Pressable accessibilityLabel="Done, leave Perform" style={({ pressed }) => [styles.textAction, pressed && styles.pressedQuiet]} onPress={() => setScreen('main')}>
+              <Text maxFontSizeMultiplier={2} style={styles.textActionLabel}>Done</Text>
             </Pressable>
           </View>
 
@@ -3711,27 +3714,15 @@ function EditorApp() {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.performanceHero}>
-              <View style={styles.performanceHeroAccent} />
-              {windowDims.fontScale <= 1.5 && <Text style={styles.performanceHeroKicker}>
-                {activeSetlist?.name ?? selectedContainerName}
-              </Text>}
-              <Text style={[styles.performanceHeroTitle, windowDims.fontScale > 1.5 && { fontSize: 20, lineHeight: 26 }]} numberOfLines={2}>
+              {activeSetlist && <Text style={styles.performanceHeroKicker} numberOfLines={accessibilityText ? undefined : 1}>{activeSetlist.name}</Text>}
+              <Text style={[styles.performanceHeroTitle, accessibilityText && styles.performanceHeroTitleLarge]} numberOfLines={accessibilityText ? 3 : 2}>
                 {activePresetName}
               </Text>
-              {windowDims.fontScale <= 1.5 && <Text style={styles.performanceHeroMeta} numberOfLines={2}>
-                {typeof activePresetRef?.posi === 'number' ? `Slot ${formatPresetPosition(activePresetRef.posi)}` : 'Live Preset'} {'\u00b7'} {snapshotSummary}
-              </Text>}
-              {windowDims.fontScale <= 1.5 && <View style={styles.performanceHeroStatus}>
-                <View
-                  style={[
-                    styles.performanceHeroStatusDot,
-                    { backgroundColor: notesVisible ? COLORS.accent : COLORS.muted },
-                  ]}
-                />
-                <Text style={styles.performanceHeroStatusText}>
-                  {notesVisible ? 'Preset notes visible on device' : 'Preset notes hidden on device'}
-                </Text>
-              </View>}
+              <Text style={styles.performanceHeroMeta} numberOfLines={2}>{presetSlot} {'\u00b7'} {snapshotSummary}</Text>
+            </View>
+            <View style={[styles.footswitchRow, accessibilityText && styles.footswitchRowStacked]}>
+              {footswitch(-1)}
+              {footswitch(1)}
             </View>
 
             <PerformControls view={performView} onViewChange={setPerformView} banks={stompBanks}
@@ -3741,222 +3732,45 @@ function EditorApp() {
               colorFor={value => SNAPSHOT_COLOR_OPTIONS.find(option => option.value === value)?.swatch ?? COLORS.stroke} />
 
             <View style={styles.performanceSection}>
-              <View style={styles.performanceSectionHeader}>
-                <Text style={styles.performanceSectionTitle}>Quick Actions</Text>
-                <Text style={styles.performanceSectionMeta}>
-                  {presetSaving ? 'Saving…' : presetEdited ? 'Unsaved changes' : libraryActivityLabel ?? status}
+              <Text accessibilityRole="header" style={styles.performanceSectionTitle}>Tempo</Text>
+              <View style={[styles.performTempoRow, accessibilityText && styles.renameRowStacked]}>
+                <Text style={styles.performTempoValue} accessibilityLabel={`Tempo ${displayedTempo} BPM`}>
+                  {displayedTempo}<Text style={styles.performTempoUnit}> BPM</Text>
                 </Text>
+                <Pressable accessibilityLabel="Tap tempo" style={({ pressed }) => [styles.performTapButton, pressed && { opacity: 0.85 }]} onPress={handleTapTempo}>
+                  <Text maxFontSizeMultiplier={2} style={styles.performTapText}>Tap</Text>
+                </Pressable>
               </View>
-              <View style={styles.performanceActionGrid}>
-                {quickActions.map((action) => (
-                  <Pressable accessibilityState={{ selected: action.active }} accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
-                    key={action.key}
-                    style={[
-                      styles.performanceActionCard,
-                      action.active && styles.performanceActionCardActive,
-                      action.disabled && styles.performanceActionCardDisabled,
-                    ]}
-                    disabled={action.disabled}
-                    onPress={action.onPress}
-                  >
-                    <Text
-                      style={[
-                        styles.performanceActionLabel,
-                        action.active && styles.performanceActionLabelActive,
-                      ]}
-                    >
-                      {action.label}
-                    </Text>
-                    <Text style={styles.performanceActionMeta}>{action.meta}</Text>
+              <View style={styles.joinedStepper}>
+                {[-5, -1, 1, 5].map((delta, index) => (
+                  <Pressable key={delta} accessibilityLabel={`${delta < 0 ? 'Decrease' : 'Increase'} tempo by ${Math.abs(delta)} BPM`}
+                    style={({ pressed }) => [styles.joinedStepperCell, index > 0 && styles.joinedStepperDivider, pressed && styles.toolButtonPressed]}
+                    onPress={() => handleTempoAdjust(delta)}>
+                    <Text maxFontSizeMultiplier={2} style={styles.joinedStepperText}>{delta > 0 ? '+' : '\u2212'}{Math.abs(delta)}</Text>
                   </Pressable>
                 ))}
               </View>
             </View>
 
-            <View style={styles.performanceSection}>
-              <View style={styles.performanceSectionHeader}>
-                <Text style={styles.performanceSectionTitle}>Tempo</Text>
-                <Text style={styles.performanceSectionMeta}>
-                  {tempoFollow ? 'Follow on' : 'Manual'}
-                </Text>
-              </View>
-              <View style={styles.performanceTempoCard}>
-                <Text style={styles.performanceTempoValue}>
-                  {displayedTempo}
-                </Text>
-                <Text style={styles.performanceTempoUnit}>BPM</Text>
-                <Text style={styles.performanceTempoMeta}>
-                  {tempoFollow
-                    ? 'Device is following incoming tempo.'
-                    : 'Use tap tempo or direct BPM nudges here.'}
-                </Text>
-              </View>
-              <View style={styles.performanceChipRow}>
-                {[
-                  { key: 'tempo--5', label: '-5', onPress: () => handleTempoAdjust(-5) },
-                  { key: 'tempo--1', label: '-1', onPress: () => handleTempoAdjust(-1) },
-                  { key: 'tempo-tap', label: 'Tap', onPress: handleTapTempo, accent: true },
-                  { key: 'tempo-+1', label: '+1', onPress: () => handleTempoAdjust(1) },
-                  { key: 'tempo-+5', label: '+5', onPress: () => handleTempoAdjust(5) },
-                ].map((action) => (
-                  <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
-                    key={action.key}
-                    style={[
-                      styles.performanceChip,
-                      action.accent && styles.performanceChipAccent,
-                    ]}
-                    onPress={action.onPress}
-                  >
-                    <Text
-                      style={[
-                        styles.performanceChipText,
-                        action.accent && styles.performanceChipTextAccent,
-                      ]}
-                    >
-                      {action.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-              <View style={styles.performanceInlineToggleRow}>
-                <Text style={styles.performanceInlineLabel}>Follow External Tempo</Text>
-                <View style={styles.performanceInlineActions}>
-                  {[
-                    { label: 'Off', value: false },
-                    { label: 'On', value: true },
-                  ].map((option) => {
-                    const active = tempoFollow === option.value;
-                    return (
-                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Follow external tempo, ${option.label}`}
-                        key={`tempo-follow-${option.label}`}
-                        style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
-                        onPress={() => handleTempoFollowToggle(option.value)}
-                      >
-                        <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
-                          {option.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-            </View>
+            {presetEdited && (
+              <Pressable disabled={presetSaving} accessibilityState={{ busy: presetSaving }} onPress={() => { void handleSavePreset(); }}
+                style={({ pressed }) => [styles.settingsPrimaryButton, pressed && { opacity: 0.85 }, presetSaving && styles.buttonDisabled]}>
+                <Text style={styles.settingsPrimaryText}>{presetSaving ? 'Saving\u2026' : 'Save preset'}</Text>
+              </Pressable>
+            )}
 
-            <View style={styles.performanceSection}>
-              <View style={styles.performanceSectionHeader}>
-                <Text style={styles.performanceSectionTitle}>Tuner Remote</Text>
-                <Text style={styles.performanceSectionMeta}>
-                  {tunerReferencePitch !== null ? `${tunerReferencePitch} Hz` : 'Helix'}
-                </Text>
-              </View>
-              <View style={styles.performanceChipRow}>
-                {[
-                  { key: 'tuner-open', label: 'Open On Helix', onPress: () => handleOpenTuner('performance'), accent: true },
-                  { key: 'tuner-exit', label: 'Close On Helix', onPress: handleExitTuner },
-                ].map((action) => (
-                  <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
-                    key={action.key}
-                    style={[
-                      styles.performanceChip,
-                      action.accent && styles.performanceChipAccent,
-                    ]}
-                    onPress={action.onPress}
-                  >
-                    <Text
-                      style={[
-                        styles.performanceChipText,
-                        action.accent && styles.performanceChipTextAccent,
-                      ]}
-                    >
-                      {action.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-              <Text style={styles.performanceTempoMeta}>{TUNER_REMOTE_NOTE}</Text>
-              <View style={styles.performanceInlineToggleRow}>
-                <Text style={styles.performanceInlineLabel}>Reference Pitch</Text>
-                <View style={styles.performanceInlineActions}>
-                  {[
-                    { key: 'tuner-ref--1', label: '-1', onPress: () => handleTunerReferenceAdjust(-1) },
-                    { key: 'tuner-ref-value', label: `${tunerReferencePitch ?? 440} Hz`, onPress: () => {} },
-                    { key: 'tuner-ref-+1', label: '+1', onPress: () => handleTunerReferenceAdjust(1) },
-                  ].map((action, index) => (
-                    <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
-                      key={action.key}
-                      style={[
-                        styles.performanceInlinePill,
-                        index === 1 && styles.performanceInlinePillStatic,
-                      ]}
-                      onPress={action.onPress}
-                      disabled={index === 1}
-                    >
-                      <Text
-                        style={[
-                          styles.performanceInlinePillText,
-                          index === 1 && styles.performanceInlinePillTextActive,
-                        ]}
-                      >
-                        {action.label}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
+            <SettingsGroup title="Live options">
               {[
-                {
-                  key: 'tuner-stompview',
-                  label: 'Always On In Stomp View',
-                  value: tunerAlwaysOnStomp,
-                  onChange: handleTunerAlwaysOnStompToggle,
-                },
-                {
-                  key: 'tuner-playview',
-                  label: 'Always On In Play View',
-                  value: tunerAlwaysOnPlayView,
-                  onChange: handleTunerAlwaysOnPlayViewToggle,
-                },
-                {
-                  key: 'tuner-volpedal',
-                  label: 'Volume Pedal Opens Tuner',
-                  value: tunerVolPedalOpens,
-                  onChange: handleTunerVolPedalOpensToggle,
-                },
-                {
-                  key: 'tuner-trails',
-                  label: 'Tuner Trails',
-                  value: tunerTrails,
-                  onChange: handleTunerTrailsToggle,
-                },
-              ].map((item) => (
-                <View key={item.key} style={styles.performanceInlineToggleRow}>
-                  <Text style={styles.performanceInlineLabel}>{item.label}</Text>
-                  <View style={styles.performanceInlineActions}>
-                    {[
-                      { label: 'Off', value: false },
-                      { label: 'On', value: true },
-                    ].map((option) => {
-                      const active = item.value === option.value;
-                      return (
-                        <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`${item.label}, ${option.label}`}
-                          key={`${item.key}-${option.label}`}
-                          style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
-                          onPress={() => item.onChange(option.value)}
-                        >
-                          <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
-                            {option.label}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                </View>
-              ))}
-            </View>
+                <SettingsToggle key="follow" label="Follow external tempo" value={Boolean(tempoFollow)} onChange={handleTempoFollowToggle} />,
+                <SettingsToggle key="notes" label="Show notes on Helix" value={Boolean(notesVisible)} onChange={handleNotesToggle} />,
+                <SettingsRow key="tuner" label="Tuner remote" icon="tuner" value={`${tunerReferencePitch ?? 440} Hz`} onPress={() => handleOpenTuner('performance')} />,
+                presetEdited ? null : <SettingsRow key="sync" label="Sync now" icon="sync" disabled={presetSaving} onPress={() => { void handleFullSync(); }} />,
+              ].filter(Boolean)}
+            </SettingsGroup>
 
             <View style={styles.performanceSection}>
               <View style={styles.performanceSectionHeader}>
-                <Text style={styles.performanceSectionTitle}>Preset Window</Text>
+                <Text accessibilityRole="header" style={styles.performanceSectionTitle}>Presets</Text>
                 <Text style={styles.performanceSectionMeta}>
                   {selectedContainerName}
                 </Text>
@@ -4167,16 +3981,15 @@ function EditorApp() {
                       <Text style={styles.toggleLabel}>{param.name}</Text>
                       {helpAdornment}
                     </View>
-                    <View style={styles.toggleLabels}>
+                    <View style={[styles.toggleLabels, accessibilityText && styles.toggleLabelsStacked]}>
                       {labels.map((lbl, idx) => {
                         const val = idx > 0;
                         const active = val === isOn;
                         return (
                           <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`${param.name}, ${lbl}`}
                             key={`${rowKey}-${idx}`}
-                            style={[styles.togglePill, active && styles.togglePillActive]}
+                            style={[styles.togglePill, accessibilityText && styles.togglePillStacked, active && styles.togglePillActive]}
                             onPress={() => onChange(param, val)}
-                            hitSlop={6}
                           >
                             <Text style={[styles.togglePillText, active && styles.togglePillTextActive]}>
                               {lbl}
@@ -4197,7 +4010,7 @@ function EditorApp() {
                     <Text style={styles.toggleLabel}>{param.name}</Text>
                     {helpAdornment}
                   </View>
-                  <View style={styles.toggleLabels}>
+                  <View style={[styles.toggleLabels, accessibilityText && styles.toggleLabelsStacked]}>
                     {(options ?? []).map((optLabel, idx) => {
                       let value: number | boolean = idx;
                       if (param.type === 'b') {
@@ -4211,9 +4024,8 @@ function EditorApp() {
                       return (
                         <Pressable accessibilityState={{ selected: isActive }} accessibilityLabel={`${param.name}, ${optLabel}`}
                           key={`${rowKey}-${value}`}
-                          style={[styles.togglePill, isActive && styles.togglePillActive]}
+                          style={[styles.togglePill, accessibilityText && styles.togglePillStacked, isActive && styles.togglePillActive]}
                           onPress={() => onChange(param, value)}
-                          hitSlop={6}
                         >
                           <Text style={[styles.togglePillText, isActive && styles.togglePillTextActive]}>
                             {optLabel}
@@ -4266,19 +4078,11 @@ function EditorApp() {
   const renderTunerScreen = () => (
     <SafeAreaProvider>
       <SafeAreaView style={styles.performanceSafe} edges={['top', 'left', 'right', 'bottom']}>
-        <View style={styles.performanceBackdrop}>
-          <View style={styles.performanceGlowA} />
-          <View style={styles.performanceGlowB} />
-        </View>
-
-        <View style={styles.performanceHeader}>
-          <View style={styles.performanceHeaderCopy}>
-            <ScreenHeading focusKey="tuner" style={styles.performanceEyebrow}>Tuner Remote</ScreenHeading>
-            <Text style={styles.performanceHost}>Tune on the Helix display</Text>
-          </View>
-          <Pressable accessibilityLabel="Back from tuner remote" style={styles.performanceExitButton} onPress={closeTunerScreen}>
-            <Text style={styles.performanceExitText}>Back</Text>
+        <View style={[styles.screenHeader, styles.screenHeaderWithBack]}>
+          <Pressable accessibilityLabel="Back from tuner remote" style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]} onPress={closeTunerScreen}>
+            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
           </Pressable>
+          <ScreenHeading focusKey="tuner" maxFontSizeMultiplier={2} style={styles.screenTitle}>Tuner remote</ScreenHeading>
         </View>
 
         <ScrollView keyboardShouldPersistTaps="handled"
@@ -4286,133 +4090,43 @@ function EditorApp() {
           contentContainerStyle={styles.performanceContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.performanceHero}>
-            <View style={[styles.performanceHeroAccent, { backgroundColor: '#f6b93b' }]} />
-            <Text style={styles.performanceHeroKicker}>Helix Tuner</Text>
-            <Text style={styles.performanceHeroTitle}>{tunerReferencePitch ?? 440} Hz</Text>
-            <Text style={styles.performanceHeroMeta}>{TUNER_REMOTE_META}</Text>
-            <View style={styles.performanceHeroStatus}>
-              <View
-                style={[
-                  styles.performanceHeroStatusDot,
-                  { backgroundColor: '#f6b93b' },
-                ]}
-              />
-              <Text style={styles.performanceHeroStatusText}>{TUNER_REMOTE_NOTE}</Text>
+          <View style={styles.tunerHero}>
+            <Text style={styles.performanceHeroKicker}>Reference pitch</Text>
+            <View style={styles.pitchStepper}>
+              <Pressable accessibilityLabel="Decrease reference pitch by 1 hertz" onPress={() => handleTunerReferenceAdjust(-1)}
+                style={({ pressed }) => [styles.pitchStepperButton, pressed && styles.toolButtonPressed]}>
+                <Text maxFontSizeMultiplier={2} style={styles.pitchStepperGlyph}>{'\u2212'}</Text>
+              </Pressable>
+              <View style={styles.pitchValueWrap}>
+                <Text maxFontSizeMultiplier={2} style={styles.pitchValue}>{tunerReferencePitch ?? 440}<Text style={styles.pitchUnit}> Hz</Text></Text>
+              </View>
+              <Pressable accessibilityLabel="Increase reference pitch by 1 hertz" onPress={() => handleTunerReferenceAdjust(1)}
+                style={({ pressed }) => [styles.pitchStepperButton, pressed && styles.toolButtonPressed]}>
+                <Text maxFontSizeMultiplier={2} style={styles.pitchStepperGlyph}>+</Text>
+              </Pressable>
             </View>
-            <View style={styles.performanceChipRow}>
-              {[
-                { key: 'tuner-hero--1', label: '-1 Hz', onPress: () => handleTunerReferenceAdjust(-1) },
-                { key: 'tuner-hero-+1', label: '+1 Hz', onPress: () => handleTunerReferenceAdjust(1), accent: true },
-                { key: 'tuner-hero-open', label: 'Open On Helix', onPress: () => handleOpenTuner(tunerReturnScreen) },
-                { key: 'tuner-hero-exit', label: 'Close On Helix', onPress: handleExitTuner },
-              ].map((action) => (
-                <Pressable accessibilityLabel={action.key.includes('tempo') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} tempo by ${action.label.slice(1)} BPM` : action.key.includes('ref') && /^[+-]/.test(action.label) ? `${action.label.startsWith('-') ? 'Decrease' : 'Increase'} reference pitch by 1 hertz` : action.label}
-                  key={action.key}
-                  style={[
-                    styles.performanceChip,
-                    action.accent && styles.performanceChipAccent,
-                  ]}
-                  onPress={action.onPress}
-                >
-                  <Text
-                    style={[
-                      styles.performanceChipText,
-                      action.accent && styles.performanceChipTextAccent,
-                    ]}
-                  >
-                    {action.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            <Text style={styles.tunerNote}>{TUNER_REMOTE_NOTE}</Text>
           </View>
 
-          <View style={styles.performanceSection}>
-            <View style={styles.performanceSectionHeader}>
-              <Text style={styles.performanceSectionTitle}>Behavior</Text>
-              <Text style={styles.performanceSectionMeta}>Helix Settings</Text>
-            </View>
-            {[
-              {
-                key: 'tuner-screen-stomp',
-                label: 'Always On In Stomp View',
-                value: tunerAlwaysOnStomp,
-                onChange: handleTunerAlwaysOnStompToggle,
-              },
-              {
-                key: 'tuner-screen-play',
-                label: 'Always On In Play View',
-                value: tunerAlwaysOnPlayView,
-                onChange: handleTunerAlwaysOnPlayViewToggle,
-              },
-              {
-                key: 'tuner-screen-volpedal',
-                label: 'Volume Pedal Opens Tuner',
-                value: tunerVolPedalOpens,
-                onChange: handleTunerVolPedalOpensToggle,
-              },
-              {
-                key: 'tuner-screen-trails',
-                label: 'Tuner Trails',
-                value: tunerTrails,
-                onChange: handleTunerTrailsToggle,
-              },
-            ].map((item) => (
-              <View key={item.key} style={styles.performanceInlineToggleRow}>
-                <Text style={styles.performanceInlineLabel}>{item.label}</Text>
-                <View style={styles.performanceInlineActions}>
-                  {[
-                    { label: 'Off', value: false },
-                    { label: 'On', value: true },
-                  ].map((option) => {
-                    const active = item.value === option.value;
-                    return (
-                      <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`${item.label}, ${option.label}`}
-                        key={`${item.key}-${option.label}`}
-                        style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
-                        onPress={() => item.onChange(option.value)}
-                      >
-                        <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
-                          {option.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-            ))}
+          <View style={[styles.tunerActions, accessibilityText && styles.tunerActionsStacked]}>
+            <Pressable onPress={() => handleOpenTuner(tunerReturnScreen)} style={({ pressed }) => [styles.tunerActionButton, styles.tunerActionPrimary, pressed && { opacity: 0.85 }]}>
+              <Text maxFontSizeMultiplier={2} style={styles.settingsPrimaryText}>Open tuner</Text>
+            </Pressable>
+            <Pressable onPress={handleExitTuner} style={({ pressed }) => [styles.tunerActionButton, pressed && styles.toolButtonPressed]}>
+              <Text maxFontSizeMultiplier={2} style={styles.settingsButtonText}>Close tuner</Text>
+            </Pressable>
           </View>
 
-          <View style={styles.performanceSection}>
-            <View style={styles.performanceSectionHeader}>
-              <Text style={styles.performanceSectionTitle}>String Offsets</Text>
-              <Text style={styles.performanceSectionMeta}>
-                {tunerOffsetsEnabled ? 'Enabled' : 'Disabled'}
-              </Text>
-            </View>
-            <View style={styles.performanceInlineToggleRow}>
-              <Text style={styles.performanceInlineLabel}>Per-String Offset Mode</Text>
-              <View style={styles.performanceInlineActions}>
-                {[
-                  { label: 'Off', value: false },
-                  { label: 'On', value: true },
-                ].map((option) => {
-                  const active = tunerOffsetsEnabled === option.value;
-                  return (
-                    <Pressable accessibilityState={{ selected: active }} accessibilityLabel={`Per-string tuner offsets, ${option.label}`}
-                      key={`tuner-offset-mode-${option.label}`}
-                      style={[styles.performanceInlinePill, active && styles.performanceInlinePillActive]}
-                      onPress={() => handleTunerOffsetsEnabledToggle(option.value)}
-                    >
-                      <Text style={[styles.performanceInlinePillText, active && styles.performanceInlinePillTextActive]}>
-                        {option.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
+          <SettingsGroup title="Tuner behaviour">
+            <SettingsToggle label="Show in Stomp view" hint="Keep the tuner button in Stomp view" accessibilityLabel="Always show tuner in Stomp view" value={Boolean(tunerAlwaysOnStomp)} onChange={handleTunerAlwaysOnStompToggle} />
+            <SettingsToggle label="Show in Play view" hint="Keep the tuner button in Play view" accessibilityLabel="Always show tuner in Play view" value={Boolean(tunerAlwaysOnPlayView)} onChange={handleTunerAlwaysOnPlayViewToggle} />
+            <SettingsToggle label="Volume pedal opens tuner" hint="Open the tuner at heel-down" value={Boolean(tunerVolPedalOpens)} onChange={handleTunerVolPedalOpensToggle} />
+            <SettingsToggle label="Tuner trails" hint="Let delays and reverbs decay when the tuner opens" value={Boolean(tunerTrails)} onChange={handleTunerTrailsToggle} />
+            <SettingsToggle label="Per-string offsets" hint="Custom offsets for alternate tunings" accessibilityLabel="Per-string tuner offsets" value={Boolean(tunerOffsetsEnabled)} onChange={handleTunerOffsetsEnabledToggle} />
+          </SettingsGroup>
+
+          <View style={styles.tunerOffsetSection}>
+            <Text accessibilityRole="header" style={styles.performanceSectionTitle}>String offsets</Text>
             <Text style={styles.tunerOffsetHint}>
               Dial in each string individually when you want the tuner to match a specific setup more closely.
             </Text>
@@ -4480,6 +4194,76 @@ function EditorApp() {
     setBlockEditorSlot(next);
   };
 
+  // One block menu for long-press in the signal flow and the editor's options button.
+  const renderSlotActionsSheet = () => {
+    const target = slotMenuTarget;
+    const block = target ? grid[target.path]?.[target.block] ?? null : null;
+    const name = block ? getBlockDisplayName(block) : 'Block';
+    const metaName = block ? getBlockMetaName(block) : null;
+    const editingTarget = !!target && blockEditorOpen && blockEditorSlot?.path === target.path && blockEditorSlot?.block === target.block;
+    const busy = focusBusy || blockBusy || presetSaving || presetCreating;
+    const details = block && target ? [
+      kindLabel(block.kind),
+      !isRoutingModel(block.id) && metaName && metaName !== name && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null,
+      `Row ${rowLabels[target.path]}, position ${target.block + 1}`,
+      typeof block.usage === 'number' ? `${block.usage.toFixed(1)} DSP` : null,
+    ].filter(Boolean).join(' · ') : undefined;
+    const closeMenu = () => setSlotMenuOpen(false);
+    return (
+      <BottomSheet visible={slotMenuOpen} onClose={closeMenu} title={name} subtitle={details}>
+        <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets style={{ maxHeight: sheetListMaxHeight + 120 }}>
+          {editingTarget && blockLabelMode && (
+            <View style={styles.menuLabelEditor}>
+              <Text style={styles.menuSectionTitle}>Block label</Text>
+              <View style={[styles.renameRow, accessibilityText && styles.renameRowStacked]}>
+                <TextInput
+                  style={[styles.input, styles.inlineInput, styles.renameInput]}
+                  accessibilityLabel="Block label"
+                  value={blockLabelDraft}
+                  onChangeText={setBlockLabelDraft}
+                  placeholder={block?.modelName ?? block?.name}
+                  placeholderTextColor={COLORS.muted}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                />
+                <Pressable style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                  onPress={() => { handleBlockLabelApply(); closeMenu(); }}>
+                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>{blockLabelDraft.trim() ? 'Apply' : 'Clear'}</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+          <View style={styles.menuList}>
+            {!editingTarget && renderMenuRow({ key: 'edit', label: 'Edit parameters', icon: 'sliders', disabled: !block, onPress: () => {
+              if (!target) return;
+              setSlotMenuOpen(false);
+              setBlockEditorSlot(target);
+              setBlockEditorOpen(true);
+              setSelectedSlot(target);
+              if (!dockEditor) setScreen('editor');
+            } })}
+            {block && renderMenuRow({ key: 'change', label: 'Change model', disabled: busy, onPress: () => afterSheetClose(closeMenu, () => {
+              if (!target) return;
+              if (screen === 'editor') closeEditor();
+              replaceSlotModel(target);
+            }) })}
+            {block && modelLookup.has(block.id) && renderMenuRow({ key: 'move', label: 'Move to another position…', disabled: busy,
+              onPress: () => afterSheetClose(closeMenu, () => { if (target) openMove(target); }) })}
+            {block && !isRoutingModel(block.id) && renderMenuRow({ key: 'copy', label: 'Copy settings to another position…', disabled: previewMode || busy,
+              onPress: () => afterSheetClose(closeMenu, () => { if (target) void openBlockCopy(target); }) })}
+          </View>
+          {block && <>
+            <View style={styles.menuGap} />
+            <View style={styles.menuList}>
+              {renderMenuRow({ key: 'remove', label: 'Remove block', danger: true, disabled: busy,
+                onPress: () => afterSheetClose(closeMenu, () => { if (target) void clearSlot(target); }) })}
+            </View>
+          </>}
+        </ScrollView>
+      </BottomSheet>
+    );
+  };
+
   const renderBlockInspector = (docked: boolean) => {
     if (!activeBlock || !activeBlockMeta || !blockEditorSlot) return null;
     const isEnabled = activeBlock.enabled !== false;
@@ -4494,27 +4278,33 @@ function EditorApp() {
       blockId: activeBlock.blockId!, modelId: activeBlockMeta.id,
     } : null;
     const focusListLayout = focusOpen && (linearControls || windowDims.fontScale > 1.3);
+    const metaDetail = !isRoutingModel(activeBlock.id) && metaName && metaName !== displayName && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null;
+    const positionLabel = `Row ${rowLabels[blockEditorSlot.path]}, position ${blockEditorSlot.block + 1}`;
+    // Phones show row and position in the block stepper; the docked header and list layout keep them in the subtitle.
+    const showStepper = !docked && !linearControls;
     const subtitle = [
       kindLabel(activeBlock.kind),
-      !isRoutingModel(activeBlock.id) && metaName && metaName !== displayName && metaName.trim().toUpperCase() !== 'N/A' ? metaName : null,
-      `Row ${rowLabels[blockEditorSlot.path]}, position ${blockEditorSlot.block + 1}`,
-      typeof activeBlock.usage === 'number' ? `${activeBlock.usage.toFixed(1)} DSP` : null,
+      metaDetail,
+      showStepper ? null : positionLabel,
+      typeof activeBlock.usage === 'number' ? `${activeBlock.usage.toFixed(1)} DSP` : null,
     ].filter(Boolean).join(' · ');
     const slotIndex = editableSlots.findIndex((slot) => slot.path === blockEditorSlot.path && slot.block === blockEditorSlot.block);
+    const editBusy = focusBusy || blockBusy || presetSaving || presetCreating;
+    const glyphSize = docked ? 26 : 22;
 
     const chip = (
-      <View style={[styles.inspectorChip, { backgroundColor: appearance.fill, borderColor: appearance.outline, borderStyle: appearance.outlineStyle }]}>
+      <View style={[styles.inspectorChip, !docked && styles.inspectorChipCompact, { backgroundColor: appearance.fill, borderColor: appearance.outline, borderStyle: appearance.outlineStyle }]}>
         {blockImage ? (
-          <Image source={blockImage} style={{ width: 26, height: 26, tintColor: appearance.icon }} resizeMode="contain" />
+          <Image source={blockImage} style={{ width: glyphSize, height: glyphSize, tintColor: appearance.icon }} resizeMode="contain" />
         ) : (
-          <BlockIcon type={activeBlock.kind} size={26} color={appearance.icon} />
+          <BlockIcon type={activeBlock.kind} size={glyphSize} color={appearance.icon} />
         )}
       </View>
     );
     const titleStack = (
-      <View style={styles.inspectorTitleStack}>
-        <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.inspectorTitle}>{displayName}</ScreenHeading>
-        <Text style={styles.inspectorSubtitle} numberOfLines={linearControls ? undefined : 1}>{subtitle}</Text>
+      <View style={[styles.inspectorTitleStack, !docked && styles.editorTitleStackPhone, !docked && accessibilityText && styles.editorTitleStackAccessible]}>
+        <ScreenHeading focusKey={`editor-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={[styles.inspectorTitle, !docked && styles.editorBlockTitle]}>{displayName}</ScreenHeading>
+        <Text style={styles.inspectorSubtitle} numberOfLines={linearControls || accessibilityText ? undefined : 2}>{subtitle}</Text>
       </View>
     );
     const powerButton = (
@@ -4531,50 +4321,92 @@ function EditorApp() {
         ]}
       >
         <View style={[styles.powerDot, { backgroundColor: isEnabled ? color : COLORS.faint }]} />
-        <Text style={[styles.powerText, !isEnabled && { color: COLORS.muted }]}>{isEnabled ? 'On' : 'Bypassed'}</Text>
+        <Text maxFontSizeMultiplier={2} style={[styles.powerText, !isEnabled && { color: COLORS.muted }]}>{isEnabled ? 'On' : 'Bypassed'}</Text>
       </Pressable>
     );
-    const tools = (
-      <>
-        {powerButton}
-        {modelLookup.has(activeBlock.id) && <Pressable accessibilityLabel={`Move ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
-          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openMove(blockEditorSlot)}>
-          <Text style={styles.toolButtonText}>Move</Text>
-        </Pressable>}
-        {modelLookup.has(activeBlock.id) && !isRoutingModel(activeBlock.id) && <Pressable accessibilityLabel={`Copy ${displayName} to another position`}
-          disabled={previewMode || focusBusy || blockBusy || presetSaving || presetCreating}
-          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => { void openBlockCopy(blockEditorSlot); }}>
-          <Text style={styles.toolButtonText}>Copy to…</Text>
-        </Pressable>}
-        <Pressable accessibilityLabel={`Replace ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
-          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
-          onPress={() => {
-            if (!docked) closeEditor();
-            replaceSlotModel(blockEditorSlot);
-          }}>
-          <Text style={styles.toolButtonText}>Replace</Text>
-        </Pressable>
-        <Pressable accessibilityLabel={`Remove ${displayName}`} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
-          style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]}
-          onPress={() => {
-            void clearSlot(blockEditorSlot);
-          }}>
-          <Text style={[styles.toolButtonText, styles.toolButtonDanger]}>Remove</Text>
-        </Pressable>
-      </>
+    // Move, copy, change model, label and remove share the block menu used by long-press in the signal flow.
+    const menuButton = (
+      <Pressable accessibilityLabel={`${displayName} options`} disabled={editBusy}
+        style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed, editBusy && styles.stepButtonDisabled]}
+        onPress={() => openSlotMenu(blockEditorSlot)}>
+        <UtilityIcon name="more" size={22} color={COLORS.text} />
+      </Pressable>
     );
-    const viewTabs = canFocus ? (
-      <View accessibilityRole="tablist" style={[styles.segmentTrack, focusListLayout && styles.segmentTrackStacked]}>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: !focusOpen }} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
-          style={[styles.segmentItem, !focusOpen && styles.segmentItemActive]} onPress={() => setFocusOpen(false)}>
-          <Text style={[styles.segmentItemText, !focusOpen && styles.segmentItemTextActive]}>Parameters</Text>
+    const atFirst = slotIndex <= 0;
+    const atLast = slotIndex < 0 || slotIndex >= editableSlots.length - 1;
+    const stepper = (
+      <View style={[styles.stepperTrack, accessibilityText && styles.stepperTrackStacked]}>
+        <Pressable accessibilityLabel="Previous block" disabled={focusBusy || atFirst}
+          style={({ pressed }) => [styles.stepperCell, pressed && styles.toolButtonPressed, atFirst && styles.stepButtonDisabled]}
+          onPress={() => stepBlock(-1)}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
         </Pressable>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: focusOpen }} disabled={focusBusy || blockBusy || presetSaving || presetCreating}
-          style={[styles.segmentItem, focusOpen && styles.segmentItemActive]} onPress={() => setFocusOpen(true)}>
-          <Text style={[styles.segmentItemText, focusOpen && styles.segmentItemTextActive]}>Focus View</Text>
+        <View style={styles.stepperLabel} accessible accessibilityLabel={positionLabel}>
+          <Text maxFontSizeMultiplier={2} style={styles.stepperLabelText}>{rowLabels[blockEditorSlot.path]} · {blockEditorSlot.block + 1}</Text>
+        </View>
+        <Pressable accessibilityLabel="Next block" disabled={focusBusy || atLast}
+          style={({ pressed }) => [styles.stepperCell, pressed && styles.toolButtonPressed, atLast && styles.stepButtonDisabled]}
+          onPress={() => stepBlock(1)}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M9 18l6-6-6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
         </Pressable>
       </View>
+    );
+    const viewTab = (focus: boolean, label: string) => {
+      const selected = focusOpen === focus;
+      return (
+        <Pressable key={label} accessibilityRole="tab" accessibilityState={{ selected }} disabled={editBusy}
+          style={[styles.segmentItem, !docked && styles.segmentItemFill]} onPress={() => setFocusOpen(focus)}>
+          <View style={[styles.segmentPill, selected && styles.segmentItemActive]}>
+            <Text maxFontSizeMultiplier={2} style={[styles.segmentItemText, selected && styles.segmentItemTextActive]}>{label}</Text>
+          </View>
+        </Pressable>
+      );
+    };
+    const viewTabs = canFocus ? (
+      <View accessibilityRole="tablist" style={[styles.segmentTrack, !docked && styles.segmentTrackFill, focusListLayout && styles.segmentTrackStacked]}>
+        {viewTab(false, 'Parameters')}
+        {viewTab(true, 'Focus View')}
+      </View>
     ) : null;
+
+    // Docked headers scroll at accessibility sizes; phone headers also scroll in landscape.
+    const headerInScroll = docked ? accessibilityText : scrollChrome;
+    // At accessibility sizes the full preset name and status scroll with the editor.
+    const saveInScroll = !docked && accessibilityText;
+    const header = docked ? (
+      <View style={styles.inspectorHeader}>
+        {chip}
+        {titleStack}
+        {viewTabs}
+        <View style={styles.inspectorTools}>{powerButton}{menuButton}</View>
+      </View>
+    ) : (
+      <>
+        <View style={styles.editorTopRow}>
+          <Pressable accessibilityLabel="Back to signal flow" disabled={editBusy}
+            style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]}
+            onPress={() => { setFocusOpen(false); closeEditor(); }}>
+            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+              <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
+          {chip}
+          {accessibilityText ? <View style={styles.flexSpacer} /> : titleStack}
+          {menuButton}
+        </View>
+        {accessibilityText && <View style={styles.editorAccessibleTitle}>{titleStack}</View>}
+        <View style={[styles.editorToolRow, accessibilityText && styles.editorToolRowStacked]}>
+          {powerButton}
+          {showStepper && !accessibilityText && <View style={styles.flexSpacer} />}
+          {showStepper && stepper}
+        </View>
+        {saveInScroll && renderPresetSaveBar()}
+      </>
+    );
 
     const body = (
       <ScrollView
@@ -4584,6 +4416,7 @@ function EditorApp() {
         scrollEnabled={editorScrollEnabled}
         keyboardShouldPersistTaps="handled"
       >
+        {headerInScroll && <View style={docked ? styles.inspectorHeaderBleed : styles.editorHeaderBleed}>{header}</View>}
         {isRoutingModel(activeBlock.id) && <RoutingControls
           modelId={activeBlock.id} row={rowLabels[blockEditorSlot.path + 1] ?? 'B'}
           linkPosition={activeBlock.linkPosition} choices={routingLinkChoices(grid, blockEditorSlot)} disabled={blockBusy || presetSaving || presetCreating}
@@ -4593,31 +4426,6 @@ function EditorApp() {
           }}
           onLink={position => { void handleRoutingLink(blockEditorSlot, position); }}
         />}
-        {blockLabelMode && (
-          <View style={styles.blockLabelEditor}>
-            <Text style={styles.paramSectionTitle}>Block Label</Text>
-            <View style={styles.inlineEditor}>
-              <TextInput
-                style={[styles.input, styles.inlineInput]}
-                accessibilityLabel="Block label"
-                value={blockLabelDraft}
-                onChangeText={setBlockLabelDraft}
-                placeholder={activeBlock.modelName ?? activeBlock.name}
-                placeholderTextColor={COLORS.muted}
-                autoCapitalize="words"
-                autoCorrect={false}
-              />
-              <Pressable
-                style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-                onPress={handleBlockLabelApply}
-              >
-                <Text style={[styles.buttonText, styles.buttonTextGhost]}>
-                  {blockLabelDraft.trim() ? 'Apply' : 'Clear'}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
         {focusListLayout && <ScreenHeading focusKey={`focus-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>}
         {!docked && viewTabs}
         {focusOpen && focusTarget ? <FocusView
@@ -4655,52 +4463,9 @@ function EditorApp() {
       </ScrollView>
     );
 
-    if (docked) {
-      return (
-        <>
-          <View style={styles.inspectorHeader}>
-            {chip}
-            {titleStack}
-            {viewTabs}
-            <View style={styles.inspectorTools}>{tools}</View>
-          </View>
-          {body}
-        </>
-      );
-    }
     return (
       <>
-        <View style={styles.editorTopRow}>
-          <Pressable accessibilityLabel="Back to signal flow" disabled={focusBusy || blockBusy || presetSaving || presetCreating} style={styles.editorBack}
-            onPress={() => { setFocusOpen(false); closeEditor(); }} hitSlop={12}>
-            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </Pressable>
-          {chip}
-          {titleStack}
-        </View>
-        <View style={styles.editorToolRow}>
-          {tools}
-          {!linearControls && (
-            <View style={[styles.editorStep, styles.editorStepEnd]}>
-              <Pressable accessibilityLabel="Previous block" disabled={focusBusy || slotIndex <= 0}
-                style={({ pressed }) => [styles.stepButton, pressed && styles.toolButtonPressed, slotIndex <= 0 && styles.stepButtonDisabled]}
-                onPress={() => stepBlock(-1)}>
-                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              </Pressable>
-              <Pressable accessibilityLabel="Next block" disabled={focusBusy || slotIndex < 0 || slotIndex >= editableSlots.length - 1}
-                style={({ pressed }) => [styles.stepButton, pressed && styles.toolButtonPressed, (slotIndex < 0 || slotIndex >= editableSlots.length - 1) && styles.stepButtonDisabled]}
-                onPress={() => stepBlock(1)}>
-                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path d="M9 18l6-6-6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              </Pressable>
-            </View>
-          )}
-        </View>
+        {!headerInScroll && header}
         {body}
       </>
     );
@@ -4710,9 +4475,10 @@ function EditorApp() {
     if (!activeBlock || !activeBlockMeta || !blockEditorSlot) return null;
     return (
       <SafeAreaProvider>
-        <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+        <SafeAreaView style={styles.safe} edges={accessibilityText ? ['top', 'left', 'right', 'bottom'] : ['top', 'left', 'right']}>
           {renderBlockInspector(false)}
-          {renderPresetSaveBar()}
+          {!accessibilityText && renderPresetSaveBar('bottom')}
+          {renderSlotActionsSheet()}
           {renderParamHelpSheet()}
         </SafeAreaView>
       </SafeAreaProvider>
@@ -4770,96 +4536,187 @@ function EditorApp() {
     const canStepForward = activePresetIndexInList >= 0 && activePresetIndexInList < presetItems.length - 1;
     const busy = presetSaving || presetCreating || showcaseBusy || blockBusy;
     const saveDisabled = previewMode || !connected || !activePresetRef || presetCreating || focusBusy || showcaseBusy || presetSaving || blockBusy;
-    const presetLabel = `${formatPresetPosition(activePresetRef?.posi)} ${activePresetName}`;
+    const slotLabel = formatPresetPosition(activePresetRef?.posi);
+    const presetLabel = `${slotLabel} ${activePresetName}`;
     const tempo = formatTempoBpm(liveTempoBpm ?? globalTempoBpm);
+    const stepPreset = (delta: -1 | 1) => {
+      if (busy || (delta < 0 ? !canStepBackward : !canStepForward)) return;
+      handlePerformancePresetStep(delta);
+    };
+    const chevron = (direction: 'left' | 'right') => (
+      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+        <Path d={direction === 'left' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'} stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+      </Svg>
+    );
+    const titleButton = (
+      <Pressable accessibilityLabel={`Preset ${presetLabel}${presetEdited ? ', unsaved changes' : ''}. Open presets`}
+        accessibilityActions={[{ name: 'previousPreset', label: 'Previous preset' }, { name: 'nextPreset', label: 'Next preset' }]}
+        onAccessibilityAction={({ nativeEvent }) => {
+          if (nativeEvent.actionName === 'previousPreset') stepPreset(-1);
+          if (nativeEvent.actionName === 'nextPreset') stepPreset(1);
+        }}
+        style={({ pressed }) => [styles.topPresetName, !isTablet && styles.topPresetNamePhone, pressed && (isTablet ? styles.toolButtonPressed : styles.pressedQuiet)]}
+        onPress={() => handleTabChange('preset')}>
+        <Text maxFontSizeMultiplier={2} style={styles.topPresetSlot}>{slotLabel}</Text>
+        <Text maxFontSizeMultiplier={2} style={styles.topPresetTitle} numberOfLines={accessibilityText ? 2 : 1}>{activePresetName}</Text>
+        {presetEdited ? <View style={styles.editedDot} /> : null}
+        {!isTablet && <UtilityIcon name="chevron" size={14} color={COLORS.muted} />}
+      </Pressable>
+    );
+    const saveButton = (
+      <Pressable accessibilityLabel={`Save ${activePresetName} to the Stadium`} accessibilityState={{ busy: presetSaving }}
+        disabled={saveDisabled} onPress={() => { void handleSavePreset(); }}
+        style={({ pressed }) => [styles.saveButton, !presetEdited && styles.saveButtonQuiet, saveDisabled && styles.stepButtonDisabled, pressed && { opacity: 0.85 }]}>
+        <Text maxFontSizeMultiplier={2} style={[styles.saveButtonText, !presetEdited && styles.saveButtonTextQuiet]}>
+          {presetSaving ? 'Saving…' : presetSaved && !presetEdited ? 'Saved' : 'Save'}
+        </Text>
+      </Pressable>
+    );
+    const syncIcon = <UtilityIcon name="sync" size={18} color={COLORS.muted} />;
+
+    if (!isTablet) {
+      const presetStepper = (
+        <View style={styles.stepperTrack}>
+          <Pressable accessibilityLabel="Previous preset" disabled={busy || !canStepBackward}
+            style={({ pressed }) => [styles.stepperCell, pressed && styles.toolButtonPressed, !canStepBackward && styles.stepButtonDisabled]}
+            onPress={() => handlePerformancePresetStep(-1)}>
+            {chevron('left')}
+          </Pressable>
+          <View style={styles.stepperDivider} />
+          <Pressable accessibilityLabel="Next preset" disabled={busy || !canStepForward}
+            style={({ pressed }) => [styles.stepperCell, pressed && styles.toolButtonPressed, !canStepForward && styles.stepButtonDisabled]}
+            onPress={() => handlePerformancePresetStep(1)}>
+            {chevron('right')}
+          </Pressable>
+        </View>
+      );
+      // The Helix TAP switch shows the tempo it sets, so the readout is the tap target.
+      const tempoButton = (
+        <Pressable accessibilityLabel="Tap tempo" accessibilityValue={{ text: `${tempo} BPM` }} accessibilityHint="Tap in time to set the tempo"
+          disabled={!connected} onPress={handleTapTempo}
+          style={({ pressed }) => [styles.tempoTapButton, pressed && styles.toolButtonPressed, !connected && styles.stepButtonDisabled]}>
+          <Text maxFontSizeMultiplier={2} style={styles.tempoTapCaption}>TAP</Text>
+          <View style={styles.tempoReadout}>
+            <Text maxFontSizeMultiplier={2} style={styles.tempoValue} numberOfLines={1}>{tempo}</Text>
+            <Text maxFontSizeMultiplier={2} style={styles.tempoUnitCompact}>BPM</Text>
+          </View>
+        </Pressable>
+      );
+      const tunerButton = (
+        <Pressable style={({ pressed }) => [styles.textAction, styles.pushEnd, pressed && styles.pressedQuiet]} onPress={() => openTunerScreen('main')}>
+          <Text maxFontSizeMultiplier={2} style={styles.toolButtonText}>Tuner</Text>
+        </Pressable>
+      );
+      const moreButton = (
+        <Pressable accessibilityLabel="More preset tools" style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]}
+          onPress={() => setPresetToolsOpen(true)}>
+          <UtilityIcon name="more" size={22} color={COLORS.text} />
+        </Pressable>
+      );
+      if (phoneLandscape && !accessibilityText) {
+        return (
+          <View style={styles.topBarPhone}>
+            <View style={styles.topRowA}>{titleButton}{presetStepper}{tempoButton}{!largeText && tunerButton}{moreButton}{saveButton}</View>
+          </View>
+        );
+      }
+      return (
+        <View style={styles.topBarPhone}>
+          <View style={styles.topRowA}>{titleButton}{saveButton}</View>
+          {accessibilityText ? (
+            <>
+              <View style={styles.topRowB}>{presetStepper}<View style={styles.flexSpacer} />{moreButton}</View>
+              <View style={styles.topRowB}>{tempoButton}</View>
+            </>
+          ) : (
+            <View style={styles.topRowB}>{presetStepper}{tempoButton}{largeText ? <View style={styles.flexSpacer} /> : tunerButton}{moreButton}</View>
+          )}
+        </View>
+      );
+    }
+
+    // Wide tablets fit one row; otherwise the preset and the tools each get a full row that never wraps.
+    const tabletSingleRow = windowDims.width >= 1100 && !largeText;
     const presetRow = (
-      <View style={[styles.topPreset, !isTablet && styles.topPresetPhone]}>
+      <View style={[styles.topPreset, !tabletSingleRow && styles.topRowFull]}>
         <Pressable accessibilityLabel="Previous preset" disabled={busy || !canStepBackward}
           style={({ pressed }) => [styles.topIconButton, pressed && styles.toolButtonPressed, !canStepBackward && styles.stepButtonDisabled]}
           onPress={() => handlePerformancePresetStep(-1)}>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+          {chevron('left')}
         </Pressable>
-        <Pressable accessibilityLabel={`Preset ${presetLabel}${presetEdited ? ', unsaved changes' : ''}. Open presets`}
-          style={({ pressed }) => [styles.topPresetName, pressed && styles.toolButtonPressed]}
-          onPress={() => handleTabChange('preset')}>
-          <Text style={styles.topPresetSlot}>{formatPresetPosition(activePresetRef?.posi)}</Text>
-          <Text style={styles.topPresetTitle} numberOfLines={1}>{activePresetName}</Text>
-          {presetEdited ? <View style={styles.editedDot} /> : null}
-        </Pressable>
+        {titleButton}
         <Pressable accessibilityLabel="Next preset" disabled={busy || !canStepForward}
           style={({ pressed }) => [styles.topIconButton, pressed && styles.toolButtonPressed, !canStepForward && styles.stepButtonDisabled]}
           onPress={() => handlePerformancePresetStep(1)}>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 18l6-6-6-6" stroke={COLORS.text} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+          {chevron('right')}
         </Pressable>
-        <Pressable accessibilityLabel={`Save ${activePresetName} to the Stadium`} accessibilityState={{ busy: presetSaving }}
-          disabled={saveDisabled} onPress={() => { void handleSavePreset(); }}
-          style={({ pressed }) => [styles.saveButton, !presetEdited && styles.saveButtonQuiet, saveDisabled && styles.stepButtonDisabled, pressed && { opacity: 0.85 }]}>
-          <Text style={[styles.saveButtonText, !presetEdited && styles.saveButtonTextQuiet]}>
-            {presetSaving ? 'Saving…' : presetSaved && !presetEdited ? 'Saved' : 'Save'}
-          </Text>
-        </Pressable>
+        {saveButton}
       </View>
     );
     const tools = (
-      <View style={[styles.topTools, !isTablet && styles.topToolsPhone]}>
+      <View style={[styles.topTools, !tabletSingleRow && styles.topRowFull]}>
         <View style={styles.tempoGroup}>
-          <Text style={styles.tempoValue} accessibilityLabel={`Tempo ${tempo} BPM`}>{tempo}</Text>
-          <Text style={styles.tempoUnit} importantForAccessibility="no">BPM</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.tempoValue} accessibilityLabel={`Tempo ${tempo} BPM`}>{tempo}</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.tempoUnit} importantForAccessibility="no">BPM</Text>
           <Pressable accessibilityLabel="Tap tempo" disabled={!connected}
             style={({ pressed }) => [styles.tempoTap, pressed && styles.toolButtonPressed]} onPress={handleTapTempo}>
-            <Text style={styles.toolButtonText}>Tap</Text>
+            <Text maxFontSizeMultiplier={2} style={styles.toolButtonText}>Tap</Text>
           </Pressable>
         </View>
         <Pressable style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openTunerScreen('main')}>
-          <Text style={styles.toolButtonText}>Tuner</Text>
+          <Text maxFontSizeMultiplier={2} style={styles.toolButtonText}>Tuner</Text>
         </Pressable>
-        <Pressable disabled={showcaseBusy} style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openPerform(performView)}>
-          <Text style={styles.toolButtonText}>Perform</Text>
+        {!accessibilityText && <Pressable disabled={showcaseBusy} style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={() => openPerform(performView)}>
+          <Text maxFontSizeMultiplier={2} style={styles.toolButtonText}>Perform</Text>
+        </Pressable>}
+        <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`}
+          style={({ pressed }) => [styles.statusButton, styles.statusButtonEnd, pressed && styles.toolButtonPressed]} onPress={() => handleTabChange('settings')}>
+          <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
+          <Text maxFontSizeMultiplier={2} style={styles.statusButtonText} numberOfLines={1}>{previewMode ? 'Preview' : connected ? host : 'Offline'}</Text>
         </Pressable>
-        <Pressable accessibilityLabel="Sync with the Stadium" disabled={showcaseBusy}
-          style={({ pressed }) => [styles.topIconButton, styles.topIconQuiet, pressed && styles.toolButtonPressed]} onPress={() => void handleFullSync()}>
-          <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
-            <Path d="M23 4v6h-6M1 20v-6h6" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        </Pressable>
-        {/* Phones show connection state on the Settings tab's dot instead. */}
-        {isTablet && (
-          <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`}
-            style={({ pressed }) => [styles.statusButton, pressed && styles.toolButtonPressed]} onPress={() => handleTabChange('settings')}>
-            <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
-            <Text style={styles.statusButtonText} numberOfLines={1}>{previewMode ? 'Preview' : connected ? host : 'Offline'}</Text>
+        {accessibilityText ? (
+          <Pressable accessibilityLabel="More preset tools" style={({ pressed }) => [styles.iconAction, pressed && styles.iconActionPressed]}
+            onPress={() => setPresetToolsOpen(true)}>
+            <UtilityIcon name="more" size={22} color={COLORS.text} />
+          </Pressable>
+        ) : (
+          <Pressable accessibilityLabel="Sync with the Stadium" disabled={showcaseBusy}
+            style={({ pressed }) => [styles.topIconButton, styles.topIconQuiet, pressed && styles.toolButtonPressed]} onPress={() => void handleFullSync()}>
+            {syncIcon}
           </Pressable>
         )}
       </View>
     );
     return (
-      <View style={[styles.topBar, isTablet ? styles.topBarWide : styles.topBarPhone]}>
+      <View style={[styles.topBar, styles.topBarWide, !tabletSingleRow && styles.topBarStacked]}>
         {presetRow}
         {tools}
       </View>
     );
   };
 
+  // Preview limits stay visible in one compact strip; the full explanation is a tap away.
   const previewBanner = previewMode ? (
     <View style={[styles.previewBanner, isTablet && styles.previewBannerWide]}>
-      <Text style={styles.previewBannerText}>
-        <Text style={styles.previewBannerTitle}>Preview. </Text>
-        Sample preset, no Stadium connected. Edits stay on this screen and are not saved.
-      </Text>
-      <Pressable accessibilityLabel="Exit preview" style={({ pressed }) => [styles.toolButton, pressed && styles.toolButtonPressed]} onPress={disconnect}>
-        <Text style={styles.toolButtonText}>Exit</Text>
+      <Pressable accessibilityLabel="Preview. Sample preset, no Stadium connected, edits are not saved. Show details"
+        style={({ pressed }) => [styles.previewStatus, accessibilityText && styles.previewStatusStacked, pressed && styles.pressedQuiet]}
+        onPress={() => setPreviewInfoOpen(true)}>
+        <View style={styles.previewStatusLine}>
+          <View style={[styles.pillDot, { backgroundColor: COLORS.warn }]} />
+          <Text maxFontSizeMultiplier={2} style={styles.previewBannerTitle}>Preview</Text>
+          {accessibilityText && <UtilityIcon name="help" size={18} color={COLORS.muted} />}
+        </View>
+        <Text maxFontSizeMultiplier={2} style={styles.previewBannerText} numberOfLines={accessibilityText ? 2 : 1}>Edits aren’t saved</Text>
+        {!accessibilityText && <UtilityIcon name="help" size={18} color={COLORS.muted} />}
+      </Pressable>
+      <Pressable accessibilityLabel="Exit preview" style={({ pressed }) => [styles.textAction, pressed && styles.pressedQuiet]} onPress={disconnect}>
+        <Text maxFontSizeMultiplier={2} style={styles.toolButtonText}>Exit</Text>
       </Pressable>
     </View>
   ) : null;
 
   const visualChrome = (
     <>
-      {previewBanner}
       {renderTopBar()}
       {activeTab === 'flow' && snapshotChips.length > 0 && (
         <View style={[styles.snapshotBar, isTablet && styles.snapshotBarWide]}>
@@ -4877,19 +4734,18 @@ function EditorApp() {
 
   const linearChrome = (
     <>
-      {previewBanner}
-      <View style={[styles.appBar, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
+      <View style={[styles.appBar, styles.appBarStacked]}>
         <ScreenHeading focusKey={activeTab} style={styles.appTitle}>{({ flow: 'Signal flow', preset: 'Presets', setlists: 'Library', matrix: 'Matrix mixer', settings: 'Settings' }[activeTab])}</ScreenHeading>
-        <View style={[styles.appBarActions, { flexWrap: 'wrap' }]}>
+        <View style={[styles.appBarActions, accessibilityText && styles.appBarActionsStacked]}>
           <Pressable style={styles.toolButton} disabled={showcaseBusy} onPress={() => void handleFullSync()} accessibilityLabel="Sync">
             <Text style={styles.toolButtonText}>Sync</Text>
           </Pressable>
           <Pressable disabled={showcaseBusy} style={styles.toolButton} onPress={() => openPerform(performView)}>
             <Text style={styles.toolButtonText}>Perform</Text>
           </Pressable>
-          <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={styles.statusButton} onPress={() => handleTabChange('settings')}>
+          <Pressable accessibilityLabel={`Connection settings, ${connected ? 'connected to ' + host : 'disconnected'}`} style={[styles.statusButton, !accessibilityText && styles.statusButtonEnd]} onPress={() => handleTabChange('settings')}>
             <View style={[styles.pillDot, { backgroundColor: connected ? COLORS.signal : COLORS.danger }]} />
-            <Text style={styles.statusButtonText}>{connected ? host : 'Offline'}</Text>
+            <Text style={styles.statusButtonText} numberOfLines={accessibilityText ? undefined : 1}>{connected ? host : 'Offline'}</Text>
           </Pressable>
         </View>
       </View>
@@ -4905,6 +4761,7 @@ function EditorApp() {
       </Pressable>
     </>
   );
+  const flowChrome = linearControls ? linearChrome : visualChrome;
 
   return (
     <SafeAreaProvider>
@@ -4912,7 +4769,8 @@ function EditorApp() {
         <View style={[styles.shell, useNavRail && styles.shellRow]}>
           {useNavRail && <TabBar variant="rail" activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />}
           <View style={styles.shellMain}>
-            {activeTab === 'flow' ? (linearControls ? linearChrome : visualChrome) : previewBanner}
+            {previewBanner}
+            {activeTab === 'flow' && (dockEditor || !scrollChrome) && flowChrome}
 
             {/* ── Tab content ──────────────────────────────────────── */}
             {activeTab === 'flow' && renderFlowTab()}
@@ -4933,7 +4791,7 @@ function EditorApp() {
           onClose={() => setSetlistPickerOpen(false)}
           title="Select setlist"
         >
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList}>
+          <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: sheetListMaxHeight }}>
             {setlists.map((item) => {
               const active = item.cid_ === selectedContainerId;
               return (
@@ -4960,6 +4818,26 @@ function EditorApp() {
           onClose={() => setSetlistAddSheetOpen(false)}
           title="Add presets"
           subtitle={activeSetlist?.name ?? selectedContainerName}
+          fill
+          footer={
+            <View style={[styles.setlistAddFooter, accessibilityText && styles.renameRowStacked]}>
+              <View style={styles.setlistAddFooterCopy}>
+                <Text style={styles.label} numberOfLines={accessibilityText ? undefined : 1}>Add to {activeSetlist?.name ?? selectedContainerName}</Text>
+                <Text style={styles.libraryMeta}>Adds them to the end of the setlist.</Text>
+              </View>
+              <Pressable
+                style={[styles.button, styles.buttonPrimary, !selectedSetlistAddIds.length && styles.buttonDisabled]}
+                disabled={setlistAddLoading || libraryBusy || !selectedSetlistAddIds.length}
+                onPress={() => {
+                  void handleAddSelectedPresetsToSetlist();
+                }}
+              >
+                <Text style={styles.buttonText}>
+                  {selectedSetlistAddIds.length ? `Add ${selectedSetlistAddIds.length}` : 'Add'}
+                </Text>
+              </Pressable>
+            </View>
+          }
         >
           <View style={styles.segmentedControl}>
             {SETLIST_ADD_SOURCES.map((source, idx) => {
@@ -4984,11 +4862,11 @@ function EditorApp() {
               style={styles.searchInputInline}
               value={setlistAddSearch}
               onChangeText={setSetlistAddSearch}
-              placeholder="Find presets..."
+              placeholder="Find presets"
               placeholderTextColor={COLORS.muted}
             />
             {setlistAddSearch.trim().length > 0 && (
-              <Pressable accessibilityLabel="Clear search" onPress={() => setSetlistAddSearch('')} hitSlop={8}>
+              <Pressable accessibilityLabel="Clear search" onPress={() => setSetlistAddSearch('')} style={styles.textActionCompact}>
                 <Text style={styles.searchClearText}>Clear</Text>
               </Pressable>
             )}
@@ -4999,10 +4877,10 @@ function EditorApp() {
               {selectedSetlistAddIds.length} selected
             </Text>
             <View style={styles.setlistAddToolActions}>
-              <Pressable onPress={handleSelectVisibleSetlistAddItems} hitSlop={8}>
+              <Pressable onPress={handleSelectVisibleSetlistAddItems} style={styles.textActionCompact}>
                 <Text style={styles.searchClearText}>Select visible</Text>
               </Pressable>
-              <Pressable accessibilityLabel="Clear selected presets" onPress={() => setSelectedSetlistAddIds([])} hitSlop={8}>
+              <Pressable accessibilityLabel="Clear selected presets" onPress={() => setSelectedSetlistAddIds([])} style={styles.textActionCompact}>
                 <Text style={styles.searchClearText}>Clear</Text>
               </Pressable>
             </View>
@@ -5011,7 +4889,7 @@ function EditorApp() {
             <Text style={styles.paramHint}>Loading presets...</Text>
           ) : (
             <FlatList
-              style={styles.sheetModelList}
+              style={styles.sheetFillList}
               data={filteredSetlistAddItems}
               keyExtractor={(item, index) => `setlist-add-${String(item.cid_ ?? index)}-${String(item.posi ?? index)}`}
               nestedScrollEnabled
@@ -5047,25 +4925,6 @@ function EditorApp() {
               }}
             />
           )}
-          <View style={styles.setlistAddFooter}>
-            <View style={styles.setlistAddFooterCopy}>
-              <Text style={styles.label}>Add to {activeSetlist?.name ?? selectedContainerName}</Text>
-              <Text style={styles.libraryMeta}>
-                Appends selected presets to the end of the setlist.
-              </Text>
-            </View>
-            <Pressable
-              style={[styles.button, styles.buttonPrimary, !selectedSetlistAddIds.length && styles.buttonDisabled]}
-              disabled={setlistAddLoading || libraryBusy || !selectedSetlistAddIds.length}
-              onPress={() => {
-                void handleAddSelectedPresetsToSetlist();
-              }}
-            >
-              <Text style={styles.buttonText}>
-                {selectedSetlistAddIds.length ? `Add ${selectedSetlistAddIds.length}` : 'Add'}
-              </Text>
-            </Pressable>
-          </View>
         </BottomSheet>
 
         {/* ── Bottom Sheet: Preset Actions ─────────────────────── */}
@@ -5075,11 +4934,11 @@ function EditorApp() {
           title={presetActionTarget?.name ?? 'Preset'}
           subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${formatPresetPosition(presetActionTarget.posi)}` : undefined}
         >
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetActions}>
+          <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets style={{ maxHeight: sheetListMaxHeight + 120 }}>
             {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
-              <View style={{ gap: 12 }}>
+              <View style={[styles.renameRow, accessibilityText && styles.renameRowStacked]}>
                 <TextInput accessibilityLabel="Preset name"
-                  style={[styles.input, styles.inlineInput]}
+                  style={[styles.input, styles.inlineInput, styles.renameInput]}
                   value={presetRenameText}
                   onChangeText={setPresetRenameText}
                   placeholder="Rename preset"
@@ -5098,44 +4957,26 @@ function EditorApp() {
             )}
             {libraryRoot === 'setlists' && activeSetlist && presetActionTarget && (
               <>
-                <Pressable
-                  style={[
-                    libraryStyles.button,
-                    (setlistMovePosition(presetItems, presetActionTarget.posi, -1) === null) && styles.buttonDisabled,
-                  ]}
-                  disabled={setlistMovePosition(presetItems, presetActionTarget.posi, -1) === null}
-                  onPress={() => {
-                    const target = presetActionTarget;
-                    setPresetActionTarget(null);
-                    void handleMoveSetlistPreset(target, -1);
-                  }}
-                >
-                  <Text style={libraryStyles.buttonText}>Move earlier</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    libraryStyles.button,
-                    (setlistMovePosition(presetItems, presetActionTarget.posi, 1) === null) && styles.buttonDisabled,
-                  ]}
-                  disabled={setlistMovePosition(presetItems, presetActionTarget.posi, 1) === null}
-                  onPress={() => {
-                    const target = presetActionTarget;
-                    setPresetActionTarget(null);
-                    void handleMoveSetlistPreset(target, 1);
-                  }}
-                >
-                  <Text style={libraryStyles.buttonText}>Move later</Text>
-                </Pressable>
-                <Pressable
-                  style={[libraryStyles.button, { backgroundColor: COLORS.control }]}
-                  onPress={() => {
+                <View style={styles.menuList}>
+                  {([-1, 1] as const).map(direction => renderMenuRow({
+                    key: `move-${direction}`,
+                    label: direction < 0 ? 'Move earlier' : 'Move later',
+                    disabled: setlistMovePosition(presetItems, presetActionTarget.posi, direction) === null,
+                    onPress: () => {
+                      const target = presetActionTarget;
+                      setPresetActionTarget(null);
+                      void handleMoveSetlistPreset(target, direction);
+                    },
+                  }))}
+                </View>
+                <View style={styles.menuGap} />
+                <View style={styles.menuList}>
+                  {renderMenuRow({ key: 'remove', label: 'Remove from setlist', danger: true, onPress: () => {
                     const target = presetActionTarget;
                     setPresetActionTarget(null);
                     void handleRemovePresetFromSetlist(target);
-                  }}
-                >
-                <Text style={styles.actionButtonDangerText}>Remove from setlist</Text>
-                </Pressable>
+                  } })}
+                </View>
               </>
             )}
             {(libraryRoot === 'user' || libraryRoot === 'factory') && setlists.length > 0 && <View style={libraryStyles.header}>
@@ -5157,11 +4998,11 @@ function EditorApp() {
           title={snapshots.find((s) => s.index === snapshotActionIndex)?.name ?? `Snapshot ${(snapshotActionIndex ?? 0) + 1}`}
           subtitle={`Snapshot ${(snapshotActionIndex ?? 0) + 1}`}
         >
-          <View style={styles.sheetActions}>
+          <View>
             {snapshotActionIndex === activeSnapshotIndex && (
-              <View style={{ gap: 12 }}>
+              <View style={[styles.renameRow, accessibilityText && styles.renameRowStacked]}>
                 <TextInput accessibilityLabel="Snapshot name"
-                  style={[styles.input, styles.inlineInput]}
+                  style={[styles.input, styles.inlineInput, styles.renameInput]}
                   value={snapshotRenameText}
                   onChangeText={setSnapshotRenameText}
                   autoCapitalize="words"
@@ -5181,15 +5022,12 @@ function EditorApp() {
               </View>
             )}
             {snapshotActionIndex !== null && snapshotActionIndex !== activeSnapshotIndex && (
-              <Pressable
-                style={libraryStyles.button}
-                onPress={() => {
+              <View style={styles.menuList}>
+                {renderMenuRow({ key: 'activate', label: 'Activate snapshot', icon: 'snapshots', onPress: () => {
                   handleSnapshotActivate(snapshotActionIndex);
                   setSnapshotActionIndex(null);
-                }}
-              >
-                <Text style={libraryStyles.buttonText}>Activate snapshot</Text>
-              </Pressable>
+                } })}
+              </View>
             )}
           </View>
         </BottomSheet>
@@ -5202,106 +5040,137 @@ function EditorApp() {
         <MoveBlockSheet action="copy" name={blockCopy?.copy.name ?? null} destinations={copyDestinations} busy={blockBusy}
           onMove={destination => { void handleCopyBlockTo(destination); }} onClose={() => { if (!blockOperation.current) setBlockCopy(null); }} />
 
-        {/* ── Bottom Sheet: Slot Actions ───────────────────────── */}
-        <BottomSheet
-          visible={slotMenuOpen}
-          onClose={() => setSlotMenuOpen(false)}
-          title="Block Actions"
-          subtitle={
-            slotMenuTarget
-              ? `${rowLabels[slotMenuTarget.path]} \u00b7 Slot ${slotMenuTarget.block + 1}`
-              : undefined
-          }
-        >
-          <View style={styles.sheetActions}>
-            {slotMenuTarget && grid[slotMenuTarget.path]?.[slotMenuTarget.block] && modelLookup.has(grid[slotMenuTarget.path][slotMenuTarget.block]!.id) &&
-              <Pressable style={[styles.actionButton, styles.actionButtonGhost]} onPress={() => openMove(slotMenuTarget)}><Text style={styles.actionButtonText}>Move to another position</Text></Pressable>}
-            {slotMenuTarget && grid[slotMenuTarget.path]?.[slotMenuTarget.block] && !isRoutingModel(grid[slotMenuTarget.path][slotMenuTarget.block]!.id) &&
-              <Pressable disabled={previewMode || blockBusy || focusBusy || presetSaving || presetCreating}
-                style={[styles.actionButton, styles.actionButtonGhost]} onPress={() => { void openBlockCopy(slotMenuTarget); }}>
-                <Text style={styles.actionButtonText}>Copy to another position…</Text>
-              </Pressable>}
-            <Pressable
-              style={[styles.actionButton, styles.actionButtonPrimary]}
-              onPress={() => {
-                if (!slotMenuTarget) return;
-                setSlotMenuOpen(false);
-                setBlockEditorSlot(slotMenuTarget);
-                setBlockEditorOpen(true);
-                setSelectedSlot(slotMenuTarget);
-                if (!dockEditor) setScreen('editor');
-              }}
-            >
-              <Text style={styles.actionButtonPrimaryText}>Edit Parameters</Text>
+        {/* ── Bottom Sheet: Block Actions (shared with the editor) ── */}
+        {renderSlotActionsSheet()}
+
+        {/* ── Bottom Sheet: Preview details ─────────────────────── */}
+        <BottomSheet visible={previewInfoOpen} onClose={() => setPreviewInfoOpen(false)} title="Preview">
+          <ScrollView style={{ maxHeight: sheetListMaxHeight + 120 }} contentContainerStyle={styles.helpSheetBody}>
+            <Text style={styles.helpSheetText}>You’re exploring a sample preset with no Stadium connected. Edits stay on this screen, nothing is sent to a device, and changes are not saved.</Text>
+            <Text style={[styles.helpSheetText, styles.previewInfoGap]}>Connect your Stadium to edit and save your own presets.</Text>
+            <Pressable onPress={() => afterSheetClose(() => setPreviewInfoOpen(false), () => disconnect())}
+              style={({ pressed }) => [styles.settingsPrimaryButton, styles.previewInfoGap, pressed && { opacity: 0.85 }]}>
+              <Text style={styles.settingsPrimaryText}>Exit preview</Text>
             </Pressable>
-            <Pressable
-              style={[styles.actionButton, styles.actionButtonGhost]}
-              onPress={() => slotMenuTarget && replaceSlotModel(slotMenuTarget)}
-            >
-              <Text style={styles.actionButtonText}>Replace Model</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.actionButton, styles.actionButtonDanger]}
-              onPress={() => slotMenuTarget && clearSlot(slotMenuTarget)}
-            >
-              <Text style={styles.actionButtonDangerText}>Clear Block</Text>
-            </Pressable>
+          </ScrollView>
+        </BottomSheet>
+
+        {/* ── Bottom Sheet: Preset tools (phone overflow) ────────── */}
+        <BottomSheet visible={presetToolsOpen} onClose={() => setPresetToolsOpen(false)} title="Preset tools"
+          subtitle={`${formatPresetPosition(activePresetRef?.posi)} ${activePresetName}`}>
+          <View style={styles.menuList}>
+            {largeText && !isTablet && renderMenuRow({ key: 'tuner', label: 'Tuner', icon: 'tuner',
+              onPress: () => afterSheetClose(() => setPresetToolsOpen(false), () => openTunerScreen('main')) })}
+            {renderMenuRow({ key: 'perform', label: 'Perform', icon: 'play', hint: 'Large snapshot and footswitch controls for playing live', disabled: showcaseBusy,
+              onPress: () => afterSheetClose(() => setPresetToolsOpen(false), () => openPerform(performView)) })}
+            {renderMenuRow({ key: 'sync', label: 'Sync with Stadium', icon: 'sync', hint: 'Reload the preset, snapshots and settings', disabled: showcaseBusy,
+              onPress: () => afterSheetClose(() => setPresetToolsOpen(false), () => { void handleFullSync(); }) })}
           </View>
         </BottomSheet>
 
+        {/* ── Bottom Sheet: Path options ───────────────────────── */}
+        {(() => {
+          const pathNum = pathMenuPath ?? 1;
+          const editDisabled = previewMode || blockBusy || focusBusy || presetSaving || presetCreating;
+          const canPaste = !!pathClipboard && pathClipboard.sourcePath !== pathNum - 1 && !editDisabled;
+          const close = () => setPathMenuPath(null);
+          return (
+            <BottomSheet visible={pathMenuPath !== null} onClose={close} title={`Path ${pathNum}`}>
+              <View style={styles.menuList}>
+                {renderMenuRow({ key: 'copy', label: `Copy Path ${pathNum}`, hint: 'Paste it into the other path', disabled: editDisabled,
+                  onPress: () => afterSheetClose(close, () => { void handleCopyPath(pathNum); }) })}
+                {pathClipboard && pathClipboard.sourcePath !== pathNum - 1 && renderMenuRow({ key: 'paste', label: `Paste Path ${pathClipboard.sourcePath + 1} here`,
+                  hint: `Replaces everything on Path ${pathNum}`, disabled: !canPaste,
+                  onPress: () => afterSheetClose(close, () => { void handlePastePath(pathNum); }) })}
+                {renderMenuRow({ key: 'dsp', label: 'About DSP estimates', icon: 'help', onPress: () => afterSheetClose(close, showDspHelp) })}
+              </View>
+            </BottomSheet>
+          );
+        })()}
+
         {/* ── Bottom Sheet: IO Picker ──────────────────────────── */}
-        <BottomSheet
-          visible={ioPickerOpen}
-          onClose={() => setIoPickerOpen(false)}
-          title={`${ioPickerType === 'input' ? 'Input' : 'Output'} Settings`}
-          subtitle={`${rowLabels[ioPickerRow]} \u00b7 ${ioPickerType === 'input' ? 'Input' : 'Output'}`}
-        >
-          <TextInput accessibilityLabel="Search input and output models"
-            style={styles.searchInput}
-            value={ioPickerQuery}
-            onChangeText={setIoPickerQuery}
-            placeholder={`Search ${ioPickerType === 'input' ? 'inputs' : 'outputs'}\u2026`}
-            placeholderTextColor={COLORS.muted}
-          />
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList} nestedScrollEnabled>
-            {ioPickerModels.map((model) => {
-              const isActive = activeIOModel?.modelId === model.id;
-              return (
-                <Pressable accessibilityState={{ selected: isActive }}
-                  key={model.id}
-                  disabled={blockBusy}
-                  style={[styles.sheetListItem, isActive && styles.sheetListItemActive]}
-                  onPress={() => setIOModel(model)}
-                >
-                  <Text style={styles.sheetListText}>{model.name}</Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-          <Text style={styles.paramSectionTitle}>Parameters</Text>
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.paramList} nestedScrollEnabled>
-            {renderIOParams()}
-            {ioPickerOpen && renderParamHelpSheet()}
-          </ScrollView>
-        </BottomSheet>
+        {(() => {
+          const ioName = ioPickerType === 'input' ? 'input' : 'output';
+          const helpStep = ioPickerOpen && paramHelp !== null;
+          const modelStep = !helpStep && (ioModelListOpen || !activeIOModel);
+          const closeIoPicker = () => { setParamHelp(null); setIoPickerOpen(false); };
+          return (
+            <BottomSheet
+              visible={ioPickerOpen}
+              onClose={closeIoPicker}
+              fill
+              title={helpStep ? paramHelp?.title : modelStep ? `Choose ${ioName}` : `Row ${rowLabels[ioPickerRow]} ${ioName}`}
+              subtitle={helpStep ? paramHelp?.subtitle : modelStep ? `Row ${rowLabels[ioPickerRow]}` : undefined}
+              onBack={helpStep ? () => setParamHelp(null) : modelStep && activeIOModel ? () => setIoModelListOpen(false) : undefined}
+              backLabel="Back to settings"
+            >
+              {helpStep ? (
+                <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetFillList} contentContainerStyle={styles.helpSheetBody}>
+                  <Text style={styles.helpSheetText}>{paramHelp?.body}</Text>
+                </ScrollView>
+              ) : modelStep ? (
+                <>
+                  <TextInput accessibilityLabel="Search input and output models"
+                    style={styles.searchInput}
+                    value={ioPickerQuery}
+                    onChangeText={setIoPickerQuery}
+                    placeholder={`Search ${ioName}s`}
+                    placeholderTextColor={COLORS.muted}
+                  />
+                  <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetFillList}>
+                    {ioPickerModels.map((model) => {
+                      const isActive = activeIOModel?.modelId === model.id;
+                      return (
+                        <Pressable accessibilityState={{ selected: isActive }}
+                          key={model.id}
+                          disabled={blockBusy}
+                          style={[styles.sheetListItem, isActive && styles.sheetListItemActive]}
+                          onPress={() => { void setIOModel(model); setIoModelListOpen(false); }}
+                        >
+                          <Text style={styles.sheetListText}>{model.name}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                </>
+              ) : (
+                <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetFillList}>
+                  <Pressable accessibilityLabel={`Model, ${activeIOModel?.name ?? 'None'}. Change model`} disabled={blockBusy}
+                    style={({ pressed }) => [styles.menuRow, pressed && styles.menuRowPressed]} onPress={() => setIoModelListOpen(true)}>
+                    <View style={styles.menuRowCopy}>
+                      <Text style={styles.menuRowHint}>Model</Text>
+                      <Text style={styles.menuRowText}>{activeIOModel?.name ?? 'None'}</Text>
+                    </View>
+                    <Text style={styles.clipboardActionText}>Change</Text>
+                  </Pressable>
+                  <Text style={styles.menuSectionTitle}>Parameters</Text>
+                  {renderIOParams()}
+                </ScrollView>
+              )}
+            </BottomSheet>
+          );
+        })()}
 
         {/* ── Bottom Sheet: Block Picker ───────────────────────── */}
         <BottomSheet
           visible={pickerOpen}
           onClose={() => { if (!blockOperation.current) setPickerOpen(false); }}
-          title={pickerStep === 'type' ? (targetBlock ? 'Replace Block' : 'Add Block') : blockCatalog[pickerType ?? 'amp']?.label}
-          subtitle={`${rowLabels[targetSlot.path]} \u00b7 Slot ${targetSlot.block + 1} \u00b7 DSP available ${Math.max(0, availableUsage).toFixed(1)}/${dspLimit}${extendedDspEnabled ? ' · Extended budget' : ''}`}
+          fill
+          title={pickerStep === 'type' ? (targetBlock ? 'Change model' : 'Add block') : blockCatalog[pickerType ?? 'amp']?.label}
+          subtitle={`Row ${rowLabels[targetSlot.path]}, position ${targetSlot.block + 1} · ${Math.max(0, availableUsage).toFixed(1)} of ${dspLimit} DSP free${extendedDspEnabled ? ' · Extended budget' : ''}`}
+          onBack={pickerStep === 'model' ? () => setPickerStep('type') : undefined}
+          backLabel="Back to block categories"
         >
           {pickerStep === 'type' ? (
-            <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+            <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetFillList} showsVerticalScrollIndicator={false}>
               <View style={styles.typeGrid}>
                 {blockTypeOrder.map((typeKey) => {
                   const group = blockCatalog[typeKey];
                   const color = getBlockColor(typeKey);
+                  const unavailable = blockBusy || (typeKey === 'routing' && targetSlot.path % 2 === 1) || (!!targetBlock && isRoutingModel(targetBlock.id) && typeKey !== 'routing');
                   return (
-                    <Pressable key={typeKey} disabled={blockBusy || (typeKey === 'routing' && targetSlot.path % 2 === 1) || (!!targetBlock && isRoutingModel(targetBlock.id) && typeKey !== 'routing')} style={styles.typeCard} onPress={() => selectBlockType(typeKey)}>
-                      <View style={[styles.typeAccent, { backgroundColor: color }]} />
-                      <View style={[styles.typeIconWrap, { backgroundColor: `${color}18` }]}>
+                    <Pressable key={typeKey} disabled={unavailable} style={({ pressed }) => [styles.typeCard, pressed && styles.menuRowPressed, unavailable && styles.menuRowDisabled]} onPress={() => selectBlockType(typeKey)}>
+                      <View style={styles.typeIconWrap}>
                         {BLOCK_IMAGES[typeKey] ? (
                           <Image source={BLOCK_IMAGES[typeKey]} style={[styles.typeIcon, { tintColor: color }]} resizeMode="contain" />
                         ) : (
@@ -5322,24 +5191,14 @@ function EditorApp() {
             </ScrollView>
           ) : (
             <>
-              <View style={styles.pickerNav}>
-                <Pressable accessibilityLabel="Back to block categories" style={styles.backButton} onPress={() => setPickerStep('type')}>
-                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                    <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </Svg>
-                  <Text style={styles.backButtonText}>Back</Text>
-                </Pressable>
-              </View>
               <TextInput accessibilityLabel="Search block models"
                 style={styles.searchInput}
                 value={pickerQuery}
                 onChangeText={setPickerQuery}
-                placeholder="Search models…"
+                placeholder="Search models"
                 placeholderTextColor={COLORS.muted}
               />
-              {pickerType === 'routing' && <Text style={styles.pickerDspHint}>For dual amps, add a split, place one amp on each row, then add a Merge Mixer after them on row A.</Text>}
-              {pickerType !== 'routing' && <Text style={styles.pickerDspHint}>DSP numbers estimate processing use. Lower numbers leave room for more effects; they are not CPU percentages.</Text>}
-              <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetModelList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+              <ScrollView keyboardShouldPersistTaps="handled" style={styles.sheetFillList} showsVerticalScrollIndicator={false}>
                 {pickerModelSections.map((section, sectionIndex) => (
                   <View key={`${section.title ?? 'models'}-${sectionIndex}`}>
                     {section.title && (
@@ -5371,14 +5230,17 @@ function EditorApp() {
                               <Text style={styles.modelMetaText} numberOfLines={linearControls || pickerType === 'routing' ? undefined : 1}>{secondaryName}</Text>
                             )}
                           </View>
-                          <View style={[styles.dspBadge, !canInsert && { borderColor: 'transparent' }]}>
-                            <Text style={[styles.dspBadgeText, !canInsert && styles.sheetListTextDim]}>DSP {required.toFixed(1)}</Text>
-                          </View>
+                          <Text style={[styles.modelDspText, !canInsert && styles.sheetListTextDim]}>{required.toFixed(1)} DSP</Text>
                         </Pressable>
                       );
                     })}
                   </View>
                 ))}
+                <Text style={styles.sheetFootnote}>
+                  {pickerType === 'routing'
+                    ? 'For dual amps, add a split, place one amp on each row, then add a Merge Mixer after them on row A.'
+                    : 'DSP numbers estimate processing use. Lower numbers leave room for more effects; they are not CPU percentages.'}
+                </Text>
               </ScrollView>
             </>
           )}
@@ -5398,6 +5260,49 @@ const styles = StyleSheet.create({
   accessibilityStatus: { color: COLORS.text, paddingHorizontal: 20, paddingVertical: 8, fontSize: 16 },
   safe: { flex: 1, backgroundColor: COLORS.bg },
 
+  /* ── Shared chrome ─────────────────────────────────────────────── */
+  pressedQuiet: { opacity: 0.6 },
+  pushEnd: { marginLeft: 'auto' },
+  libraryTopInList: { paddingTop: 16, paddingBottom: 16 },
+  flowChromeBleed: { marginHorizontal: -16, marginTop: -8, marginBottom: 8 },
+  editorHeaderBleed: { marginHorizontal: -16, marginTop: -12, marginBottom: 8 },
+  inspectorHeaderBleed: { marginHorizontal: -24, marginTop: -12, marginBottom: 8 },
+  flexSpacer: { flex: 1 },
+  iconAction: { width: 48, height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  iconActionPressed: { backgroundColor: COLORS.control },
+  textAction: { minHeight: 48, paddingHorizontal: 10, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  textActionCompact: { minHeight: 48, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center' },
+  textActionLabel: { color: COLORS.text, ...FONT.semibold, fontSize: 17 },
+  screenHeader: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 56, paddingLeft: 16, paddingRight: 6 },
+  screenHeaderWithBack: { paddingLeft: 4, paddingRight: 16 },
+  screenTitle: { flex: 1, minWidth: 0, color: COLORS.text, ...FONT.bold, fontSize: 20, lineHeight: 24 },
+  stepperTrack: { flexDirection: 'row', alignItems: 'center', borderRadius: 10, backgroundColor: COLORS.control, overflow: 'hidden' },
+  stepperTrackStacked: { alignSelf: 'flex-start' },
+  stepperCell: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  stepperDivider: { width: StyleSheet.hairlineWidth, height: 24, backgroundColor: COLORS.stroke },
+  stepperLabel: { minWidth: 64, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
+  stepperLabelText: { color: COLORS.text, ...FONT.semibold, ...FONT.numeric, fontSize: 15 },
+  menuList: {},
+  menuRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 52, paddingVertical: 10, paddingHorizontal: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.stroke,
+  },
+  menuRowPressed: { backgroundColor: COLORS.control },
+  menuRowDisabled: { opacity: 0.4 },
+  menuRowCopy: { flex: 1, minWidth: 0, gap: 2 },
+  menuRowText: { color: COLORS.text, ...FONT.medium, fontSize: 16, lineHeight: 21 },
+  menuRowHint: { color: COLORS.muted, ...FONT.body, fontSize: 13, lineHeight: 18 },
+  menuRowDanger: { color: COLORS.danger },
+  menuGap: { height: 16 },
+  menuSectionTitle: { color: COLORS.muted, ...FONT.semibold, fontSize: 13, lineHeight: 18, marginTop: 16, marginBottom: 6 },
+  menuLabelEditor: { marginBottom: 8 },
+  renameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  renameRowStacked: { flexDirection: 'column', alignItems: 'stretch' },
+  renameInput: { minWidth: 0 },
+  sheetFillList: { flex: 1 },
+  sheetFootnote: { color: COLORS.muted, ...FONT.body, fontSize: 13, lineHeight: 18, paddingTop: 16, paddingBottom: 8 },
+  modelDspText: { color: COLORS.muted, ...FONT.numeric, fontSize: 13 },
+
   /* ── App bar ──────────────────────────────────────────────────── */
   appBar: {
     flexDirection: 'row',
@@ -5407,18 +5312,10 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 10,
   },
-  appTitle: {
-    fontSize: 24,
-    color: COLORS.text,
-    ...FONT.bold,
-    letterSpacing: -0.4,
-  },
-  appBarActions: {
-    flexWrap: 'wrap',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
+  appTitle: { fontSize: 28, color: COLORS.text, ...FONT.bold },
+  appBarActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  appBarStacked: { flexDirection: 'column', alignItems: 'stretch', gap: 8, paddingHorizontal: 16 },
+  appBarActionsStacked: { flexDirection: 'column', alignItems: 'stretch' },
   performanceLaunchButton: {
     paddingVertical: 7,
     paddingHorizontal: 14,
@@ -5498,26 +5395,13 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
     gap: 16,
   },
-  performanceHero: {
-    paddingTop: 8,
-    paddingBottom: 18,
-    gap: 10,
-  },
+  performanceHero: { paddingTop: 4, gap: 6 },
+  performanceHeroTitleLarge: { fontSize: 22, lineHeight: 28 },
   performanceHeroAccent: {
     width: 0, height: 0,
   },
-  performanceHeroKicker: {
-    color: COLORS.muted,
-    ...FONT.semibold,
-    fontSize: 15,
-  },
-  performanceHeroTitle: {
-    color: COLORS.text,
-    ...FONT.bold,
-    fontSize: 32,
-    lineHeight: 36,
-    letterSpacing: -0.4,
-  },
+  performanceHeroKicker: { color: COLORS.muted, ...FONT.semibold, fontSize: 13, lineHeight: 18 },
+  performanceHeroTitle: { color: COLORS.text, ...FONT.bold, fontSize: 26, lineHeight: 30 },
   performanceHeroMeta: {
     color: COLORS.muted,
     ...FONT.body,
@@ -5541,25 +5425,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.1,
   },
-  performanceSection: {
-    gap: 14,
-    paddingTop: 18,
-    paddingBottom: 6,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.stroke,
-  },
+  performanceSection: { gap: 12 },
+  footswitchRow: { flexDirection: 'row', gap: 8 },
+  footswitchRowStacked: { flexDirection: 'column' },
+  footswitch: { flex: 1, minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: COLORS.control },
+  footswitchText: { color: COLORS.text, ...FONT.semibold, fontSize: 17 },
+  performTempoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  performTempoValue: { flex: 1, color: COLORS.text, ...FONT.bold, ...FONT.numeric, fontSize: 34, lineHeight: 40 },
+  performTempoUnit: { color: COLORS.muted, ...FONT.medium, fontSize: 17 },
+  performTapButton: { minHeight: 48, minWidth: 96, paddingHorizontal: 20, borderRadius: 10, backgroundColor: COLORS.accent, alignItems: 'center', justifyContent: 'center' },
+  performTapText: { color: COLORS.bg, ...FONT.semibold, fontSize: 17 },
+  joinedStepper: { flexDirection: 'row', borderRadius: 10, backgroundColor: COLORS.control, overflow: 'hidden' },
+  joinedStepperCell: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  joinedStepperDivider: { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: COLORS.stroke },
+  joinedStepperText: { color: COLORS.text, ...FONT.semibold, ...FONT.numeric, fontSize: 16 },
+  tunerHero: { alignItems: 'center', gap: 12, paddingTop: 4 },
+  pitchStepper: { flexDirection: 'row', alignSelf: 'stretch', minHeight: 72, borderRadius: 12, backgroundColor: COLORS.control, overflow: 'hidden' },
+  pitchStepperButton: { width: 72, alignItems: 'center', justifyContent: 'center' },
+  pitchStepperGlyph: { color: COLORS.text, ...FONT.medium, fontSize: 26, lineHeight: 30 },
+  pitchValueWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: COLORS.stroke },
+  pitchValue: { color: COLORS.text, ...FONT.bold, ...FONT.numeric, fontSize: 34, lineHeight: 40 },
+  pitchUnit: { color: COLORS.muted, ...FONT.medium, fontSize: 17 },
+  tunerNote: { color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+  tunerActions: { flexDirection: 'row', gap: 8 },
+  tunerActionsStacked: { flexDirection: 'column' },
+  tunerActionButton: { flex: 1, minHeight: 48, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.control, alignItems: 'center', justifyContent: 'center' },
+  tunerActionPrimary: { backgroundColor: COLORS.accent },
+  tunerOffsetSection: { gap: 12, marginTop: 12 },
   performanceSectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 10,
   },
-  performanceSectionTitle: {
-    color: COLORS.text,
-    ...FONT.bold,
-    fontSize: 16,
-    letterSpacing: -0.2,
-  },
+  performanceSectionTitle: { color: COLORS.text, ...FONT.semibold, fontSize: 18 },
   performanceSectionMeta: {
     color: COLORS.muted,
     ...FONT.body,
@@ -5864,7 +5763,6 @@ const styles = StyleSheet.create({
   tabContent: { flex: 1 },
   tabPadding: { padding: 16, paddingBottom: 24 },
   flowPadding: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32 },
-
   appBarIconBtn: {
     width: 32,
     height: 32,
@@ -5884,7 +5782,6 @@ const styles = StyleSheet.create({
   /* ── Top bar: preset, save, tempo and tools ─────────────────────── */
   topBar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: 16,
@@ -5892,12 +5789,15 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   topBarWide: { paddingHorizontal: 24, paddingTop: 10, gap: 12 },
-  topBarPhone: { flexDirection: 'column', alignItems: 'stretch' },
+  topBarPhone: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 8, gap: 4 },
+  topRowA: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 52 },
+  topRowB: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  topPresetNamePhone: { flexBasis: 0, minWidth: 0, maxWidth: undefined, paddingHorizontal: 0, gap: 8, justifyContent: 'flex-start', backgroundColor: 'transparent' },
   topPreset: { flexDirection: 'row', alignItems: 'center', gap: 8, flexGrow: 1, flexShrink: 1, flexBasis: 320 },
   topPresetPhone: { flexBasis: 'auto', flexGrow: 0, flexShrink: 0, width: '100%' },
   topIconButton: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     backgroundColor: COLORS.control,
     alignItems: 'center',
@@ -5908,7 +5808,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     maxWidth: 420,
-    minHeight: 44,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -5920,7 +5820,8 @@ const styles = StyleSheet.create({
   topPresetTitle: { flexShrink: 1, color: COLORS.text, ...FONT.semibold, fontSize: 18 },
   editedDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.warn },
   saveButton: {
-    minHeight: 44,
+    minHeight: 48,
+    minWidth: 72,
     paddingHorizontal: 18,
     borderRadius: 10,
     backgroundColor: COLORS.accent,
@@ -5930,10 +5831,15 @@ const styles = StyleSheet.create({
   saveButtonQuiet: { backgroundColor: COLORS.control },
   saveButtonText: { color: COLORS.bg, ...FONT.semibold, fontSize: 15 },
   saveButtonTextQuiet: { color: COLORS.text },
-  topTools: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginLeft: 'auto' },
-  topToolsPhone: { marginLeft: 0, justifyContent: 'space-between' },
+  topTools: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto', flexShrink: 1, minWidth: 0 },
+  topRowFull: { marginLeft: 0, alignSelf: 'stretch' },
+  topBarStacked: { flexDirection: 'column', alignItems: 'stretch' },
+  tempoTapButton: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10, backgroundColor: COLORS.control },
+  tempoTapCaption: { color: COLORS.muted, ...FONT.semibold, fontSize: 11, lineHeight: 13, letterSpacing: 0.6 },
+  tempoReadout: { flexDirection: 'row', alignItems: 'baseline', gap: 3 },
+  tempoUnitCompact: { color: COLORS.muted, ...FONT.body, fontSize: 12 },
   tempoGroup: {
-    minHeight: 44,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 10,
@@ -5944,14 +5850,14 @@ const styles = StyleSheet.create({
   tempoValue: { color: COLORS.text, ...FONT.semibold, ...FONT.numeric, fontSize: 17 },
   tempoUnit: { color: COLORS.muted, ...FONT.body, fontSize: 13, marginLeft: 6, marginRight: 10 },
   tempoTap: {
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: 14,
     justifyContent: 'center',
     borderLeftWidth: StyleSheet.hairlineWidth,
     borderLeftColor: COLORS.stroke,
   },
   toolButton: {
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: 14,
     borderRadius: 10,
     backgroundColor: COLORS.control,
@@ -5962,7 +5868,7 @@ const styles = StyleSheet.create({
   toolButtonText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
   toolButtonDanger: { color: COLORS.danger },
   statusButton: {
-    minHeight: 44,
+    minHeight: 48,
     maxWidth: 200,
     flexDirection: 'row',
     alignItems: 'center',
@@ -5971,6 +5877,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   statusButtonText: { flexShrink: 1, color: COLORS.muted, ...FONT.body, fontSize: 14 },
+  statusButtonEnd: { marginLeft: 'auto', flexShrink: 1, minWidth: 0 },
   snapshotBar: { paddingLeft: 16, paddingBottom: 10 },
   previewBanner: {
     flexDirection: 'row',
@@ -5980,34 +5887,33 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 2,
     paddingLeft: 14,
-    paddingRight: 6,
-    paddingVertical: 6,
+    paddingRight: 4,
     borderRadius: 12,
     backgroundColor: COLORS.panel,
     borderWidth: 1,
     borderColor: COLORS.warn,
   },
   previewBannerWide: { marginHorizontal: 24 },
-  previewBannerText: { flex: 1, color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 19 },
-  previewBannerTitle: { color: COLORS.text, ...FONT.semibold },
+  previewBannerText: { flexShrink: 1, color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 19 },
+  previewBannerTitle: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
+  previewStatus: { flex: 1, minWidth: 0, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 8 },
+  previewStatusStacked: { flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', gap: 2, paddingVertical: 4 },
+  previewStatusLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  previewInfoGap: { marginTop: 16 },
   snapshotBarWide: { paddingHorizontal: 24, paddingBottom: 6 },
 
   /* ── Segmented control ─────────────────────────────────────────── */
   segmentTrack: {
     flexDirection: 'row',
     alignSelf: 'flex-start',
-    padding: 3,
     borderRadius: 10,
     backgroundColor: COLORS.control,
   },
+  segmentTrackFill: { alignSelf: 'stretch', marginBottom: 12 },
   segmentTrackStacked: { flexDirection: 'column', alignSelf: 'stretch' },
-  segmentItem: {
-    minHeight: 38,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  segmentItem: { minHeight: 48, padding: 4, justifyContent: 'center' },
+  segmentItemFill: { flex: 1 },
+  segmentPill: { minHeight: 40, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   segmentItemActive: { backgroundColor: COLORS.stroke },
   segmentItemText: { color: COLORS.muted, ...FONT.semibold, fontSize: 14 },
   segmentItemTextActive: { color: COLORS.text },
@@ -6046,13 +5952,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  inspectorChipCompact: { width: 40, height: 40, borderRadius: 10, marginRight: 4 },
   inspectorTitleStack: { flexShrink: 1, flexGrow: 1, flexBasis: 180, gap: 2 },
+  editorTitleStackPhone: { flexBasis: 0, minWidth: 0 },
+  editorTitleStackAccessible: { flex: 0, flexBasis: 'auto', width: '100%' },
+  editorAccessibleTitle: { paddingHorizontal: 16, paddingBottom: 8 },
+  editorBlockTitle: { fontSize: 20, lineHeight: 24 },
   inspectorTitle: { color: COLORS.text, ...FONT.bold, fontSize: 22, lineHeight: 26 },
-  inspectorSubtitle: { color: COLORS.muted, ...FONT.body, fontSize: 14 },
+  inspectorSubtitle: { color: COLORS.muted, ...FONT.body, fontSize: 14, lineHeight: 18 },
   inspectorTools: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginLeft: 'auto' },
   inspectorParamPad: { paddingHorizontal: 24, paddingTop: 12, paddingBottom: 32 },
   powerPill: {
-    minHeight: 44,
+    minHeight: 48,
+    minWidth: 96,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -6064,67 +5976,51 @@ const styles = StyleSheet.create({
   powerPillOff: { backgroundColor: COLORS.control, borderColor: COLORS.control },
   powerDot: { width: 10, height: 10, borderRadius: 5 },
   powerText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
-  editorTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingLeft: 8,
-    paddingRight: 16,
-    paddingTop: 6,
-    paddingBottom: 10,
-  },
-  editorStep: { flexDirection: 'row', gap: 8 },
-  editorStepEnd: { marginLeft: 'auto' },
+  editorTopRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 56, paddingHorizontal: 4, paddingVertical: 4 },
+
+
   stepButton: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     backgroundColor: COLORS.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepButtonDisabled: { opacity: 0.4 },
-  editorToolRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
+  editorToolRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 8 },
+  editorToolRowStacked: { flexDirection: 'column', alignItems: 'flex-start' },
   sliderGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 10, paddingVertical: 4 },
 
   /* ── Path section ──────────────────────────────────────────────── */
   pathSection: {
     marginBottom: 14,
   },
-  pathHeader: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 14,
-    paddingBottom: 6,
-  },
-  pathHeaderStacked: { alignItems: 'flex-start', flexDirection: 'column', gap: 6 },
+  pathHeaderBlock: { paddingBottom: 4 },
+  pathHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  pathTools: { flexDirection: 'row', alignItems: 'center', marginRight: -12 },
   pathTitle: {
     color: COLORS.text,
     ...FONT.bold,
     fontSize: 17,
   },
-  pathClipboardBadge: {
-    color: COLORS.muted,
-    ...FONT.body,
-    fontSize: 13,
-  },
-  pathDsp: {
-    minHeight: 44,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  pathDspText: { color: COLORS.muted, ...FONT.numeric, fontSize: 13 },
+  clipboardStrip: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 48, paddingLeft: 14, paddingRight: 4, marginTop: 4, marginBottom: 8, borderRadius: 10, backgroundColor: COLORS.control },
+  clipboardText: { flex: 1, color: COLORS.text, ...FONT.body, fontSize: 15 },
+  clipboardAction: { minHeight: 48, paddingHorizontal: 10, justifyContent: 'center' },
+  clipboardActionText: { color: COLORS.accent, ...FONT.semibold, fontSize: 15 },
+  clipboardNote: { color: COLORS.muted, ...FONT.body, fontSize: 13, lineHeight: 18, paddingTop: 4, paddingBottom: 8 },
+  pathDsp: { flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 48, justifyContent: 'center', gap: 4 },
+  pathDspLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  pathDspText: { flexShrink: 1, color: COLORS.muted, ...FONT.numeric, fontSize: 13 },
   /* DSP meter — like a chassis level meter */
   dspTrack: {
-    width: 120,
-    height: 6,
-    borderRadius: 3,
+    width: 64,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: COLORS.raised,
     overflow: 'hidden',
   },
-  dspFill: { height: '100%', borderRadius: 3 },
+  dspFill: { height: '100%', borderRadius: 2 },
   pathActionRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -6134,17 +6030,8 @@ const styles = StyleSheet.create({
     gap: 6,
     marginLeft: 'auto',
   },
-  pathActionButton: {
-    minHeight: 44,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    justifyContent: 'center',
-  },
-  pathActionText: {
-    color: COLORS.text,
-    ...FONT.semibold,
-    fontSize: 15,
-  },
+
+
   pathActionTextDisabled: {
     color: COLORS.muted,
     opacity: 0.6,
@@ -6153,8 +6040,9 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
     ...FONT.semibold,
     fontSize: 13,
-    paddingTop: 4,
-    paddingBottom: 6,
+    paddingLeft: 8,
+    paddingTop: 12,
+    paddingBottom: 4,
   },
   branchSection: {
     marginTop: 10,
@@ -6165,28 +6053,18 @@ const styles = StyleSheet.create({
 
   /* ── IO row — input/output endpoints, sit between path actions and chain */
   ioRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    paddingVertical: 12, paddingHorizontal: 0,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    minHeight: 56, paddingVertical: 4, paddingHorizontal: 8,
     borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.hairline,
   },
   ioIconWrap: {
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: 'transparent',
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
   },
-  ioInfo: { flex: 1, gap: 2 },
-  ioLabel: {
-    color: COLORS.muted,
-    ...FONT.body,
-    fontSize: 11.5,
-    letterSpacing: 0.1,
-  },
-  ioName: {
-    color: COLORS.text,
-    ...FONT.semibold,
-    fontSize: 14,
-    letterSpacing: 0.1,
-  },
+  ioTrailing: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  ioInfo: { flex: 1, minWidth: 0, gap: 2 },
+  ioLabel: { color: COLORS.muted, ...FONT.body, fontSize: 12, lineHeight: 16 },
+  ioName: { color: COLORS.text, ...FONT.semibold, fontSize: 15, lineHeight: 20 },
 
   /* ── Split divider ─────────────────────────────────────────────── */
   splitDivider: {
@@ -6271,7 +6149,7 @@ const styles = StyleSheet.create({
     width: 56,
     borderRadius: 1,
   },
-  editorParamPad: { padding: 18, paddingTop: 12, paddingBottom: 48 },
+  editorParamPad: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 },
 
   /* ── Sections (preset/device tabs) ─────────────────────────────── */
   section: {
@@ -6356,7 +6234,6 @@ const styles = StyleSheet.create({
   },
   listHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   sheetRenameRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke },
-
   libraryHeader: { flex: 1, gap: 4, paddingRight: 12 },
   libraryActionStack: { gap: 8 },
   libraryCurrentName: { color: COLORS.text, ...FONT.semibold, fontSize: 17 },
@@ -6435,16 +6312,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 8,
   },
-  setlistAddToolActions: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  setlistAddFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 14,
-    paddingTop: 14,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.stroke,
-  },
+  setlistAddToolActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  setlistAddFooter: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   setlistAddFooterCopy: { flex: 1, gap: 4 },
   selectionDot: {
     width: 22,
@@ -6464,7 +6333,6 @@ const styles = StyleSheet.create({
     width: 10, height: 10, borderRadius: 5,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
   },
-
   libraryList: { gap: 8 },
   inlineEditor: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   inlineInput: { flex: 1 },
@@ -6599,7 +6467,7 @@ const styles = StyleSheet.create({
   settingsContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32, width: '100%', maxWidth: 700, alignSelf: 'center' },
   settingsHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   settingsEyebrow: { color: COLORS.muted, fontSize: 12, letterSpacing: 2.4, ...FONT.semibold, marginBottom: 4 },
-  settingsTitle: { color: COLORS.text, fontSize: 30, ...FONT.bold, letterSpacing: -0.8 },
+  settingsTitle: { color: COLORS.text, fontSize: 28, ...FONT.bold },
   connectionSummary: { padding: 18, backgroundColor: COLORS.panel, borderRadius: 16, gap: 16 },
   connectionSummaryTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   settingsDeviceIcon: { width: 44, alignItems: 'center' },
@@ -6654,14 +6522,13 @@ const styles = StyleSheet.create({
   sheetListTextDim: { color: COLORS.muted },
 
   /* ── Block type picker ─────────────────────────────────────────── */
-  typeGrid: { gap: 8 },
+  typeGrid: {},
   typeCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 12,
-    borderWidth: 1, borderColor: COLORS.stroke, backgroundColor: COLORS.panelAlt,
-    paddingVertical: 14, paddingHorizontal: 14, overflow: 'hidden',
+    flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, paddingVertical: 8, paddingHorizontal: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.stroke,
   },
   typeAccent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, borderTopLeftRadius: 12, borderBottomLeftRadius: 12 },
-  typeIconWrap: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  typeIconWrap: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   typeIcon: { width: 28, height: 28 },
   typeInfo: { flex: 1 },
   typeLabel: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
@@ -6724,7 +6591,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    width: 110,
+    minWidth: 0,
   },
   toggleSection: {
     gap: 14,
@@ -6733,16 +6600,22 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: COLORS.stroke,
   },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  toggleRow: { gap: 8 },
   toggleLabel: {
     color: COLORS.text,
     ...FONT.semibold,
     fontSize: 15,
+    flexShrink: 1,
   },
-  toggleLabels: {
-    flexDirection: 'row', gap: 6, flex: 1, flexWrap: 'wrap' },
+  toggleLabels: { flexDirection: 'row', gap: 8 },
+  toggleLabelsStacked: { flexDirection: 'column' },
+  togglePillStacked: { flex: 0 },
   togglePill: {
-    minHeight: 40,
+    flex: 1,
+    minWidth: 0,
+    minHeight: 48,
+    paddingVertical: 10,
+    alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 14,
     borderRadius: 10,
@@ -6751,7 +6624,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.control,
   },
   togglePillActive: { borderColor: COLORS.accent, backgroundColor: COLORS.raised },
-  togglePillText: { color: COLORS.muted, ...FONT.semibold, fontSize: 14 },
+  togglePillText: { color: COLORS.muted, ...FONT.semibold, fontSize: 15, textAlign: 'center', flexShrink: 1 },
   togglePillTextActive: { color: COLORS.text },
   helpSheetBody: { paddingTop: 4, paddingBottom: 18 },
   helpSheetText: {

@@ -5,7 +5,7 @@ import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { announce, useAccessibilityPreferences } from '../accessibility/AccessibilityPreferences';
 import { AccessibleParameter } from '../accessibility/AccessibleParameter';
-import { COLORS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 import { FOCUS_POINTS, focusChanges, getFocusDefinition, normalizeFocusPoint, type FocusChange, type FocusPoint, type FocusValue } from '../utils/focus';
 import { FocusSurface } from './FocusSurface';
 import { ParamSlider } from './ParamSlider';
@@ -110,6 +110,8 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
     (kind !== 'cab' || ['Mic', 'Position', 'Distance', 'Angle', 'LowCut', 'HighCut', 'Level', 'Pan', 'Delay'].includes(param.key)));
   const toneControls = controls.filter(param => param.unit === 'dB' && /gain|low|mid|high|bass|treble|level|\d+(hz|k)/i.test(param.key));
   const pad = kind === 'xy' || kind === 'cab';
+  // Band names share a 300-unit-wide chart; trim them to their own column so neighbours never overlap.
+  const bandLabelChars = Math.max(3, Math.min(10, Math.floor(300 / Math.max(1, toneControls.length) / 5.6)));
 
   if (!values) return <View style={styles.section}>{error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : <><ActivityIndicator color={COLORS.text} /><Text style={styles.body}>Reading the current tone…</Text></>}</View>;
   return <View style={styles.section}>
@@ -133,7 +135,7 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
     </View>}
     {kind === 'xy' && !error && <>
       {!listLayout && <Action accessibilityState={{ expanded: precise }} onPress={() => setPrecise(!precise)} style={styles.preciseToggle}>
-        <Text style={styles.pointLabel}>Adjust precisely</Text><Text style={styles.pointLabel}>{precise ? '−' : '+'}</Text>
+        <Text style={[styles.pointLabel, styles.flex]}>Adjust precisely</Text><Text accessible={false} style={styles.expand}>{precise ? '−' : '+'}</Text>
       </Action>}
       {(listLayout || precise) && <>
         <AccessibleParameter label="Focus X, left to right" type="i" min={-100} max={100} value={Math.round(point.x * 100)} onChange={value => { selectedPoint.current = null; move({ ...lastPoint.current, x: Number(value) / 100 }); }} />
@@ -144,7 +146,7 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
       <Svg pointerEvents="none" width="100%" height={160} viewBox="0 0 300 160">
         <Line x1={0} y1={80} x2={300} y2={80} stroke={COLORS.muted} />
         {toneControls.map((param, index) => { const x = (index + 0.5) * 300 / toneControls.length; const gain = Math.max(-24, Math.min(24, Number(values[param.id!]))); const y = 80 - gain * 2.5;
-          return <React.Fragment key={param.id}><Rect x={x - 6} y={Math.min(y, 80)} width={12} height={Math.max(1, Math.abs(y - 80))} fill={COLORS.signal} /><SvgText x={x} y={152} fill={COLORS.muted} fontSize={9} textAnchor="middle">{param.name.slice(0, 10)}</SvgText></React.Fragment>; })}
+          return <React.Fragment key={param.id}><Rect x={x - 6} y={Math.min(y, 80)} width={12} height={Math.max(1, Math.abs(y - 80))} fill={COLORS.signal} /><SvgText x={x} y={152} fill={COLORS.muted} fontSize={9} textAnchor="middle">{param.name.slice(0, bandLabelChars)}</SvgText></React.Fragment>; })}
       </Svg>
     </View>}
     {kind !== 'xy' && !error && controls.map(param => <ParamSlider key={param.id} label={param.name} value={values[param.id!] ?? param.def}
@@ -177,10 +179,11 @@ export function FocusView({ model, read, apply, onBusy, onDrag }: Props) {
 }
 const styles = StyleSheet.create({
   section: { gap: 14, paddingTop: 14 },
-  title: { fontSize: 20, color: COLORS.text }, body: { fontSize: 16, lineHeight: 23, color: COLORS.muted }, error: { color: COLORS.danger, fontSize: 16 },
-  caption: { gap: 4 }, status: { color: COLORS.text, fontSize: 16, fontWeight: '500' }, hint: { color: '#a7a8b0', fontSize: 15, lineHeight: 21 },
+  title: { fontSize: 17, lineHeight: 22, ...FONT.semibold, color: COLORS.text }, body: { fontSize: 16, lineHeight: 23, color: COLORS.muted }, error: { color: COLORS.danger, fontSize: 16, lineHeight: 22 },
+  caption: { gap: 4 }, status: { color: COLORS.text, fontSize: 16, lineHeight: 22, fontWeight: '500' }, hint: { color: COLORS.muted, fontSize: 15, lineHeight: 21 },
+  flex: { flex: 1, minWidth: 0 }, expand: { color: COLORS.muted, fontSize: 22, width: 24, textAlign: 'center' },
   points: { gap: 8 }, point: { minHeight: 48, justifyContent: 'center', padding: 12, borderWidth: 1, borderColor: COLORS.stroke, borderRadius: 6 },
-  pointLabel: { color: COLORS.text, fontSize: 16 }, pointSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
-  preciseToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke, paddingVertical: 12 },
+  pointLabel: { color: COLORS.text, fontSize: 16, lineHeight: 22, flexShrink: 1 }, pointSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentDim },
+  preciseToggle: { flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke, paddingVertical: 12 },
   restore: { minHeight: 48, alignSelf: 'flex-start', paddingVertical: 12 },
 });

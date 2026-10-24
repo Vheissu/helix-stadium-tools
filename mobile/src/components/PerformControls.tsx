@@ -23,13 +23,15 @@ export function PerformControls(props: Props) {
   const columns = fontScale > 1.5 || width < 360 ? 1 : width >= 760 ? 5 : 2;
   // Eight snapshots fill two even rows of four; ten footswitches fill rows of five.
   const snapshotColumns = columns === 5 ? 4 : columns;
+  // Stack the view switcher before "Snapshots" outgrows a third of the row.
+  const stackTabs = fontScale > 1.3;
   const switches = props.view === 'snapshots' ? null : props.banks?.[props.view];
   return <View style={styles.section}>
-    <View accessibilityRole="tablist" accessibilityLabel="Perform view" style={styles.selector}>
+    <View accessibilityRole="tablist" accessibilityLabel="Perform view" style={[styles.selector, stackTabs && styles.selectorStacked]}>
       {([['a', 'Stomp A'], ['b', 'Stomp B'], ['snapshots', 'Snapshots']] as const).map(([view, label]) =>
         <Action key={view} accessibilityRole="tab" accessibilityState={{ selected: props.view === view }}
           accessibilityLabel={label} onPress={() => props.onViewChange(view)}
-          style={[styles.tab, fontScale > 1.5 && styles.tabLargeText, props.view === view && styles.tabSelected]}>
+          style={[styles.tab, stackTabs && styles.tabStacked, props.view === view && styles.tabSelected]}>
           <Text style={[styles.tabText, props.view === view && styles.tabTextSelected]}>{label}</Text>
         </Action>)}
     </View>
@@ -75,16 +77,17 @@ export function PerformControls(props: Props) {
 
 const styles = StyleSheet.create({
   section: { gap: 12 },
-  selector: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, padding: 4, backgroundColor: COLORS.panel, borderRadius: 10 },
-  tab: { flexGrow: 1, flexBasis: 96, alignItems: 'center', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 10 },
-  tabLargeText: { flexBasis: '100%' },
+  selector: { flexDirection: 'row', gap: 4, padding: 4, backgroundColor: COLORS.panel, borderRadius: 10 },
+  selectorStacked: { flexDirection: 'column' },
+  tab: { flex: 1, minWidth: 0, alignItems: 'center', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 10 },
+  tabStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
   tabSelected: { backgroundColor: COLORS.text },
   tabText: { color: COLORS.text, ...FONT.semibold, fontSize: 15, textAlign: 'center' },
   tabTextSelected: { color: COLORS.bg },
   heading: { color: COLORS.text, ...FONT.semibold, fontSize: 18 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
-  tile: { backgroundColor: COLORS.panel, borderColor: COLORS.stroke, borderWidth: 0, borderRadius: 12, padding: 12, gap: 10, minHeight: 88 },
-  tileSelected: { backgroundColor: COLORS.raised, borderLeftWidth: 2, borderLeftColor: COLORS.brand },
+  tile: { backgroundColor: COLORS.panel, borderColor: COLORS.panel, borderWidth: 2, borderRadius: 12, padding: 12, gap: 10, minHeight: 88 },
+  tileSelected: { backgroundColor: COLORS.raised, borderColor: COLORS.accent },
   tileHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   swatch: { width: 12, height: 12, borderRadius: 6 },
   number: { color: COLORS.text, ...FONT.numeric, fontSize: 15 },

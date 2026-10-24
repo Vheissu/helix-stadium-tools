@@ -75,7 +75,7 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
     <Text accessibilityRole="header" style={styles.heading}>Path {path}</Text>
     {picked && <View style={styles.moveInstructions}>
       <Text style={styles.text}>Moving {picked.name}. Choose a position in path {path}, then activate Drop here. Other blocks shift to make room.</Text>
-      <Action disabled={moving} accessibilityLabel={`Cancel moving ${picked.name}`} onPress={cancel}><Text style={styles.text}>Cancel move</Text></Action>
+      <Action disabled={moving} accessibilityLabel={`Cancel moving ${picked.name}`} onPress={cancel} style={[styles.outline, styles.cancel, moving && styles.disabled]}><Text style={styles.text}>Cancel move</Text></Action>
     </View>}
     {indices.map((index) => {
       const block = blocks[index];
@@ -90,7 +90,7 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
         <Text style={styles.name}>{index + 1}. {name}</Text>
         <Text style={styles.text}>{index === picked.index ? 'Keep here' : 'Drop here'}</Text>
       </Action>;
-      if (!block) return <Action key={index} ref={view => { targets.current[index] = view; }} disabled={moving} onPress={() => onSelectSlot(slot)} accessibilityLabel={`Add block, ${location}`}>
+      if (!block) return <Action key={index} ref={view => { targets.current[index] = view; }} disabled={moving} onPress={() => onSelectSlot(slot)} accessibilityLabel={`Add block, ${location}`} style={styles.addRow}>
         <Text style={styles.text}>Add block at position {index + 1}</Text>
       </Action>;
       return <View key={index} style={styles.block}>
@@ -100,12 +100,12 @@ export function AccessibleEffectList({ blocks, pathIndex, selectedSlot, onSelect
           <Text style={styles.text}>{block.enabled === false ? 'Bypassed' : 'Enabled'}</Text>
         </Action>
         <View style={styles.actions}>
-          <Action disabled={moving} accessibilityLabel={`${block.enabled === false ? 'Enable' : 'Bypass'} ${name}, ${location}`} onPress={() => onToggleEnabled(slot)}><Text style={styles.text}>{block.enabled === false ? 'Enable' : 'Bypass'}</Text></Action>
-          {onOpenSlotMenu && <Action disabled={moving} accessibilityLabel={`Options for ${name}, ${location}`} onPress={() => onOpenSlotMenu(slot)}><Text style={styles.text}>Options</Text></Action>}
+          <Action disabled={moving} accessibilityLabel={`${block.enabled === false ? 'Enable' : 'Bypass'} ${name}, ${location}`} onPress={() => onToggleEnabled(slot)} style={[styles.outline, styles.button, moving && styles.disabled]}><Text style={styles.text}>{block.enabled === false ? 'Enable' : 'Bypass'}</Text></Action>
+          {onOpenSlotMenu && <Action disabled={moving} accessibilityLabel={`Options for ${name}, ${location}`} onPress={() => onOpenSlotMenu(slot)} style={[styles.outline, styles.button, moving && styles.disabled]}><Text style={styles.text}>Options</Text></Action>}
           <Action disabled={moving} accessibilityLabel={`Pick up ${name}, ${location}`} accessibilityHint="Choose a destination, then activate Drop here."
-            onPress={() => { setPickup({ index, name, signature }); announce(`Picked up ${name}. Choose a position in path ${path} and activate Drop here, or Cancel move.`); focus(index); }}><Text style={styles.text}>Pick up</Text></Action>
-          <Action accessibilityLabel={`Move ${name} earlier, ${location}`} disabled={moving || !indices.includes(index - 1)} onPress={() => { void move(index, index - 1); }}><Text style={styles.text}>Move earlier</Text></Action>
-          <Action accessibilityLabel={`Move ${name} later, ${location}`} disabled={moving || !indices.includes(index + 1)} onPress={() => { void move(index, index + 1); }}><Text style={styles.text}>Move later</Text></Action>
+            onPress={() => { setPickup({ index, name, signature }); announce(`Picked up ${name}. Choose a position in path ${path} and activate Drop here, or Cancel move.`); focus(index); }} style={[styles.outline, styles.button, moving && styles.disabled]}><Text style={styles.text}>Pick up</Text></Action>
+          <Action accessibilityLabel={`Move ${name} earlier, ${location}`} disabled={moving || !indices.includes(index - 1)} onPress={() => { void move(index, index - 1); }} style={[styles.outline, styles.button, (moving || !indices.includes(index - 1)) && styles.disabled]}><Text style={styles.text}>Move earlier</Text></Action>
+          <Action accessibilityLabel={`Move ${name} later, ${location}`} disabled={moving || !indices.includes(index + 1)} onPress={() => { void move(index, index + 1); }} style={[styles.outline, styles.button, (moving || !indices.includes(index + 1)) && styles.disabled]}><Text style={styles.text}>Move later</Text></Action>
         </View>
       </View>;
     })}
@@ -116,7 +116,13 @@ const styles = StyleSheet.create({
   heading: { color: COLORS.text, fontSize: 20, paddingVertical: 12 },
   text: { color: COLORS.text, fontSize: 16 },
   name: { color: COLORS.text, fontSize: 18 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
+  // Visible button outlines for low-vision list layout; even rows rather than a ragged wrap.
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  outline: { alignItems: 'center', borderWidth: 1, borderColor: COLORS.muted, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
+  button: { flexGrow: 1, flexBasis: 128 },
+  cancel: { alignSelf: 'flex-start', paddingHorizontal: 16 },
+  disabled: { opacity: 0.45 },
+  addRow: { paddingVertical: 12, borderBottomWidth: 1, borderColor: COLORS.stroke },
   block: { paddingVertical: 12, gap: 8, borderBottomWidth: 1, borderColor: COLORS.stroke },
   moveInstructions: { gap: 8, paddingVertical: 12 },
   dropTarget: { borderWidth: 1, borderColor: COLORS.muted, borderRadius: 8, padding: 12, marginVertical: 6, gap: 8 },

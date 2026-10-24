@@ -27,15 +27,16 @@ export function AppInfo({ compact = false }: { compact?: boolean }) {
   const linkRows = (items: typeof links) => <View style={styles.links}>{items.map((item, index) => <Action key={item.label}
     accessibilityRole={item.external ? 'link' : 'button'} onPress={item.action}
     style={({ pressed }) => [styles.link, index > 0 && styles.separator, pressed && styles.pressed]}>
-    <UtilityIcon name={item.icon} /><Text style={styles.linkText}>{item.label}</Text><UtilityIcon name="chevron" size={16} />
+    <UtilityIcon name={item.icon} /><Text style={styles.linkText}>{item.label}</Text>
+    <UtilityIcon name={item.external ? 'arrow' : 'chevron'} size={16} color={COLORS.faint} />
   </Action>)}</View>;
   return <View>
     {compact ? <Action onPress={() => setPage('help')} style={({ pressed }) => [styles.compact, pressed && styles.pressed]}>
       <UtilityIcon name="help" size={19} /><Text style={styles.compactText}>Help & About</Text>
     </Action> : linkRows(links)}
-    <BottomSheet visible={page !== null} onClose={() => setPage(null)} title={page === 'privacy' ? 'Privacy policy' : page === 'licenses' ? 'Third-party licenses' : 'Help & About'}>
-      {page === 'licenses' ? <FlatList keyboardShouldPersistTaps="handled" data={notices} keyExtractor={item => `${item.name}@${item.version}`}
-        ListHeaderComponent={<Action onPress={() => setPage('help')} style={styles.link}><Text style={styles.linkText}>Back to Help & About</Text></Action>}
+    <BottomSheet visible={page !== null} onClose={() => setPage(null)} title={page === 'privacy' ? 'Privacy policy' : page === 'licenses' ? 'Third-party licenses' : 'Help & About'}
+      fill={page === 'licenses'} onBack={page === 'privacy' || page === 'licenses' ? () => setPage('help') : undefined} backLabel="Back to Help & About">
+      {page === 'licenses' ? <FlatList style={styles.flex} keyboardShouldPersistTaps="handled" data={notices} keyExtractor={item => `${item.name}@${item.version}`}
         contentContainerStyle={styles.content} renderItem={({ item }) => {
           const key = `${item.name}@${item.version}`;
           return <View style={styles.notice}>
@@ -61,8 +62,9 @@ export function AppInfo({ compact = false }: { compact?: boolean }) {
         {page === 'help' && linkRows(links.slice(1))}
         <Text selectable style={styles.disclaimer}>{info.disclaimer}</Text>
         <Text selectable style={styles.body}>{info.supportEmail}</Text>
-        {page === 'privacy' && <Action accessibilityRole="link" style={styles.link} onPress={() => void openLink(info.privacyUrl)}><Text style={styles.linkText}>Read the policy online</Text><UtilityIcon name="arrow" /></Action>}
-        {page !== 'help' && <Action onPress={() => setPage('help')} style={styles.link}><Text style={styles.linkText}>Back to Help & About</Text></Action>}
+        {page === 'privacy' && <Action accessibilityRole="link" style={({ pressed }) => [styles.link, styles.inlineLink, pressed && styles.pressed]} onPress={() => void openLink(info.privacyUrl)}>
+          <Text style={styles.linkText}>Read the policy online</Text><UtilityIcon name="arrow" size={16} color={COLORS.faint} />
+        </Action>}
       </ScrollView>}
     </BottomSheet>
   </View>;
@@ -70,23 +72,24 @@ export function AppInfo({ compact = false }: { compact?: boolean }) {
 
 const styles = StyleSheet.create({
   links: { borderRadius: 16, backgroundColor: COLORS.panel, overflow: 'hidden' },
-  link: { minHeight: 56, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 14 },
+  link: { minHeight: 56, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 14 },
+  inlineLink: { borderRadius: 12, backgroundColor: COLORS.control, marginTop: 8 },
   separator: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.stroke },
-  linkText: { ...FONT.medium, color: COLORS.text, fontSize: 16, flex: 1 },
+  linkText: { ...FONT.medium, color: COLORS.text, fontSize: 16, lineHeight: 22, flex: 1, minWidth: 0 },
   pressed: { backgroundColor: COLORS.raised },
   content: { gap: 8, paddingBottom: 24 },
-  heading: { color: COLORS.text, ...FONT.medium, fontSize: 17, lineHeight: 24 },
+  heading: { color: COLORS.text, ...FONT.semibold, fontSize: 17, lineHeight: 22 },
   body: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 23 },
   disclaimer: { color: COLORS.muted, fontSize: 14, lineHeight: 21, marginTop: 16 },
-  compact: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, borderRadius: 8, maxWidth: '100%' },
+  compact: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, borderRadius: 10, maxWidth: '100%' },
   compactText: { color: COLORS.muted, fontSize: 14, flexShrink: 1 },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 18, paddingVertical: 16, marginBottom: 16 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 18, paddingVertical: 12, marginBottom: 8 },
   wordmark: { color: COLORS.text, ...FONT.bold, fontSize: 24, letterSpacing: 3, marginBottom: 4 },
   article: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.stroke },
-  articleButton: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14, paddingHorizontal: 4, borderRadius: 8 },
+  articleButton: { minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 12, paddingHorizontal: 4, borderRadius: 10 },
   articleBody: { paddingHorizontal: 4, paddingBottom: 20 },
-  expand: { color: COLORS.muted, fontSize: 22, width: 24, textAlign: 'center' },
-  flex: { flex: 1 },
+  expand: { color: COLORS.muted, fontSize: 22, width: 24, textAlign: 'center', flexShrink: 0 },
+  flex: { flex: 1, minWidth: 0 },
   privacySection: { gap: 8, paddingVertical: 10 },
   notice: { backgroundColor: COLORS.control, borderRadius: 12, overflow: 'hidden' },
   noticeButton: { padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },

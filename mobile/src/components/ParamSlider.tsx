@@ -3,16 +3,16 @@ import { useAccessibilityPreferences } from '../accessibility/AccessibilityPrefe
 import React, { useCallback, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
-  Modal,
   PanResponder,
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
+  useWindowDimensions
 } from 'react-native';
 import { COLORS, FONT } from '../theme/colors';
 import { formatParamValue } from '../utils/paramFormat';
+import { ParamValueEditor } from './ParamValueEditor';
 
 interface ParamSliderProps {
   label: string;
@@ -75,6 +75,8 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
   const [trackWidth, setTrackWidth] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState('');
+  const { fontScale } = useWindowDimensions();
+  const stacked = fontScale >= 1.5;
 
   const isOptionList = options !== null && options !== undefined && options.length > 1;
   const numericValue = typeof value === 'boolean' ? (value ? 1 : 0) : Number(value);
@@ -205,25 +207,28 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
   return (
     <>
       <View style={styles.row}>
-        {/* Header row: label (left, expands), value + help (right). The value
-            can grow to fit any option-list label without squeezing the bar. */}
-        <View style={styles.header}>
-          <Text style={styles.label} numberOfLines={1}>
-            {label}
-          </Text>
-          <View style={styles.headerRight}>
-            <Pressable
-              onPress={openEditModal}
-              disabled={isOptionList}
-              hitSlop={6}
-              style={styles.valueWrap}
-            >
-              <Text style={[styles.value, { color: COLORS.text }]} numberOfLines={1}>
-                {valueText}
-              </Text>
-            </Pressable>
+        {/* Header row: label and help on the left, value on the right. The value
+            keeps one right edge on every row; at accessibility text sizes the
+            value drops onto its own line instead of squeezing the label. */}
+        <View style={[styles.header, stacked && styles.headerStacked]}>
+          <View style={styles.labelGroup}>
+            <Text style={styles.label} numberOfLines={fontScale > 1.2 ? 2 : 1}>
+              {label}
+            </Text>
             {helpAdornment ? <View style={styles.helpWrap}>{helpAdornment}</View> : null}
           </View>
+          <Pressable
+            onPress={openEditModal}
+            disabled={isOptionList}
+            accessibilityRole="button"
+            accessibilityLabel={`${label}, ${valueText}`}
+            accessibilityHint={isOptionList ? undefined : 'Enter an exact value'}
+            style={[styles.valueWrap, stacked && styles.valueStacked]}
+          >
+            <Text style={[styles.value, { color: COLORS.text }]} numberOfLines={1}>
+              {valueText}
+            </Text>
+          </Pressable>
         </View>
         {/* Slider track — full width, no overlaid text. */}
         <View
@@ -260,40 +265,9 @@ const VisualParamSlider: React.FC<ParamSliderProps> = React.memo(({
       </View>
 
       {!isOptionList && (
-        <Modal
-          visible={editing}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setEditing(false)}
-        >
-          <Pressable style={styles.editBackdrop} onPress={() => setEditing(false)}>
-            <View style={styles.editCard} onStartShouldSetResponder={() => true}>
-              <Text style={styles.editLabel}>{label}</Text>
-              <TextInput
-                style={styles.editInput}
-                value={editText}
-                onChangeText={setEditText}
-                keyboardType="numeric"
-                autoFocus
-                selectTextOnFocus
-                onSubmitEditing={handleEditSubmit}
-                returnKeyType="done"
-              />
-              {unit && unit !== 'unitless' && <Text style={styles.editUnit}>{unit}</Text>}
-              <View style={styles.editActions}>
-                <Pressable style={styles.editCancel} onPress={() => setEditing(false)}>
-                  <Text style={styles.editCancelText}>Cancel</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.editConfirm, { backgroundColor: accentColor }]}
-                  onPress={handleEditSubmit}
-                >
-                  <Text style={styles.editConfirmText}>Set</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Pressable>
-        </Modal>
+        <ParamValueEditor visible={editing} label={label} unit={unit} value={editText}
+          allowNegative={typeof displayMin === 'number' && typeof displayMax === 'number' ? Math.min(displayMin, displayMax) < 0 : min < 0}
+          onChangeValue={setEditText} onSubmit={handleEditSubmit} onCancel={() => setEditing(false)} />
       )}
     </>
   );
@@ -307,17 +281,23 @@ const styles = StyleSheet.create({
   },
   header: {
     // Rows with and without a help button share one height so grids line up.
-    minHeight: 44,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
     gap: 8,
   },
-  headerRight: {
+  headerStacked: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 0,
+  },
+  labelGroup: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    flexShrink: 0,
   },
   track: {
     width: '100%',
@@ -360,7 +340,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.text,
   },
   label: {
-    flex: 1,
+    flexShrink: 1,
     color: COLORS.text,
     ...FONT.semibold,
     fontSize: 15,
@@ -370,82 +350,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   valueWrap: {
-    paddingVertical: 4,
+    // A full 48pt target with no hitSlop, so it never overlaps the help button.
+    minHeight: 48,
+    minWidth: 48,
+    maxWidth: '60%',
+    flexShrink: 0,
+    paddingLeft: 8,
     alignItems: 'flex-end',
     justifyContent: 'center',
+  },
+  valueStacked: {
+    alignSelf: 'flex-end',
+    maxWidth: '100%',
   },
   value: {
     ...FONT.semibold,
     ...FONT.numeric,
     fontSize: 15,
     textAlign: 'right',
-  },
-  editBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editCard: {
-    backgroundColor: COLORS.panel,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    padding: 24,
-    width: 240,
-    alignItems: 'center',
-    gap: 12,
-  },
-  editLabel: {
-    color: COLORS.muted,
-    ...FONT.semibold,
-    fontSize: 13,
-  },
-  editInput: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.accent,
-    backgroundColor: COLORS.panelAlt,
-    color: COLORS.text,
-    ...FONT.numeric,
-    fontSize: 20,
-    textAlign: 'center',
-  },
-  editUnit: {
-    color: COLORS.muted,
-    ...FONT.numeric,
-    fontSize: 12,
-  },
-  editActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 4,
-  },
-  editCancel: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.stroke,
-    alignItems: 'center',
-  },
-  editCancelText: {
-    color: COLORS.muted,
-    ...FONT.semibold,
-    fontSize: 14,
-  },
-  editConfirm: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  editConfirmText: {
-    color: COLORS.bg,
-    ...FONT.semibold,
-    fontSize: 14,
   },
 });
 

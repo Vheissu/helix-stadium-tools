@@ -1,13 +1,12 @@
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { COLORS } from '../theme/colors';
 
-export type UtilityIconName = 'wifi' | 'usb' | 'automatic' | 'device' | 'arrow' | 'chevron' | 'check' | 'help' | 'accessibility' | 'sliders' | 'tempo' | 'tuner' | 'privacy' | 'support' | 'licenses' | 'search' | 'close' | 'more' | 'plus' | 'snapshots' | 'notes' | 'back' | 'play' | 'pause' | 'stop';
+export type UtilityIconName = 'wifi' | 'usb' | 'automatic' | 'device' | 'arrow' | 'chevron' | 'check' | 'help' | 'accessibility' | 'sliders' | 'tempo' | 'tuner' | 'privacy' | 'support' | 'licenses' | 'search' | 'close' | 'more' | 'plus' | 'snapshots' | 'notes' | 'back' | 'play' | 'pause' | 'stop' | 'sync' | 'undo' | 'redo' | 'power';
 
-export function UtilityIcon({ name, size = 22, color = COLORS.muted }: { name: UtilityIconName; size?: number; color?: string }) {
+export function UtilityIcon({ name, size = 22, color = COLORS.muted, strokeWidth = 1.6 }: { name: UtilityIconName; size?: number; color?: string; strokeWidth?: number }) {
   const paths: Partial<Record<UtilityIconName, string>> = {
     search: 'm21 21-6-6M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0',
     close: 'm6 6 12 12M6 18 18 6',
-    more: 'M5 12h.01M12 12h.01M19 12h.01',
     plus: 'M12 5v14M5 12h14',
     snapshots: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
     notes: 'M5 3h14v18H5zM8 8h8m-8 4h8m-8 4h5',
@@ -15,6 +14,10 @@ export function UtilityIcon({ name, size = 22, color = COLORS.muted }: { name: U
     play: 'm7 4 13 8-13 8V4',
     pause: 'M8 4v16M16 4v16',
     stop: 'M5 5h14v14H5z',
+    sync: 'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5',
+    undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+    redo: 'm15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
+    power: 'M12 2v10M18.4 6.6a9 9 0 1 1-12.77.04',
     wifi: 'M3 8a14 14 0 0 1 18 0M6 12a9 9 0 0 1 12 0M9 16a4 4 0 0 1 6 0M12 20h.01',
     usb: 'M12 20V4m-3 3 3-3 3 3M12 15l-5-4V8m5 5 5-3V7M5 6h4v2H5zM16 5h2v2h-2z',
     automatic: 'm13 3-8 11h6l-1 7 9-12h-6l1-6',
@@ -30,8 +33,9 @@ export function UtilityIcon({ name, size = 22, color = COLORS.muted }: { name: U
     support: 'M4 13v-1a8 8 0 0 1 16 0v1M4 12H2v6h4v-6H4zm16 0h2v6h-4v-6h2zm0 6c0 3-4 3-8 3',
     licenses: 'M6 3h8l4 4v14H6V3zm8 0v5h4M9 12h6m-6 4h6',
   };
-  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" accessible={false}>
-    {name === 'device' ? <><Rect x={2} y={5} width={20} height={14} rx={3} /><Rect x={5} y={8} width={7} height={5} rx={1} /><Circle cx={16} cy={10} r={1} /><Circle cx={19} cy={10} r={1} /><Path d="M6 16h.01M12 16h.01M18 16h.01" /></> : <Path d={paths[name]} />}
+  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" accessible={false}>
+    {name === 'more' ? <>{[5, 12, 19].map(cx => <Circle key={cx} cx={cx} cy={12} r={2.2} fill={color} stroke="none" />)}</>
+      : name === 'device' ? <><Rect x={2} y={5} width={20} height={14} rx={3} /><Rect x={5} y={8} width={7} height={5} rx={1} /><Circle cx={16} cy={10} r={1} /><Circle cx={19} cy={10} r={1} /><Path d="M6 16h.01M12 16h.01M18 16h.01" /></> : <Path d={paths[name]} />}
     {name === 'help' && <Circle cx={12} cy={12} r={10} />}
     {name === 'accessibility' && <Circle cx={12} cy={3.5} r={1.5} />}
   </Svg>;

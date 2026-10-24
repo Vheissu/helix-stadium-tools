@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, AppState, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { LibraryButton, libraryStyles } from './LibraryChrome';
 import { UtilityIcon } from './UtilityIcon';
 import { Action } from '../accessibility/controls';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
-import { COLORS } from '../theme/colors';
+import { COLORS, FONT } from '../theme/colors';
 import type { HelixClient } from '../protocol/helixClient';
 import { songDuration, type ShowcaseSong, type ShowcaseTransportAction } from '../protocol/showcase';
 
@@ -16,6 +16,11 @@ export function ShowcaseLibrary({ client, onBusy, onSongChange }: Props) {
   const [refreshing, setRefreshing] = useState(false);
   const mounted = useRef(true);
   const busy = loading;
+  const { fontScale } = useWindowDimensions();
+  const [actionsWidth, setActionsWidth] = useState(0);
+  // Play, Pause and Stop share one row of equal buttons while "Pause" fits;
+  // otherwise they stack full width instead of leaving Stop on its own line.
+  const actionsRow = actionsWidth === 0 || (actionsWidth - 20) / 3 - 16 >= 26 + 46 * fontScale;
   const refresh = useCallback(async (quiet = false) => {
     if (!client) return;
     if (!quiet) setLoading(true);
@@ -51,11 +56,12 @@ export function ShowcaseLibrary({ client, onBusy, onSongChange }: Props) {
       <Text style={styles.body}>Songs stored on your Stadium.</Text>
       {!!error && <Text accessibilityRole="alert" style={styles.error}>Couldn’t complete that action. Check your Stadium connection and try again.</Text>}
       {active && <View style={styles.player}>
-        <View style={styles.heading}><UtilityIcon name="play" color={COLORS.brand} /><Text style={styles.muted}>ON YOUR STADIUM</Text></View>
+        <View style={styles.playerHeading}><UtilityIcon name="play" size={16} color={COLORS.brand} /><Text style={[styles.muted, styles.flex]}>ON YOUR STADIUM</Text></View>
         <Text style={styles.playerTitle}>{active.name}</Text>
         <Text accessibilityLiveRegion="polite" style={styles.muted}>{transport === 1 ? 'Playing' : transport === 3 || transport === 0 ? 'Not playing' : 'Playback status unavailable'}</Text>
-        <View style={styles.actions}>
+        <View style={[styles.actions, !actionsRow && styles.actionsStacked]} onLayout={event => setActionsWidth(event.nativeEvent.layout.width)}>
           {(['play', 'pause', 'stop'] as const).map(action => <LibraryButton key={action} disabled={busy} primary={action === 'play'} icon={action}
+            style={actionsRow ? styles.actionCell : undefined}
             label={action[0].toUpperCase() + action.slice(1)} onPress={() => { void control(action); }} />)}
         </View>
       </View>}
@@ -71,17 +77,22 @@ export function ShowcaseLibrary({ client, onBusy, onSongChange }: Props) {
       }}>
       <Text style={styles.position}>{String(index + 1).padStart(2, '0')}</Text>
       <View style={styles.songText}><Text style={styles.songTitle}>{song.name}</Text>{song.id === activeId && <Text style={styles.muted}>Selected</Text>}</View>
-      <Text style={styles.muted}>{song.duration > 0 ? songDuration(song.duration) : ''}</Text>
+      <Text style={[styles.muted, styles.duration]}>{song.duration > 0 ? songDuration(song.duration) : ''}</Text>
     </Action>} />;
 }
 const styles = StyleSheet.create({
   container: { gap: 16, paddingBottom: 20 }, heading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 },
   title: { color: COLORS.text, fontSize: 18, fontWeight: '600' }, body: { color: COLORS.text, fontSize: 16, lineHeight: 23, flexShrink: 1 }, muted: { color: COLORS.muted, fontSize: 15, lineHeight: 21 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  actions: { flexDirection: 'row', gap: 10 },
+  actionsStacked: { flexDirection: 'column' },
+  actionCell: { flex: 1, minWidth: 0, paddingHorizontal: 8 },
+  playerHeading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  flex: { flex: 1, minWidth: 0 },
+  duration: { ...FONT.numeric, flexShrink: 0 },
   secondary: { paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: COLORS.stroke, borderRadius: 8, alignItems: 'center' },
   player: { backgroundColor: COLORS.panel, padding: 18, borderRadius: 12, gap: 12 }, song: { padding: 14, borderBottomWidth: 1, borderColor: COLORS.hairline, minHeight: 76, flexDirection: 'row', alignItems: 'center', gap: 12 }, activeSong: { backgroundColor: COLORS.control, borderRadius: 12, borderBottomColor: 'transparent' },
-  songText: { flex: 1, gap: 5 }, songTitle: { color: COLORS.text, fontSize: 18, fontWeight: '600' },
-  playerTitle: { color: COLORS.text, fontSize: 24, fontWeight: '600' },
-  position: { color: COLORS.muted, fontVariant: ['tabular-nums'], fontSize: 15 },
+  songText: { flex: 1, minWidth: 0, gap: 4 }, songTitle: { color: COLORS.text, fontSize: 18, lineHeight: 23, fontWeight: '600' },
+  playerTitle: { color: COLORS.text, fontSize: 24, lineHeight: 29, fontWeight: '600', flexShrink: 1 },
+  position: { color: COLORS.muted, fontVariant: ['tabular-nums'], fontSize: 15, minWidth: 28 },
   error: { color: COLORS.danger, fontSize: 16, lineHeight: 23 },
 });

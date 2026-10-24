@@ -253,6 +253,7 @@ const VisualEffectList: React.FC<DraggableEffectListProps> = React.memo(
         {/* More slots */}
         {!availablePositions && lastPopulated + 2 < 12 && !dragging && (
           <Pressable
+            accessibilityRole="button"
             style={styles.moreSlotsBtn}
             onPress={() =>
               onSelectSlot({
@@ -384,21 +385,16 @@ const EffectRow: React.FC<EffectRowProps> = React.memo(
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${enabled ? 'Bypass' : 'Enable'} ${block.name}`}
-          style={({ pressed }) => [
-            styles.powerBtn,
-            enabled && { backgroundColor: appearance.fill, borderColor: appearance.accent },
-            pressed && styles.powerBtnPressed,
-          ]}
-          hitSlop={8}
+          style={({ pressed }) => [styles.powerBtn, pressed && styles.powerBtnPressed]}
           onPress={(event) => {
             event.stopPropagation?.();
             onToggleEnabled();
           }}
         >
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 3v5M16.24 7.76a6 6 0 11-8.49 0"
-              stroke={enabled ? appearance.accent : COLORS.muted}
+              stroke={enabled ? appearance.accent : COLORS.faint}
               strokeWidth={2}
               strokeLinecap="round"
             />
@@ -498,18 +494,17 @@ const styles = StyleSheet.create({
     ...FONT.body,
     fontSize: 13,
   },
+  // Borderless 48pt target: the chip already carries the block outline, so the
+  // power glyph alone shows state (category colour on, faint when bypassed).
   powerBtn: {
     width: 48,
     height: 48,
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: COLORS.control,
-    backgroundColor: COLORS.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
   powerBtnPressed: {
-    opacity: 0.8,
+    backgroundColor: COLORS.control,
   },
 
   /* ── Empty slot ────────────────────── */
@@ -517,16 +512,18 @@ const styles = StyleSheet.create({
     minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     paddingVertical: 10,
-    paddingHorizontal: 0,
+    paddingHorizontal: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: COLORS.hairline,
     opacity: 0.4,
   },
+  // Centred in the same 44pt leading column as the block chips.
   emptySlotNum: {
     width: 24,
     height: 24,
+    marginHorizontal: 10,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.stroke,
@@ -548,8 +545,7 @@ const styles = StyleSheet.create({
   moreSlotsText: {
     color: COLORS.muted,
     ...FONT.numeric,
-    fontSize: 11,
-    opacity: 0.6,
+    fontSize: 13,
   },
 
   /* ── Drag placeholder ──────────────── */

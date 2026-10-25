@@ -64,6 +64,47 @@ Both builds use version 1.0.0 and the existing signing credentials.
 | iOS | 16 | [7f218da3-fb72-4370-82e9-b310b53ab2f7](https://expo.dev/accounts/beggars/projects/helyon/builds/7f218da3-fb72-4370-82e9-b310b53ab2f7) |
 | Android | 17 | [828e0eae-0ad6-44b6-8bdc-f2b76723472b](https://expo.dev/accounts/beggars/projects/helyon/builds/828e0eae-0ad6-44b6-8bdc-f2b76723472b) |
 
-Builds are compiling. TestFlight and Google Play testing submissions will follow
-successful compilation. Production tracks and App Store production review are
-outside this release.
+Both builds finished successfully. The signed iOS package was checked for its
+bundle identifier, build number and new Stomp implementation; strict signature
+verification passed. Android manifest, bundle markers and signature were also
+verified.
+
+### TestFlight
+
+iOS **1.0.0 (16)** is **Testing** for all **76 registered testers**: 75 external
+and one internal. Beta review is approved, and both internal and external
+testing are active. All three existing groups include build 16. Verification at
+**12:26 am Brisbane time on 26 October** found 76 covered testers and zero
+uncovered testers. Automatic notifications are enabled.
+
+- [Completed iOS upload](https://expo.dev/accounts/beggars/projects/helyon/submissions/f7e60dec-2e46-4b3f-be72-da6c9506538e)
+- [TestFlight](https://appstoreconnect.apple.com/apps/6824149078/testflight)
+
+### Google Play
+
+Android **1.0.0 (17)** is **Available to internal testers**, released at
+**12:29 am Brisbane time on 26 October**. The Publisher API confirms
+`RELEASE_LIFECYCLE_STATE_PUBLISHED` for the internal track.
+
+Closed Alpha build 17 is submitted and **In review**. Build 16 remains available
+until Google publishes the update. Managed publishing is off, with no manual
+action pending. An approval monitor checks every 15 minutes and will confirm
+availability, update this record and stop when Alpha build 17 is published.
+
+Both existing tester lists remain selected on both tracks: HELYON owner testing
+has **27 entries**, and Testers has **23**. These counts can overlap and are not
+a distinct-user total. Selections were verified after the release submission.
+
+- [Completed Android upload](https://expo.dev/accounts/beggars/projects/helyon/submissions/c377cb94-d38b-4533-875d-4758cee91da9)
+- [Internal testing opt-in](https://play.google.com/apps/internaltest/4701590729869450330)
+- [Closed testing opt-in](https://play.google.com/apps/testing/com.beggars.stadiumremote)
+
+Two builds and two successful uploads were made for this fix. No replacement
+build or upload retry was needed.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| iOS 16 IPA | 24,173,131 | `1bf3fcba2b51cc94a05c73e9abf811c67cf6d75155f7578f6438d28d5dc3636a` |
+| Android 17 AAB | 65,592,898 | `b0c45ad8ee90c640a9f8ad51798dccbb5bd2d9dc42ea7b062cde4f5d39266a13` |
+
+Production tracks and App Store production review are outside this release.

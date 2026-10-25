@@ -1,7 +1,8 @@
+import { readStompCommands } from '../protocol/stompCommands';
 import { findFirstKey } from './helixState';
 
 export type PerformView = 'a' | 'b' | 'snapshots';
-export type StompSwitch = { number: number; label: string; color: number | null; assigned: boolean };
+export type StompSwitch = { number: number; label: string; color: number | null; assigned: boolean; commands: ReturnType<typeof readStompCommands> };
 export type StompBanks = Record<'a' | 'b', StompSwitch[]>;
 const SWITCHES = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11];
 const record = (value: unknown): Record<string, unknown> | null =>
@@ -39,7 +40,7 @@ export function extractStompBanks(state: unknown, modelName: (id: number, paramI
     const assigned = assignedControls.length > 0 || hasCommands;
     const color = values.get(`preset.floorboard.stomp.${key}.${number}.color`);
     return { number, label: label || (hasCommands ? [...names, 'Command'].join(' + ') : names.join(' + ')) || (assigned ? 'Assigned' : 'Unassigned'),
-      color: typeof color === 'number' && Number.isInteger(color) && color >= 0 && color <= 11 ? color : null, assigned };
+      color: typeof color === 'number' && Number.isInteger(color) && color >= 0 && color <= 11 ? color : null, assigned, commands: readStompCommands(state, key, number) };
   });
   return { a: bank('a'), b: bank('b') };
 }

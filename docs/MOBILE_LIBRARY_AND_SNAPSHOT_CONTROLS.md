@@ -65,46 +65,55 @@ coalesce a drag into start/end events. Phone labels have bounded line counts
 and text scaling; larger accessibility sizes retain the existing list layout.
 Phone and tablet taps, blends and tablet Expand/Restore were checked in the app.
 
-## Stomp B and MIDI: unfinished
+## Stomp B stored commands
 
-The official editor's captured Stomp B1 assignment request is:
+Open **Perform**, select **Stomp B** and choose **Run commands** on an eligible
+switch. The app reads the switch's existing assignments and runs its immediate
+MIDI CC Press commands in order. Their settings stay on the Stadium.
 
-```
-/attachCommandWithType ,iiiiiiib
-[cmd_id, 1, 25, 2, 0, 6, 0, msgpack_empty_array]
-```
+Bypass and parameter changes still require the physical footswitch. The app
+states that limitation even when a switch combines those controllers with MIDI
+commands. Stomp A, Release, Hold, Toggle, delayed commands and snapshot-controlled
+command values remain unavailable. Disabled switches show the reason.
 
-This confirms footswitch source contexts **1 = Stomp A, 2 = Stomp B**; the app's
-previous context 9 lookup for B was incorrect and is fixed. Source local ID is
-24 plus the footswitch number.
+Every command requires a fresh check of the selected preset, snapshot and
+assignment configuration. A changed selection or connection stops the group.
+The result gives the confirmed count and the number left unsent. If a response
+is missing or cannot be accepted, one command may already have run; the app
+reports that uncertainty and never retries the group automatically. Check
+connected equipment before running again.
 
-A physical B1 press produced `/stomp` events on the device event stream and two
-`/executeCommand` notifications for its two assigned commands. These are device
-notifications, not confirmed editor requests. Sending `/stomp`,
-`/executeCommand` and `/setCommandToggle` to the editor command connection was
-rejected with `Msg dispatch failed: <address> is NOT known!!!`. No remote Stomp
-button has been enabled.
+Live verification used one group from the iPhone simulator UI and four groups
+through the same client and executor in a test harness. Four groups completed.
+The fifth dropped the first command's response and correctly stopped with zero
+confirmed, one possibly executed and one unsent command. Nine requests produced
+exactly nine captured USB MIDI CC messages, with no automatic retries. An
+unsaved device-side CC value of 81 was used while the saved bytes stayed
+unchanged, then restored to 73.
 
-A separate `/SendMidiMessage` test **did produce USB MIDI output**, captured by
-CoreMIDI as `BF 77 49` (channel 16, CC 119, value 73). That proves direct network
-MIDI output through USB, not remote execution of a switch's assignments. The
-physical MIDI Out port remains unverified because no five-pin MIDI cable was
-available. Do not describe remote Stomp triggering or both output ports as
-verified.
+The gap between a pair's messages was 135.26 ms in the UI run and 104.14 to
+112.15 ms in the harness. Fresh assignment checks between sends add this delay.
+Groups are not atomic; equipment can receive the first command even if the
+second is never sent. Use the physical footswitch for timing-sensitive pairs.
+The [firmware trace](STOMP_FIRMWARE_TRACE.md) has the request and capture details.
+Five-pin MIDI Out and full physical switch behaviour remain unverified.
 
-A [follow-up hardware investigation](REMOTE_STOMP_TRIGGER_RESEARCH.md) tested
-controller activation and source enable requests against a physical B1 press.
-The source enable path changes the source's enable flag, but none of those eight
-remote tests executed the switch's two MIDI commands. A subsequent
-[firmware trace](STOMP_FIRMWARE_TRACE.md) found the distinct `/ExecuteCommand`
-request and verified execution of both existing MIDI commands by ID. Full
-switch behaviour and the app control remain unimplemented.
+A Release assignment was checked in the app: **Run commands** was disabled and
+the Press-only explanation was visible and available to accessibility tools.
+After restoring Press, temporary preset 934 was removed. The original
+`Thank God I'm Free C (SC)` preset and snapshot 2 were restored; all 165 occupied
+User slots and four setlists matched the baseline, the original preset bytes
+were identical and no unsaved changes remained. Stored command configuration
+(excluding runtime toggle state) and switch/bypass assignments were unchanged.
+Loading the original preset emitted its normal bank-select and program-change
+messages, recorded separately from the nine test CCs.
 
 ## Checks
 
 - Mobile TypeScript check passed.
-- 245 mobile tests passed.
-- 406 Python tests passed.
+- 264 mobile tests passed, including 11 stored-command parser and executor tests
+  and eight client integration tests.
+- Earlier library and snapshot validation: 406 Python tests passed.
 - ESLint: no errors; two existing App.tsx hook dependency warnings.
 - Claude reviewed the duplication, snapshot and layout changes. Findings about
   stale duplicate identities, uncertain save state and expanded-view recovery

@@ -130,11 +130,67 @@ This is not a single firmware request that presses the entire switch. Bypass
 and parameter assignments are separate. A button must not silently skip them
 or present a command-only operation as a complete physical switch press.
 
-A production implementation needs preset/source identity checks, action-aware
-dispatch, confirmation of current snapshot values and explicit partial-failure
-handling. Two requests are not atomic: if one succeeds and the next fails,
-report the partial result and do not automatically retry. Release, Hold and
-Toggle need physical-reference tests before being enabled.
+The mobile app now has a separate **Run commands** action for eligible Stomp B
+assignments. It accepts immediate Press MIDI CC commands with no snapshot-linked
+values. Stomp A, Release, Hold, Toggle, delays and other command types remain
+disabled. A switch with bypass or parameter controllers can run its commands,
+with an explicit reminder that those other assignments still need the pedal.
+
+Before each request, the app reads the active preset, a fresh assignment graph
+and the active preset again. It compares the current snapshot, source and
+command configuration with the displayed assignment, preserving the source's
+command slot order. Connection and configuration changes stop the group. Runtime
+`togl` changes are excluded from the configuration comparison so a confirmed
+group can be run again.
+
+Each command is sent once and requires the exact successful response shown
+above, with a matching request and stored command ID. A missing, malformed or
+failed response stops the group. The result reports confirmed commands, one
+possibly executed command when confirmation is missing, and the remaining
+unsent commands. Nothing is retried automatically. The user is asked to check
+connected equipment before another run.
+
+Eleven automated tests cover parsing and execution, including unsupported and
+ambiguous assignments, stale presets and snapshots, configuration changes,
+disconnects, partial results and late replies after a timeout. Eight client
+tests cover response correlation, fresh reads, connection changes and overlapping
+groups. Release, Hold and Toggle still need physical-reference tests before
+enablement.
+
+## App implementation verification
+
+The iPhone simulator UI ran one two-command group against a temporary preset.
+Four more groups ran through the same current client and executor in a test
+harness. Four groups completed; the fifth deliberately dropped the first
+command's successful response before it reached the executor. Across these
+five groups, nine requests produced exactly nine captured USB MIDI CC messages.
+There were no automatic retries.
+
+The missing-response group reported zero confirmed, one possibly executed and
+one unsent command. The USB capture contained only the first command. Another
+group used an unsaved device-side value of 81 while the saved preset bytes were
+unchanged; its USB message carried 81. The original value of 73 was restored.
+
+The two messages were 135.26 ms apart in the UI run and 112.15, 104.14 and
+107.01 ms apart in the three complete harness runs. Fresh preset and assignment
+reads between sends make this substantially slower than the earlier roughly
+9 ms ID-only pair. A group is not atomic: connected equipment receives the
+first command before the second command's checks finish, and a failed check
+can leave the group partly executed. Timing-sensitive command pairs should
+still use the physical footswitch. Five-pin MIDI Out remains unmeasured.
+
+A Release assignment was also read back and shown as disabled in the app, with
+the Press-only reason visible and available to accessibility tools. It was
+restored to Press before cleanup. Temporary preset 934 was deleted and
+`Thank God I'm Free C (SC)` was restored at snapshot 2. All 165 occupied User
+slots and four setlists matched the baseline, the original preset bytes were
+identical and no unsaved changes remained. Command configuration, excluding
+runtime toggle state, and switch/bypass assignments also matched the baseline.
+
+The test commands produced nine assigned CC messages in total. Loading the
+original preset during cleanup separately emitted two channel-1 bank-select CCs
+and one program change in two USB packets. App verification artifacts,
+including that separate cleanup capture, are in `.codex-artifacts/stomp-app/`.
 
 Claude reviewed the observed protocol evidence and these implementation
 constraints. The local binary trace was performed separately after Claude had
@@ -162,5 +218,4 @@ remained. No firmware or application release was deployed.
 Local traces, decompiler output, MIDI captures, request results and Claude's
 review are under `.codex-artifacts/stomp-firmware-trace/`. The Ghidra project is
 under `generated/firmware/stomp-activation-trace/`. Both locations are ignored
-by Git. App Stomp controls remain read-only pending implementation and the
-remaining behaviour checks.
+by Git. Full switch behaviour remains outside the app's command-only action.

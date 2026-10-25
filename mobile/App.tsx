@@ -76,6 +76,7 @@ import {
 import { formatTempoBpm, formatPresetPosition } from './src/utils/format';
 import { coerceHelixBoolean, extractSnapshots, findFirstKey, findFlows } from './src/utils/helixState';
 import { extractStompBanks, type PerformView, type StompBanks } from './src/utils/perform';
+import type { StompCommandPlan } from './src/protocol/stompCommands';
 import { PerformControls } from './src/components/PerformControls';
 import {
   MATRIX_LAYERS,
@@ -392,6 +393,8 @@ function EditorApp() {
   const [snapshots, setSnapshots] = useState<SnapshotRef[]>([]);
   const [performView, setPerformView] = useState<PerformView>('snapshots');
   const [stompBanks, setStompBanks] = useState<StompBanks | null>(null);
+  const [stompBusyNumber, setStompBusyNumber] = useState<number | null>(null);
+  const [stompNotice, setStompNotice] = useState<string | null>(null);
   const [_activeSnapshotTargets, setActiveSnapshotTargets] = useState<number[] | null>(null);
   const [libraryLoading, setLibraryLoadingState] = useState(false);
   const libraryLoadingRef = useRef(false);
@@ -874,6 +877,7 @@ function EditorApp() {
         setActivePresetContentId(value);
       }
       setStompBanks(null);
+      setStompNotice(null);
       setSnapshots([]);
       setSnapshotCount(0);
       setActiveSnapshotIndex(null);
@@ -984,6 +988,7 @@ function EditorApp() {
     setActiveSnapshotIndex(null);
     setSnapshots([]);
     setStompBanks(null);
+    setStompNotice(null);
     setPerformView('snapshots');
     setActiveSnapshotTargets(null);
     setLibraryLoading(false);
@@ -2001,6 +2006,38 @@ function EditorApp() {
   const openPerform = (view: PerformView) => {
     setPerformView(view);
     setScreen('performance');
+  };
+
+  const handleStompCommands = async (plan: StompCommandPlan) => {
+    if (previewMode || !connected || editLocked() || libraryMutation.current || showcaseBusy) return;
+    const client = requireClient();
+    const presetId = activePresetContentId;
+    if (!client || presetId === null) return;
+    // Reuse the synchronous edit lock so rapid taps and navigation cannot interleave a group.
+    blockOperation.current = true;
+    setBlockBusy(true);
+    setStompBusyNumber(plan.number);
+    setStompNotice(`Running Stomp B${plan.number} commands…`);
+    try {
+      const result = await client.runStompCommands(presetId, plan,
+        () => clientRef.current === client && presetEditGuard.current.ready(presetId));
+      const message = `Stomp B${plan.number}: ${result.message}`;
+      if (clientRef.current === client && presetEditGuard.current.ready(presetId)) {
+        setStompNotice(message);
+        setStatus(message);
+      }
+      if (result.status !== 'complete') Alert.alert(result.status === 'unconfirmed' ? 'Commands not confirmed' : 'Commands stopped', `${activePresetName}: ${message}`);
+    } catch {
+      // Unexpected client failures must never invite a replay of an uncertain MIDI action.
+      const message = 'Command execution could not be confirmed. Some commands may have run. Nothing was retried. Check your connected equipment before running them again.';
+      if (clientRef.current === client && presetEditGuard.current.ready(presetId)) setStompNotice(message);
+      Alert.alert('Commands not confirmed', `${activePresetName}: ${message}`);
+    } finally {
+      blockOperation.current = false;
+      setBlockBusy(false);
+      setStompBusyNumber(null);
+      scheduleSync(200, { silent: true });
+    }
   };
 
   const handleSnapshotActivate = (index: number) => {
@@ -3865,7 +3902,7 @@ function EditorApp() {
     const footswitch = (delta: -1 | 1) => {
       const enabled = delta < 0 ? canStepBackward : canStepForward;
       return (
-        <Pressable accessibilityLabel={delta < 0 ? 'Previous preset' : 'Next preset'} disabled={presetSaving || !enabled}
+        <Pressable accessibilityLabel={delta < 0 ? 'Previous preset' : 'Next preset'} disabled={presetSaving || blockBusy || !enabled}
           style={({ pressed }) => [styles.footswitch, pressed && styles.toolButtonPressed, !enabled && styles.stepButtonDisabled]}
           onPress={() => handlePerformancePresetStep(delta)}>
           {delta < 0 && <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>}
@@ -3904,8 +3941,11 @@ function EditorApp() {
 
             <PerformControls view={performView} onViewChange={setPerformView} banks={stompBanks}
               snapshots={snapshots} snapshotCount={snapshotCount} activeSnapshotIndex={activeSnapshotIndex}
-              onSnapshot={handleSnapshotActivate} snapshotDisabled={presetSaving || presetCreating}
-              onRefresh={() => void handleFullSync()}
+              onSnapshot={handleSnapshotActivate} snapshotDisabled={presetSaving || presetCreating || blockBusy}
+              onStompCommands={plan => void handleStompCommands(plan)} stompBusyNumber={stompBusyNumber}
+              stompDisabled={previewMode || !connected || activePresetContentId === null || presetSaving || presetCreating || blockBusy || focusBusy || showcaseBusy || libraryBusy}
+              stompNotice={stompNotice} refreshDisabled={blockBusy}
+              onRefresh={() => { setStompNotice(null); void handleFullSync(); }}
               colorFor={value => SNAPSHOT_COLOR_OPTIONS.find(option => option.value === value)?.swatch ?? COLORS.stroke} />
 
             <View style={styles.performanceSection}>

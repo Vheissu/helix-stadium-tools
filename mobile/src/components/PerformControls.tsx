@@ -2,6 +2,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
 import { Action } from '../accessibility/controls';
 import { COLORS, FONT } from '../theme/colors';
+import type { StompCommandPlan } from '../protocol/stompCommands';
 import type { PerformView, StompBanks } from '../utils/perform';
 
 export type PerformSnapshot = { index: number; name?: string; colr?: number };
@@ -14,7 +15,12 @@ type Props = {
   activeSnapshotIndex: number | null;
   onSnapshot: (index: number) => void;
   snapshotDisabled?: boolean;
+  onStompCommands: (plan: StompCommandPlan) => void;
+  stompBusyNumber: number | null;
+  stompDisabled: boolean;
+  stompNotice: string | null;
   onRefresh: () => void;
+  refreshDisabled?: boolean;
   colorFor: (value: number | null | undefined) => string;
 };
 
@@ -29,7 +35,7 @@ export function PerformControls(props: Props) {
   return <View style={styles.section}>
     <View accessibilityRole="tablist" accessibilityLabel="Perform view" style={[styles.selector, stackTabs && styles.selectorStacked]}>
       {([['a', 'Stomp A'], ['b', 'Stomp B'], ['snapshots', 'Snapshots']] as const).map(([view, label]) =>
-        <Action key={view} accessibilityRole="tab" accessibilityState={{ selected: props.view === view }}
+        <Action key={view} disabled={props.stompBusyNumber !== null} accessibilityRole="tab" accessibilityState={{ selected: props.view === view }}
           accessibilityLabel={label} onPress={() => props.onViewChange(view)}
           style={[styles.tab, stackTabs && styles.tabStacked, props.view === view && styles.tabSelected]}>
           <Text style={[styles.tabText, props.view === view && styles.tabTextSelected]}>{label}</Text>
@@ -56,20 +62,34 @@ export function PerformControls(props: Props) {
       </View> : <Text style={styles.hint}>No snapshots loaded. Refresh to read the current preset.</Text>}
     </> : <>
       <Text accessibilityRole="header" style={styles.heading}>Stomp {props.view.toUpperCase()}</Text>
-      <Text style={styles.hint}>View your switch assignments here. Use the Stadium footswitches to trigger them.</Text>
+      <Text style={styles.hint}>{props.view === 'b'
+        ? 'Run the MIDI CC Press commands assigned to a switch. Bypass and parameter changes still require the Stadium footswitch.'
+        : 'Stomp A controls are not available in the app yet. Use the Stadium footswitches.'}</Text>
+      {props.view === 'b' && <Text style={styles.hint}>Release, Hold, Toggle, and snapshot-controlled commands are not available yet.</Text>}
+      {props.view === 'b' && props.stompNotice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{props.stompNotice}</Text>}
       {switches ? <View style={styles.grid}>
-        {switches.map(item => <View key={item.number} accessible accessibilityRole="text"
-          accessibilityLabel={`Stomp ${props.view.toUpperCase()}${item.number}, ${item.label}`}
+        {switches.map(item => <View key={item.number}
           style={[styles.tile, { width: `${100 / columns - (columns > 1 ? 2 : 0)}%` }]}>
           <View style={styles.tileHeader}>
             <View style={[styles.swatch, { backgroundColor: props.colorFor(item.color) }]} />
             <Text style={styles.number}>{props.view.toUpperCase()}{item.number}</Text>
           </View>
           <Text style={[styles.name, !item.assigned && item.label === 'Unassigned' && styles.unassigned]}>{item.label}</Text>
+          <Action disabled={props.stompDisabled || !item.commands.plan}
+            accessibilityLabel={`Run commands for Stomp ${props.view.toUpperCase()}${item.number}, ${item.label}`}
+            accessibilityHint={item.commands.reason ?? 'Runs MIDI commands only. Bypass and parameter assignments are unchanged.'}
+            accessibilityState={{ busy: props.stompBusyNumber === item.number && props.view === 'b' }}
+            onPress={() => { if (item.commands.plan) props.onStompCommands(item.commands.plan); }}
+            style={({ pressed }) => [styles.run, (props.stompDisabled || !item.commands.plan) && styles.runDisabled, pressed && styles.runPressed]}>
+            <Text style={[styles.runText, (props.stompDisabled || !item.commands.plan) && styles.unassigned]}>
+              {props.stompBusyNumber === item.number && props.view === 'b' ? 'Running…' : 'Run commands'}
+            </Text>
+          </Action>
+          <Text style={styles.hint}>{item.commands.reason ?? `${item.commands.plan!.commandIds.length} MIDI CC Press command${item.commands.plan!.commandIds.length === 1 ? '' : 's'} only`}</Text>
         </View>)}
       </View> : <Text style={styles.hint}>Switch assignments are unavailable. Refresh to read the current preset.</Text>}
     </>}
-    <Action accessibilityLabel="Refresh snapshots and stomp assignments" onPress={props.onRefresh} style={styles.refresh}>
+    <Action accessibilityLabel="Refresh snapshots and stomp assignments" disabled={props.refreshDisabled} onPress={props.onRefresh} style={styles.refresh}>
       <Text style={styles.refreshText}>Refresh</Text>
     </Action>
   </View>;
@@ -95,6 +115,11 @@ const styles = StyleSheet.create({
   name: { color: COLORS.text, ...FONT.body, fontSize: 16, lineHeight: 22 },
   unassigned: { color: COLORS.muted },
   hint: { color: COLORS.muted, ...FONT.body, fontSize: 15, lineHeight: 22 },
+  notice: { color: COLORS.text, ...FONT.body, fontSize: 15, lineHeight: 22 },
+  run: { paddingHorizontal: 12, borderRadius: 8, backgroundColor: COLORS.control },
+  runDisabled: { backgroundColor: COLORS.panel, borderWidth: 1, borderColor: COLORS.stroke },
+  runPressed: { backgroundColor: COLORS.raised },
+  runText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
   refresh: { alignSelf: 'flex-start', paddingHorizontal: 14, borderRadius: 12, backgroundColor: COLORS.control },
   refreshText: { color: COLORS.text, ...FONT.semibold, fontSize: 15 },
 });

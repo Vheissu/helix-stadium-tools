@@ -24,8 +24,12 @@ const fixture = () => ({
 
 test('stomp banks isolate A and B assignments and prefer custom labels', () => {
   const banks = extractStompBanks(fixture(), names)!;
-  assert.deepEqual(banks.a[0], { number: 1, label: 'Lead boost', color: 2, assigned: true });
-  assert.deepEqual(banks.b[0], { number: 1, label: 'Delay + US Deluxe', color: 8, assigned: true });
+  const { commands: aCommands, ...aFirst } = banks.a[0];
+  const { commands: bCommands, ...bFirst } = banks.b[0];
+  assert.equal(aCommands.plan, null);
+  assert.equal(bCommands.plan, null);
+  assert.deepEqual(aFirst, { number: 1, label: 'Lead boost', color: 2, assigned: true });
+  assert.deepEqual(bFirst, { number: 1, label: 'Delay + US Deluxe', color: 8, assigned: true });
   assert.equal(banks.a[1].label, 'Unassigned');
   assert.deepEqual(banks.a.map(s => s.number), [1, 2, 3, 4, 5, 7, 8, 9, 10, 11]);
 });

@@ -24,6 +24,7 @@ import { extractSnapshots, hasFlowState } from '../utils/helixState';
 import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } from '../utils/matrixMixer';
 import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
 import { createSetlist, deleteSetlist, duplicateSetlist, moveSetlist, renameSetlist, requireLibraryAcknowledgement, setlistCreationCommand, SETLIST_DIRECTORY_ID, type SetlistTransport } from './setlists';
+import { executeStompCommands, type StompCommandPlan, type StompRunResult } from './stompCommands';
 
 const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
 
@@ -82,8 +83,12 @@ export class HelixClient {
   private onDisconnect: (() => void) | null = null;
   private listening2002 = false;
   private pendingResponses = new Map<string, (vals: Array<any>, responseAddr?: string) => void>();
+  private commandConnectionResponses = new Set<string>();
   private lastEditBufferResponse: { vals: Array<any>; receivedAt: number } | null = null;
   private creatingPreset = false;
+  private runningStompCommands = false;
+  private connectionGeneration = 0;
+  private stompConfigurationGeneration = 0;
   private recentShowcaseImports = new Set<number>();
   private eventSubscribers = new Set<(event: HelixEvent) => void>();
 
@@ -107,6 +112,7 @@ export class HelixClient {
   }
 
   async connect() {
+    this.connectionGeneration += 1;
     try {
       await withDeadline(this.openConnection(), this.networkInterface === 'usb' ? 65000 : 12000);
     } catch (error) {
@@ -125,11 +131,13 @@ export class HelixClient {
   }
 
   close() {
+    this.connectionGeneration += 1;
     this.tempo.close();
     this.listening = false;
     this.listening2002 = false;
     this.onDisconnect = null;
     this.pendingResponses.clear();
+    this.commandConnectionResponses.clear();
     this.eventSubscribers.clear();
     this.recentShowcaseImports.clear();
     this.lastEditBufferResponse = null;
@@ -189,12 +197,12 @@ export class HelixClient {
       if (data.length === 0) continue;
       if (data[0] === 0x2f) {
         const decoded = decodeOsc(data, true);
-        if (decoded) this.dispatchEvent(decoded);
+        if (decoded) this.dispatchEvent(decoded, true);
         continue;
       }
       const events = decodeFrames(data, true);
       for (const evt of events) {
-        this.dispatchEvent(evt);
+        this.dispatchEvent(evt, true);
       }
     }
   }
@@ -217,13 +225,22 @@ export class HelixClient {
 
   // readOsc2002 removed; port-2002 listener handles responses.
 
-  private dispatchEvent(event: { addr: string; typetags: string | null; vals: Array<any> }) {
+  private dispatchEvent(event: { addr: string; typetags: string | null; vals: Array<any> }, commandConnection = false) {
     if (event.addr.toLowerCase().includes('editbufferstate')) {
       this.lastEditBufferResponse = { vals: event.vals ?? [], receivedAt: Date.now() };
     }
-    this.resolvePending(event.addr, event.vals);
+    this.resolvePending(event.addr, event.vals, commandConnection);
     const propertyBlob = event.addr === '/setPropertyValue' ? extractFirstBlob(event.vals) : null;
     const property = propertyBlob ? decodePropertyBlob(propertyBlob) : null;
+    const address = event.addr.toLowerCase();
+    if (address === '/activatesnapshot' || address === '/loadpresetwithcid' ||
+        address === '/loadpresetatcontainerposition' || address === '/setcommandparamval' ||
+        address === '/attachcommand' || address === '/setcontrollersource' ||
+        address === '/sourceenableset' || address === '/setsourceenable' || address === '/setcomponentcontext' ||
+        address === '/removecontroller' || address === '/undo' || address === '/redo' ||
+        property?.key === 'server.active.preset.id' || property?.key?.startsWith('preset.floorboard.stomp.')) {
+      this.stompConfigurationGeneration += 1;
+    }
     if (event.addr.toLowerCase() === '/activatesnapshot' ||
         property?.key === 'global.tempo.select' || property?.key === 'server.active.preset.id') {
       this.tempo.reset();
@@ -238,13 +255,16 @@ export class HelixClient {
     for (const subscriber of this.eventSubscribers) subscriber(decoded);
   }
 
-  private resolvePending(addr: string, vals: Array<any>) {
+  private resolvePending(addr: string, vals: Array<any>, commandConnection = false) {
     if (!Array.isArray(vals) || vals.length === 0) return false;
+    // Execution notifications prepend an origin ID and must never acknowledge a request.
+    if (addr === '/executeCommand' && (!commandConnection || vals.length !== 3)) return false;
     const cmdId = vals[0];
     if (typeof cmdId !== 'number') return false;
     if (addr === '/error') {
       for (const [pendingKey, pendingResolver] of this.pendingResponses) {
         if (!pendingKey.endsWith(`:${cmdId}`)) continue;
+        if (!commandConnection && this.commandConnectionResponses.has(pendingKey)) continue;
         this.pendingResponses.delete(pendingKey);
         pendingResolver(vals, addr);
         return true;
@@ -253,6 +273,7 @@ export class HelixClient {
     const key = buildRequestKey(addr, cmdId);
     const resolver = this.pendingResponses.get(key);
     if (resolver) {
+      if (!commandConnection && this.commandConnectionResponses.has(key)) return false;
       this.pendingResponses.delete(key);
       resolver(vals);
       return true;
@@ -263,6 +284,7 @@ export class HelixClient {
       for (const [pendingKey, pendingResolver] of this.pendingResponses) {
         if (!pendingKey.endsWith(suffix)) continue;
         if (!pendingKey.toLowerCase().startsWith('/geteditbufferstate')) continue;
+        if (!commandConnection && this.commandConnectionResponses.has(pendingKey)) continue;
         this.pendingResponses.delete(pendingKey);
         pendingResolver(vals);
         return true;
@@ -271,32 +293,35 @@ export class HelixClient {
     return false;
   }
 
-  private waitForResponse(expectAddr: string, cmdId: number, timeoutMs: number) {
+  private waitForResponse(expectAddr: string, cmdId: number, timeoutMs: number, commandConnectionOnly = false) {
     const key = buildRequestKey(expectAddr, cmdId);
     let timer: ReturnType<typeof setTimeout> | null = null;
     return new Promise<Array<any> | null>((resolve, reject) => {
       const resolver = (vals: Array<any>, responseAddr?: string) => {
         if (timer) clearTimeout(timer);
+        this.commandConnectionResponses.delete(key);
         if (responseAddr === '/error') {
           reject(new Error(formatStatusFailure(expectAddr, vals)));
           return;
         }
         resolve(vals);
       };
+      if (commandConnectionOnly) this.commandConnectionResponses.add(key);
       this.pendingResponses.set(key, resolver);
       timer = setTimeout(() => {
         if (this.pendingResponses.get(key) === resolver) {
           this.pendingResponses.delete(key);
+          this.commandConnectionResponses.delete(key);
         }
         resolve(null);
       }, timeoutMs);
     });
   }
 
-  private async request(address: string, typetags: string, args: Array<any>, expectAddr: string, timeoutMs = 2000) {
+  private async request(address: string, typetags: string, args: Array<any>, expectAddr: string, timeoutMs = 2000, commandConnectionOnly = false) {
     const cmdId = this.nextCmdId();
     const fullArgs = [cmdId, ...args];
-    const wait = this.waitForResponse(expectAddr, cmdId, timeoutMs);
+    const wait = this.waitForResponse(expectAddr, cmdId, timeoutMs, commandConnectionOnly);
     this.sendOsc(address, `i${typetags}`, fullArgs);
     return await wait;
   }
@@ -528,8 +553,8 @@ export class HelixClient {
     }
   }
 
-  async getProperty(key: string) {
-    const vals = await this.request('/PropertyValueGet', 's', [key], '/getPropertyValue', 2000);
+  async getProperty(key: string, options: { commandConnectionOnly?: boolean } = {}) {
+    const vals = await this.request('/PropertyValueGet', 's', [key], '/getPropertyValue', 2000, options.commandConnectionOnly);
     const blob = extractFirstBlob(vals);
     if (!blob) return null;
     return decodePropertyBlob(blob);
@@ -662,8 +687,8 @@ export class HelixClient {
     return Array.isArray(values) ? values : [];
   }
 
-  async getActivePresetContentId() {
-    const value = await this.getProperty('server.active.preset.id');
+  async getActivePresetContentId(options: { commandConnectionOnly?: boolean } = {}) {
+    const value = await this.getProperty('server.active.preset.id', options);
     if (!value) return null;
     const raw = value.value ?? (value as any).val_ ?? (value as any).val;
     const numeric = Number(raw);
@@ -928,6 +953,33 @@ export class HelixClient {
     }, target, changes);
   }
 
+  async runStompCommands(
+    presetId: number,
+    expected: StompCommandPlan,
+    isCurrent: () => boolean = () => true,
+  ): Promise<StompRunResult> {
+    if (this.runningStompCommands) {
+      return {
+        status: 'stopped', confirmed: 0, attempted: 0, total: expected.commandIds.length,
+        message: 'Another command group is running. No commands were sent.',
+      };
+    }
+    this.runningStompCommands = true;
+    const connectionGeneration = this.connectionGeneration;
+    const configurationGeneration = this.stompConfigurationGeneration;
+    try {
+      return await executeStompCommands({
+        activeId: () => this.getActivePresetContentId({ commandConnectionOnly: true }),
+        state: () => this.getEditBufferState({ fresh: true }),
+        isCurrent: () => this.connectionGeneration === connectionGeneration &&
+          this.stompConfigurationGeneration === configurationGeneration && isCurrent(),
+        send: command => this.request(command.address, command.types, command.args, '/executeCommand', 2500, true),
+      }, presetId, expected);
+    } finally {
+      this.runningStompCommands = false;
+    }
+  }
+
   async getSnapshotParameterAssignments(target: SnapshotAssignmentTarget) {
     if (await this.getActivePresetContentId() !== target.presetId) throw new Error('The preset changed. Reopen Snapshot controls.');
     const parameters = readSnapshotParameters(await this.getEditBufferState(), target);
@@ -1039,15 +1091,15 @@ export class HelixClient {
     return response;
   }
 
-  async getEditBufferState() {
-    const vals = await this.request('/EditBufferStateGet', '', [], '/getEditBufferState', 3000);
+  async getEditBufferState(options: { fresh?: boolean } = {}) {
+    const vals = await this.request('/EditBufferStateGet', '', [], '/getEditBufferState', 3000, options.fresh === true);
     if (!vals) {
       throw new Error('no response');
     }
     const decoded = decodeStateFromBlobs(vals);
     if (decoded) return decoded;
     const fallback = this.lastEditBufferResponse;
-    if (fallback && Date.now() - fallback.receivedAt < 5000) {
+    if (!options.fresh && fallback && Date.now() - fallback.receivedAt < 5000) {
       const fallbackDecoded = decodeStateFromBlobs(fallback.vals);
       if (fallbackDecoded) return fallbackDecoded;
     }

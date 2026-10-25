@@ -1,5 +1,5 @@
 import { formatPresetPosition } from '../utils/format';
-import { extractSnapshots } from '../utils/helixState';
+import { extractSnapshots, findFirstKey } from '../utils/helixState';
 import { Buffer } from 'buffer';
 import { encode } from '@msgpack/msgpack';
 
@@ -25,7 +25,17 @@ export function snapshotMetadataChanged(live: unknown, stored: unknown): boolean
   const current = extractSnapshots(live), saved = extractSnapshots(stored);
   if (!current.length || !saved.length) return null;
   const metadata = (items: typeof current) => items.map(item => [item.index, item.name ?? null, item.colr ?? null, item.vald ?? null]);
-  return JSON.stringify(metadata(current)) !== JSON.stringify(metadata(saved));
+  if (JSON.stringify(metadata(current)) !== JSON.stringify(metadata(saved))) return true;
+  // Assign/unassign also leaves the device dirty flag clear. Snapshot target
+  // membership is stable across activation, unlike current parameter values.
+  const membership = (state: unknown) => {
+    const graph = findFirstKey(state, 'cg__') as { entt?: { ctm_?: { stid?: number[] } } } | null;
+    return graph?.entt?.ctm_?.stid;
+  };
+  const liveTargets = membership(live), storedTargets = membership(stored);
+  if (liveTargets === undefined && storedTargets === undefined) return false;
+  if (!Array.isArray(liveTargets) || !Array.isArray(storedTargets)) return null;
+  return JSON.stringify([...liveTargets].sort((a, b) => a - b)) !== JSON.stringify([...storedTargets].sort((a, b) => a - b));
 }
 
 export function validatePresetName(name: string) {

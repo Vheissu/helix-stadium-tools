@@ -12,8 +12,9 @@ const fixture = () => ({
   cg__: { entt: {
     srcs: [
       { id__: 4, type: 1, ctxt: 1, locl: 25, cmds: [-1, -1] },
-      { id__: 14, type: 1, ctxt: 9, locl: 25, cmds: [-1, -1] },
+      { id__: 14, type: 1, ctxt: 2, locl: 25, cmds: [-1, -1] },
       { id__: 20, type: 1, ctxt: 0, locl: 25, cmds: [-1, -1] },
+      { id__: 21, type: 1, ctxt: 9, locl: 25, cmds: [50, -1] },
     ],
     sm__: { scid: [4, [6], 14, [20, 21], 20, [22]] },
     ctrl: [{ cid_: 6, tid_: 17 }, { cid_: 20, tid_: 18 }, { cid_: 21, tid_: 19 }, { cid_: 22, tid_: 20 }],

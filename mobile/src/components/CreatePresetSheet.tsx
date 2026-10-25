@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Action } from '../accessibility/controls';
 import { AccessibleText as Text } from '../accessibility/AccessibleText';
@@ -9,32 +9,35 @@ import { BottomSheet } from './BottomSheet';
 
 interface Props {
   position: number | null; slots: UserPresetSlot[]; busy: boolean; error: string;
+  sourceName?: string; actions?: ReactNode; actionTitle?: string; actionSubtitle?: string;
   onPosition: (position: number) => void; onCreate: (name: string) => void; onClose: () => void;
 }
-export function CreatePresetSheet({ position, slots, busy, error, onPosition, onCreate, onClose }: Props) {
-  const [name, setName] = useState('New Preset');
+export function CreatePresetSheet({ position, slots, busy, error, sourceName, actions, actionTitle, actionSubtitle, onPosition, onCreate, onClose }: Props) {
+  const initialName = sourceName ? `${[...sourceName].slice(0, 27).join('')} Copy` : 'New Preset';
+  const [name, setName] = useState(initialName);
   const [choosing, setChoosing] = useState(false);
   const [validation, setValidation] = useState('');
   const [query, setQuery] = useState('');
   const emptySlots = slots.filter(isEmptyUserSlot);
   const matchingSlots = emptySlots.filter(slot => formatPresetPosition(slot.posi).toLowerCase().includes(query.trim().toLowerCase()));
   const available = emptySlots.some(slot => slot.posi === position);
+  useEffect(() => { setName(initialName); }, [initialName]);
   useEffect(() => {
-    if (position === null) { setName('New Preset'); setChoosing(false); setValidation(''); setQuery(''); }
-  }, [position]);
+    if (position === null) { setName(initialName); setChoosing(false); setValidation(''); setQuery(''); }
+  }, [position, initialName]);
   const create = () => {
     try { const validName = validatePresetName(name); Keyboard.dismiss(); onCreate(validName); } catch (problem) { setValidation((problem as Error).message); }
   };
   // The slot list fills a fixed-height sheet; the create button lives in the
   // footer so the keyboard or a long error never pushes it out of reach.
-  return <BottomSheet visible={position !== null} closeDisabled={busy} title={choosing ? 'Choose an empty slot' : 'Create preset'} onClose={onClose}
+  return <BottomSheet visible={position !== null || !!actions} closeDisabled={busy} title={position === null ? actionTitle ?? 'Preset' : choosing ? 'Choose an empty slot' : sourceName ? 'Duplicate preset' : 'Create preset'} subtitle={position === null ? actionSubtitle : undefined} onClose={onClose}
     fill={choosing} onBack={choosing ? () => setChoosing(false) : undefined} backLabel="Back to preset details"
-    footer={choosing ? undefined : <Action disabled={busy || !available} accessibilityState={{ busy }}
+    footer={choosing || position === null ? undefined : <Action disabled={busy || !available} accessibilityState={{ busy }}
       style={({ pressed }) => [styles.create, pressed && styles.createPressed, (busy || !available) && styles.createDisabled]} onPress={create}>
       {busy && <ActivityIndicator color={COLORS.bg} />}
-      <Text style={styles.createText}>{busy ? 'Creating preset…' : 'Create and open preset'}</Text>
+      <Text style={styles.createText}>{busy ? (sourceName ? 'Duplicating preset…' : 'Creating preset…') : sourceName ? 'Duplicate preset' : 'Create and open preset'}</Text>
     </Action>}>
-    {choosing ? <>
+    {position === null ? actions : choosing ? <>
       <TextInput accessibilityLabel="Find an empty slot" placeholder="Find slot, e.g. 44D" placeholderTextColor={COLORS.muted} value={query} onChangeText={setQuery} autoCapitalize="characters" autoCorrect={false} style={styles.input} />
       <FlatList style={styles.list} keyboardShouldPersistTaps="handled" data={matchingSlots} keyExtractor={slot => String(slot.posi)}
         ListEmptyComponent={<Text style={styles.text}>No empty slots match that label.</Text>}
@@ -44,7 +47,7 @@ export function CreatePresetSheet({ position, slots, busy, error, onPosition, on
           <Text style={[styles.text, item.posi === position && styles.current]}>{formatPresetPosition(item.posi)} · Empty slot</Text>
         </Action>} />
     </> : <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.form}>
-      <Text style={styles.text}>Start with a blank signal chain in User Presets.</Text>
+      <Text style={styles.text}>{sourceName ? `Copy the saved version of ${sourceName} to User Presets. Unsaved edits are not included. Your current preset stays open.` : 'Start with a blank signal chain in User Presets.'}</Text>
       <Action disabled={busy} accessibilityLabel={`Destination slot ${formatPresetPosition(position)}, change slot`} onPress={() => { Keyboard.dismiss(); setChoosing(true); }} style={[styles.slot, styles.destination]}>
         <View style={styles.flex}><Text style={styles.label}>Destination</Text><Text style={styles.text}>Slot {formatPresetPosition(position)}</Text></View>
         <Text style={styles.action}>Change slot</Text>

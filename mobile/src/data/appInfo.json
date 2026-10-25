@@ -29,6 +29,18 @@
       "body": "Tap Snapshots below the preset name to open the current preset's snapshots. Tap a snapshot to select it; the active one is marked Active. Perform also has a Stomp A / Stomp B / Snapshots selector near the top. Stomp A and B show switch assignments and custom labels. Use the Stadium's footswitches to trigger those assignments. Choosing a view in HELYON does not change the hardware's footswitch mode."
     },
     {
+      "title": "Duplicate a preset",
+      "body": "In Presets or a setlist, open the options beside a preset and choose Duplicate preset. Choose an empty User Preset slot and name the copy. The saved signal chain, snapshots and assignments are copied independently. Unsaved edits are not included, and your current preset stays open."
+    },
+    {
+      "title": "Choose parameters for snapshots",
+      "body": "Open an amp or effect, then tap Snapshot controls. Turn on the parameters you want snapshots to control. Select each snapshot, adjust those parameters and save the preset. Turn a parameter off in Snapshot controls to remove its snapshot assignment. Parameters already assigned to another controller must be changed on the Stadium first."
+    },
+    {
+      "title": "Expand Focus View on a tablet",
+      "body": "Open a block and choose Focus View, then tap Expand to use the editor area for its controls. Tap Restore to show the signal chain again. Saving remains available while Focus View is expanded."
+    },
+    {
       "title": "Connect by Wi-Fi",
       "body": "Put your phone or tablet and Helix Stadium on the same Wi-Fi network. HELYON searches for available Stadiums on the connection screen. Choose your device, then tap Connect. If it is not listed, tap Search again or enter its device name or IP address. On the Stadium, open Menu > Wi-Fi; once connected, its IP address appears at the bottom of the right sidebar. Set Global Settings > Preferences > Remote Access to Allow. If prompted, allow Local Network access. Guest networks can prevent devices from finding each other."
     },

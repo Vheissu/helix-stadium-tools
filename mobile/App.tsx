@@ -1,3 +1,4 @@
+import { SnapshotAssignmentsSheet } from './src/components/SnapshotAssignmentsSheet';
 import { populatedSlots, setlistAppendPosition, setlistMovePosition } from './src/utils/librarySlots';
 import { LibraryHeading, LibraryButton, LibrarySearch, LibrarySegments, LibraryRow, libraryStyles } from './src/components/LibraryChrome';
 import { ShowcaseLibrary } from './src/components/ShowcaseLibrary';
@@ -402,8 +403,12 @@ function EditorApp() {
   const [createSlots, setCreateSlots] = useState<HelixContentRef[]>([]);
   const [presetCreating, setPresetCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [duplicateSource, setDuplicateSource] = useState<HelixContentRef | null>(null);
+  const creationRequest = useRef(0);
   const creationPending = useRef(false);
   const [focusOpen, setFocusOpen] = useState(false);
+  const [focusExpanded, setFocusExpanded] = useState(false);
+  const [snapshotAssignmentTarget, setSnapshotAssignmentTarget] = useState<(FocusTarget & { name: string; params: EditorParam[] }) | null>(null);
   const [focusBusy, setFocusBusy] = useState(false);
   const focusWrites = useRef(0);
   const presetSaveOperation = useRef<symbol | null>(null);
@@ -986,8 +991,11 @@ function EditorApp() {
     presetSaveOperation.current = null;
     setPresetSaving(false);
     setCreatePosition(null);
+    setDuplicateSource(null);
+    creationRequest.current++;
+    setSnapshotAssignmentTarget(null);
     setCreateError('');
-    setFocusOpen(false);
+    setFocusOpen(false); setFocusExpanded(false);
     setPresetEdited(null);
     setPresetRenameText('');
     setSetlistRenameText('');
@@ -1202,7 +1210,7 @@ function EditorApp() {
         client.getSnapshotCount(),
         client.getActiveSnapshotIndex(),
         client.getContainerContents(SETLIST_DIRECTORY_CID),
-        client.isPresetEdited(),
+        client.hasUnsavedPresetChanges(),
         client.getSnapshots().catch(() => []),
       ]);
       const nextSetlists = (setlistItems as HelixContentRef[]) ?? [];
@@ -1355,19 +1363,20 @@ function EditorApp() {
     scheduleSync(900);
   };
 
-  const openPresetCreation = async (position?: number) => {
+  const openPresetCreation = async (position?: number, source: HelixContentRef | null = null) => {
     if (creationPending.current || presetSaveOperation.current) return;
     const client = requireClient();
     if (!client) return;
+    const request = ++creationRequest.current;
     try {
       const slots = await client.getContainerContents(USER_PRESETS_CID) as HelixContentRef[] | null;
-      if (clientRef.current !== client || creationPending.current) return;
+      if (clientRef.current !== client || creationPending.current || request !== creationRequest.current) return;
       if (!Array.isArray(slots)) throw new Error('Could not read User Presets. Sync the device and try again.');
       const empty = slots.filter(isEmptyUserSlot);
       const target = position === undefined ? empty[0] : empty.find(item => item.posi === position);
       if (!target) throw new Error(position === undefined ? 'There are no empty User Preset slots.' : 'That slot is no longer empty. Choose another slot.');
-      setCreateSlots(slots); setCreateError(''); setCreatePosition(target.posi!);
-    } catch (error) { Alert.alert('Cannot create preset', (error as Error).message); }
+      setDuplicateSource(source); setCreateSlots(slots); setCreateError(''); setCreatePosition(target.posi!);
+    } catch (error) { if (request === creationRequest.current && clientRef.current === client) Alert.alert(source ? 'Cannot duplicate preset' : 'Cannot create preset', (error as Error).message); }
   };
 
   const handleCreatePreset = async (name: string) => {
@@ -1375,18 +1384,21 @@ function EditorApp() {
     if (!client || createPosition === null || creationPending.current || presetSaveOperation.current) return;
     const position = createPosition;
     creationPending.current = true; setPresetCreating(true); setCreateError('');
-    setStatus(`Creating ${name} in ${formatPresetPosition(position)}…`);
+    setStatus(`${duplicateSource ? 'Duplicating' : 'Creating'} ${name} in ${formatPresetPosition(position)}…`);
     try {
-      const result = await client.createPresetInEmptySlot(position, name);
+      if (duplicateSource && typeof duplicateSource.cid_ !== 'number') throw new Error('The source preset is unavailable. Close this sheet and refresh the library.');
+      const result = duplicateSource
+        ? await client.duplicatePresetToEmptySlot(duplicateSource.cid_!, position, name)
+        : await client.createPresetInEmptySlot(position, name);
       if (clientRef.current !== client) return;
-      setCreatePosition(null); setLibraryRoot('user');
+      setCreatePosition(null); setPresetActionTarget(null); setDuplicateSource(null); setLibraryRoot('user');
       await loadPresetContainer(USER_PRESETS_CID, 'User Presets');
-      setStatus(`Created ${name} in ${formatPresetPosition(position)}${result.loaded ? '' : '. Select the slot when you are ready to open it.'}`);
+      setStatus(`${duplicateSource ? 'Duplicated' : 'Created'} ${name} in ${formatPresetPosition(position)}${result.loaded ? '' : '. Select the slot when you are ready to open it.'}`);
       scheduleSync(150, { full: true });
     } catch (error) {
       if (clientRef.current !== client) return;
       const message = error instanceof Error ? error.message : 'Preset creation was not confirmed. Sync the device and inspect the slot.';
-      setCreateError(message); setStatus(`Preset creation not confirmed: ${message}`);
+      setCreateError(message); setStatus(`${duplicateSource ? 'Preset duplication' : 'Preset creation'} not confirmed: ${message}`);
       const slots = await client.getContainerContents(USER_PRESETS_CID).catch(() => null);
       if (clientRef.current === client && Array.isArray(slots)) { setCreateSlots(slots); if (selectedContainerId === USER_PRESETS_CID) setPresetItems(slots); }
     } finally { creationPending.current = false; setPresetCreating(false); }
@@ -2189,6 +2201,8 @@ function EditorApp() {
   };
 
   const closeEditor = () => {
+    setFocusOpen(false); setFocusExpanded(false);
+    setSnapshotAssignmentTarget(null);
     setScreen('main');
     setBlockEditorOpen(false);
     setBlockEditorSlot(null);
@@ -3282,7 +3296,7 @@ function EditorApp() {
       if (!moved) return;
       setBlockEditorSlot({ path: row, block: to as BlockSlot['block'] });
       setBlockEditorOpen(true);
-      setFocusOpen(false);
+      setFocusOpen(false); setFocusExpanded(false);
     });
   };
 
@@ -3357,11 +3371,14 @@ function EditorApp() {
     </View>
   );
 
+  const expandedFocus = dockEditor && focusOpen && focusExpanded && blockEditorOpen && !!activeBlock && !!activeBlockMeta &&
+    focusKind(activeBlockMeta) !== null && activePresetContentId !== null && activeSnapshotIndex !== null && activeBlock.blockId !== undefined;
+
   const renderFlowTab = () => {
     if (dockEditor) {
       return (
         <View style={styles.flowDock}>
-          <ScrollView keyboardShouldPersistTaps="handled"
+          {!expandedFocus && <ScrollView keyboardShouldPersistTaps="handled"
             style={styles.flowLanes}
             contentContainerStyle={styles.flowLanesContent}
             showsVerticalScrollIndicator={false}
@@ -3369,8 +3386,9 @@ function EditorApp() {
           >
             {renderPathSection(1)}
             {renderPathSection(2)}
-          </ScrollView>
-          <View style={[styles.inspector, isLandscape && styles.inspectorLandscape]}>
+          </ScrollView>}
+          <View style={[styles.inspector, isLandscape && styles.inspectorLandscape, expandedFocus && { flex: 1, minHeight: 0, maxHeight: '100%', height: undefined }]}>
+            {expandedFocus && renderPresetSaveBar()}
             {blockEditorOpen && blockEditorSlot && activeBlock ? renderBlockInspector(true) : (
               <View style={styles.inspectorEmpty}>
                 <Text style={styles.inspectorEmptyTitle}>Select a block to edit it here</Text>
@@ -3405,7 +3423,7 @@ function EditorApp() {
   };
 
   const libraryFeedback = libraryBusy ? 'Updating the setlist…' : /failed|not confirmed/i.test(status) ? 'That action was not confirmed. Refresh and try again.'
-    : /^(Added |Removed |Moved |Renamed |Notes |Snapshot |Copied snapshot)/i.test(status) ? status : '';
+    : /^(Added |Removed |Moved |Renamed |Notes |Snapshot |Copied snapshot|Duplicated |Created )/i.test(status) ? status : '';
   const renderLibraryFeedback = () => setlistNotice && libraryRoot === 'setlists'
     ? <Text accessibilityLiveRegion="polite" style={[libraryStyles.muted, setlistNotice.error && { color: COLORS.danger }]}>{setlistNotice.message}</Text>
     : libraryFeedback ? <Text accessibilityLiveRegion="polite" style={libraryStyles.muted}>{libraryFeedback}</Text> : null;
@@ -3422,7 +3440,7 @@ function EditorApp() {
       empty={empty} selected={isPresetActive(item)} disabled={presetCreating || presetSaving || libraryLoading || libraryBusy}
       accessibilityLabel={empty ? `Create preset in empty slot ${formatPresetPosition(item.posi)}` : `Load ${item.name ?? 'preset'}, position ${formatPresetPosition(item.posi)}`}
       onPress={() => { if (empty) void openPresetCreation(item.posi); else void handlePresetLoad(item); }}
-      onOptions={!empty && (libraryRoot === 'setlists' || isPresetActive(item) || setlists.length > 0) ? () => { setPresetRenameText(activePresetName); setPresetActionTarget(item); } : undefined} />;
+      onOptions={!empty ? () => { setPresetRenameText(activePresetName); setPresetActionTarget(item); } : undefined} />;
   };
 
   const renderPresetTab = () => {
@@ -4348,7 +4366,7 @@ function EditorApp() {
     const index = editableSlots.findIndex((slot) => slot.path === blockEditorSlot.path && slot.block === blockEditorSlot.block);
     const next = editableSlots[index + delta];
     if (!next) return;
-    setFocusOpen(false);
+    setFocusOpen(false); setFocusExpanded(false);
     setSelectedSlot(next);
     setBlockEditorSlot(next);
   };
@@ -4531,7 +4549,7 @@ function EditorApp() {
       const selected = focusOpen === focus;
       return (
         <Pressable key={label} accessibilityRole="tab" accessibilityState={{ selected }} disabled={editBusy}
-          style={[styles.segmentItem, !docked && styles.segmentItemFill]} onPress={() => setFocusOpen(focus)}>
+          style={[styles.segmentItem, !docked && styles.segmentItemFill]} onPress={() => { setFocusOpen(focus); if (!focus) setFocusExpanded(false); }}>
           <View style={[styles.segmentPill, selected && styles.segmentItemActive]}>
             <Text maxFontSizeMultiplier={2} style={[styles.segmentItemText, selected && styles.segmentItemTextActive]}>{label}</Text>
           </View>
@@ -4554,7 +4572,7 @@ function EditorApp() {
       <View style={styles.editorTopRow}>
         <Pressable accessibilityLabel={backLabel} disabled={editBusy}
           style={({ pressed }) => [styles.editorReturn, pressed && styles.iconActionPressed, editBusy && styles.stepButtonDisabled]}
-          onPress={() => { setFocusOpen(false); closeEditor(); }}>
+          onPress={() => { setFocusOpen(false); setFocusExpanded(false); closeEditor(); }}>
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
             <Path d="M15 18l-6-6 6-6" stroke={COLORS.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
@@ -4569,7 +4587,13 @@ function EditorApp() {
         {chip}
         {titleStack}
         {viewTabs}
-        <View style={styles.inspectorTools}>{powerButton}{menuButton}</View>
+        <View style={styles.inspectorTools}>
+          {focusOpen && canFocus && <Pressable accessibilityRole="button" accessibilityLabel={expandedFocus ? 'Restore Focus View and show signal chain' : 'Expand Focus View'}
+            accessibilityState={{ expanded: expandedFocus }} style={styles.toolButton} onPress={() => setFocusExpanded(!expandedFocus)}>
+            <Text style={styles.toolButtonText}>{expandedFocus ? 'Restore' : 'Expand'}</Text>
+          </Pressable>}
+          {powerButton}{menuButton}
+        </View>
       </View>
     ) : (
       <>
@@ -4602,6 +4626,12 @@ function EditorApp() {
           }}
           onLink={position => { void handleRoutingLink(blockEditorSlot, position); }}
         />}
+        {activePresetContentId !== null && activeSnapshotIndex !== null && activeBlock.blockId !== undefined && <View style={{ alignSelf: 'flex-start', marginBottom: 12 }}>
+          <LibraryButton label="Snapshot controls" icon="snapshots" disabled={previewMode || editBusy}
+            onPress={() => setSnapshotAssignmentTarget({ presetId: activePresetContentId, snapshotIndex: activeSnapshotIndex,
+              flow: rowToFlow(blockEditorSlot.path), blockId: activeBlock.blockId!, modelId: activeBlockMeta.id,
+              name: displayName, params: activeBlockMeta.params })} />
+        </View>}
         {focusListLayout && <ScreenHeading focusKey={`focus-${blockEditorSlot.path}-${blockEditorSlot.block}`} style={styles.editorTitle}>{displayName}</ScreenHeading>}
         {!docked && viewTabs}
         {focusOpen && focusTarget ? <FocusView
@@ -4615,6 +4645,7 @@ function EditorApp() {
             return values;
           }}
           apply={async (changes: FocusChange[]) => {
+            if (presetSaveOperation.current || creationPending.current) throw new Error('Wait for the preset to finish saving before adjusting Focus View.');
             const client = requireClient();
             if (!client) throw new Error('Reconnect to the Stadium before adjusting Focus View.');
             const values = await client.applyFocus(focusTarget, changes);
@@ -4648,6 +4679,36 @@ function EditorApp() {
     );
   };
 
+  const renderSnapshotAssignments = () => {
+    const target = snapshotAssignmentTarget;
+    return <SnapshotAssignmentsSheet identity={target ? `${target.presetId}:${target.flow}:${target.blockId}:${target.modelId}:${target.snapshotIndex}` : null}
+      name={target?.name ?? ''} parameters={(target?.params ?? []).filter(param => param.id !== null && !param.harness && !param.faux && !param.property_key)
+        .map(param => ({ id: param.id!, name: param.name, type: param.type }))}
+      read={async () => {
+        const client = requireClient();
+        if (!client || !target) throw new Error('Reconnect to the Stadium and reopen Snapshot controls.');
+        const values = await client.getSnapshotParameterAssignments(target);
+        if (clientRef.current !== client) throw new Error('The connection changed. Reopen Snapshot controls.');
+        return values;
+      }}
+      change={async (id, assigned, type) => {
+        if (presetSaveOperation.current || creationPending.current) throw new Error('Wait for the current save to finish.');
+        const client = requireClient();
+        if (!client || !target) throw new Error('Reconnect to the Stadium and reopen Snapshot controls.');
+        try {
+          const values = await client.setSnapshotParameterAssignment(target, id, assigned, type);
+          if (clientRef.current !== client) throw new Error('The connection changed. Reopen Snapshot controls.');
+          setPresetEdited(true); setPresetSaved(false);
+          return values;
+        } catch (error) {
+          if (clientRef.current === client) { setPresetEdited(null); setPresetSaved(false); }
+          throw error;
+        } finally {
+          if (clientRef.current === client) scheduleSync(150, { full: true, silent: true });
+        }
+      }} onClose={() => setSnapshotAssignmentTarget(null)} />;
+  };
+
   const renderEditor = () => {
     if (!activeBlock || !activeBlockMeta || !blockEditorSlot) return null;
     return (
@@ -4657,6 +4718,7 @@ function EditorApp() {
           {!accessibilityText && renderPresetSaveBar('bottom')}
           {renderSlotActionsSheet()}
           {renderParamHelpSheet()}
+          {renderSnapshotAssignments()}
         </SafeAreaView>
       </SafeAreaProvider>
     );
@@ -4947,7 +5009,7 @@ function EditorApp() {
           {useNavRail && <TabBar variant="rail" activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />}
           <View style={styles.shellMain}>
             {previewBanner}
-            {activeTab === 'flow' && (dockEditor || !scrollChrome) && flowChrome}
+            {activeTab === 'flow' && !expandedFocus && (dockEditor || !scrollChrome) && flowChrome}
 
             {/* ── Tab content ──────────────────────────────────────── */}
             {activeTab === 'flow' && renderFlowTab()}
@@ -4959,8 +5021,71 @@ function EditorApp() {
         </View>
 
         <CreatePresetSheet position={createPosition} slots={createSlots} busy={presetCreating} error={createError}
+          sourceName={duplicateSource?.name ?? (duplicateSource ? 'Preset' : undefined)}
+          actionTitle={presetActionTarget?.name ?? 'Preset'} actionSubtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${formatPresetPosition(presetActionTarget.posi)}` : undefined}
+          actions={presetActionTarget ? (
+          <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets style={{ maxHeight: sheetListMaxHeight + 120 }}>
+            {presetActionTarget && <View style={styles.menuList}>
+              {renderMenuRow({ key: 'duplicate', label: 'Duplicate preset', disabled: presetCreating || presetSaving || libraryBusy,
+                onPress: () => { void openPresetCreation(undefined, presetActionTarget); } })}
+            </View>}
+            {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
+              <View style={[styles.renameRow, accessibilityText && styles.renameRowStacked]}>
+                <TextInput accessibilityLabel="Preset name"
+                  style={[styles.input, styles.inlineInput, styles.renameInput]}
+                  value={presetRenameText}
+                  onChangeText={setPresetRenameText}
+                  placeholder="Rename preset"
+                  placeholderTextColor={COLORS.muted}
+                />
+                <Pressable
+                  style={[styles.button, styles.buttonGhost, styles.inlineButton]}
+                  disabled={libraryBusy || !presetRenameText.trim() || presetRenameText.trim() === activePresetName}
+                  onPress={() => {
+                    void handleRenameContent(activePresetStorageId, presetRenameText, 'Preset');
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
+                </Pressable>
+              </View>
+            )}
+            {libraryRoot === 'setlists' && activeSetlist && presetActionTarget && (
+              <>
+                <View style={styles.menuList}>
+                  {([-1, 1] as const).map(direction => renderMenuRow({
+                    key: `move-${direction}`,
+                    label: direction < 0 ? 'Move earlier' : 'Move later',
+                    disabled: setlistMovePosition(presetItems, presetActionTarget.posi, direction) === null,
+                    onPress: () => {
+                      const target = presetActionTarget;
+                      setPresetActionTarget(null);
+                      void handleMoveSetlistPreset(target, direction);
+                    },
+                  }))}
+                </View>
+                <View style={styles.menuGap} />
+                <View style={styles.menuList}>
+                  {renderMenuRow({ key: 'remove', label: 'Remove from setlist', danger: true, onPress: () => {
+                    const target = presetActionTarget;
+                    setPresetActionTarget(null);
+                    void handleRemovePresetFromSetlist(target);
+                  } })}
+                </View>
+              </>
+            )}
+            {(libraryRoot === 'user' || libraryRoot === 'factory') && setlists.length > 0 && <View style={libraryStyles.header}>
+              <Text style={libraryStyles.section}>Add to setlist</Text>
+              {setlists.map(setlist => <Pressable key={setlist.cid_} style={libraryStyles.rowMain}
+                accessibilityLabel={`Add to ${setlist.name ?? 'setlist'}`} onPress={() => {
+                  const target = presetActionTarget;
+                  setPresetActionTarget(null);
+                  if (target && typeof setlist.cid_ === 'number') void handleAddPresetToSetlist(target, setlist.cid_);
+                }}><Text style={libraryStyles.rowTitle}>{setlist.name ?? 'Setlist'}</Text><UtilityIcon name="plus" /></Pressable>)}
+            </View>}
+          </ScrollView>
+          ) : undefined}
           onPosition={position => { setCreatePosition(position); setCreateError(''); }}
-          onCreate={name => { void handleCreatePreset(name); }} onClose={() => { if (!creationPending.current) setCreatePosition(null); }} />
+          onCreate={name => { void handleCreatePreset(name); }} onClose={() => { if (!creationPending.current) { creationRequest.current++; setCreatePosition(null); setPresetActionTarget(null); setDuplicateSource(null); } }} />
 
         {/* ── Bottom Sheet: Setlist Picker ─────────────────────── */}
         <BottomSheet
@@ -5108,70 +5233,6 @@ function EditorApp() {
               }}
             />
           )}
-        </BottomSheet>
-
-        {/* ── Bottom Sheet: Preset Actions ─────────────────────── */}
-        <BottomSheet
-          visible={presetActionTarget !== null}
-          onClose={() => setPresetActionTarget(null)}
-          title={presetActionTarget?.name ?? 'Preset'}
-          subtitle={typeof presetActionTarget?.posi === 'number' ? `Slot ${formatPresetPosition(presetActionTarget.posi)}` : undefined}
-        >
-          <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets style={{ maxHeight: sheetListMaxHeight + 120 }}>
-            {presetActionTarget && isPresetActive(presetActionTarget) && activePresetStorageId !== null && (
-              <View style={[styles.renameRow, accessibilityText && styles.renameRowStacked]}>
-                <TextInput accessibilityLabel="Preset name"
-                  style={[styles.input, styles.inlineInput, styles.renameInput]}
-                  value={presetRenameText}
-                  onChangeText={setPresetRenameText}
-                  placeholder="Rename preset"
-                  placeholderTextColor={COLORS.muted}
-                />
-                <Pressable
-                  style={[styles.button, styles.buttonGhost, styles.inlineButton]}
-                  disabled={libraryBusy || !presetRenameText.trim() || presetRenameText.trim() === activePresetName}
-                  onPress={() => {
-                    void handleRenameContent(activePresetStorageId, presetRenameText, 'Preset');
-                  }}
-                >
-                  <Text style={[styles.buttonText, styles.buttonTextGhost]}>Rename</Text>
-                </Pressable>
-              </View>
-            )}
-            {libraryRoot === 'setlists' && activeSetlist && presetActionTarget && (
-              <>
-                <View style={styles.menuList}>
-                  {([-1, 1] as const).map(direction => renderMenuRow({
-                    key: `move-${direction}`,
-                    label: direction < 0 ? 'Move earlier' : 'Move later',
-                    disabled: setlistMovePosition(presetItems, presetActionTarget.posi, direction) === null,
-                    onPress: () => {
-                      const target = presetActionTarget;
-                      setPresetActionTarget(null);
-                      void handleMoveSetlistPreset(target, direction);
-                    },
-                  }))}
-                </View>
-                <View style={styles.menuGap} />
-                <View style={styles.menuList}>
-                  {renderMenuRow({ key: 'remove', label: 'Remove from setlist', danger: true, onPress: () => {
-                    const target = presetActionTarget;
-                    setPresetActionTarget(null);
-                    void handleRemovePresetFromSetlist(target);
-                  } })}
-                </View>
-              </>
-            )}
-            {(libraryRoot === 'user' || libraryRoot === 'factory') && setlists.length > 0 && <View style={libraryStyles.header}>
-              <Text style={libraryStyles.section}>Add to setlist</Text>
-              {setlists.map(setlist => <Pressable key={setlist.cid_} style={libraryStyles.rowMain}
-                accessibilityLabel={`Add to ${setlist.name ?? 'setlist'}`} onPress={() => {
-                  const target = presetActionTarget;
-                  setPresetActionTarget(null);
-                  if (target && typeof setlist.cid_ === 'number') void handleAddPresetToSetlist(target, setlist.cid_);
-                }}><Text style={libraryStyles.rowTitle}>{setlist.name ?? 'Setlist'}</Text><UtilityIcon name="plus" /></Pressable>)}
-            </View>}
-          </ScrollView>
         </BottomSheet>
 
         {/* ── Bottom Sheet: Snapshot Actions ───────────────────── */}
@@ -5431,6 +5492,7 @@ function EditorApp() {
 
         {/* ── Bottom Sheet: Parameter help ─────────────────────── */}
         {!ioPickerOpen && renderParamHelpSheet()}
+        {renderSnapshotAssignments()}
 
         {/* ── Tab bar ──────────────────────────────────────────── */}
         {!useNavRail && <TabBar activeTab={activeTab} onTabChange={handleTabChange} connected={connected} />}

@@ -26,8 +26,8 @@ export function extractStompBanks(state: unknown, modelName: (id: number, paramI
     }
   }
   const bank = (key: 'a' | 'b') => SWITCHES.map(number => {
-    // Captured Stadium source graph: local switches 25..36; contexts 1=A, 9=B.
-    const assignedSources = sources.filter(s => s.type === 1 && s.ctxt === (key === 'a' ? 1 : 9) && s.locl === 24 + number);
+    // Captured Stadium source graph: local switches 25..36; contexts 1=A, 2=B (captured from the official editor).
+    const assignedSources = sources.filter(s => s.type === 1 && s.ctxt === (key === 'a' ? 1 : 2) && s.locl === 24 + number);
     const assignedControls = assignedSources.flatMap(s => (controllerIds.get(s.id__) ?? [])
       .flatMap(id => controls.filter(c => c.cid_ === id)));
     const assignedTargets = assignedControls.flatMap(c => targets.filter(t => t.id__ === c.tid_));

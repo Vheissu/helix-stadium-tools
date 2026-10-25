@@ -1,3 +1,5 @@
+import { changeSnapshotAssignment, readSnapshotParameters, type SnapshotAssignmentTarget } from './snapshotAssignments';
+import { duplicatePreset } from './presetDuplication';
 import { TempoController } from './tempo';
 import { changeRoutingLink, moveBlockAndConfirm, reorderBlockAndConfirm, requireBlockAcknowledgement } from './blockCommands';
 import { buildPropertyBlob } from './propertyBlob';
@@ -879,6 +881,24 @@ export class HelixClient {
     }
   }
 
+  async duplicatePresetToEmptySlot(sourceId: number, position: number, name: string) {
+    if (this.creatingPreset) throw new Error('Wait for the current preset to finish creating.');
+    this.creatingPreset = true;
+    try {
+      return await duplicatePreset({
+        reference: id => this.getContentRef(id),
+        data: id => this.getContentData(id),
+        slots: () => this.getContainerContents(-2),
+        allocate: async (slot, presetName, source) => {
+          const command = presetCreationCommand(slot, presetName);
+          command.args[3] = Buffer.from(encodeMsgpack({ blck: -1, colr: source.colr ?? 0, dvcp: source.dvcp ?? 'ALL', flow: -1, name: presetName }));
+          return createdPresetId(await this.request(command.address, command.types, command.args, '/status', 5000));
+        },
+        write: async (id, data) => requireLibraryAcknowledgement(await this.setContentData(id, data)),
+      }, sourceId, position, name);
+    } finally { this.creatingPreset = false; }
+  }
+
   async hasUnsavedPresetChanges(): Promise<boolean | null> {
     const edited = await this.isPresetEdited();
     if (edited !== false) return edited;
@@ -906,6 +926,19 @@ export class HelixClient {
         }
       },
     }, target, changes);
+  }
+
+  async getSnapshotParameterAssignments(target: SnapshotAssignmentTarget) {
+    if (await this.getActivePresetContentId() !== target.presetId) throw new Error('The preset changed. Reopen Snapshot controls.');
+    const parameters = readSnapshotParameters(await this.getEditBufferState(), target);
+    if (await this.getActivePresetContentId() !== target.presetId) throw new Error('The preset changed. Reopen Snapshot controls.');
+    return parameters;
+  }
+
+  async setSnapshotParameterAssignment(target: SnapshotAssignmentTarget, id: number, assigned: boolean, type: 'f' | 'i' | 'b') {
+    return changeSnapshotAssignment({ activeId: () => this.getActivePresetContentId(), state: () => this.getEditBufferState(),
+      send: command => this.request(command.address, command.types, command.args, '/status', 2500),
+    }, target, id, assigned, type);
   }
 
   private setlistMutation = false;

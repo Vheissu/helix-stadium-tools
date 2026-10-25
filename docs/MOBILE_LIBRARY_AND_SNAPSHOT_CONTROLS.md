@@ -92,6 +92,11 @@ physical MIDI Out port remains unverified because no five-pin MIDI cable was
 available. Do not describe remote Stomp triggering or both output ports as
 verified.
 
+A [follow-up hardware investigation](REMOTE_STOMP_TRIGGER_RESEARCH.md) tested
+controller activation and source enable requests against a physical B1 press.
+The source enable path changes the assigned bypass state, but none of the eight
+additional remote tests executed the switch's two MIDI commands.
+
 ## Checks
 
 - Mobile TypeScript check passed.

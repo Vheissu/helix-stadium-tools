@@ -94,8 +94,11 @@ verified.
 
 A [follow-up hardware investigation](REMOTE_STOMP_TRIGGER_RESEARCH.md) tested
 controller activation and source enable requests against a physical B1 press.
-The source enable path changes the assigned bypass state, but none of the eight
-additional remote tests executed the switch's two MIDI commands.
+The source enable path changes the source's enable flag, but none of those eight
+remote tests executed the switch's two MIDI commands. A subsequent
+[firmware trace](STOMP_FIRMWARE_TRACE.md) found the distinct `/ExecuteCommand`
+request and verified execution of both existing MIDI commands by ID. Full
+switch behaviour and the app control remain unimplemented.
 
 ## Checks
 

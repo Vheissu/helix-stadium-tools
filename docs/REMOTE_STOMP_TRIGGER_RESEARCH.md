@@ -1,9 +1,10 @@
 # Remote Stomp B triggering: hardware follow-up
 
-Tested on 25 October 2026. **No verified editor-protocol route currently runs an
-existing Stomp B switch's full assignment group.** The closest working request
-changes the switch's bypass state but does not execute its Command Center
-commands. HELYON's Stomp buttons remain read-only.
+Tested on 25 October 2026. **A later [firmware trace](STOMP_FIRMWARE_TRACE.md)
+found and verified `/ExecuteCommand`, which executes existing Command Center
+assignments by ID.** This report records the earlier eight negative tests;
+it does not rule out that newly verified route. Full physical-switch
+behaviour is still unimplemented, and HELYON's Stomp buttons remain read-only.
 
 The requirement is to invoke the existing switch, preserving its assignments
 and Press, Release, Hold and Toggle behaviour. Sending reconstructed MIDI
@@ -61,8 +62,9 @@ buffer readback, command-event inspection and a USB MIDI capture window.
 | `/SourceEnableSet` | `25, 2, 0` | B1 source `byps` changed from false to true; no MIDI or command execution |
 | `/SourceEnableSet` | `25, 2, 1` | B1 source `byps` changed from true to false; no MIDI or command execution |
 
-The working bypass changes establish that the requests reached the real
-control graph. They do not establish switch-press semantics. In all eight
+The controller-value tests changed actual block bypass. The source-enable
+tests changed only `srcs[].byps`, leaving the signal-flow graph unchanged.
+These readbacks establish that the requests reached the real control graph. They do not establish switch-press semantics. In all eight
 remote tests, neither assigned MIDI message nor an `/executeCommand` event was
 observed. Command configuration and command runtime state stayed unchanged
 through the remote tests. The physical reference had changed the runtime
@@ -92,11 +94,11 @@ existing Stomp source's command group.
 
 ## Conclusion and remaining gaps
 
-Claude reviewed the documented control routes and test evidence. The current
-results support a narrow conclusion: **the tested normal editor requests can
-control bypass assignments, but none invokes the existing switch's Command
-Center group.** This is not proof that every possible firmware interface lacks
-such a function.
+Claude reviewed the documented control routes and test evidence. Those eight tests support a narrow conclusion: **the tested controller and
+source-enable requests do not invoke the existing switch's Command Center
+group.** The later capitalized `/ExecuteCommand` request does run stored
+commands. See the [firmware trace](STOMP_FIRMWARE_TRACE.md) for the verified
+request and remaining limits.
 
 A new candidate needs evidence of an actual editor request or a documented
 Stadium input mapping. Before enabling a phone control, verify both command

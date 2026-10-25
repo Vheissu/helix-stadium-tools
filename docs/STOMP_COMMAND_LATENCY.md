@@ -85,3 +85,8 @@ capabilities. Retries remain disabled.
 
 Local evidence is in `.codex-artifacts/stomp-latency/`: `controlled-reads.json`,
 `state-arrivals.json`, the typed read probes, and `read-xrefs.txt`.
+
+The follow-up [assignment-state investigation](STOMP_ASSIGNMENT_STATE_RESEARCH.md)
+traces the reply scalar to the event publisher, tests source and command changes
+on a spare preset, and records why the compact reads and candidate read barrier
+still cannot replace fresh full-state validation.

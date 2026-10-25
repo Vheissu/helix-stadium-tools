@@ -78,12 +78,22 @@ ZMTP data frames contain **raw OSC packets**. Example:
 
 ### Port 2001 (device → editor)
 
-OSC payloads are wrapped in a 12‑byte header before the OSC message body:
+The publisher sends a ZMTP multipart message:
 
-- u16 version (observed `0x0108`)
-- 6 bytes reserved (zero)
-- u16 sequence
-- u16 OSC message length
+1. An 8-byte big-endian sequence number in a frame with the MORE flag.
+2. The raw OSC packet in the final frame.
+
+For short frames, the wire bytes before OSC are `01 08`, eight sequence bytes,
+then `00 <OSC length>`. Earlier captures were incorrectly described as a fixed
+12-byte Helix header. Those bytes include two ZMTP frame headers; `01 08` is
+the MORE flag and an eight-byte frame length. The leading sequence bytes are
+not reserved, and the sequence is not limited to 16 bits. A long OSC frame uses
+ZMTP's long-length encoding, so the combined prefix is not always 12 bytes.
+
+Live firmware 1.4.1.1343 emitted sequence 20437 immediately after an edit-buffer
+reply carrying 20437. The traced 1.4.0.1341 publisher uses atomic fetch-and-add
+and sends the previous value. See [assignment-state research](STOMP_ASSIGNMENT_STATE_RESEARCH.md)
+for the distinction between this next-event watermark and an assignment revision.
 
 Example decoded payload:
 
@@ -569,7 +579,10 @@ The device exposes a Remote Access setting (Allow / Deny / Require PIN). If PIN 
 - Port 2001 requires a SUBSCRIBE frame (empty topic) to receive updates.
 - Keep a single session open when issuing multiple commands; the device responds with `/status` per command.
 - Expect `/heartbeat` messages at a steady cadence on port 2001.
-- The device->editor stream on port 2001 may arrive as either raw OSC or OSC wrapped in the 12-byte Helix header, so clients should handle both forms.
+- Parse port 2001 as ZMTP frames. The final multipart frame contains raw OSC;
+  its preceding eight-byte frame carries the publisher sequence. Preserve that
+  sequence if tracking event continuity. A legacy flattened-capture decoder may
+  need to recognize the combined short-frame prefix described above.
 - Use short socket poll timeouts inside longer command deadlines; otherwise a blocking `recv()` can bypass the higher-level retry and timeout policy.
 
 ## Reference tooling in this repo

@@ -21,6 +21,7 @@ import { ZmtpSocket, zmtpHandshake, type NetworkInterfacePreference } from './zm
 import { extractSnapshots, hasFlowState } from '../utils/helixState';
 import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } from '../utils/matrixMixer';
 import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
+import { createSetlist, deleteSetlist, duplicateSetlist, moveSetlist, renameSetlist, requireLibraryAcknowledgement, setlistCreationCommand, SETLIST_DIRECTORY_ID, type SetlistTransport } from './setlists';
 
 const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
 
@@ -907,6 +908,52 @@ export class HelixClient {
     }, target, changes);
   }
 
+  private setlistMutation = false;
+
+  private setlistTransport(): SetlistTransport {
+    return {
+      directory: () => this.getContainerContents(SETLIST_DIRECTORY_ID, undefined, true),
+      entries: id => this.getContainerContents(id, undefined, true),
+      reference: id => this.getContentRef(id),
+      activeReference: () => this.getActivePresetRef(),
+      allocate: (position, name) => {
+        const command = setlistCreationCommand(position, name);
+        return this.request(command.address, command.types, command.args, '/status', 5000);
+      },
+      add: (id, presets, position) => this.addContentsToContainer(id, presets, position),
+      remove: (id, ids) => this.removeContent(id, ids),
+      rename: (id, name) => this.renameContent(id, name),
+      reorder: (id, ids, position) => this.reorderContainerContent(id, ids, position),
+    };
+  }
+
+  private async changeSetlist<T>(operation: (io: SetlistTransport) => Promise<T>): Promise<T> {
+    if (this.setlistMutation) throw new Error('Wait for the current setlist change to finish.');
+    this.setlistMutation = true;
+    try { return await operation(this.setlistTransport()); }
+    finally { this.setlistMutation = false; }
+  }
+
+  createSetlist(name: string) {
+    return this.changeSetlist(io => createSetlist(io, name));
+  }
+
+  duplicateSetlist(id: number, name: string) {
+    return this.changeSetlist(io => duplicateSetlist(io, id, name));
+  }
+
+  renameSetlist(id: number, name: string) {
+    return this.changeSetlist(io => renameSetlist(io, id, name));
+  }
+
+  deleteSetlist(id: number) {
+    return this.changeSetlist(io => deleteSetlist(io, id));
+  }
+
+  moveSetlist(id: number, direction: -1 | 1) {
+    return this.changeSetlist(io => moveSetlist(io, id, direction));
+  }
+
   async addContentsToContainer(
     containerId: number,
     contentIds: number[],
@@ -915,23 +962,29 @@ export class HelixClient {
     flagB = false
   ) {
     const blob = Buffer.from(encodeMsgpack(contentIds.map((value) => Number(value))));
-    return await this.request(
+    const response = await this.request(
       '/AddContentsToContainer',
       'ibiii',
       [containerId, blob, position, flagA ? 1 : 0, flagB ? 1 : 0],
       '/status',
       3000
     );
+    requireLibraryAcknowledgement(response);
+    return response;
   }
 
   async removeContent(containerId: number, contentIds: number[]) {
     const blob = Buffer.from(encodeMsgpack(contentIds.map((value) => Number(value))));
-    return await this.request('/RemoveContent', 'ib', [containerId, blob], '/status', 3000);
+    const response = await this.request('/RemoveContent', 'ib', [containerId, blob], '/status', 3000);
+    requireLibraryAcknowledgement(response);
+    return response;
   }
 
   async reorderContainerContent(containerId: number, contentIds: number[], position: number) {
     const blob = Buffer.from(encodeMsgpack(contentIds.map((value) => Number(value))));
-    return await this.request('/ReorderContainerContent', 'ibi', [containerId, blob, position], '/status', 3000);
+    const response = await this.request('/ReorderContainerContent', 'ibi', [containerId, blob, position], '/status', 3000);
+    requireLibraryAcknowledgement(response);
+    return response;
   }
 
   async setContentData(contentId: number, data: Buffer | Uint8Array) {
@@ -948,7 +1001,9 @@ export class HelixClient {
       throw new Error(`content ${contentId} is unavailable`);
     }
     const blob = Buffer.from(encodeMsgpack({ ...(content as Record<string, any>), name }));
-    return await this.request('/SetContentAttrs', 'ib', [contentId, blob], '/status', 2500);
+    const response = await this.request('/SetContentAttrs', 'ib', [contentId, blob], '/status', 2500);
+    requireLibraryAcknowledgement(response);
+    return response;
   }
 
   async getEditBufferState() {

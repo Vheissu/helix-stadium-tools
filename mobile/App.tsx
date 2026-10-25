@@ -3,6 +3,8 @@ import { LibraryHeading, LibraryButton, LibrarySearch, LibrarySegments, LibraryR
 import { ShowcaseLibrary } from './src/components/ShowcaseLibrary';
 import { presetStorageId } from './src/protocol/presetSave';
 import { isEmptyUserSlot } from './src/protocol/presetCreation';
+import { MAX_SETLISTS, parseSetlists, SetlistOperationError, validateSetlistName, type SetlistReference } from './src/protocol/setlists';
+import { SetlistManagementSheet } from './src/components/SetlistManagementSheet';
 import { readFocusValues, type FocusTarget } from './src/protocol/focusSession';
 import { getFocusDefinition, type FocusChange } from './src/utils/focus';
 import { CreatePresetSheet } from './src/components/CreatePresetSheet';
@@ -414,11 +416,14 @@ function EditorApp() {
   const [snapshotCopyTarget, setSnapshotCopyTarget] = useState<number | null>(null);
   const [pathClipboard, setPathClipboard] = useState<(HelixPathClipboard & { presetId: number }) | null>(null);
   const [setlistPickerOpen, setSetlistPickerOpen] = useState(false);
+  const [setlistFilter, setSetlistFilter] = useState('');
   const [setlistAddSheetOpen, setSetlistAddSheetOpen] = useState(false);
   const [setlistAddSource, setSetlistAddSource] = useState<SetlistAddSource>('user');
   const [setlistAddItems, setSetlistAddItems] = useState<HelixContentRef[]>([]);
   const [setlistAddSearch, setSetlistAddSearch] = useState('');
   const [setlistAddLoading, setSetlistAddLoading] = useState(false);
+  const [setlistAddError, setSetlistAddError] = useState('');
+  const setlistSourceRequest = useRef(0);
   const [selectedSetlistAddIds, setSelectedSetlistAddIds] = useState<number[]>([]);
   const [presetActionTarget, setPresetActionTarget] = useState<HelixContentRef | null>(null);
   const libraryRequest = useRef(0);
@@ -427,6 +432,8 @@ function EditorApp() {
   const [libraryRefreshing, setLibraryRefreshing] = useState(false);
   const [presetPanel, setPresetPanel] = useState<'browse' | 'snapshots' | 'notes'>('browse');
   const [setlistOptionsOpen, setSetlistOptionsOpen] = useState(false);
+  const [setlistDraft, setSetlistDraft] = useState<{ sourceId?: number; sourceName?: string } | null>(null);
+  const [setlistNotice, setSetlistNotice] = useState<{ message: string; error: boolean } | null>(null);
   const [snapshotActionIndex, setSnapshotActionIndex] = useState<number | null>(null);
   const [flowScrollEnabled, setFlowScrollEnabled] = useState(true);
   const [liveTempoBpm, setLiveTempoBpm] = useState<number | null>(null);
@@ -924,6 +931,11 @@ function EditorApp() {
 
   const disconnect = () => {
     libraryRequest.current += 1;
+    libraryMutation.current = false;
+    setLibraryBusy(false);
+    setSetlistOptionsOpen(false);
+    setSetlistDraft(null);
+    setSetlistNotice(null);
     setLibraryLoading(false);
     setLibraryRefreshing(false);
     setSettingsPage(null);
@@ -985,11 +997,14 @@ function EditorApp() {
     setSnapshotCopyTarget(null);
     setPathClipboard(null);
     setSetlistPickerOpen(false);
+    setSetlistFilter('');
     setSetlistAddSheetOpen(false);
+    setlistSourceRequest.current += 1;
     setSetlistAddSource('user');
     setSetlistAddItems([]);
     setSetlistAddSearch('');
     setSetlistAddLoading(false);
+    setSetlistAddError('');
     setSelectedSetlistAddIds([]);
     setPresetActionTarget(null);
     setLiveTempoBpm(null);
@@ -1169,14 +1184,14 @@ function EditorApp() {
   const loadPresetContainer = async (containerId: number, label: string, request = libraryRequest.current) => {
     const client = requireClient();
     if (!client) return;
-    const items = await client.getContainerContents(containerId);
+    const items = await client.getContainerContents(containerId, undefined, true);
     if (clientRef.current !== client || request !== libraryRequest.current) return;
     setSelectedContainerId(containerId);
     setSelectedContainerName(label);
     setPresetItems(containerId > 0 ? populatedSlots(items as HelixContentRef[]) : items as HelixContentRef[]);
   };
 
-  const refreshPresetContext = async () => {
+  const refreshPresetContext = async (allowMutation = false) => {
     const client = requireClient();
     if (!client) return;
     const saveRevision = presetSaveRevision.current;
@@ -1194,15 +1209,17 @@ function EditorApp() {
       const nextSnapshots = (snapshotItems as SnapshotRef[]) ?? [];
       const activeRef = activeId !== null ? ((await client.getContentRef(activeId)) as HelixContentRef | null) : null;
       if (clientRef.current !== client) return;
-      setSetlists(nextSetlists);
-      setTargetSetlistId((prev) => {
-        if (prev !== null && nextSetlists.some((item) => item.cid_ === prev)) return prev;
-        if (typeof activeRef?.ccid === 'number' && nextSetlists.some((item) => item.cid_ === activeRef.ccid)) {
-          return activeRef.ccid;
-        }
-        const firstSetlist = nextSetlists.find((item) => typeof item.cid_ === 'number');
-        return typeof firstSetlist?.cid_ === 'number' ? firstSetlist.cid_ : null;
-      });
+      if (request === libraryRequest.current && (!libraryMutation.current || allowMutation)) {
+        setSetlists(nextSetlists);
+        setTargetSetlistId((prev) => {
+          if (prev !== null && nextSetlists.some((item) => item.cid_ === prev)) return prev;
+          if (typeof activeRef?.ccid === 'number' && nextSetlists.some((item) => item.cid_ === activeRef.ccid)) {
+            return activeRef.ccid;
+          }
+          const firstSetlist = nextSetlists.find((item) => typeof item.cid_ === 'number');
+          return typeof firstSetlist?.cid_ === 'number' ? firstSetlist.cid_ : null;
+        });
+      }
       setActivePresetContentId(activeId);
       setActivePresetRef(activeRef);
       setSnapshotCount(snapshotTotal ?? nextSnapshots.length);
@@ -1211,7 +1228,7 @@ function EditorApp() {
       if (clientRef.current !== client) return;
       if (!presetSaveOperation.current && saveRevision === presetSaveRevision.current) setPresetEdited(edited);
       await refreshTransportContext(client);
-      if (clientRef.current !== client || request !== libraryRequest.current || libraryLoadingRef.current) return;
+      if (clientRef.current !== client || request !== libraryRequest.current || libraryLoadingRef.current || (libraryMutation.current && !allowMutation)) return;
 
       if (libraryRootRef.current === 'factory') {
         await loadPresetContainer(FACTORY_PRESETS_CID, 'Factory Presets', request);
@@ -1284,6 +1301,7 @@ function EditorApp() {
 
   const handleSetlistSelect = async (item: HelixContentRef) => {
     if (libraryMutation.current || typeof item.cid_ !== 'number' || !setlists.some(setlist => setlist.cid_ === item.cid_)) return;
+    setSetlistNotice(null);
     const request = ++libraryRequest.current;
     setPresetItems([]);
     setSelectedContainerId(null);
@@ -1642,6 +1660,7 @@ function EditorApp() {
   const handleRenameContent = async (contentId: number, name: string, label: string) => {
     const client = requireClient();
     if (!client || libraryMutation.current) return;
+    setSetlistNotice(null);
     const trimmed = name.trim();
     if (!trimmed) {
       setStatus(`A ${label.toLowerCase()} name is required`);
@@ -1650,12 +1669,93 @@ function EditorApp() {
     libraryMutation.current = true; setLibraryBusy(true);
     try {
       await client.renameContent(contentId, trimmed);
+      if (clientRef.current !== client) return;
       setStatus(`Renamed ${label.toLowerCase()} to ${trimmed}`);
-      await refreshPresetContext();
+      await refreshPresetContext(true);
     } catch (err) {
+      if (clientRef.current !== client) return;
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Rename failed: ${message}`);
-    } finally { libraryMutation.current = false; setLibraryBusy(false); }
+    } finally { if (clientRef.current === client) { libraryMutation.current = false; setLibraryBusy(false); } }
+  };
+
+  const reloadSetlistLibrary = async (client: HelixClient, preferredId: number | null, request: number) => {
+    const directory = parseSetlists(await client.getContainerContents(SETLIST_DIRECTORY_CID, undefined, true));
+    const selected = directory.find(item => item.cid_ === preferredId) ?? directory[0] ?? null;
+    const entries = selected ? await client.getContainerContents(selected.cid_, undefined, true) as HelixContentRef[] : [];
+    if (clientRef.current !== client || request !== libraryRequest.current) return;
+    setSetlists(directory);
+    setLibraryRoot('setlists');
+    setSelectedContainerId(selected?.cid_ ?? null);
+    setSelectedContainerName(selected?.name ?? 'Setlists');
+    setTargetSetlistId(selected?.cid_ ?? null);
+    setPresetItems(populatedSlots(entries));
+    setPresetFilter('');
+  };
+
+  const changeSetlist = async (operation: (client: HelixClient) => Promise<SetlistReference | void>, message: string) => {
+    const client = requireClient();
+    if (!client || libraryMutation.current || libraryLoadingRef.current) return false;
+    if (previewMode) { setSetlistNotice({ message: 'Connect to your Stadium to manage setlists.', error: true }); return false; }
+    const request = ++libraryRequest.current;
+    libraryMutation.current = true;
+    setLibraryBusy(true);
+    setSetlistNotice(null);
+    let completed = false;
+    try {
+      const result = await operation(client);
+      completed = true;
+      if (clientRef.current !== client || request !== libraryRequest.current) return false;
+      await reloadSetlistLibrary(client, result?.cid_ ?? selectedContainerId, request);
+      if (clientRef.current !== client || request !== libraryRequest.current) return false;
+      setSetlistNotice({ message, error: false });
+      return true;
+    } catch (error) {
+      if (clientRef.current !== client || request !== libraryRequest.current) return false;
+      const detail = error instanceof Error ? error.message : 'Check the connection and refresh before trying again.';
+      setSetlistNotice({ message: completed ? `${message} Pull down to refresh the library.` : detail, error: !completed });
+      if (!completed) {
+        if (error instanceof SetlistOperationError) {
+          // Return to the refreshed library instead of leaving an ambiguous write ready to repeat.
+          setSetlistDraft(null);
+          setSetlistOptionsOpen(false);
+        }
+        // A timed-out creation may have succeeded. Refresh once, without retrying the write.
+        const partialId = error instanceof SetlistOperationError ? error.setlistId : null;
+        try { await reloadSetlistLibrary(client, partialId ?? selectedContainerId, request); } catch { /* Keep the original failure visible. */ }
+      }
+      return completed;
+    } finally {
+      if (clientRef.current === client) { libraryMutation.current = false; setLibraryBusy(false); }
+    }
+  };
+
+  const openNewSetlist = (source?: HelixContentRef) => {
+    if (libraryMutation.current || libraryLoading || previewMode) return;
+    setSetlistNotice(null);
+    setSetlistOptionsOpen(false);
+    setSetlistPickerOpen(false);
+    setSetlistDraft(source ? { sourceId: source.cid_, sourceName: source.name ?? 'Setlist' } : {});
+  };
+
+  const submitSetlistName = async (name: string) => {
+    if (!setlistDraft) return;
+    const sourceId = setlistDraft.sourceId;
+    const success = await changeSetlist(client => sourceId === undefined ? client.createSetlist(name) : client.duplicateSetlist(sourceId, name),
+      `${sourceId === undefined ? 'Created' : 'Duplicated'} setlist “${name.trim()}”.`);
+    if (success) setSetlistDraft(null);
+  };
+
+  const confirmDeleteSetlist = () => {
+    if (!activeSetlist || typeof activeSetlist.cid_ !== 'number' || libraryMutation.current) return;
+    const target = activeSetlist;
+    Alert.alert(`Delete “${target.name ?? 'Setlist'}”?`, 'This removes the setlist and its running order. Your presets remain in User Presets and other setlists.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete setlist', style: 'destructive', onPress: () => {
+        void changeSetlist(client => client.deleteSetlist(target.cid_!), `Deleted setlist “${target.name ?? 'Setlist'}”.`)
+          .then(success => { if (success) setSetlistOptionsOpen(false); });
+      } },
+    ]);
   };
 
   const handleAddPresetToSetlist = async (item: HelixContentRef, destinationId = targetSetlistId) => {
@@ -1669,18 +1769,21 @@ function EditorApp() {
       setStatus('Select a target setlist first');
       return;
     }
+    setSetlistNotice(null);
     libraryMutation.current = true; setLibraryBusy(true);
     try {
       const targetItems = (await client.getContainerContents(destinationId, undefined, true)) as HelixContentRef[];
       const position = setlistAppendPosition(targetItems, 1);
       await client.addContentsToContainer(destinationId, [item.cid_], position);
+      if (clientRef.current !== client) return;
       setStatus(`Added ${item.name ?? 'preset'} to ${setlists.find(setlist => setlist.cid_ === destinationId)?.name ?? 'setlist'}`);
-      await refreshPresetContext();
+      await refreshPresetContext(true);
     } catch (err) {
+      if (clientRef.current !== client) return;
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Add to setlist failed: ${message}`);
     } finally {
-      libraryMutation.current = false; setLibraryBusy(false);
+      if (clientRef.current === client) { libraryMutation.current = false; setLibraryBusy(false); }
     }
   };
 
@@ -1689,16 +1792,22 @@ function EditorApp() {
     if (!client) return;
     const sourceInfo = SETLIST_ADD_SOURCES.find((item) => item.key === source);
     if (!sourceInfo) return;
+    const request = ++setlistSourceRequest.current;
     setSetlistAddLoading(true);
+    setSetlistAddError('');
+    setSelectedSetlistAddIds([]);
     try {
-      const items = (await client.getContainerContents(sourceInfo.containerId)) as HelixContentRef[];
+      const items = (await client.getContainerContents(sourceInfo.containerId, undefined, true)) as HelixContentRef[];
+      if (clientRef.current !== client || request !== setlistSourceRequest.current) return;
       setSetlistAddItems(populatedSlots(items));
     } catch (err) {
+      if (clientRef.current !== client || request !== setlistSourceRequest.current) return;
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Preset search failed: ${message}`);
+      setSetlistAddError(`${sourceInfo.label} presets could not be read. Check the connection and try again.`);
       setSetlistAddItems([]);
     } finally {
-      setSetlistAddLoading(false);
+      if (clientRef.current === client && request === setlistSourceRequest.current) setSetlistAddLoading(false);
     }
   };
 
@@ -1741,21 +1850,32 @@ function EditorApp() {
       setStatus('Select presets to add');
       return;
     }
+    setSetlistNotice(null);
     libraryMutation.current = true; setLibraryBusy(true);
+    let addSent = false;
     try {
       const targetItems = (await client.getContainerContents(selectedContainerId, undefined, true)) as HelixContentRef[];
       const position = setlistAppendPosition(targetItems, selectedSetlistAddIds.length);
+      addSent = true;
       await client.addContentsToContainer(selectedContainerId, selectedSetlistAddIds, position);
+      if (clientRef.current !== client) return;
       const count = selectedSetlistAddIds.length;
       setStatus(`Added ${count} preset${count === 1 ? '' : 's'} to ${activeSetlist?.name ?? selectedContainerName}`);
       setSetlistAddSheetOpen(false);
       setSelectedSetlistAddIds([]);
-      await refreshPresetContext();
+      await refreshPresetContext(true);
     } catch (err) {
+      if (clientRef.current !== client) return;
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Add to setlist failed: ${message}`);
+      if (addSent) {
+        setSetlistAddSheetOpen(false);
+        setSelectedSetlistAddIds([]);
+        setSetlistNotice({ message: 'Adding presets was not confirmed. Check the setlist before adding them again.', error: true });
+        await refreshPresetContext(true);
+      } else setSetlistAddError(message);
     } finally {
-      libraryMutation.current = false; setLibraryBusy(false);
+      if (clientRef.current === client) { libraryMutation.current = false; setLibraryBusy(false); }
     }
   };
 
@@ -1766,16 +1886,19 @@ function EditorApp() {
       setStatus('Select a setlist entry first');
       return;
     }
+    setSetlistNotice(null);
     libraryMutation.current = true; setLibraryBusy(true);
     try {
       await client.removeContent(selectedContainerId, [item.cid_]);
+      if (clientRef.current !== client) return;
       setStatus(`Removed ${item.name ?? 'preset'} from ${selectedContainerName}`);
-      await refreshPresetContext();
+      await refreshPresetContext(true);
     } catch (err) {
+      if (clientRef.current !== client) return;
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Remove failed: ${message}`);
     } finally {
-      libraryMutation.current = false; setLibraryBusy(false);
+      if (clientRef.current === client) { libraryMutation.current = false; setLibraryBusy(false); }
     }
   };
 
@@ -1788,16 +1911,19 @@ function EditorApp() {
     }
     const insertionIndex = setlistMovePosition(presetItems, item.posi, delta);
     if (insertionIndex === null) return;
+    setSetlistNotice(null);
     libraryMutation.current = true; setLibraryBusy(true);
     try {
       await client.reorderContainerContent(selectedContainerId, [item.cid_], insertionIndex);
+      if (clientRef.current !== client) return;
       setStatus(`Moved ${item.name ?? 'preset'} ${delta < 0 ? 'earlier' : 'later'} in the setlist`);
-      await refreshPresetContext();
+      await refreshPresetContext(true);
     } catch (err) {
+      if (clientRef.current !== client) return;
       const message = err instanceof Error ? err.message : String(err);
       setStatus(`Reorder failed: ${message}`);
     } finally {
-      libraryMutation.current = false; setLibraryBusy(false);
+      if (clientRef.current === client) { libraryMutation.current = false; setLibraryBusy(false); }
     }
   };
 
@@ -3280,7 +3406,9 @@ function EditorApp() {
 
   const libraryFeedback = libraryBusy ? 'Updating the setlist…' : /failed|not confirmed/i.test(status) ? 'That action was not confirmed. Refresh and try again.'
     : /^(Added |Removed |Moved |Renamed |Notes |Snapshot |Copied snapshot)/i.test(status) ? status : '';
-  const renderLibraryFeedback = () => libraryFeedback ? <Text accessibilityLiveRegion="polite" style={libraryStyles.muted}>{libraryFeedback}</Text> : null;
+  const renderLibraryFeedback = () => setlistNotice && libraryRoot === 'setlists'
+    ? <Text accessibilityLiveRegion="polite" style={[libraryStyles.muted, setlistNotice.error && { color: COLORS.danger }]}>{setlistNotice.message}</Text>
+    : libraryFeedback ? <Text accessibilityLiveRegion="polite" style={libraryStyles.muted}>{libraryFeedback}</Text> : null;
 
   const refreshLibraryList = async () => {
     if (libraryRefreshing || libraryMutation.current || libraryLoading) return;
@@ -3471,8 +3599,11 @@ function EditorApp() {
   const renderLibraryTop = (inList: boolean) => <View style={inList ? styles.libraryTopInList : [libraryStyles.content, { paddingBottom: 16 }]}>
     <LibraryHeading title="Library" focusKey="library" />
     <LibrarySegments label="Library section" options={[['setlists', 'Setlists'], ['showcase', 'Showcase']]} value={librarySection}
-      disabled={showcaseBusy} onChange={setLibrarySection} />
+      disabled={showcaseBusy || libraryBusy} onChange={setLibrarySection} />
   </View>;
+
+  let setlistRenameIssue = '';
+  try { validateSetlistName(setlistRenameText); } catch (error) { setlistRenameIssue = error instanceof Error ? error.message : 'Enter a setlist name.'; }
 
   const renderSetlistsTab = () => <View style={styles.tabContent}>
     {!(scrollChrome && librarySection !== 'showcase') && renderLibraryTop(false)}
@@ -3484,33 +3615,63 @@ function EditorApp() {
         ListHeaderComponent={<View style={libraryStyles.header}>
           {scrollChrome && renderLibraryTop(true)}
           {renderLibraryFeedback()}
+          <View style={[libraryStyles.toolbar, { justifyContent: 'space-between' }]}>
+            <Text style={libraryStyles.muted}>{setlists.length} / {MAX_SETLISTS} setlists</Text>
+            <LibraryButton label="New setlist" icon="plus" disabled={previewMode || libraryLoading || libraryBusy || setlists.length >= MAX_SETLISTS} onPress={() => openNewSetlist()} />
+          </View>
+          {previewMode && <Text style={libraryStyles.muted}>Connect to your Stadium to create and manage setlists.</Text>}
           {setlists.length > 0 ? <>
             <View style={[libraryStyles.row, libraryStyles.selectedRow]}>
-              <Pressable accessibilityLabel={`Choose setlist, ${activeSetlist?.name ?? 'none selected'}`} onPress={() => setSetlistPickerOpen(true)} style={libraryStyles.rowMain}>
+              <Pressable accessibilityLabel={`Choose setlist, ${activeSetlist?.name ?? 'none selected'}`} disabled={libraryBusy || libraryLoading} onPress={() => { setSetlistFilter(''); setSetlistPickerOpen(true); }} style={libraryStyles.rowMain}>
                 <View style={libraryStyles.rowCopy}><Text style={libraryStyles.rowHint}>SETLIST</Text><Text style={libraryStyles.rowTitle}>{activeSetlist?.name ?? 'Select a setlist'}</Text></View>
                 <UtilityIcon name="chevron" size={18} />
               </Pressable>
-              <Pressable accessibilityLabel="Setlist options" style={libraryStyles.iconButton} onPress={() => { setSetlistRenameText(activeSetlist?.name ?? ''); setSetlistOptionsOpen(true); }}><UtilityIcon name="more" /></Pressable>
+              <Pressable accessibilityLabel="Setlist options" disabled={previewMode || libraryBusy || libraryLoading || !activeSetlist} style={libraryStyles.iconButton} onPress={() => { setSetlistNotice(null); setSetlistRenameText(activeSetlist?.name ?? ''); setSetlistOptionsOpen(true); }}><UtilityIcon name="more" /></Pressable>
             </View>
             <View style={[libraryStyles.toolbar, { justifyContent: 'space-between' }]}>
               <Text style={libraryStyles.muted}>{presetCountLabel(presetItems)}</Text>
               <LibraryButton label="Add presets" icon="plus" primary disabled={libraryLoading || libraryBusy || !activeSetlist} onPress={handleOpenSetlistAddSheet} />
             </View>
             <LibrarySearch value={presetFilter} onChange={setPresetFilter} placeholder="Search this setlist" />
-          </> : <Text style={libraryStyles.muted}>{libraryLoading ? 'Loading setlists…' : 'No setlists loaded. Pull down to refresh.'}</Text>}
+          </> : <Text style={libraryStyles.muted}>{libraryLoading ? 'Loading setlists…' : 'No setlists yet. Create one to build your running order, or pull down to refresh.'}</Text>}
         </View>}
         ListEmptyComponent={setlists.length > 0 ? <Text style={libraryStyles.muted}>{libraryLoading ? 'Loading presets…' : presetItems.length ? 'No presets match that search.' : 'This setlist is empty. Add presets to build your running order.'}</Text> : undefined}
         renderItem={({ item }) => renderLibraryPresetRow(item)} />}
-    <BottomSheet visible={setlistOptionsOpen} onClose={() => setSetlistOptionsOpen(false)} title="Setlist options" subtitle={activeSetlist?.name}>
+    <SetlistManagementSheet visible={setlistOptionsOpen || setlistDraft !== null} creating={setlistDraft !== null}
+      selectedName={activeSetlist?.name} sourceName={setlistDraft?.sourceName} busy={libraryBusy} error={setlistNotice?.error ? setlistNotice.message : ''}
+      onClose={() => { if (!libraryBusy) { setSetlistOptionsOpen(false); setSetlistDraft(null); } }}
+      onBack={() => { if (!libraryBusy) { setSetlistDraft(null); setSetlistOptionsOpen(true); setSetlistNotice(null); } }}
+      onSubmit={name => { void submitSetlistName(name); }}>
       <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" contentContainerStyle={{ gap: 16 }}>
+        {setlistNotice && <Text accessibilityLiveRegion="polite" style={[libraryStyles.muted, setlistNotice.error && { color: COLORS.danger }]}>{setlistNotice.message}</Text>}
         <Text style={libraryStyles.section}>Name</Text>
-        <TextInput accessibilityLabel="Setlist name" style={styles.input} value={setlistRenameText} onChangeText={setSetlistRenameText} autoCapitalize="words" autoCorrect={false} />
-        <LibraryButton label="Rename setlist" primary disabled={!activeSetlist || !setlistRenameText.trim()} onPress={() => {
-          if (typeof activeSetlist?.cid_ === 'number') void handleRenameContent(activeSetlist.cid_, setlistRenameText, 'Setlist');
-          setSetlistOptionsOpen(false);
+        <TextInput accessibilityLabel="Setlist name" editable={!libraryBusy} maxLength={64} style={styles.input} value={setlistRenameText} onChangeText={setSetlistRenameText} autoCapitalize="words" autoCorrect={false} />
+        <Text style={libraryStyles.muted}>{[...setlistRenameText.trim()].length} / 32 characters</Text>
+        {!!setlistRenameText.trim() && !!setlistRenameIssue && <Text accessibilityLiveRegion="polite" style={[libraryStyles.muted, { color: COLORS.danger }]}>{setlistRenameIssue}</Text>}
+        <LibraryButton label="Rename setlist" primary disabled={libraryBusy || !activeSetlist || !!setlistRenameIssue || setlistRenameText.trim() === activeSetlist.name} onPress={() => {
+          const id = activeSetlist?.cid_;
+          if (typeof id === 'number') void changeSetlist(client => client.renameSetlist(id, validateSetlistName(setlistRenameText)), 'Setlist renamed.')
+            .then(success => { if (success) setSetlistOptionsOpen(false); });
         }} />
+        <View style={styles.menuList}>
+          {renderMenuRow({ key: 'duplicate-setlist', label: 'Duplicate setlist', disabled: libraryBusy || !activeSetlist || setlists.length >= MAX_SETLISTS,
+            onPress: () => { if (activeSetlist) openNewSetlist(activeSetlist); } })}
+          {([-1, 1] as const).map(direction => {
+            const index = setlists.findIndex(item => item.cid_ === activeSetlist?.cid_);
+            return renderMenuRow({ key: `move-setlist-${direction}`, label: direction < 0 ? 'Move setlist earlier' : 'Move setlist later',
+              disabled: libraryBusy || index < 0 || !setlists[index + direction], onPress: () => {
+                const id = activeSetlist?.cid_;
+                if (typeof id === 'number') void changeSetlist(client => client.moveSetlist(id, direction), 'Setlist order updated.');
+              } });
+          })}
+        </View>
+        <Text style={libraryStyles.muted}>Setlists share presets. Editing a preset changes it everywhere it is used.</Text>
+        {activeSetlist && activePresetRef?.ccid === activeSetlist.cid_ && <Text style={libraryStyles.muted}>Load a preset outside this setlist before deleting it.</Text>}
+        <View style={styles.menuList}>
+          {renderMenuRow({ key: 'delete-setlist', label: 'Delete setlist', danger: true, disabled: libraryBusy || !activeSetlist || activePresetRef?.ccid === activeSetlist.cid_, onPress: confirmDeleteSetlist })}
+        </View>
       </ScrollView>
-    </BottomSheet>
+    </SetlistManagementSheet>
   </View>;
 
   const renderMatrixTab = () => (
@@ -4806,13 +4967,16 @@ function EditorApp() {
           visible={setlistPickerOpen}
           onClose={() => setSetlistPickerOpen(false)}
           title="Select setlist"
+          fill
         >
-          <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: sheetListMaxHeight }}>
-            {setlists.map((item) => {
+          <LibrarySearch value={setlistFilter} onChange={setSetlistFilter} placeholder="Search setlists" label="Search setlists" />
+          <FlatList keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" style={{ flex: 1 }}
+            data={setlists.filter(item => (item.name ?? '').toLowerCase().includes(setlistFilter.trim().toLowerCase()))}
+            keyExtractor={item => String(item.cid_)} ListEmptyComponent={<Text style={libraryStyles.muted}>{setlists.length ? 'No matching setlists.' : 'No setlists yet.'}</Text>}
+            renderItem={({ item }) => {
               const active = item.cid_ === selectedContainerId;
               return (
-                <Pressable accessibilityState={{ selected: active }}
-                  key={`setlist-pick-${String(item.cid_)}`}
+                <Pressable accessibilityLabel={`Select ${item.name ?? 'setlist'}`} accessibilityState={{ selected: active }} disabled={libraryBusy}
                   style={[libraryStyles.rowMain, active && libraryStyles.selectedRow]}
                   onPress={() => {
                     setSetlistPickerOpen(false);
@@ -4820,18 +4984,17 @@ function EditorApp() {
                   }}
                 >
                   <Text style={styles.sheetListText}>{item.name ?? `Setlist ${item.posi ?? '\u2014'}`}</Text>
-                  {active && <Text style={styles.libraryActiveBadge}>Active</Text>}
+                  {active && <UtilityIcon name="check" />}
                 </Pressable>
               );
-            })}
-          </ScrollView>
+            }} />
         </BottomSheet>
 
         {/* ── Bottom Sheet: Add Presets to Setlist ─────────────── */}
         <BottomSheet
           visible={setlistAddSheetOpen}
           closeDisabled={libraryBusy}
-          onClose={() => setSetlistAddSheetOpen(false)}
+          onClose={() => { setSetlistAddSheetOpen(false); setlistSourceRequest.current += 1; setSetlistAddLoading(false); }}
           title="Add presets"
           subtitle={activeSetlist?.name ?? selectedContainerName}
           fill
@@ -4870,6 +5033,10 @@ function EditorApp() {
               );
             })}
           </View>
+          {!!setlistAddError && <View style={{ gap: 8, paddingVertical: 12 }}>
+            <Text accessibilityLiveRegion="polite" style={[libraryStyles.muted, { color: COLORS.danger }]}>{setlistAddError}</Text>
+            <LibraryButton label="Refresh presets" disabled={libraryBusy || setlistAddLoading} onPress={() => { void loadSetlistAddSource(setlistAddSource); }} />
+          </View>}
           <View style={styles.searchRow}>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke={COLORS.muted} strokeWidth={2} strokeLinecap="round" />

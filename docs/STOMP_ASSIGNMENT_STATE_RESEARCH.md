@@ -8,6 +8,11 @@ tracks outgoing events. It does not by itself establish that cached assignments
 are current. Production execution code remains unchanged, including fresh
 validation before each command, stop-on-unconfirmed behaviour and no retries.
 
+The [matching 1.4.1 follow-up](STOMP_BARRIER_RESEARCH.md) obtained and verified
+the current firmware, confirmed a HAL reply-registration bug, and traced an
+alternate marker into a touchscreen cache-flush request. It resolves the
+binary-version limitation of this initial pass, but does not enable a fast path.
+
 ## Firmware scope
 
 Static addresses in this report refer to the extracted `p35-server` from
@@ -17,7 +22,7 @@ firmware **1.4.0.1341**, using zero-based ELF addresses. Its SHA-256 is
 The connected device reports **1.4.1.1343** through `/ProductInfoGet`.
 [Line 6's release notes](https://kb.line6.com/helix-stadium-1-4-release-notes)
 confirm that 1.4.1 was released on 20 October 2026. No matching local server ELF
-or firmware package was found. The public updater-listing attempt returned
+or firmware package was found during this initial pass. The public updater-listing attempt returned
 `No apikey`, so a current package URL was not verified. No firmware was installed.
 Live observations below apply to 1.4.1; claims about implementation and absence
 of other routes are bounded by the older binary inspected.

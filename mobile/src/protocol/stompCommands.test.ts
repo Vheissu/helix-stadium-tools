@@ -65,15 +65,15 @@ test('accepts one command with either empty slot, and identifies no commands', (
   assert.match(readStompCommands(state, 'b', 1).reason!, /No commands/);
 });
 
-test('rejects malformed, ambiguous and disabled source assignments', () => {
+test('rejects malformed, ambiguous and invalid source assignments', () => {
   const mutations: ((value: any) => void)[] = [
     value => { value.entt = null; },
     value => { value.entt.srcs = []; },
     value => { value.entt.srcs.push({ ...value.entt.srcs[0] }); },
     value => { value.entt.srcs.push({ ...value.entt.srcs[0], locl: 26 }); },
     value => { value.entt.srcs.push({ ...value.entt.srcs[0], id__: 2, locl: 26, cmds: [-1, 2] }); },
-    ...['id__', 'type', 'ctxt', 'locl', 'byps', 'mtyp', 'mtms', 'cnt1', 'cnt2', 'cnt3'].map(field =>
-      (value: any) => { value.entt.srcs[0][field] = field === 'byps' ? true : -1; }),
+    ...['id__', 'type', 'ctxt', 'locl', 'mtyp', 'mtms', 'cnt1', 'cnt2', 'cnt3'].map(field =>
+      (value: any) => { value.entt.srcs[0][field] = -1; }),
     ...[null, [], [1], [1, 2, -1], [1, 1], [1, 0], [1, -2], [1, '2'], [1, 1.5], [1, NaN], new Array(2)].map(cmds =>
       (value: any) => { value.entt.srcs[0].cmds = cmds; }),
     ...[undefined, -1, 8, 2.5, '2', NaN].map(snapshot => (value: any) => { value.asnp = snapshot; }),
@@ -84,6 +84,13 @@ test('rejects malformed, ambiguous and disabled source assignments', () => {
     assert.equal(readStompCommands(state, 'b', 1).plan, null);
   }
   assert.equal(readStompCommands(null, 'b', 1).plan, null);
+});
+
+test('current source bypass state does not disable commands or invalidate their configuration', () => {
+  const state = fixture();
+  const before = planFor(state);
+  graph(state).entt.srcs[0].byps = true;
+  assert.equal(planFor(state).fingerprint, before.fingerprint);
 });
 
 test('rejects entire groups with missing, duplicate or unsupported command assignments', () => {
@@ -142,7 +149,7 @@ test('executes exactly once in slot order, checks twice per send, and accepts ru
 
 test('stale preset, snapshot and configuration stop before first or second send', async () => {
   for (const afterFirst of [false, true]) {
-    for (const stale of ['preset', 'snapshot', 'config', 'slots', 'disabled', 'source']) {
+    for (const stale of ['preset', 'snapshot', 'config', 'slots', 'timing', 'source']) {
       const { state, io, sends } = transport();
       const expected = planFor(state);
       let currentId = 933;
@@ -152,7 +159,7 @@ test('stale preset, snapshot and configuration stop before first or second send'
         if (stale === 'snapshot') graph(state).asnp = 3;
         if (stale === 'config') graph(state).entt.cmnd[0].pvlh = 75;
         if (stale === 'slots') graph(state).entt.srcs[0].cmds.reverse();
-        if (stale === 'disabled') graph(state).entt.srcs[0].byps = true;
+        if (stale === 'timing') graph(state).entt.srcs[0].mtms = 1;
         if (stale === 'source') { graph(state).entt.srcs[0].id__ = 2; graph(state).entt.cmnd.forEach(cmd => { cmd.trig = 2; }); }
       };
       if (afterFirst) {

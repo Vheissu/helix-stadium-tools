@@ -24,10 +24,12 @@ const fixture = () => ({
 
 test('stomp banks isolate A and B assignments and prefer custom labels', () => {
   const banks = extractStompBanks(fixture(), names)!;
-  const { commands: aCommands, ...aFirst } = banks.a[0];
-  const { commands: bCommands, ...bFirst } = banks.b[0];
+  const { commands: aCommands, control: aControl, ...aFirst } = banks.a[0];
+  const { commands: bCommands, control: bControl, ...bFirst } = banks.b[0];
   assert.equal(aCommands.plan, null);
   assert.equal(bCommands.plan, null);
+  assert.equal(aControl.plan, null);
+  assert.equal(bControl.plan, null);
   assert.deepEqual(aFirst, { number: 1, label: 'Lead boost', color: 2, assigned: true });
   assert.deepEqual(bFirst, { number: 1, label: 'Delay + US Deluxe', color: 8, assigned: true });
   assert.equal(banks.a[1].label, 'Unassigned');
@@ -70,4 +72,94 @@ test('parameter targets retain their control names and command switches are not 
   state.cg__.entt.srcs[0].cmds = [0, -1];
   state.cg__.entt.sm__.scid = [];
   assert.equal(extractStompBanks(state, names)!.a[0].label, 'Command');
+});
+
+test('assigned labels do not make incomplete switch controls actionable', () => {
+  const banks = extractStompBanks(fixture(), names)!;
+  for (const bank of [banks.a, banks.b]) {
+    assert.equal(bank[0].assigned, true);
+    assert.equal(bank[0].control.plan, null);
+    assert.equal(bank[0].control.active, null);
+    assert.equal(typeof bank[0].control.reason, 'string');
+    assert.ok(bank[0].control.reason!.length > 0);
+  }
+});
+
+test('custom names remain visible when a switch has no actionable assignments', () => {
+  const state = {
+    pm__: [{ key_: 'preset.floorboard.stomp.b.7.label', val_: ' Song ending ' }],
+    cg__: { entt: { srcs: [], ctrl: [], trgs: [], sm__: { scid: [] } } },
+  };
+  const item = extractStompBanks(state, names)!.b.find(item => item.number === 7)!;
+  assert.equal(item.label, 'Song ending');
+  assert.equal(item.assigned, false);
+  assert.equal(item.control.plan, null);
+  assert.equal(item.control.active, null);
+  assert.ok(item.control.reason);
+});
+
+const controllableFixture = () => ({
+  pm__: fixture().pm__,
+  sfg_: { flow: [
+    { blks: [9, { id__: 777, enbl: true, mdls: [{ id__: 310, parm: [{ pid_: 7, valu: 0.25 }] }] }] },
+    { blks: [3, { id__: 42, enbl: true, mdls: [{ id__: 628 }] }] },
+  ] },
+  cg__: { asnp: 2, entt: {
+    srcs: [
+      { id__: 4, type: 1, ctxt: 1, locl: 25, byps: true, mtyp: 0, mtms: 0, cnt1: 0, cnt2: 0, cnt3: 0, cmds: [-1, -1] },
+      { id__: 14, type: 1, ctxt: 2, locl: 25, byps: false, mtyp: 0, mtms: 0, cnt1: 0, cnt2: 0, cnt3: 0, cmds: [-1, -1] },
+    ],
+    sm__: { scid: [4, [6], 14, [20]] },
+    ctrl: [
+      { cid_: 6, trig: 4, tid_: 17, type: 1, min_: 1, max_: 0, behv: 0, dlay: 0, thrs: 0, goid: 0 },
+      { cid_: 20, trig: 14, tid_: 18, type: 3, min_: 0.25, max_: 0.75, behv: 0, dlay: 0, thrs: 0, goid: 0 },
+    ],
+    trgs: [
+      { id__: 17, eID_: 42, mmid: 628, slot: 0, type: 1 },
+      { id__: 18, eID_: 777, mmid: 310, slot: 0, type: 2, pid_: 7 },
+    ],
+    cmnd: [],
+  } },
+});
+
+test('both banks expose usable controls and live status independently of source bypass state', () => {
+  const state = controllableFixture();
+  const before = structuredClone(state);
+  const banks = extractStompBanks(state, (id, parameter) => parameter === undefined ? names(id) : `${names(id)} control ${parameter}`)!;
+  const a = banks.a[0], b = banks.b[0];
+  assert.equal(a.label, 'Lead boost');
+  assert.equal(b.label, 'Delay control 7');
+  assert.equal(a.control.active, true);
+  assert.equal(b.control.active, false);
+  assert.equal(a.control.reason, null);
+  assert.equal(b.control.reason, null);
+  assert.ok(a.control.plan);
+  assert.ok(b.control.plan);
+  assert.equal(a.control.plan.bank, 'a');
+  assert.equal(b.control.plan.bank, 'b');
+  assert.equal(a.control.plan.sourceId, 4);
+  assert.equal(b.control.plan.sourceId, 14);
+  assert.deepEqual(a.control.plan.controllers[0].target,
+    { flow: 1, position: 3, instanceId: 42, modelId: 628, slot: 0, parameter: null });
+  assert.deepEqual(b.control.plan.controllers[0].target,
+    { flow: 0, position: 9, instanceId: 777, modelId: 310, slot: 0, parameter: 7 });
+  assert.equal(banks.a[1].control.plan, null);
+  assert.equal(banks.b[1].control.plan, null);
+  assert.deepEqual(state, before);
+});
+
+test('a refreshed bank replaces On and Off metadata without losing its assignment', () => {
+  const state = controllableFixture();
+  const before = extractStompBanks(state, names)!.a[0];
+  state.cg__.entt.srcs[0].byps = false;
+  const block = state.sfg_.flow[1].blks[1] as { enbl: boolean };
+  block.enbl = false;
+  const after = extractStompBanks(state, names)!.a[0];
+  assert.equal(before.control.active, true);
+  assert.equal(after.control.active, false);
+  assert.ok(before.control.plan);
+  assert.ok(after.control.plan);
+  assert.equal(after.control.plan.fingerprint, before.control.plan.fingerprint);
+  assert.equal(after.label, before.label);
+  assert.equal(after.assigned, true);
 });

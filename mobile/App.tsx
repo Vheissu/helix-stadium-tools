@@ -76,7 +76,7 @@ import {
 import { formatTempoBpm, formatPresetPosition } from './src/utils/format';
 import { coerceHelixBoolean, extractSnapshots, findFirstKey, findFlows } from './src/utils/helixState';
 import { extractStompBanks, type PerformView, type StompBanks } from './src/utils/perform';
-import type { StompCommandPlan } from './src/protocol/stompCommands';
+import type { StompSwitchPlan } from './src/protocol/stompSwitch';
 import { PerformControls } from './src/components/PerformControls';
 import {
   MATRIX_LAYERS,
@@ -2008,7 +2008,7 @@ function EditorApp() {
     setScreen('performance');
   };
 
-  const handleStompCommands = async (plan: StompCommandPlan) => {
+  const handleStompSwitch = async (plan: StompSwitchPlan) => {
     if (previewMode || !connected || editLocked() || libraryMutation.current || showcaseBusy) return;
     const client = requireClient();
     const presetId = activePresetContentId;
@@ -2017,21 +2017,22 @@ function EditorApp() {
     blockOperation.current = true;
     setBlockBusy(true);
     setStompBusyNumber(plan.number);
-    setStompNotice(`Running Stomp B${plan.number} commands…`);
+    setStompNotice(`Pressing Stomp ${plan.bank.toUpperCase()}${plan.number}…`);
     try {
-      const result = await client.runStompCommands(presetId, plan,
+      const result = await client.pressStompSwitch(presetId, plan,
         () => clientRef.current === client && presetEditGuard.current.ready(presetId));
-      const message = `Stomp B${plan.number}: ${result.message}`;
+      const message = `Stomp ${plan.bank.toUpperCase()}${plan.number}: ${result.message}`;
       if (clientRef.current === client && presetEditGuard.current.ready(presetId)) {
         setStompNotice(message);
         setStatus(message);
+        if ('state' in result && result.state) applyEditBufferState(result.state);
       }
-      if (result.status !== 'complete') Alert.alert(result.status === 'unconfirmed' ? 'Commands not confirmed' : 'Commands stopped', `${activePresetName}: ${message}`);
+      if (result.status !== 'complete') Alert.alert(result.status === 'unconfirmed' ? 'Switch not confirmed' : 'Switch stopped', `${activePresetName}: ${message}`);
     } catch {
       // Unexpected client failures must never invite a replay of an uncertain MIDI action.
-      const message = 'Command execution could not be confirmed. Some commands may have run. Nothing was retried. Check your connected equipment before running them again.';
+      const message = 'The switch could not be confirmed. Some actions may have run. Nothing was retried. Refresh and check your preset before pressing it again.';
       if (clientRef.current === client && presetEditGuard.current.ready(presetId)) setStompNotice(message);
-      Alert.alert('Commands not confirmed', `${activePresetName}: ${message}`);
+      Alert.alert('Switch not confirmed', `${activePresetName}: ${message}`);
     } finally {
       blockOperation.current = false;
       setBlockBusy(false);
@@ -3942,7 +3943,7 @@ function EditorApp() {
             <PerformControls view={performView} onViewChange={setPerformView} banks={stompBanks}
               snapshots={snapshots} snapshotCount={snapshotCount} activeSnapshotIndex={activeSnapshotIndex}
               onSnapshot={handleSnapshotActivate} snapshotDisabled={presetSaving || presetCreating || blockBusy}
-              onStompCommands={plan => void handleStompCommands(plan)} stompBusyNumber={stompBusyNumber}
+              onStompSwitch={plan => void handleStompSwitch(plan)} stompBusyNumber={stompBusyNumber}
               stompDisabled={previewMode || !connected || activePresetContentId === null || presetSaving || presetCreating || blockBusy || focusBusy || showcaseBusy || libraryBusy}
               stompNotice={stompNotice} refreshDisabled={blockBusy}
               onRefresh={() => { setStompNotice(null); void handleFullSync(); }}

@@ -25,6 +25,7 @@ import { MATRIX_MIXER_PROPERTY, parseMatrixMixerState, type MatrixMixerState } f
 import { decodeLibraryContent, parseExpressionPedalPosition, parseLibraryOperation, type LibraryOperation } from './stadium14';
 import { createSetlist, deleteSetlist, duplicateSetlist, moveSetlist, renameSetlist, requireLibraryAcknowledgement, setlistCreationCommand, SETLIST_DIRECTORY_ID, type SetlistTransport } from './setlists';
 import { executeStompCommands, type StompCommandPlan, type StompRunResult } from './stompCommands';
+import { executeStompSwitch, type StompSwitchPlan } from './stompSwitch';
 
 const DEVICE_RESOURCE_STATUS_CODES = new Set([-19, -8219, -8611, -8701, -8704, -8707]);
 
@@ -978,6 +979,24 @@ export class HelixClient {
     } finally {
       this.runningStompCommands = false;
     }
+  }
+
+  async pressStompSwitch(presetId: number, plan: StompSwitchPlan, isCurrent: () => boolean = () => true) {
+    if (this.runningStompCommands) return {
+      status: 'stopped' as const, confirmed: 0, attempted: 0, total: plan.controllers.length + plan.commandIds.length,
+      message: 'Wait for the current switch to finish.',
+    };
+    this.runningStompCommands = true;
+    const connection = this.connectionGeneration, configuration = this.stompConfigurationGeneration;
+    try {
+      return await executeStompSwitch({
+        activeId: () => this.getActivePresetContentId({ commandConnectionOnly: true }),
+        state: () => this.getEditBufferState({ fresh: true }),
+        isCurrent: () => this.connectionGeneration === connection && this.stompConfigurationGeneration === configuration && isCurrent(),
+        controller: (id, value) => this.request('/ControllerValueSet', 'if', [id, value], '/status', 2500, true),
+        command: id => this.request('/ExecuteCommand', 'i', [id], '/executeCommand', 2500, true),
+      }, presetId, plan);
+    } finally { this.runningStompCommands = false; }
   }
 
   async getSnapshotParameterAssignments(target: SnapshotAssignmentTarget) {

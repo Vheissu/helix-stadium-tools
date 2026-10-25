@@ -74,7 +74,6 @@ export function readStompCommands(state: unknown, bank: 'a' | 'b', number: numbe
       commandIds.some(commandId => (other.cmds as unknown[]).includes(commandId)))) {
     return unavailable('Command assignments could not be verified.');
   }
-  if (source.byps !== false) return unavailable('This switch is disabled on the pedal.');
   if (source.mtyp !== 0 || source.mtms !== 0 || source.cnt1 !== 0 || source.cnt2 !== 0 || source.cnt3 !== 0) {
     return unavailable('This switch setup has not been verified for remote commands.');
   }
@@ -108,7 +107,7 @@ export function readStompCommands(state: unknown, bank: 'a' | 'b', number: numbe
       snapshotIndex: graph.asnp,
       sourceId: source.id__,
       commandIds,
-      fingerprint: canonical({ snapshotIndex: graph.asnp, source, commands }),
+      fingerprint: canonical({ snapshotIndex: graph.asnp, source: Object.fromEntries(Object.entries(source).filter(([key]) => key !== 'byps')), commands }),
     },
     reason: null,
   };

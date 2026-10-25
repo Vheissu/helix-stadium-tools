@@ -86,14 +86,17 @@ Android **1.0.0 (17)** is **Available to internal testers**, released at
 **12:29 am Brisbane time on 26 October**. The Publisher API confirms
 `RELEASE_LIFECYCLE_STATE_PUBLISHED` for the internal track.
 
-Closed Alpha build 17 is submitted and **In review**. Build 16 remains available
-until Google publishes the update. Managed publishing is off, with no manual
-action pending. An approval monitor checks every 15 minutes and will confirm
-availability, update this record and stop when Alpha build 17 is published.
+Closed Alpha build 17 is **Available to selected testers**, released at
+**12:53 am Brisbane time on 26 October**. The Publisher API confirms
+`RELEASE_LIFECYCLE_STATE_PUBLISHED` for build 17 on both testing tracks.
+Google Play Console confirms Alpha availability and the publication time.
+Build 17 is now the active Alpha release, replacing build 16. The approval
+monitor has completed its work.
 
 Both existing tester lists remain selected on both tracks: HELYON owner testing
 has **27 entries**, and Testers has **23**. These counts can overlap and are not
-a distinct-user total. Selections were verified after the release submission.
+a distinct-user total. Selections were verified again on both tracks after
+Alpha publication, with no membership changes.
 
 - [Completed Android upload](https://expo.dev/accounts/beggars/projects/helyon/submissions/c377cb94-d38b-4533-875d-4758cee91da9)
 - [Internal testing opt-in](https://play.google.com/apps/internaltest/4701590729869450330)

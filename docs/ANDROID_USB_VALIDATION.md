@@ -8,7 +8,7 @@ Android USB permission prompt also required unplugging and reconnecting to
 recover. A screenshot confirms explicit USB mode and the error “The Stadium
 did not answer over USB.” Reliable physical USB editing remains unverified.
 
-The local fixes now:
+The fixes now:
 
 - Recheck permission when returning from Android's dialog, so a missing dialog
   response releases the attempt. Connect can request permission again, and
@@ -30,9 +30,10 @@ locks. All 66 references were verified without changing the active preset.
 
 Validation includes 288 passing mobile tests, 12 Android USB unit tests, and
 six packet-stack scenarios with address and undefined-behaviour sanitizers.
-The changes require a new app build and a physical phone retest before they
-can be considered verified on the Galaxy. They have not been published to
-Google Play.
+The changes were released as Android 1.0.0 (18) on Google Play internal testing
+and iOS 1.0.0 (17) in TestFlight. Android Alpha is submitted for review. A
+physical phone retest is still required before these fixes can be considered
+verified on the Galaxy. See [the release record](RELEASE_2026_11_07.md).
 
 ## Earlier findings
 

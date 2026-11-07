@@ -1,5 +1,6 @@
 #include "usb_stack.h"
 #include "lwip/init.h"
+#include "lwip/sys.h"
 #include "lwip/netif.h"
 #include "lwip/tcp.h"
 #include "lwip/timeouts.h"
@@ -11,6 +12,10 @@
 
 #define CONNECTIONS 4
 #define MAX_PENDING (1024 * 1024)
+// A missed initial solicitation must still allow one full 60-second announcement interval and DAD.
+#define DISCOVERY_TIMEOUT_MS 65000u
+#define TCP_CONNECT_TIMEOUT_MS 20000u
+static const char *connection_unanswered = "The Stadium was found over USB but did not accept the connection. Keep Remote Access on and try again.";
 struct channel { int id, port, connected, started; uint32_t since; struct tcp_pcb *pcb; uint8_t *pending; size_t length; };
 static struct channel channels[CONNECTIONS];
 static struct netif wired;
@@ -18,7 +23,9 @@ static int initialized, running;
 static usb_event_fn emit_event;
 static usb_frame_fn emit_frame;
 static void *callback_context;
+#ifndef USB_STACK_EXTERNAL_CLOCK
 u32_t sys_now(void) { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t); return (u32_t)((uint64_t)t.tv_sec * 1000 + t.tv_nsec / 1000000); }
+#endif
 static void event(struct channel *c, int kind, const void *data, size_t length) { if (emit_event) emit_event(callback_context,c->id,kind,data,length); }
 static void detach(struct channel *c) {
     if(c->pcb) { tcp_arg(c->pcb,NULL); tcp_err(c->pcb,NULL); tcp_recv(c->pcb,NULL); tcp_sent(c->pcb,NULL); tcp_abort(c->pcb); c->pcb=NULL; }
@@ -49,7 +56,7 @@ static void flush(struct channel *c) {
     if(!c->length) { free(c->pending); c->pending=NULL; }
 }
 static err_t sent(void *arg, struct tcp_pcb *pcb, u16_t length) { (void)pcb; (void)length; struct channel *c=arg; if(c) flush(c); return c && c->pcb ? ERR_OK : ERR_ABRT; }
-static void error(void *arg, err_t status) { (void)status; struct channel *c=arg; if(c) { c->pcb=NULL; fail(c,"USB connection closed. Reconnect the Stadium and try again."); } }
+static void error(void *arg, err_t status) { (void)status; struct channel *c=arg; if(c) { c->pcb=NULL; fail(c,c->connected ? "USB connection closed. Reconnect the Stadium and try again." : connection_unanswered); } }
 static err_t receive(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t status) {
     struct channel *c=arg; if(!c) { if(p) pbuf_free(p); return ERR_OK; }
     if(!p) { event(c,3,NULL,0); detach(c); return ERR_ABRT; }
@@ -86,7 +93,12 @@ void usb_stack_tick(void) {
     if(!running) return; sys_check_timeouts();
     for(int i=0;i<CONNECTIONS;i++) {
         struct channel *c=&channels[i]; if(!c->id) continue;
-        if(!c->connected && (uint32_t)(sys_now()-c->since)>20000) { fail(c,"The Stadium did not answer over USB. Keep Remote Access on and reconnect the cable."); continue; }
+        if(!c->connected && (uint32_t)(sys_now()-c->since)>(c->started ? TCP_CONNECT_TIMEOUT_MS : DISCOVERY_TIMEOUT_MS)) {
+            fail(c,c->started
+                ? connection_unanswered
+                : "The Stadium USB network did not become ready. Reconnect the cable and try again.");
+            continue;
+        }
         if(!c->started) {
             // The Stadium advertises a unique /64 and is always ::1 on that link.
             // Learn the prefix from its RA, rather than using the Wi-Fi address.
@@ -97,7 +109,7 @@ void usb_stack_tick(void) {
                 ip_2_ip6(&peer)->addr[2]=0; ip_2_ip6(&peer)->addr[3]=PP_HTONL(1);
                 c->pcb=tcp_new_ip_type(IPADDR_TYPE_V6); if(!c->pcb) { fail(c,"USB connection capacity reached."); break; }
                 tcp_bind_netif(c->pcb,&wired); tcp_arg(c->pcb,c); tcp_err(c->pcb,error); tcp_recv(c->pcb,receive); tcp_sent(c->pcb,sent);
-                c->started=1;
+                c->started=1; c->since=sys_now();
                 if(tcp_connect(c->pcb,&peer,(u16_t)c->port,connected)!=ERR_OK) fail(c,"Could not start the Stadium USB connection.");
                 break;
             }

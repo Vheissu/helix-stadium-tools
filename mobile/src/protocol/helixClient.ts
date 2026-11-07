@@ -115,7 +115,9 @@ export class HelixClient {
   async connect() {
     this.connectionGeneration += 1;
     try {
-      await withDeadline(this.openConnection(), this.networkInterface === 'usb' ? 65000 : 12000);
+      // USB may need permission, a full device address-advertisement interval,
+      // then two TCP connections. The connection screen allows cancellation.
+      await withDeadline(this.openConnection(), this.networkInterface === 'usb' ? 155000 : 12000);
     } catch (error) {
       this.close();
       throw error;
@@ -723,6 +725,29 @@ export class HelixClient {
   async getContainerContents(containerId: number, sku?: string, requireComplete = false) {
     if (sku !== undefined && (typeof sku !== 'string' || !sku.trim())) {
       throw new Error('Device SKU must be a non-empty string.');
+    }
+    if (containerId === -1) {
+      // Current firmware leaves the legacy factory-container request unanswered.
+      // Library selector 0 still lists it; its record type and order are not
+      // container metadata, so read each real reference rather than invent slots.
+      const records = await this.getLibraryContent(0, sku);
+      if (!records) {
+        if (requireComplete) throw new Error('Factory presets could not be read. Refresh and try again.');
+        return [];
+      }
+      const references: Array<Record<string, any>> = [];
+      for (let offset = 0; offset < records.length; offset += 8) {
+        const batch = await Promise.all(records.slice(offset, offset + 8).map(async record => {
+          const reference = await this.getContentRef(record.cid_);
+          if (!reference || reference.cid_ !== record.cid_ || reference.ccid !== -1 || reference.type !== 2 ||
+              !Number.isInteger(reference.posi) || reference.posi < 0 || typeof reference.name !== 'string') {
+            throw new Error('Factory preset details could not be read. Refresh and try again.');
+          }
+          return reference as Record<string, any>;
+        }));
+        references.push(...batch);
+      }
+      return references.sort((a, b) => a.posi - b.posi);
     }
     const vals = await this.request(
       sku === undefined ? '/GetContainerContents' : '/GetContainerContentsWithSku',

@@ -270,6 +270,7 @@ function EditorApp() {
   const [discoveredDevice, setDiscoveredDevice] = useState<StadiumDevice | null>(null);
   const [connectionTransport, setConnectionTransport] = useState<ConnectionTransport>('auto');
   const [connecting, setConnecting] = useState(false);
+  const connectingClientRef = useRef<HelixClient | null>(null);
   const [connected, setConnected] = useState(false);
   // Preview runs the full editor on the bundled sample preset with no Stadium.
   const [previewMode, setPreviewMode] = useState(false);
@@ -917,11 +918,14 @@ function EditorApp() {
     }
     setExtendedDspEnabled(false);
     setConnecting(true);
+    setStatus('Connecting…');
+    const networkInterface = getNetworkInterfacePreference(connectionTransport, Platform.OS);
+    const port = networkInterface !== 'usb' && discoveredDevice?.host === host.trim() ? discoveredDevice.port : 2001;
+    const client = new HelixClient(host.trim(), port, port + 1, networkInterface);
+    connectingClientRef.current = client;
     try {
-      const networkInterface = getNetworkInterfacePreference(connectionTransport, Platform.OS);
-      const port = networkInterface !== 'usb' && discoveredDevice?.host === host.trim() ? discoveredDevice.port : 2001;
-      const client = new HelixClient(host.trim(), port, port + 1, networkInterface);
       await client.connect();
+      if (connectingClientRef.current !== client) { client.close(); return; }
       client.startListener(handleClientEvent, () => {
         if (clientRef.current !== client) return;
         disconnect();
@@ -932,10 +936,21 @@ function EditorApp() {
       setStatus('Connected');
       await handleFullSync();
     } catch (err) {
-      setStatus(buildConnectionFailureStatus(err));
+      if (connectingClientRef.current === client) setStatus(buildConnectionFailureStatus(err));
     } finally {
-      setConnecting(false);
+      if (connectingClientRef.current === client) {
+        connectingClientRef.current = null;
+        setConnecting(false);
+      }
     }
+  };
+
+  const cancelConnect = () => {
+    const client = connectingClientRef.current;
+    connectingClientRef.current = null;
+    client?.close();
+    setConnecting(false);
+    setStatus('Connection cancelled.');
   };
 
   const disconnect = () => {
@@ -4798,6 +4813,7 @@ function EditorApp() {
         transport={connectionTransport}
         onTransportChange={setConnectionTransport}
         onConnect={connect}
+        onCancelConnect={cancelConnect}
         onPreview={startPreview}
         connecting={connecting}
         status={status}

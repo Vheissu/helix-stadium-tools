@@ -23,12 +23,13 @@ interface ConnectionGateProps {
   transport: ConnectionTransport;
   onTransportChange: (value: ConnectionTransport) => void;
   onConnect: () => void;
+  onCancelConnect: () => void;
   onPreview: () => void;
   connecting: boolean;
   status: string;
 }
 
-export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selectedDevice, transport, onTransportChange, onConnect, onPreview, connecting, status }: ConnectionGateProps) {
+export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selectedDevice, transport, onTransportChange, onConnect, onCancelConnect, onPreview, connecting, status }: ConnectionGateProps) {
   const { screenReader } = useAccessibilityPreferences();
   const { width, height, fontScale } = useWindowDimensions();
   const [sheet, setSheet] = useState<'manual' | 'help' | null>(null);
@@ -42,11 +43,11 @@ export function ConnectionGate({ host, port, onHostChange, onDeviceSelect, selec
   const stackMethods = largeText || methodColumn < 70 * fontScale + 18;
   const directUsb = Platform.OS === 'android' && transport === 'usb';
   const error = getConnectionErrorMessage(status);
-  const canConnect = !connecting && (directUsb || !!host.trim());
+  const canConnect = connecting || directUsb || !!host.trim();
   const connect = () => { if (!connecting) { setSheet(null); onConnect(); } };
-  const connectButton = <Action accessibilityLabel={connecting ? 'Connecting to your Stadium' : 'Connect'} accessibilityHint={!canConnect && !connecting ? 'Choose a Stadium or enter its address first' : undefined} disabled={!canConnect}
-    onPress={connect} style={({ pressed }) => [styles.connect, pressed && styles.connectPressed, !canConnect && styles.connectBusy]}>
-    <Text style={styles.connectLabel}>{connecting ? 'Connecting…' : 'Connect'}</Text>
+  const connectButton = <Action accessibilityLabel={connecting ? 'Cancel connection' : 'Connect'} accessibilityHint={!canConnect && !connecting ? 'Choose a Stadium or enter its address first' : undefined} disabled={!canConnect}
+    onPress={connecting ? onCancelConnect : connect} style={({ pressed }) => [styles.connect, pressed && styles.connectPressed, !canConnect && styles.connectBusy]}>
+    <Text style={styles.connectLabel}>{connecting ? 'Cancel connection' : 'Connect'}</Text>
     {!connecting && <UtilityIcon name="arrow" color={COLORS.bg} />}
   </Action>;
 

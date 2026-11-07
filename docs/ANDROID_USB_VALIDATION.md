@@ -1,5 +1,41 @@
 # Android USB validation
 
+## 7 November 2026
+
+The owner reports one successful USB connection on the Galaxy S25 Ultra using
+the Google Play internal build, followed by failed reconnects. Dismissing the
+Android USB permission prompt also required unplugging and reconnecting to
+recover. A screenshot confirms explicit USB mode and the error “The Stadium
+did not answer over USB.” Reliable physical USB editing remains unverified.
+
+The local fixes now:
+
+- Recheck permission when returning from Android's dialog, so a missing dialog
+  response releases the attempt. Connect can request permission again, and
+  stale responses from an earlier attempt are ignored.
+- Allow cancelling a connection attempt from the connection screen.
+- Allow 65 seconds for USB address discovery, then a separate 20 seconds for
+  each TCP connection. The previous 20-second combined limit failed a test
+  where the first three address requests were lost and the next Stadium-style
+  announcement arrived at 60 seconds, producing the exact screenshot error.
+  The fixed stack connects in that case. This reproduces a timing defect,
+  but does not establish the cause of the phone's particular failure.
+- Distinguish address discovery failure from an unanswered editor connection.
+
+The same report included an empty Factory list. Read-only queries to the live
+Stadium reproduced the legacy factory-container request timing out, while the
+factory-library request returned 66 presets. The client now uses that working
+request and reads the actual references, preserving names, positions and
+locks. All 66 references were verified without changing the active preset.
+
+Validation includes 288 passing mobile tests, 12 Android USB unit tests, and
+six packet-stack scenarios with address and undefined-behaviour sanitizers.
+The changes require a new app build and a physical phone retest before they
+can be considered verified on the Galaxy. They have not been published to
+Google Play.
+
+## Earlier findings
+
 Status on 18 October 2026: **physical Android USB editing is not verified**.
 The owner confirmed build 4 no longer crashes but still reports no USB
 connection on a Galaxy S25 Ultra running Android 16. iPad USB works.

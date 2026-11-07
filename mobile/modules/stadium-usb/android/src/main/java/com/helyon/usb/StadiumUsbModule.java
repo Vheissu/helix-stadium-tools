@@ -12,17 +12,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 
-public final class StadiumUsbModule extends ReactContextBaseJavaModule {
-    static { System.loadLibrary("helyon_usb"); }
+public final class StadiumUsbModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+    private static final class NativeLibrary {
+        static { System.loadLibrary("helyon_usb"); }
+        static void load() {}
+    }
     private static final Object NATIVE_LOCK=new Object();
     private static StadiumUsbModule nativeOwner;
     private final ReactApplicationContext context;
     private final UsbManager manager;
-    private final ScheduledExecutorService worker=Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService worker;
     private final Map<Integer,Channel> channels=new HashMap<>();
     private final ArrayDeque<byte[]> frames=new ArrayDeque<>();
     private final String permissionAction;
     private UsbDevice awaitingPermission;
+    private long permissionRequestId;
+    private boolean permissionPaused;
     private UsbLink link;
     private ScheduledFuture<?> pump,permissionTimer;
     private volatile boolean invalidated;
@@ -31,13 +36,8 @@ public final class StadiumUsbModule extends ReactContextBaseJavaModule {
         @Override public void onReceive(Context ignored,Intent intent) {
             if(worker.isShutdown()) return;
             if(permissionAction.equals(intent.getAction())) worker.execute(() -> {
-                UsbDevice device=awaitingPermission;
-                if(device==null || channels.isEmpty()) return;
-                awaitingPermission=null;
-                if(permissionTimer!=null) permissionTimer.cancel(false);
-                // Query UsbManager; don't trust a broadcast's claimed grant or device.
-                if(!manager.hasPermission(device)) { failAll("Allow HELYON to access the Stadium USB connection, then try again."); return; }
-                start(device);
+                if(intent.getLongExtra("requestId",-1)!=permissionRequestId) return;
+                finishPermission();
             });
             else if(UsbManager.ACTION_USB_DEVICE_DETACHED.equals(intent.getAction())) {
                 UsbDevice removed=intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -49,11 +49,15 @@ public final class StadiumUsbModule extends ReactContextBaseJavaModule {
         }
     };
     StadiumUsbModule(ReactApplicationContext context) {
-        super(context); this.context=context; manager=(UsbManager)context.getSystemService(Context.USB_SERVICE);
+        this(context,Executors.newSingleThreadScheduledExecutor());
+    }
+    StadiumUsbModule(ReactApplicationContext context,ScheduledExecutorService worker) {
+        super(context); this.context=context; this.worker=worker; manager=(UsbManager)context.getSystemService(Context.USB_SERVICE);
         permissionAction=context.getPackageName()+".STADIUM_USB_PERMISSION";
         IntentFilter filter=new IntentFilter(permissionAction); filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         if(Build.VERSION.SDK_INT>=33) context.registerReceiver(receiver,filter,Context.RECEIVER_NOT_EXPORTED);
         else context.registerReceiver(receiver,filter);
+        context.addLifecycleEventListener(this);
     }
     @Override public String getName(){return "StadiumUsb";}
     @ReactMethod public void addListener(String event) {}
@@ -71,15 +75,36 @@ public final class StadiumUsbModule extends ReactContextBaseJavaModule {
             UsbDevice device=candidates.get(0);
             if(manager.hasPermission(device)) { start(device); return; }
             awaitingPermission=device;
-            permissionTimer=worker.schedule(() -> failAll("USB permission timed out. Reconnect and allow HELYON to access the Stadium."),45,TimeUnit.SECONDS);
-            Intent intent=new Intent(permissionAction).setPackage(context.getPackageName());
-            PendingIntent permission=PendingIntent.getBroadcast(context,device.getDeviceId(),intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+            permissionPaused=false;
+            permissionRequestId++;
+            permissionTimer=worker.schedule(() -> failAll("USB access was not confirmed. Tap Connect to try again, then allow USB access."),45,TimeUnit.SECONDS);
+            Intent intent=new Intent(permissionAction).setPackage(context.getPackageName()).putExtra("requestId",permissionRequestId);
+            PendingIntent permission=PendingIntent.getBroadcast(context,(int)permissionRequestId,intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
             try { manager.requestPermission(device,permission); }
             catch(Exception error) { failAll("Android could not request USB access. Reconnect the Stadium and try again."); }
         });
     }
+    private void finishPermission() {
+        UsbDevice device=awaitingPermission;
+        if(device==null || channels.isEmpty()) return;
+        awaitingPermission=null;
+        permissionPaused=false;
+        if(permissionTimer!=null) { permissionTimer.cancel(false); permissionTimer=null; }
+        // Query UsbManager; don't trust a broadcast's claimed grant or device.
+        if(!manager.hasPermission(device)) { failAll("USB access was not allowed. Tap Connect to try again, then allow USB access."); return; }
+        start(device);
+    }
+    @Override public void onHostPause() {
+        if(!invalidated) worker.execute(() -> { permissionPaused=awaitingPermission!=null; });
+    }
+    @Override public void onHostResume() {
+        // Recover when a dismissed system dialog does not deliver its response.
+        if(!invalidated) worker.execute(() -> { if(permissionPaused) finishPermission(); });
+    }
+    @Override public void onHostDestroy() {}
     private void start(UsbDevice device) {
         try {
+            NativeLibrary.load();
             link=new UsbLink(manager,device);
             synchronized(NATIVE_LOCK) {
                 if(nativeOwner!=null && nativeOwner!=this) throw new IOException("USB is still closing. Try connecting again.");
@@ -143,6 +168,7 @@ public final class StadiumUsbModule extends ReactContextBaseJavaModule {
     private void stop() {
         if(permissionTimer!=null) { permissionTimer.cancel(false); permissionTimer=null; }
         awaitingPermission=null;
+        permissionPaused=false;
         if(pump!=null) { pump.cancel(false); pump=null; }
         if(link!=null) {
             synchronized(NATIVE_LOCK) { if(nativeOwner==this) { nativeStop(); nativeOwner=null; } }
@@ -151,7 +177,7 @@ public final class StadiumUsbModule extends ReactContextBaseJavaModule {
         frames.clear();
     }
     @Override public void invalidate() {
-        invalidated=true; context.unregisterReceiver(receiver);
+        invalidated=true; context.removeLifecycleEventListener(this); context.unregisterReceiver(receiver);
         worker.execute(() -> { failAll("USB connection closed."); worker.shutdown(); });
         super.invalidate();
     }
